@@ -87,9 +87,9 @@ class ServicioUsuarios {
         final usuario = Usuario(
           Id: resultado.first['Id'],
           Telefono: resultado.first['Telefono'],
-          Correo: resultado.first['Correo'],
-          Nombre: resultado.first['Nombre'],
-          Password: resultado.first['Password'],
+          Correo: resultado.first['Correo'].toString(),
+          Nombre: resultado.first['Nombre'].toString(),
+          Password: resultado.first['Password'].toString(),
         );
         return usuario;
       }
