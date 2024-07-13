@@ -2,13 +2,23 @@ import 'package:mysql1/mysql1.dart';
 
 class DB {
   Future<MySqlConnection> conexion() async {
-    final conn = await MySqlConnection.connect(ConnectionSettings(
-      host: 'lin155.loading.es',
-      port: 3306,
-      user: 'jaquemat_usr',
-      password: 'infor_matica_7',
-      db: 'apptercera_',
-    ));
+    MySqlConnection conn;
+    try {
+      conn = await MySqlConnection.connect(ConnectionSettings(
+        host: 'localhost',
+        port: 3306,
+        user: 'root',
+        password: '',
+        db: 'smart_family',
+      ));
+    } catch (e) {
+      conn = await MySqlConnection.connect(ConnectionSettings(
+        host: 'localhost',
+        port: 3306,
+        user: 'root',
+        db: 'smart_family',
+      ));
+    }
     return conn;
   }
 }

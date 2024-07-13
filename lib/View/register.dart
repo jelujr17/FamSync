@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:smart_family/Model/usuario.dart';
 import 'package:smart_family/View/login.dart';
 import 'package:smart_family/components/background.dart';
 
@@ -59,7 +60,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _phoneController,
-                  decoration: const InputDecoration(labelText: "Número de Teléfono"),
+                  decoration:
+                      const InputDecoration(labelText: "Número de Teléfono"),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -125,7 +127,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _confirmPasswordController,
-                  decoration: const InputDecoration(labelText: "Confirmar Contraseña"),
+                  decoration:
+                      const InputDecoration(labelText: "Confirmar Contraseña"),
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -141,12 +144,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               SizedBox(height: size.height * 0.05),
               Container(
                 alignment: Alignment.centerRight,
-                margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       // Si el formulario es válido, puedes proceder con el registro
                       // Agrega aquí tu lógica de registro
+                      ServicioUsuarios().registrarUsuario(
+                          int.parse(_phoneController.text),
+                          _emailController.text,
+                          _nameController.text,
+                          _passwordController.text);
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -176,7 +185,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               Container(
                 alignment: Alignment.centerRight,
-                margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: GestureDetector(
                   onTap: () => {
                     Navigator.push(context,
