@@ -129,17 +129,50 @@ class ServicioUsuarios {
   }
 
   // REGISTRO DE USUARIO
-  Future<bool> registrarUsuario(
-      int Telefono, String Correo, String Nombre, String Password) async {
-    // Generamos sal y hash de contraseña
-    String hashedPassword = BCrypt.hashpw(Password, BCrypt.gensalt());
+  Future<bool> isCorreoRegistered(String correo) async {
+    MySqlConnection conn = await DB().conexion();
+    try {
+      final resultado = await conn.query('SELECT * FROM usuarios WHERE Correo = ?', [correo]);
+      return resultado.isNotEmpty;
+    } catch (e) {
+      print('Error al verificar el correo: $e');
+      return false;
+    } finally {
+      await conn.close();
+    }
+  }
 
-    // Hacemos la sentencia
+  // Verificar si el teléfono ya está registrado
+  Future<bool> isTelefonoRegistered(int telefono) async {
+    MySqlConnection conn = await DB().conexion();
+    try {
+      final resultado = await conn.query('SELECT * FROM usuarios WHERE Telefono = ?', [telefono]);
+      return resultado.isNotEmpty;
+    } catch (e) {
+      print('Error al verificar el teléfono: $e');
+      return false;
+    } finally {
+      await conn.close();
+    }
+  }
+
+  // Registro de usuario con verificación
+  Future<bool> registrarUsuario(int telefono, String correo, String nombre, String password) async {
+    if (await isCorreoRegistered(correo)) {
+      print('El correo ya está registrado');
+      return false;
+    }
+
+    if (await isTelefonoRegistered(telefono)) {
+      print('El teléfono ya está registrado');
+      return false;
+    }
+
     MySqlConnection conn = await DB().conexion();
     try {
       await conn.query(
-          'INSERT INTO usuarios (Telefono, Correo, Nombre, Password) VALUES (?, ?, ? ,?)',
-          [Telefono, Correo, Nombre, hashedPassword]);
+          'INSERT INTO usuarios (Telefono, Correo, Nombre, Password) VALUES (?, ?, ?, ?)',
+          [telefono, correo, nombre, password]);
 
       return true;
     } catch (e) {

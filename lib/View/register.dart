@@ -147,15 +147,31 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin:
                     const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                 child: ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      // Si el formulario es válido, puedes proceder con el registro
-                      // Agrega aquí tu lógica de registro
-                      ServicioUsuarios().registrarUsuario(
-                          int.parse(_phoneController.text),
-                          _emailController.text,
-                          _nameController.text,
-                          _passwordController.text);
+                      bool registrado = await ServicioUsuarios()
+                          .registrarUsuario(
+                              int.parse(_phoneController.text),
+                              _emailController.text,
+                              _nameController.text,
+                              _passwordController.text);
+
+                      if (registrado) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text('Usuario registrado exitosamente')),
+                        );
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LoginScreen()));
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'El correo o el teléfono ya están registrados')),
+                        );
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
