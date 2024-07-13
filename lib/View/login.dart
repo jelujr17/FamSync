@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_family/Screens/register/register.dart';
+import 'package:smart_family/View/register.dart';
 import 'package:smart_family/components/background.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -37,7 +37,7 @@ class LoginScreen extends StatelessWidget {
               alignment: Alignment.center,
               margin: const EdgeInsets.symmetric(horizontal: 40),
               child: const TextField(
-                decoration: InputDecoration(labelText: "contraseña"),
+                decoration: InputDecoration(labelText: "Contraseña"),
                 obscureText: true,
               ),
             ),

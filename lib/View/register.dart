@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:smart_family/Screens/login/login.dart';
+import 'package:smart_family/View/login.dart';
 import 'package:smart_family/components/background.dart';
 
 class RegisterScreen extends StatelessWidget {
