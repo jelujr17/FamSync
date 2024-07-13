@@ -3,7 +3,9 @@
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/usuario.dart';
 import 'package:smart_family/View/register.dart';
+import 'package:smart_family/View/seleccionPerfil.dart';
 import 'package:smart_family/components/background.dart';
+import 'package:page_transition/page_transition.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -137,14 +139,20 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text;
 
     ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-    Authenticatable? usuario =
+    Usuario? usuario =
         await servicioUsuarios.login(emailOrPhone, password);
 
     if (usuario != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Inicio de sesión exitoso')),
       );
-      // Navega a la pantalla principal o realiza alguna acción
+      Navigator.push(
+        context,
+        PageTransition(
+          type: PageTransitionType.fade,
+          child: SeleccionPerfilScreen(usuarioId: usuario.Id),
+        ),
+      );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -103,7 +103,7 @@ class ServicioUsuarios {
   }
 
   // LOGIN CON DEVUELTA DE USUARIO
-  Future<Authenticatable?> login(String usuario, String password) async {
+  Future<Usuario?> login(String usuario, String password) async {
     print("usuario: $usuario, contraseña: $password");
     // Comprobacion de que el correo existe
     Usuario? usuarioAuxiliar;
