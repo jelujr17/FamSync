@@ -1,121 +1,147 @@
+import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
 
-class SeleccionPerfilScreen extends StatefulWidget {
-  final int usuarioId;
+class SeleccionPerfil extends StatefulWidget {
+  final int IdUsuario;
 
-  SeleccionPerfilScreen({required this.usuarioId});
+  const SeleccionPerfil({Key? key, required this.IdUsuario}) : super(key: key);
 
   @override
-  _SeleccionPerfilScreenState createState() => _SeleccionPerfilScreenState();
+  _SeleccionPerfilState createState() => _SeleccionPerfilState();
 }
 
-class _SeleccionPerfilScreenState extends State<SeleccionPerfilScreen> {
-  late Future<List<Perfiles>> _perfiles;
+class _SeleccionPerfilState extends State<SeleccionPerfil>
+    with TickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _colorAnimation;
+  List<Perfiles> perfiles = [];
 
   @override
   void initState() {
     super.initState();
-    _perfiles = ServicioPerfiles().getPerfiles(widget.usuarioId);
+    reload();
+
+    _controller = AnimationController(
+      duration: const Duration(seconds: 5),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _colorAnimation = ColorTween(
+      begin: Colors.blue,
+      end: Colors.red,
+    ).animate(_controller);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void reload() async {
+    perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Selecciona tu perfil'),
-        backgroundColor: Colors.blueAccent, // Color de fondo del appbar
-        elevation: 0, // Sin sombra
-      ),
-      backgroundColor: Colors.white, // Color de fondo general
-      body: FutureBuilder<List<Perfiles>>(
-        future: _perfiles,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            final perfiles = snapshot.data ?? [];
-            return GridView.builder(
-              padding: EdgeInsets.all(20.0),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Número de columnas
-                crossAxisSpacing: 20.0, // Espaciado entre columnas
-                mainAxisSpacing: 20.0, // Espaciado entre filas
-              ),
-              itemCount: perfiles.length + 1, // Añadir 1 para el botón de añadir perfil
-              itemBuilder: (context, index) {
-                if (index == perfiles.length) {
-                  return AddProfileButton(
-                    onTap: () {
-                      // Lógica para añadir un nuevo perfil
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Placeholder(), // Sustituir por la pantalla para añadir perfil
-                        ),
-                      );
-                    },
-                  );
-                } else {
-                  return PerfilItem(
-                    perfil: perfiles[index],
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => Placeholder(), // Sustituir por la pantalla que sigue a la selección de perfil
-                        ),
-                      );
-                    },
-                  );
-                }
+      body: AnimatedBackground(
+        behaviour: RandomParticleBehaviour(
+          options: const ParticleOptions(
+            spawnMaxRadius: 50,
+            spawnMinSpeed: 10.00,
+            particleCount: 17,
+            spawnMaxSpeed: 10,
+            minOpacity: 0.3,
+            spawnOpacity: 0.4,
+            baseColor: Colors.blue,
+            image: Image(image: AssetImage('assets/images/main.png')),
+          ),
+        ),
+        vsync: this, // Usa el proveedor de ticker de _SeleccionPerfilState
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            AppBar(
+              title: const Text('Selecciona tu perfil'),
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+            ),
+            Expanded(
+              child: perfiles.isEmpty
+                  ? const Center(
+                      child: Text(
+                        'No hay perfiles disponibles',
+                        style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 20),
+                      ),
+                    )
+                  : GridView.builder(
+                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 1.0,
+                      ),
+                      itemCount: perfiles.length,
+                      itemBuilder: (context, index) {
+                        return ProfileTile(perfil: perfiles[index]);
+                      },
+                    ),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () {
+                // Lógica para agregar un nuevo perfil
               },
-            );
-          }
-        },
+              icon: const Icon(Icons.add),
+              label: const Text('Agregar perfil'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.grey[800],
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                // Lógica para administrar perfiles
+              },
+              child: const Text(
+                'Administrar perfiles',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }
 }
 
-class PerfilItem extends StatelessWidget {
+class ProfileTile extends StatelessWidget {
   final Perfiles perfil;
-  final VoidCallback onTap;
 
-  PerfilItem({required this.perfil, required this.onTap});
+  const ProfileTile({Key? key, required this.perfil}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        // Lógica para seleccionar el perfil
+      },
       child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ClipOval(
-              child: Container(
-                color: Colors.blue, // Color de fondo del avatar
-                child: Center(
-                  child: Text(
-                    'A', // Ejemplo de texto o imagen de avatar
-                    style: TextStyle(
-                      color: Colors.white, // Color del texto o icono
-                      fontSize: 30.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ),
-            ),
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircleAvatar(
+            radius: 40,
+            backgroundColor: Colors.transparent,
+            child: Text(perfil.Nombre[0], style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
-          SizedBox(height: 8.0),
+          const SizedBox(height: 10),
           Text(
             perfil.Nombre,
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(color: Colors.white),
           ),
         ],
       ),
@@ -123,39 +149,11 @@ class PerfilItem extends StatelessWidget {
   }
 }
 
-class AddProfileButton extends StatelessWidget {
-  final VoidCallback onTap;
-
-  AddProfileButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: ClipOval(
-              child: Container(
-                color: Colors.grey[300],
-                child: Icon(
-                  Icons.add,
-                  size: 50.0,
-                  color: Colors.white,
-                ),
-              ),
-            ),
-          ),
-          SizedBox(height: 8.0),
-          Text(
-            "Añadir perfil",
-            style: TextStyle(
-              fontSize: 16.0,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    );
+class ServicioPerfiles {
+  Future<List<Perfiles>> getPerfiles(int idUsuario) async {
+    // Aquí iría la lógica para obtener los perfiles del usuario
+    // Por simplicidad, devolveré una lista vacía
+    await Future.delayed(Duration(seconds: 1)); // Simulando una operación asíncrona
+    return [];
   }
 }

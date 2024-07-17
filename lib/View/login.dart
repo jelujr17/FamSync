@@ -150,7 +150,7 @@ class _LoginScreenState extends State<LoginScreen> {
         context,
         PageTransition(
           type: PageTransitionType.fade,
-          child: SeleccionPerfilScreen(usuarioId: usuario.Id),
+          child: SeleccionPerfil(IdUsuario: usuario.Id),
         ),
       );
     } else {
