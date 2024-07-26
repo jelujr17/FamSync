@@ -37,9 +37,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   }
 
   void reload() async {
-    print("Entra ${widget.IdUsuario}");
     perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
-    print("la verdadera vuelta ${perfiles.length}");
 
     setState(() {});
   }
@@ -107,7 +105,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
 class ProfileTile extends StatelessWidget {
   final Perfiles perfil;
 
-  const ProfileTile({Key? key, required this.perfil}) : super(key: key);
+  const ProfileTile({super.key, required this.perfil});
 
   @override
   Widget build(BuildContext context) {
@@ -121,8 +119,8 @@ class ProfileTile extends StatelessWidget {
           CircleAvatar(
             radius: 40,
             backgroundColor: Colors.transparent,
-            child: Text(perfil.Nombre[0],
-                style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: Text(perfil.Nombre,
+                style: const TextStyle(color: Colores.texto, fontSize: 24)),
           ),
           const SizedBox(height: 10),
           Text(
