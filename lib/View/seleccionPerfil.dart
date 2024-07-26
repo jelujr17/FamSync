@@ -1,11 +1,14 @@
+// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names
+
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {
   final int IdUsuario;
 
-  const SeleccionPerfil({Key? key, required this.IdUsuario}) : super(key: key);
+  const SeleccionPerfil({super.key, required this.IdUsuario});
 
   @override
   _SeleccionPerfilState createState() => _SeleccionPerfilState();
@@ -14,7 +17,6 @@ class SeleccionPerfil extends StatefulWidget {
 class _SeleccionPerfilState extends State<SeleccionPerfil>
     with TickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<Color?> _colorAnimation;
   List<Perfiles> perfiles = [];
 
   @override
@@ -26,11 +28,6 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
       duration: const Duration(seconds: 5),
       vsync: this,
     )..repeat(reverse: true);
-
-    _colorAnimation = ColorTween(
-      begin: Colors.blue,
-      end: Colors.red,
-    ).animate(_controller);
   }
 
   @override
@@ -40,14 +37,15 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   }
 
   void reload() async {
+    print("Entra ${widget.IdUsuario}");
     perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
+    print("la verdadera vuelta ${perfiles.length}");
+
     setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       body: AnimatedBackground(
         behaviour: RandomParticleBehaviour(
@@ -66,21 +64,17 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            AppBar(
-              title: const Text('Selecciona tu perfil'),
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-            ),
             Expanded(
               child: perfiles.isEmpty
                   ? const Center(
                       child: Text(
                         'No hay perfiles disponibles',
-                        style: TextStyle(color: Color.fromARGB(255, 0, 0, 0), fontSize: 20),
+                        style: TextStyle(color: Colores.texto, fontSize: 20),
                       ),
                     )
                   : GridView.builder(
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
                         childAspectRatio: 1.0,
                       ),
@@ -90,28 +84,19 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                       },
                     ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             ElevatedButton.icon(
               onPressed: () {
                 // Lógica para agregar un nuevo perfil
               },
               icon: const Icon(Icons.add),
-              label: const Text('Agregar perfil'),
+              label: const Text('Gestionar perfiles'),
               style: ElevatedButton.styleFrom(
                 foregroundColor: Colors.white,
-                backgroundColor: Colors.grey[800],
+                backgroundColor: Colores.botonesSecundarios,
               ),
             ),
-            TextButton(
-              onPressed: () {
-                // Lógica para administrar perfiles
-              },
-              child: const Text(
-                'Administrar perfiles',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 50),
           ],
         ),
       ),
@@ -136,7 +121,8 @@ class ProfileTile extends StatelessWidget {
           CircleAvatar(
             radius: 40,
             backgroundColor: Colors.transparent,
-            child: Text(perfil.Nombre[0], style: TextStyle(color: Colors.white, fontSize: 24)),
+            child: Text(perfil.Nombre[0],
+                style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           const SizedBox(height: 10),
           Text(
@@ -149,11 +135,3 @@ class ProfileTile extends StatelessWidget {
   }
 }
 
-class ServicioPerfiles {
-  Future<List<Perfiles>> getPerfiles(int idUsuario) async {
-    // Aquí iría la lógica para obtener los perfiles del usuario
-    // Por simplicidad, devolveré una lista vacía
-    await Future.delayed(Duration(seconds: 1)); // Simulando una operación asíncrona
-    return [];
-  }
-}

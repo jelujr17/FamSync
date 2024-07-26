@@ -63,9 +63,9 @@ class ServicioUsuarios {
         final usuario = Usuario(
           Id: resultado.first['Id'],
           Telefono: resultado.first['Telefono'],
-          Correo: resultado.first['Correo'],
-          Nombre: resultado.first['Nombre'],
-          Password: resultado.first['Password'],
+          Correo: resultado.first['Correo'].toString(),
+          Nombre: resultado.first['Nombre'].toString(),
+          Password: resultado.first['Password'].toString(),
         );
         return usuario;
       }
@@ -132,7 +132,8 @@ class ServicioUsuarios {
   Future<bool> isCorreoRegistered(String correo) async {
     MySqlConnection conn = await DB().conexion();
     try {
-      final resultado = await conn.query('SELECT * FROM usuarios WHERE Correo = ?', [correo]);
+      final resultado =
+          await conn.query('SELECT * FROM usuarios WHERE Correo = ?', [correo]);
       return resultado.isNotEmpty;
     } catch (e) {
       print('Error al verificar el correo: $e');
@@ -146,7 +147,8 @@ class ServicioUsuarios {
   Future<bool> isTelefonoRegistered(int telefono) async {
     MySqlConnection conn = await DB().conexion();
     try {
-      final resultado = await conn.query('SELECT * FROM usuarios WHERE Telefono = ?', [telefono]);
+      final resultado = await conn
+          .query('SELECT * FROM usuarios WHERE Telefono = ?', [telefono]);
       return resultado.isNotEmpty;
     } catch (e) {
       print('Error al verificar el teléfono: $e');
@@ -157,7 +159,8 @@ class ServicioUsuarios {
   }
 
   // Registro de usuario con verificación
-  Future<bool> registrarUsuario(int telefono, String correo, String nombre, String password) async {
+  Future<bool> registrarUsuario(
+      int telefono, String correo, String nombre, String password) async {
     if (await isCorreoRegistered(correo)) {
       print('El correo ya está registrado');
       return false;

@@ -6,6 +6,7 @@ import 'package:smart_family/View/register.dart';
 import 'package:smart_family/View/seleccionPerfil.dart';
 import 'package:smart_family/components/background.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:smart_family/components/colores.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -39,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 "LOGIN",
                 style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF2661FA),
+                    color: Colores.texto, // Naranja
                     fontSize: 36),
                 textAlign: TextAlign.left,
               ),
@@ -51,7 +52,15 @@ class _LoginScreenState extends State<LoginScreen> {
               child: TextField(
                 controller: _emailOrPhoneController,
                 decoration: const InputDecoration(
-                    labelText: "Correo o número de teléfono"),
+                    labelText: "Correo o número de teléfono",
+                    labelStyle: TextStyle(color: Colores.texto), // Gris Oscuro
+                    enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                    )),
+                style: const TextStyle(color: Colores.texto), // Gris Oscuro
               ),
             ),
             SizedBox(height: size.height * 0.03),
@@ -63,13 +72,22 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   labelText: "Contraseña",
+                  labelStyle: const TextStyle(color: Colores.texto), // Gris Oscuro
+                  enabledBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                  ),
+                  focusedBorder: const UnderlineInputBorder(
+                    borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                  ),
                   suffixIcon: IconButton(
                     icon: Icon(
                       _obscureText ? Icons.visibility : Icons.visibility_off,
+                      color: Colores.texto, // Gris Oscuro
                     ),
                     onPressed: _togglePasswordVisibility,
                   ),
                 ),
+                style: const TextStyle(color: Colores.texto), // Gris Oscuro
               ),
             ),
             Container(
@@ -77,7 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
               child: const Text(
                 "No recuerdo mi contraseña",
-                style: TextStyle(fontSize: 12, color: Color(0XFF2661FA)),
+                style: TextStyle(fontSize: 12, color: Colores.texto), // Naranja
               ),
             ),
             SizedBox(height: size.height * 0.05),
@@ -99,14 +117,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   width: size.width * 0.5,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(80.0),
-                      gradient: const LinearGradient(colors: [
-                        Color.fromARGB(255, 255, 136, 34),
-                        Color.fromARGB(255, 255, 177, 41)
-                      ])),
+                      color: Colores.botones), // Fondo Naranja
                   padding: const EdgeInsets.all(0),
                   child: const Text(
                     "INICIAR SESIÓN",
                     textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white), // Texto Blanco
                   ),
                 ),
               ),
@@ -124,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2661FA)),
+                      color: Colores.texto), // Naranja
                 ),
               ),
             )
@@ -143,9 +159,7 @@ class _LoginScreenState extends State<LoginScreen> {
         await servicioUsuarios.login(emailOrPhone, password);
 
     if (usuario != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Inicio de sesión exitoso')),
-      );
+      
       Navigator.push(
         context,
         PageTransition(

@@ -3,7 +3,6 @@
 import 'package:mysql1/mysql1.dart';
 import 'package:smart_family/Library/db_data.dart';
 
-
 // CLASES DE PERSONAS REALES
 class Perfiles {
   final int Id;
@@ -21,15 +20,18 @@ class Perfiles {
 class ServicioPerfiles {
   // BUSCAR USUARIOS //
   Future<List<Perfiles>> getPerfiles(int UsuarioId) async {
+    print("usuario $UsuarioId");
     MySqlConnection conn = await DB().conexion();
     try {
-      final resultado = await conn.query('SELECT * FROM perfiles WHERE UsuarioId = $UsuarioId');
+      // Asegúrate de que la columna 'UsuarioId' y las demás existan en tu tabla y estén correctamente escritas.
+      final resultado = await conn.query('SELECT * FROM perfiles WHERE UsuarioId = ?', [UsuarioId]);
       final List<Perfiles> perfiles = resultado.map((row) {
         return Perfiles(
-            Id: row['Id'],
-            UsuarioId: row['UsuarioId'],
-            Nombre: row['Nombre'],
-            FotoPerfilId: row['FotoPerfilId']);
+          Id: row['Id'],
+          UsuarioId: row['UsuarioId'],
+          Nombre: row['Nombre'].toString(),
+          FotoPerfilId: row['FotoPerfilId'],
+        );
       }).toList();
       return perfiles;
     } catch (e) {
@@ -63,10 +65,9 @@ class ServicioPerfiles {
     }
   }
 
-  
-
   // Registro de usuario con verificación
-  Future<bool> registrarPerfil(int UsuarioId, String Nombre, String FotoPerfilId) async {
+  Future<bool> registrarPerfil(
+      int UsuarioId, String Nombre, String FotoPerfilId) async {
     MySqlConnection conn = await DB().conexion();
     try {
       await conn.query(
