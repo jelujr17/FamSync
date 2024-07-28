@@ -1,5 +1,3 @@
-// ignore_for_file: library_private_types_in_public_api, non_constant_identifier_names
-
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
@@ -18,6 +16,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   List<Perfiles> perfiles = [];
+  int selectedProfileIndex = -1;
 
   @override
   void initState() {
@@ -38,7 +37,6 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
 
   void reload() async {
     perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
-
     setState(() {});
   }
 
@@ -58,10 +56,15 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
             image: Image(image: AssetImage('assets/images/main.png')),
           ),
         ),
-        vsync: this, // Usa el proveedor de ticker de _SeleccionPerfilState
+        vsync: this,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            const SizedBox(height: 20),
+            const Text(
+              'Selecciona tu perfil:',
+              style: TextStyle(fontSize: 18),
+            ),
             Expanded(
               child: perfiles.isEmpty
                   ? const Center(
@@ -74,60 +77,79 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                       gridDelegate:
                           const SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 2,
-                        childAspectRatio: 1.0,
+                        crossAxisSpacing: 40,
+                        mainAxisSpacing: 30,
                       ),
+                      padding: const EdgeInsets.all(75),
                       itemCount: perfiles.length,
                       itemBuilder: (context, index) {
-                        return ProfileTile(perfil: perfiles[index]);
+                        return GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              selectedProfileIndex = index;
+                            });
+                          },
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: selectedProfileIndex == index
+                                        ? Colors.blue
+                                        : Colors.transparent,
+                                    width: 3,
+                                  ),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: CircleAvatar(
+                                  radius: 40,
+                                  backgroundColor: Colors.blueAccent,
+                                  child: Text(
+                                    perfiles[index].Nombre[0],
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                perfiles[index].Nombre,
+                                style: const TextStyle(
+                                  color: Colores.texto,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
                       },
                     ),
             ),
-            const SizedBox(height: 10),
-            ElevatedButton.icon(
-              onPressed: () {
-                // Lógica para agregar un nuevo perfil
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Gestionar perfiles'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colores.botonesSecundarios,
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: ElevatedButton(
+                onPressed: () {
+                  if (selectedProfileIndex >= 0) {
+                    // Aquí puedes manejar lo que sucede cuando se selecciona un perfil
+                    print(
+                        'Perfil seleccionado: ${perfiles[selectedProfileIndex].Nombre}');
+                  } else {
+                    // Mostrar un mensaje de error o alerta
+                    print('Por favor selecciona un perfil');
+                  }
+                },
+                child: const Text('Confirmar selección'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colores.botonesSecundarios,
+                ),
               ),
             ),
             const SizedBox(height: 50),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class ProfileTile extends StatelessWidget {
-  final Perfiles perfil;
-
-  const ProfileTile({super.key, required this.perfil});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        // Lógica para seleccionar el perfil
-      },
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          CircleAvatar(
-            radius: 40,
-            backgroundColor: Colors.transparent,
-            child: Text(perfil.Nombre,
-                style: const TextStyle(color: Colores.texto, fontSize: 24)),
-          ),
-          const SizedBox(height: 10),
-          Text(
-            perfil.Nombre,
-            style: const TextStyle(color: Colors.white),
-          ),
-        ],
       ),
     );
   }

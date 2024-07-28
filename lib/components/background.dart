@@ -23,7 +23,8 @@ class Background extends StatelessWidget {
             right: 0,
             child: Image.asset(
               "assets/images/top1.png",
-              width: size.width
+              width: size.width,
+              fit: BoxFit.cover, // Se asegura que la imagen cubra todo el ancho
             ),
           ),
           Positioned(
@@ -31,23 +32,17 @@ class Background extends StatelessWidget {
             right: 0,
             child: Image.asset(
               "assets/images/top2.png",
-              width: size.width
+              width: size.width,
+              fit: BoxFit.cover, // Se asegura que la imagen cubra todo el ancho
             ),
           ),
-          /*Positioned(
-            top: 50,
-            right: 30,
-            child: Image.asset(
-              "assets/images/main.png",
-              width: size.width * 0.35
-            ),
-          ),*/
           Positioned(
             bottom: 0,
             right: 0,
             child: Image.asset(
               "assets/images/bottom1.png",
-              width: size.width
+              width: size.width,
+              fit: BoxFit.cover, // Se asegura que la imagen cubra todo el ancho
             ),
           ),
           Positioned(
@@ -55,7 +50,8 @@ class Background extends StatelessWidget {
             right: 0,
             child: Image.asset(
               "assets/images/bottom2.png",
-              width: size.width
+              width: size.width,
+              fit: BoxFit.cover, // Se asegura que la imagen cubra todo el ancho
             ),
           ),
           child
