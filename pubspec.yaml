@@ -46,6 +46,7 @@ dependencies:
   avatar_glow: ^3.0.1
   url_launcher: ^6.3.0
   animated_background: ^2.0.0
+  particles_fly: ^0.0.9
 
 dev_dependencies:
   flutter_test:

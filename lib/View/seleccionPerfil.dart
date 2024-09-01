@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api
+
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
@@ -42,6 +44,11 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
 
   @override
   Widget build(BuildContext context) {
+    // Obtener las dimensiones de la pantalla
+    var screenSize = MediaQuery.of(context).size;
+    var buttonWidth = screenSize.width * 0.6; // Ancho del botón ajustado
+    var buttonHeight = screenSize.height * 0.06; // Alto del botón ajustado
+
     return Scaffold(
       body: AnimatedBackground(
         behaviour: RandomParticleBehaviour(
@@ -81,69 +88,118 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                         mainAxisSpacing: 30,
                       ),
                       padding: const EdgeInsets.all(75),
-                      itemCount: perfiles.length,
+                      itemCount: perfiles.length + 1, // Incrementa el itemCount
                       itemBuilder: (context, index) {
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedProfileIndex = index;
-                            });
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: selectedProfileIndex == index
-                                        ? Colors.blue
-                                        : Colors.transparent,
-                                    width: 3,
+                        // Verifica si el índice es el último elemento
+                        if (index == perfiles.length) {
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedProfileIndex =
+                                    -1; // Índice especial para este perfil
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: selectedProfileIndex == -1
+                                          ? Colors.blue
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                    shape: BoxShape.circle,
                                   ),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Colors.blueAccent,
-                                  child: Text(
-                                    perfiles[index].Nombre[0],
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
+                                  child: const CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colores.principal,
+                                    child: Icon(
+                                      Icons.add,
+                                      size: 50,
+                                      color: Colores.texto,
                                     ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                perfiles[index].Nombre,
-                                style: const TextStyle(
-                                  color: Colores.texto,
-                                  fontSize: 16,
+                                const SizedBox(height: 10),
+                                const Text(
+                                  'Nuevo perfil',
+                                  style: TextStyle(
+                                    color: Colores.texto,
+                                    fontSize: 24,
+                                  ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        );
+                              ],
+                            ),
+                          );
+                        } else {
+                          // Índices anteriores corresponden a los perfiles existentes
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedProfileIndex = index;
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: selectedProfileIndex == index
+                                          ? Colors.blue
+                                          : Colors.transparent,
+                                      width: 3,
+                                    ),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: CircleAvatar(
+                                    radius: 50,
+                                    backgroundColor: Colores.principal,
+                                    child: Text(
+                                      perfiles[index].Nombre[0],
+                                      style: const TextStyle(
+                                        color: Colores.texto,
+                                        fontSize: 30,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  perfiles[index].Nombre,
+                                  style: const TextStyle(
+                                    color: Colores.texto,
+                                    fontSize: 24,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
                       },
                     ),
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  if (selectedProfileIndex >= 0) {
-                    // Aquí puedes manejar lo que sucede cuando se selecciona un perfil
-                    print(
-                        'Perfil seleccionado: ${perfiles[selectedProfileIndex].Nombre}');
-                  } else {
-                    // Mostrar un mensaje de error o alerta
-                    print('Por favor selecciona un perfil');
-                  }
-                },
-                child: const Text('Confirmar selección'),
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colores.botonesSecundarios,
+              padding: const EdgeInsets.all(10.0),
+              child: SizedBox(
+                width: buttonWidth, // Ajustar el ancho del botón
+                height: buttonHeight, // Ajustar la altura del botón
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (selectedProfileIndex >= 0) {
+                      // Aquí puedes manejar lo que sucede cuando se selecciona un perfil
+                      print(
+                          'Perfil seleccionado: ${perfiles[selectedProfileIndex].Nombre}');
+                    } else {
+                      // Mostrar un mensaje de error o alerta
+                      print('Por favor selecciona un perfil');
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    backgroundColor: Colores.botonesSecundarios,
+                  ),
+                  child: const Text('Configurar perfiles'),
                 ),
               ),
             ),
@@ -154,4 +210,3 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
     );
   }
 }
-

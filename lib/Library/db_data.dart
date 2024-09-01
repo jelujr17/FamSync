@@ -8,14 +8,15 @@ class DB {
         host: 'localhost',
         port: 3306,
         user: 'root',
-        password: '',
+        password: 'root',
         db: 'smart_family',
       ));
     } catch (e) {
       conn = await MySqlConnection.connect(ConnectionSettings(
-        host: 'localhost',
+        host: '192.168.0.102',
         port: 3306,
         user: 'root',
+        password: 'root',
         db: 'smart_family',
       ));
     }
