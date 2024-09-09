@@ -59,10 +59,10 @@ class ServicioPerfiles {
         final perfil = Perfiles(
           Id: resultado.first['Id'],
           UsuarioId: resultado.first['UsuarioId'],
-          Nombre: resultado.first['Nombre'],
+          Nombre: resultado.first['Nombre'].toString(),
           FotoPerfilId: resultado.first['FotoPerfilId'],
           Pin: resultado.first['Pin'],
-          FechaNacimiento: resultado.first['FechaNacimiento'],
+          FechaNacimiento: resultado.first['FechaNacimiento'].toString(),
         );
         return perfil;
       }
@@ -83,6 +83,29 @@ class ServicioPerfiles {
       await conn.query(
           'INSERT INTO perfiles (UsuarioId, Nombre, FotoPerfilId, Pin, FechaNacimiento) VALUES (?, ?, ?, ?, ?)',
           [UsuarioId, Nombre, FotoPerfilId, Pin, FechaNacimiento]);
+
+      return true;
+    } catch (e) {
+      print('Registro de perfil fallido: $e');
+      return false;
+    } finally {
+      await conn.close();
+    }
+  }
+
+  Future<bool> editarPerfil(int Id, String Nombre, int FotoPerfilId, int Pin,
+      String FechaNacimiento) async {
+    MySqlConnection conn = await DB().conexion();
+    print("-------");
+    print(Id);
+    print(Nombre);
+    print(FotoPerfilId);
+    print(Pin);
+    print(FechaNacimiento);
+    try {
+      await conn.query(
+          'UPDATE perfiles SET Nombre = ?, FotoPerfilId = ?, Pin = ?, FechaNacimiento = ? WHERE Id = ?',
+          [Nombre, FotoPerfilId, Pin, FechaNacimiento, Id]);
 
       return true;
     } catch (e) {

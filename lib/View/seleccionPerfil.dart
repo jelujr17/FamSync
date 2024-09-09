@@ -2,6 +2,7 @@ import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/EditProfile.dart';
 import 'package:smart_family/View/NewProfile.dart';
 import 'package:smart_family/components/colores.dart';
 
@@ -110,12 +111,12 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                 width: buttonWidth, // Ajustar el ancho del botón
                 height: buttonHeight, // Ajustar la altura del botón
                 child: ElevatedButton(
-                 onPressed: _toggleEditMode,
+                  onPressed: _toggleEditMode,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colores.botonesSecundarios,
                   ),
-                  child:  Text(_isEditMode ? 'Configurar perfiles' : 'Listo'),
+                  child: Text(_isEditMode ? 'Configurar perfiles' : 'Listo'),
                 ),
               ),
             ),
@@ -146,9 +147,17 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   Widget _buildPerfilItem(Perfiles perfil, int index) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          selectedProfileIndex = index;
-        });
+        print("index: $index");
+        if (_isEditMode == true) {
+        } else {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: EditarPerfilScreen(Id: perfil.Id, IdUsuario: widget.IdUsuario),
+            ),
+          );
+        }
       },
       child: Column(
         children: [
@@ -164,14 +173,21 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
             ),
             child: CircleAvatar(
               radius: 50,
-              backgroundColor: Colores.principal,
-              child: Text(
-                perfil.Nombre[0],
-                style: const TextStyle(
-                  color: Colores.texto,
-                  fontSize: 30,
-                ),
-              ),
+              backgroundColor:
+                  _isEditMode ? Colores.principal : Colores.botones,
+              child: !_isEditMode
+                  ? const Icon(
+                      Icons.edit,
+                      size: 30,
+                      color: Colors.white,
+                    )
+                  : Text(
+                      perfil.Nombre[0],
+                      style: const TextStyle(
+                        color: Colores.texto,
+                        fontSize: 30,
+                      ),
+                    ),
             ),
           ),
           const SizedBox(height: 10),
