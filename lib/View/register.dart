@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_family/Model/usuario.dart';
 import 'package:smart_family/View/login.dart';
 import 'package:smart_family/components/background.dart';
+import 'package:smart_family/components/colores.dart';
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -15,6 +16,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  bool _obscureText = true;
+  bool _obscureText1 = true;
+
+  void _togglePasswordVisibility() {
+    setState(() {
+      _obscureText = !_obscureText;
+    });
+  }
+
+  void _togglePasswordVisibility1() {
+    setState(() {
+      _obscureText1 = !_obscureText1;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +49,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   "REGISTRO",
                   style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF2661FA),
+                      color: Colores.texto,
                       fontSize: 36),
                   textAlign: TextAlign.left,
                 ),
@@ -45,13 +60,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _nameController,
-                  decoration: const InputDecoration(labelText: "Nombre"),
+                  decoration: const InputDecoration(
+                      labelText: "Nombre",
+                      labelStyle:
+                          TextStyle(color: Colores.texto), // Gris Oscuro
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      )),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, ingresa tu nombre';
                     }
                     return null;
                   },
+                  style: const TextStyle(color: Colores.texto), // Gris Oscuro
                 ),
               ),
               SizedBox(height: size.height * 0.03),
@@ -60,8 +87,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _phoneController,
-                  decoration:
-                      const InputDecoration(labelText: "Número de Teléfono"),
+                  decoration: const InputDecoration(
+                      labelText: "Número de Teléfono",
+                      labelStyle:
+                          TextStyle(color: Colores.texto), // Gris Oscuro
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      )),
                   keyboardType: TextInputType.phone,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -72,6 +109,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     }
                     return null;
                   },
+                  style: const TextStyle(color: Colores.texto), // Gris Oscuro
                 ),
               ),
               SizedBox(height: size.height * 0.03),
@@ -80,7 +118,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _emailController,
-                  decoration: const InputDecoration(labelText: "Correo"),
+                  decoration: const InputDecoration(
+                      labelText: "Correo Electrónico",
+                      labelStyle:
+                          TextStyle(color: Colores.texto), // Gris Oscuro
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.texto), // Gris Oscuro
+                      )),
                   keyboardType: TextInputType.emailAddress,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -99,8 +148,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _passwordController,
-                  decoration: const InputDecoration(labelText: "Contraseña"),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: "Contraseña",
+                    labelStyle:
+                        const TextStyle(color: Colores.texto), // Gris Oscuro
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                        color: Colores.texto, // Gris Oscuro
+                      ),
+                      onPressed: _togglePasswordVisibility,
+                    ),
+                  ),
+                  obscureText: _obscureText,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, ingresa tu contraseña';
@@ -127,9 +195,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 margin: const EdgeInsets.symmetric(horizontal: 40),
                 child: TextFormField(
                   controller: _confirmPasswordController,
-                  decoration:
-                      const InputDecoration(labelText: "Confirmar Contraseña"),
-                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: "Confirmar Contraseña",
+                    labelStyle:
+                        const TextStyle(color: Colores.texto), // Gris Oscuro
+                    enabledBorder: const UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
+                    ),
+                    focusedBorder: const UnderlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscureText1 ? Icons.visibility : Icons.visibility_off,
+                        color: Colores.texto, // Gris Oscuro
+                      ),
+                      onPressed: _togglePasswordVisibility1,
+                    ),
+                  ),
+                  obscureText: _obscureText1,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Por favor, confirma tu contraseña';
@@ -187,14 +273,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     width: size.width * 0.5,
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(80.0),
-                        gradient: const LinearGradient(colors: [
-                          Color.fromARGB(255, 255, 136, 34),
-                          Color.fromARGB(255, 255, 177, 41)
-                        ])),
+                        color: Colores.botones), // Fondo Naranja
                     padding: const EdgeInsets.all(0),
                     child: const Text(
                       "REGISTRARSE",
                       textAlign: TextAlign.center,
+                      style: TextStyle(color: Colors.white), // Texto Blanco
                     ),
                   ),
                 ),
@@ -213,7 +297,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: Color(0xFF2661FA)),
+                        color: Colores.texto),
                   ),
                 ),
               )

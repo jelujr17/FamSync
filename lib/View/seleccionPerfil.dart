@@ -1,8 +1,8 @@
-// ignore_for_file: library_private_types_in_public_api
-
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/NewProfile.dart';
 import 'package:smart_family/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {
@@ -19,6 +19,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   late AnimationController _controller;
   List<Perfiles> perfiles = [];
   int selectedProfileIndex = -1;
+  bool _isEditMode = true; // Variable para controlar el modo de edición
 
   @override
   void initState() {
@@ -40,6 +41,12 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   void reload() async {
     perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
     setState(() {});
+  }
+
+  void _toggleEditMode() {
+    setState(() {
+      _isEditMode = !_isEditMode;
+    });
   }
 
   @override
@@ -73,111 +80,29 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
               style: TextStyle(fontSize: 18),
             ),
             Expanded(
-              child: perfiles.isEmpty
-                  ? const Center(
-                      child: Text(
-                        'No hay perfiles disponibles',
-                        style: TextStyle(color: Colores.texto, fontSize: 20),
-                      ),
-                    )
-                  : GridView.builder(
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 40,
-                        mainAxisSpacing: 30,
-                      ),
-                      padding: const EdgeInsets.all(75),
-                      itemCount: perfiles.length + 1, // Incrementa el itemCount
-                      itemBuilder: (context, index) {
-                        // Verifica si el índice es el último elemento
-                        if (index == perfiles.length) {
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedProfileIndex =
-                                    -1; // Índice especial para este perfil
-                              });
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: selectedProfileIndex == -1
-                                          ? Colors.blue
-                                          : Colors.transparent,
-                                      width: 3,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: const CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: Colores.principal,
-                                    child: Icon(
-                                      Icons.add,
-                                      size: 50,
-                                      color: Colores.texto,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                const Text(
-                                  'Nuevo perfil',
-                                  style: TextStyle(
-                                    color: Colores.texto,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          // Índices anteriores corresponden a los perfiles existentes
-                          return GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                selectedProfileIndex = index;
-                              });
-                            },
-                            child: Column(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    border: Border.all(
-                                      color: selectedProfileIndex == index
-                                          ? Colors.blue
-                                          : Colors.transparent,
-                                      width: 3,
-                                    ),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: Colores.principal,
-                                    child: Text(
-                                      perfiles[index].Nombre[0],
-                                      style: const TextStyle(
-                                        color: Colores.texto,
-                                        fontSize: 30,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 10),
-                                Text(
-                                  perfiles[index].Nombre,
-                                  style: const TextStyle(
-                                    color: Colores.texto,
-                                    fontSize: 24,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }
-                      },
-                    ),
+              child: GridView.builder(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 40,
+                  mainAxisSpacing: 30,
+                ),
+                padding: const EdgeInsets.all(75),
+                itemCount:
+                    perfiles.length + 1, // Incluye el botón "Nuevo perfil"
+                itemBuilder: (context, index) {
+                  if (index == perfiles.length) {
+                    // Botón "Nuevo perfil"
+                    return _buildCenteredItem(
+                        context, _buildNuevoPerfilButton());
+                  } else {
+                    // Perfil existente
+                    return _buildCenteredItem(
+                      context,
+                      _buildPerfilItem(perfiles[index], index),
+                    );
+                  }
+                },
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(10.0),
@@ -185,27 +110,126 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                 width: buttonWidth, // Ajustar el ancho del botón
                 height: buttonHeight, // Ajustar la altura del botón
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (selectedProfileIndex >= 0) {
-                      // Aquí puedes manejar lo que sucede cuando se selecciona un perfil
-                      print(
-                          'Perfil seleccionado: ${perfiles[selectedProfileIndex].Nombre}');
-                    } else {
-                      // Mostrar un mensaje de error o alerta
-                      print('Por favor selecciona un perfil');
-                    }
-                  },
+                 onPressed: _toggleEditMode,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
                     backgroundColor: Colores.botonesSecundarios,
                   ),
-                  child: const Text('Configurar perfiles'),
+                  child:  Text(_isEditMode ? 'Configurar perfiles' : 'Listo'),
                 ),
               ),
             ),
             const SizedBox(height: 50),
           ],
         ),
+      ),
+    );
+  }
+
+  // Método para construir un elemento centrado si es necesario
+  Widget _buildCenteredItem(BuildContext context, Widget child) {
+    // Asegúrate de que solo haya un elemento en la fila
+    if (perfiles.length % 2 == 0 || perfiles.isEmpty) {
+      // Si hay un número par de elementos (incluyendo el botón "Nuevo perfil") o si la lista está vacía,
+      // simplemente devuelve el elemento.
+      return child;
+    } else {
+      // Si hay un número impar de elementos, centra el elemento en un Row.
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [child],
+      );
+    }
+  }
+
+  // Método para construir un perfil
+  Widget _buildPerfilItem(Perfiles perfil, int index) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          selectedProfileIndex = index;
+        });
+      },
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: selectedProfileIndex == index
+                    ? Colors.blue
+                    : Colors.transparent,
+                width: 3,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: CircleAvatar(
+              radius: 50,
+              backgroundColor: Colores.principal,
+              child: Text(
+                perfil.Nombre[0],
+                style: const TextStyle(
+                  color: Colores.texto,
+                  fontSize: 30,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          Text(
+            perfil.Nombre,
+            style: const TextStyle(
+              color: Colores.texto,
+              fontSize: 24,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Método para construir el botón "Nuevo perfil"
+  Widget _buildNuevoPerfilButton() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            child: CrearPerfilScreen(IdUsuario: widget.IdUsuario),
+          ),
+        );
+      },
+      child: Column(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: selectedProfileIndex == -1
+                    ? Colors.blue
+                    : Colors.transparent,
+                width: 3,
+              ),
+              shape: BoxShape.circle,
+            ),
+            child: const CircleAvatar(
+              radius: 50,
+              backgroundColor: Colores.principal,
+              child: Icon(
+                Icons.add,
+                size: 50,
+                color: Colores.texto,
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
+          const Text(
+            'Nuevo perfil',
+            style: TextStyle(
+              color: Colores.texto,
+              fontSize: 20,
+            ),
+          ),
+        ],
       ),
     );
   }

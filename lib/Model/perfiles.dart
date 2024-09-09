@@ -9,12 +9,16 @@ class Perfiles {
   final int UsuarioId;
   final String Nombre;
   final int FotoPerfilId;
+  final int Pin;
+  final String FechaNacimiento;
 
   Perfiles(
       {required this.Id,
       required this.UsuarioId,
       required this.Nombre,
-      required this.FotoPerfilId});
+      required this.FotoPerfilId,
+      required this.Pin,
+      required this.FechaNacimiento});
 }
 
 class ServicioPerfiles {
@@ -24,18 +28,22 @@ class ServicioPerfiles {
     MySqlConnection conn = await DB().conexion();
     try {
       // Asegúrate de que la columna 'UsuarioId' y las demás existan en tu tabla y estén correctamente escritas.
-      final resultado = await conn.query('SELECT * FROM perfiles WHERE UsuarioId = ?', [UsuarioId]);
+      final resultado = await conn
+          .query('SELECT * FROM perfiles WHERE UsuarioId = ?', [UsuarioId]);
       final List<Perfiles> perfiles = resultado.map((row) {
         return Perfiles(
           Id: row['Id'],
           UsuarioId: row['UsuarioId'],
           Nombre: row['Nombre'].toString(),
           FotoPerfilId: row['FotoPerfilId'],
+          Pin: row['Pin'],
+          FechaNacimiento: row['FechaNacimiento'].toString(),
         );
       }).toList();
       return perfiles;
     } catch (e) {
-      print('Error al obtener los perfiles existentes del usuario $UsuarioId: $e');
+      print(
+          'Error al obtener los perfiles existentes del usuario $UsuarioId: $e');
       return []; // Devolver una lista vacía en caso de error
     } finally {
       await conn.close();
@@ -53,6 +61,8 @@ class ServicioPerfiles {
           UsuarioId: resultado.first['UsuarioId'],
           Nombre: resultado.first['Nombre'],
           FotoPerfilId: resultado.first['FotoPerfilId'],
+          Pin: resultado.first['Pin'],
+          FechaNacimiento: resultado.first['FechaNacimiento'],
         );
         return perfil;
       }
@@ -66,13 +76,13 @@ class ServicioPerfiles {
   }
 
   // Registro de usuario con verificación
-  Future<bool> registrarPerfil(
-      int UsuarioId, String Nombre, String FotoPerfilId) async {
+  Future<bool> registrarPerfil(int UsuarioId, String Nombre, int FotoPerfilId,
+      int Pin, String FechaNacimiento) async {
     MySqlConnection conn = await DB().conexion();
     try {
       await conn.query(
-          'INSERT INTO perfiles (UsuarioId, Nombre, FotoPerfilId) VALUES (?, ?, ?)',
-          [UsuarioId, Nombre, FotoPerfilId]);
+          'INSERT INTO perfiles (UsuarioId, Nombre, FotoPerfilId, Pin, FechaNacimiento) VALUES (?, ?, ?, ?, ?)',
+          [UsuarioId, Nombre, FotoPerfilId, Pin, FechaNacimiento]);
 
       return true;
     } catch (e) {
