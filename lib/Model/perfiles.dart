@@ -115,4 +115,21 @@ class ServicioPerfiles {
       await conn.close();
     }
   }
+
+  Future<bool> eliminarPerfil(int Id) async {
+    MySqlConnection conn = await DB().conexion();
+    print("-------");
+    print(Id);
+
+    try {
+      await conn.query('DELETE FROM perfiles WHERE Id = ?', [Id]);
+
+      return true;
+    } catch (e) {
+      print('Eliminación de perfil fallido: $e');
+      return false;
+    } finally {
+      await conn.close();
+    }
+  }
 }

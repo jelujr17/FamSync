@@ -7,4 +7,5 @@ class Colores {
   static const Color botonesSecundarios = Color(0xFFFDA769);
   static const Color texto = Color(0xFF473C33);
   static const Color fondo = Color(0xFFFFFFFF);
+  static const Color eliminar = Color(0xFFE74C3C);
 }

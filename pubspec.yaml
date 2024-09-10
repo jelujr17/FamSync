@@ -49,6 +49,7 @@ dependencies:
   particles_fly: ^0.0.9
   image_picker: ^1.1.2
   intl: ^0.19.0
+  network_info_plus: ^6.0.1
 
 dev_dependencies:
   flutter_test:

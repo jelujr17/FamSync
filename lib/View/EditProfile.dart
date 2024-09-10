@@ -1,5 +1,3 @@
-// ignore_for_file: file_names, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos
@@ -24,8 +22,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _pinController = TextEditingController();
   final TextEditingController _newPinController = TextEditingController();
-
   final TextEditingController _fechaController = TextEditingController();
+
   bool _isPinVisible = false; // Variable para controlar la visibilidad del PIN
   File? _imageFile;
 
@@ -48,85 +46,148 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       lastDate: DateTime.now(),
     );
     if (picked != null) {
-      // Asegurarse de que la fecha seleccionada se interprete en la zona horaria local
       setState(() {
-        // Convertir la fecha seleccionada al formato local antes de mostrarla
         DateTime localDate = DateTime(
           picked.year,
           picked.month,
           picked.day,
         );
-
         _fechaController.text = DateFormat('dd/MM/yyyy').format(localDate);
       });
     }
   }
 
   Future<void> _editarPerfil() async {
-  final String nombre = _nombreController.text;
-  final String pin = _pinController.text;
-  final String nuevopin = _newPinController.text;
+    final String nombre = _nombreController.text;
+    final String pin = _pinController.text;
+    final String nuevopin = _newPinController.text;
+    final String fechaNacimientoStr = _fechaController.text;
 
-  final String fechaNacimientoStr = _fechaController.text;
+    if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty) {
+      try {
+        DateFormat format = DateFormat("dd/MM/yyyy");
+        DateTime fechaNacimiento = format.parse(fechaNacimientoStr);
 
-  if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty) {
-    try {
-      // Utiliza DateFormat para convertir el String a DateTime
-      DateFormat format = DateFormat("dd/MM/yyyy");
-      DateTime fechaNacimiento = format.parse(fechaNacimientoStr);
+        Perfiles? perfil = await ServicioPerfiles().getPerfilById(widget.Id);
+        if (perfil != null) {
+          int pin_actual = perfil.Pin;
 
-      // Aquí puedes manejar la creación del perfil sin convertir a UTC
-      print('Nombre del perfil: $nombre');
-      print('PIN antiguo: $pin');
-      print('PIN nuevo: $nuevopin');
-
-      print('Fecha de Nacimiento: $fechaNacimiento');
-
-      Perfiles? perfil = await ServicioPerfiles().getPerfilById(widget.Id);
-      if (perfil != null) {
-        int pin_actual = perfil.Pin;
-
-        if (pin_actual == int.parse(pin)) {
-          bool editado = await ServicioPerfiles().editarPerfil(
-            widget.Id,
-            nombre,
-            1,
-            int.parse(nuevopin),
-            fechaNacimientoStr, // Enviar la fecha tal como está
-          );
-          if (editado) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Perfil editado exitosamente')),
+          if (pin_actual == int.parse(pin)) {
+            bool editado = await ServicioPerfiles().editarPerfil(
+              widget.Id,
+              nombre,
+              1,
+              int.parse(nuevopin),
+              fechaNacimientoStr,
             );
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => SeleccionPerfil(
-                          IdUsuario: widget.IdUsuario,
-                        )));
+            if (editado) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Perfil editado exitosamente')),
+              );
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => SeleccionPerfil(
+                            IdUsuario: widget.IdUsuario,
+                          )));
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Error al editar un perfil')),
+              );
+            }
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Error al editar un perfil')),
+              const SnackBar(content: Text('PIN incorrecto')),
             );
           }
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('PIN incorrecto')),
-            );
+          print('Perfil no encontrado.');
         }
-      } else {
-        print('Perfil no encontrado.');
+      } catch (e) {
+        print('Formato de fecha incorrecto: $e');
       }
-    } catch (e) {
-      // Maneja el error de formato de fecha
-      print('Formato de fecha incorrecto: $e');
+    } else {
+      print('Por favor completa todos los campos.');
     }
-  } else {
-    // Mostrar un mensaje de error o alerta si faltan campos
-    print('Por favor completa todos los campos.');
   }
-}
 
+  Future<void> _eliminarPerfil() async {
+    // Mostrar ventana emergente de confirmación
+    bool confirm = await _mostrarConfirmacionEliminar();
+    if (confirm) {
+      bool eliminado = await ServicioPerfiles().eliminarPerfil(widget.Id);
+      if (eliminado) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Perfil eliminado exitosamente')),
+        );
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => SeleccionPerfil(
+                      IdUsuario: widget.IdUsuario,
+                    )));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al eliminar un perfil')),
+        );
+      }
+    }
+  }
+
+  Future<bool> _mostrarConfirmacionEliminar() async {
+    TextEditingController pinController = TextEditingController();
+    Perfiles? perfilEliminar = await ServicioPerfiles().getPerfilById(widget.Id);
+
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Confirmar eliminación'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Text(
+                      '¿Estás seguro de que quieres eliminar este perfil? Esta acción no se puede deshacer.'),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: pinController,
+                    decoration: const InputDecoration(
+                      labelText: 'Ingresa el PIN para confirmar',
+                      border: OutlineInputBorder(),
+                    ),
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 4,
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Eliminar cancelado
+                  },
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (pinController.text.isNotEmpty &&
+                        pinController.text == perfilEliminar!.Pin.toString()) {
+                      Navigator.of(context).pop(true); // Confirmar eliminación
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('PIN incorrecto')),
+                      );
+                    }
+                  },
+                  child: const Text('Eliminar',
+                      style: TextStyle(color: Colores.eliminar)),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Si se cierra el diálogo sin respuesta, devolver false
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -144,7 +205,6 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
-          // Usamos SingleChildScrollView para evitar overflow en pantallas pequeñas
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -184,15 +244,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _isPinVisible =
-                            !_isPinVisible; // Cambia la visibilidad del PIN
+                        _isPinVisible = !_isPinVisible;
                       });
                     },
                   ),
                 ),
-                obscureText: !_isPinVisible, // Cambia la visibilidad del PIN
+                obscureText: !_isPinVisible,
                 keyboardType: TextInputType.number,
-                maxLength: 4, // Longitud máxima de 4 dígitos
+                maxLength: 4,
               ),
               const SizedBox(height: 20),
               TextField(
@@ -206,15 +265,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _isPinVisible =
-                            !_isPinVisible; // Cambia la visibilidad del PIN
+                        _isPinVisible = !_isPinVisible;
                       });
                     },
                   ),
                 ),
-                obscureText: !_isPinVisible, // Cambia la visibilidad del PIN
+                obscureText: !_isPinVisible,
                 keyboardType: TextInputType.number,
-                maxLength: 4, // Longitud máxima de 4 dígitos
+                maxLength: 4,
               ),
               const SizedBox(height: 20),
               TextField(
@@ -223,10 +281,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   labelText: 'Fecha de Nacimiento',
                   border: OutlineInputBorder(),
                 ),
-                readOnly:
-                    true, // Para que el usuario no pueda escribir directamente
-                onTap: () => _selectDate(
-                    context), // Mostrar el selector de fecha al tocar
+                readOnly: true,
+                onTap: () => _selectDate(context),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
@@ -236,6 +292,15 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   backgroundColor: Colores.botonesSecundarios,
                 ),
                 child: const Text('Editar Perfil'),
+              ),
+              const SizedBox(height: 200),
+              ElevatedButton(
+                onPressed: _eliminarPerfil,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colores.eliminar,
+                ),
+                child: const Text('Eliminar Perfil'),
               ),
             ],
           ),
