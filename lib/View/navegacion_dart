@@ -1,0 +1,116 @@
+import 'package:flutter/material.dart';
+import 'package:floating_bottom_bar/animated_bottom_navigation_bar.dart';
+import 'package:smart_family/components/colores.dart';
+
+class FloatingNavigationBar extends StatefulWidget {
+  final Function(int) onTabSelected;
+  final int initialIndex;
+
+  const FloatingNavigationBar({
+    Key? key,
+    required this.onTabSelected,
+    this.initialIndex = 0,
+  }) : super(key: key);
+
+  @override
+  _FloatingNavigationBarState createState() => _FloatingNavigationBarState();
+}
+
+class _FloatingNavigationBarState extends State<FloatingNavigationBar> {
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBottomNavigationBar(
+      barColor: Colores.principal,
+      controller: FloatingBottomBarController(initialIndex: _currentIndex),
+      bottomBar: [
+        BottomBarItem(
+          icon: const Icon(Icons.home, size: 30, color: Colores.fondo),
+          iconSelected: const Icon(Icons.home, color: Colores.botones, size: 30),
+          title: 'Inicio',
+          dotColor: Colores.botones,
+            titleStyle: TextStyle(color: Colores.fondo), // Cambia el color del título
+
+          onTap: (value) {
+            setState(() {
+              _currentIndex = value;
+            });
+            widget.onTabSelected(value);
+          },
+        ),
+        BottomBarItem(
+          icon: const Icon(Icons.search, size: 30, color: Colores.fondo),
+          iconSelected: const Icon(Icons.search, color: Colores.botones, size: 30),
+          title: 'Buscar',
+          dotColor: Colores.botones,
+                      titleStyle: TextStyle(color: Colores.fondo), // Cambia el color del título
+
+          onTap: (value) {
+            setState(() {
+              _currentIndex = value;
+            });
+            widget.onTabSelected(value);
+          },
+        ),
+        BottomBarItem(
+          icon: const Icon(Icons.account_circle, size: 30, color: Colores.fondo),
+          iconSelected: const Icon(Icons.account_circle, color: Colores.botones, size: 30),
+          title: 'Perfil',
+          dotColor: Colores.botones,
+                      titleStyle: TextStyle(color: Colores.fondo), // Cambia el color del título
+
+          onTap: (value) {
+            setState(() {
+              _currentIndex = value;
+            });
+            widget.onTabSelected(value);
+          },
+        ),
+        BottomBarItem(
+          icon: const Icon(Icons.settings, size: 30, color: Colores.fondo),
+          iconSelected: const Icon(Icons.settings, color: Colores.botones, size: 30),
+          title: 'Ajustes',
+          dotColor: Colores.botones,
+                      titleStyle: TextStyle(color: Colores.fondo), // Cambia el color del título
+
+          onTap: (value) {
+            setState(() {
+              _currentIndex = value;
+            });
+            widget.onTabSelected(value);
+          },
+        ),
+      ],
+      bottomBarCenterModel: BottomBarCenterModel(
+        centerBackgroundColor: Colores.botonesSecundarios,
+        centerIcon: const FloatingCenterButton(
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+        ),
+        centerIconChild: [
+          FloatingCenterButtonChild(
+            child: const Icon(Icons.home, color: Colors.white),
+            onTap: () => print('Botón de inicio central'),
+          ),
+          FloatingCenterButtonChild(
+            child: const Icon(Icons.access_alarm, color: Colors.white),
+            onTap: () => print('Botón de alarma'),
+          ),
+          FloatingCenterButtonChild(
+            child: const Icon(Icons.ac_unit_outlined, color: Colors.white),
+            onTap: () => print('Botón de AC'),
+          ),
+        ],
+      ),
+    );
+  }
+}

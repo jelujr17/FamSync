@@ -4,6 +4,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/EditProfile.dart';
 import 'package:smart_family/View/NewProfile.dart';
+import 'package:smart_family/View/resumen.dart';
 import 'package:smart_family/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {
@@ -149,46 +150,42 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
       onTap: () {
         print("index: $index");
         if (_isEditMode == true) {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: InicioScreen(IdUsuario: widget.IdUsuario),
+            ),
+          );
         } else {
           Navigator.push(
             context,
             PageTransition(
               type: PageTransitionType.fade,
-              child: EditarPerfilScreen(Id: perfil.Id, IdUsuario: widget.IdUsuario),
+              child: EditarPerfilScreen(
+                  Id: perfil.Id, IdUsuario: widget.IdUsuario),
             ),
           );
         }
       },
       child: Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: selectedProfileIndex == index
-                    ? Colors.blue
-                    : Colors.transparent,
-                width: 3,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: CircleAvatar(
-              radius: 50,
-              backgroundColor:
-                  _isEditMode ? Colores.principal : Colores.botones,
-              child: !_isEditMode
-                  ? const Icon(
-                      Icons.edit,
-                      size: 30,
-                      color: Colors.white,
-                    )
-                  : Text(
-                      perfil.Nombre[0],
-                      style: const TextStyle(
-                        color: Colores.texto,
-                        fontSize: 30,
-                      ),
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: _isEditMode ? Colores.principal : Colores.botones,
+            child: !_isEditMode
+                ? const Icon(
+                    Icons.edit,
+                    size: 30,
+                    color: Colors.white,
+                  )
+                : Text(
+                    perfil.Nombre[0],
+                    style: const TextStyle(
+                      color: Colores.texto,
+                      fontSize: 30,
                     ),
-            ),
+                  ),
           ),
           const SizedBox(height: 10),
           Text(
@@ -215,30 +212,19 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
           ),
         );
       },
-      child: Column(
+      child: const Column(
         children: [
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: selectedProfileIndex == -1
-                    ? Colors.blue
-                    : Colors.transparent,
-                width: 3,
-              ),
-              shape: BoxShape.circle,
-            ),
-            child: const CircleAvatar(
-              radius: 50,
-              backgroundColor: Colores.principal,
-              child: Icon(
-                Icons.add,
-                size: 50,
-                color: Colores.texto,
-              ),
+          CircleAvatar(
+            radius: 50,
+            backgroundColor: Colores.principal,
+            child: Icon(
+              Icons.add,
+              size: 50,
+              color: Colores.texto,
             ),
           ),
-          const SizedBox(height: 10),
-          const Text(
+          SizedBox(height: 10),
+          Text(
             'Nuevo perfil',
             style: TextStyle(
               color: Colores.texto,

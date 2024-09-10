@@ -13,7 +13,7 @@ class DB {
       ));
     } catch (e) {
       conn = await MySqlConnection.connect(ConnectionSettings(
-        host: '172.20.10.2',
+        host: '172.27.147.244',
         port: 3306,
         user: 'root',
         password: 'root',
