@@ -154,7 +154,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
             context,
             PageTransition(
               type: PageTransitionType.fade,
-              child: InicioScreen(IdUsuario: widget.IdUsuario),
+              child: InicioScreen(IdUsuario: perfil.Id, Id: perfil.UsuarioId),
             ),
           );
         } else {

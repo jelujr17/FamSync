@@ -5,12 +5,12 @@ import 'package:smart_family/Library/db_data.dart';
 
 // CLASES DE PERSONAS REALES
 class Perfiles {
-  final int Id;
-  final int UsuarioId;
-  final String Nombre;
-  final int FotoPerfilId;
-  final int Pin;
-  final String FechaNacimiento;
+    final int Id;
+    final int UsuarioId;
+    final String Nombre;
+    final int FotoPerfilId;
+    final int Pin;
+    final String FechaNacimiento;
 
   Perfiles(
       {required this.Id,

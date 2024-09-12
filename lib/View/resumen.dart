@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:smart_family/View/navegacion_dart';
+import 'package:smart_family/View/navegacion.dart';
+import 'package:smart_family/View/navegacion.dart';
 import 'package:smart_family/components/colores.dart';
 
 class InicioScreen extends StatefulWidget {
   final int IdUsuario;
+  final int Id;
 
-  const InicioScreen({super.key, required this.IdUsuario});
+  const InicioScreen({super.key, required this.IdUsuario, required this.Id});
 
   @override
   InicioScreenState createState() => InicioScreenState();
@@ -24,14 +26,13 @@ class InicioScreenState extends State<InicioScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      
       body: Center(
         child: Text('Página $_selectedIndex'),
       ),
       bottomNavigationBar: FloatingNavigationBar(
-        onTabSelected: _onTabSelected,
-        initialIndex: _selectedIndex,
-      ),
+          onTabSelected: _onTabSelected,
+          initialIndex: _selectedIndex,
+          IdUsuario: widget.IdUsuario, Id: widget.Id),
     );
   }
 }
