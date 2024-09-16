@@ -5,12 +5,13 @@ import 'package:smart_family/Library/db_data.dart';
 
 // CLASES DE PERSONAS REALES
 class Perfiles {
-    final int Id;
-    final int UsuarioId;
-    final String Nombre;
-    final int FotoPerfilId;
-    final int Pin;
-    final String FechaNacimiento;
+  final int Id;
+  final int UsuarioId;
+  final String Nombre;
+  final int FotoPerfilId;
+  final int Pin;
+  final String FechaNacimiento;
+  final int Infantil;
 
   Perfiles(
       {required this.Id,
@@ -18,7 +19,8 @@ class Perfiles {
       required this.Nombre,
       required this.FotoPerfilId,
       required this.Pin,
-      required this.FechaNacimiento});
+      required this.FechaNacimiento,
+      required this.Infantil});
 }
 
 class ServicioPerfiles {
@@ -38,6 +40,7 @@ class ServicioPerfiles {
           FotoPerfilId: row['FotoPerfilId'],
           Pin: row['Pin'],
           FechaNacimiento: row['FechaNacimiento'].toString(),
+          Infantil: row['Infantil'],
         );
       }).toList();
       return perfiles;
@@ -63,6 +66,7 @@ class ServicioPerfiles {
           FotoPerfilId: resultado.first['FotoPerfilId'],
           Pin: resultado.first['Pin'],
           FechaNacimiento: resultado.first['FechaNacimiento'].toString(),
+          Infantil: resultado.first['Infantil'],
         );
         return perfil;
       }

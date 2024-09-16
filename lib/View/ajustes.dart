@@ -1,9 +1,11 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names, deprecated_member_use
 import 'dart:io';
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_family/View/navegacion.dart';
+import 'package:smart_family/components/colores.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Ajustes extends StatefulWidget {
@@ -11,14 +13,19 @@ class Ajustes extends StatefulWidget {
   final int IdUsuario;
   final int Id;
 
-  const Ajustes({super.key, required this.IdUsuario, required this.Id, this.navigatorKey});
+  const Ajustes(
+      {super.key,
+      required this.IdUsuario,
+      required this.Id,
+      this.navigatorKey});
 
   @override
   AjustesState createState() => AjustesState();
 }
 
 class AjustesState extends State<Ajustes> {
-  int _selectedIndex = 3;
+  final PageController _pageController = PageController(initialPage: 2);
+  late NotchBottomBarController _controller;
   bool modoOscuro = false; // Estado para controlar el modo oscuro
   bool notificaciones = true; // Estado para controlar las notificaciones
   String modo = "oscuro";
@@ -26,16 +33,8 @@ class AjustesState extends State<Ajustes> {
   @override
   void initState() {
     super.initState();
-    IsDarkMode().then((value) {
-      setState(() {
-        modoOscuro = value;
-        if (modoOscuro) {
-          modo = "claro";
-        } else {
-          modo = "oscuro";
-        }
-      });
-    });
+    _controller = NotchBottomBarController(index: 2);
+
     cargarPreferenciasNotificaciones();
   }
 
@@ -53,10 +52,11 @@ class AjustesState extends State<Ajustes> {
     prefs.setBool('Notificaciones', notificaciones);
   }
 
-  void _onTabSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+  @override
+  void dispose() {
+    _controller.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   @override
@@ -99,11 +99,6 @@ class AjustesState extends State<Ajustes> {
             ],
           ),
         ),
-        bottomNavigationBar: FloatingNavigationBar(
-            onTabSelected: _onTabSelected,
-            initialIndex: _selectedIndex,
-            IdUsuario: widget.IdUsuario,
-            Id: widget.Id),
       ),
     );
   }
@@ -163,6 +158,11 @@ class AjustesState extends State<Ajustes> {
           });
           guardarPreferenciasNotificaciones();
         },
+        activeColor: Colores
+            .botonesSecundarios, // Color del switch cuando está encendido
+        inactiveThumbColor: Colors.grey, // Color del botón cuando está apagado
+        inactiveTrackColor:
+            Colors.grey.shade300, // Color de la pista cuando está apagado
       ),
     );
   }

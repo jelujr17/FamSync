@@ -2,7 +2,7 @@ import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/NewProfile.dart';
+import 'package:smart_family/View/Inicio/NewProfile.dart';
 import 'package:smart_family/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {

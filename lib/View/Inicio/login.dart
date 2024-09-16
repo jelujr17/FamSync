@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/usuario.dart';
-import 'package:smart_family/View/register.dart';
-import 'package:smart_family/View/seleccionPerfil.dart';
+import 'package:smart_family/View/Inicio/register.dart';
+import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
 import 'package:smart_family/components/background.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/components/colores.dart';

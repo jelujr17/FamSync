@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar im√
 import 'dart:io'; // Para manejar archivos
 import 'package:intl/intl.dart'; // Paquete para formatear fechas
 import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/seleccionPerfil.dart';
+import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
 
 import 'package:smart_family/components/colores.dart';
 

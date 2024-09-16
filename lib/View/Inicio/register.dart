@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/usuario.dart';
-import 'package:smart_family/View/login.dart';
+import 'package:smart_family/View/Inicio/login.dart';
 import 'package:smart_family/components/background.dart';
 import 'package:smart_family/components/colores.dart';
 
