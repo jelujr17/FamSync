@@ -1,19 +1,15 @@
 // lib/View/resumen_screen.dart
 
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/components/colores.dart'; // Asegúrate de importar el archivo correcto
+import 'package:smart_family/Model/perfiles.dart';
 
 class ResumenScreen extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
-  final int IdUsuario;
-  final int Id;
+  final Perfiles perfil;
 
   const ResumenScreen(
       {super.key,
-      required this.IdUsuario,
-      required this.Id,
+      required this.perfil,
       this.navigatorKey});
 
   @override
@@ -21,19 +17,13 @@ class ResumenScreen extends StatefulWidget {
 }
 
 class ResumenScreenState extends State<ResumenScreen> {
-  final PageController _pageController = PageController(initialPage: 0);
-  late NotchBottomBarController _controller;
-
   @override
   void initState() {
     super.initState();
-    _controller = NotchBottomBarController(index: 0);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -42,6 +32,7 @@ class ResumenScreenState extends State<ResumenScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bienvenido'),
+        automaticallyImplyLeading: false, // Esto elimina el botón de "atrás"
       ),
       body: Center(
         child: Padding(
@@ -58,7 +49,7 @@ class ResumenScreenState extends State<ResumenScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Hola, Usuario ${widget.IdUsuario}!\n\n'
+                'Hola, Usuario ${widget.perfil.Nombre}!\n\n'
                 'Esta es la pantalla de bienvenida donde puedes encontrar información general y acceder a otras funciones de la aplicación.',
                 textAlign: TextAlign.center,
                 style: TextStyle(

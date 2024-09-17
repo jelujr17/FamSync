@@ -1,63 +1,55 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/Modulos/modulos.dart';
 import 'package:smart_family/View/Modulos/resumen.dart';
 import 'package:smart_family/View/ajustes.dart';
 import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/components/colores.dart'; // Asegúrate de importar el archivo correcto
+import 'package:smart_family/components/colores.dart';
 
 class InicioScreen extends StatefulWidget {
-  final int IdUsuario;
-  final int Id;
+  final Perfiles perfil;
 
-  const InicioScreen({super.key, required this.IdUsuario, required this.Id});
+  const InicioScreen({super.key, required this.perfil});
 
   @override
   InicioScreenState createState() => InicioScreenState();
 }
 
 class InicioScreenState extends State<InicioScreen> {
-  final PageController _pageController = PageController(initialPage: 0);
-  late NotchBottomBarController _bottomBarController;
+  late Navegacion _navegacion;
 
   @override
   void initState() {
     super.initState();
-    _bottomBarController = NotchBottomBarController(index: 0);
+    _navegacion = Navegacion();
   }
 
   @override
   void dispose() {
-    _bottomBarController.dispose();
-    _pageController.dispose();
+    _navegacion.dispose();
     super.dispose();
-  }
-
-  void _onPageChanged(int index) {
-    if (_bottomBarController.index != index) {
-      setState(() {
-        _bottomBarController.index = index;
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
+        controller: _navegacion.pageController,
+        onPageChanged: _navegacion.onPageChanged,
         children: <Widget>[
-          ResumenScreen(IdUsuario: widget.IdUsuario, Id: widget.Id),
-          Ajustes(IdUsuario: widget.IdUsuario, Id: widget.Id),
-          Ajustes(IdUsuario: widget.IdUsuario, Id: widget.Id),
+          ResumenScreen(perfil: widget.perfil),
+          Modulos(perfil: widget.perfil),
+          Ajustes(perfil: widget.perfil),
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
-        pageController: _pageController,
-        controller: _bottomBarController,
-        Id: widget.Id,
-        IdUsuario: widget.IdUsuario,
+        pageController: _navegacion.pageController,
+        controller: _navegacion.bottomBarController,
+        perfil: widget.perfil,
+        onTap: _navegacion.onTap,
       ),
     );
   }
 }
+
+
