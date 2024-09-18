@@ -1,10 +1,10 @@
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Modulos/modulos.dart';
 import 'package:smart_family/View/Modulos/resumen.dart';
 import 'package:smart_family/View/ajustes.dart';
 import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/components/colores.dart';
 
 class InicioScreen extends StatefulWidget {
   final Perfiles perfil;
@@ -16,26 +16,36 @@ class InicioScreen extends StatefulWidget {
 }
 
 class InicioScreenState extends State<InicioScreen> {
-  late Navegacion _navegacion;
+  final PageController _pageController = PageController(initialPage: 0);
+  late NotchBottomBarController _bottomBarController;
 
   @override
   void initState() {
     super.initState();
-    _navegacion = Navegacion();
+    _bottomBarController = NotchBottomBarController(index: 0);
   }
 
   @override
   void dispose() {
-    _navegacion.dispose();
+    _bottomBarController.dispose();
+    _pageController.dispose();
     super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    if (_bottomBarController.index != index) {
+      setState(() {
+        _bottomBarController.index = index;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: PageView(
-        controller: _navegacion.pageController,
-        onPageChanged: _navegacion.onPageChanged,
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
         children: <Widget>[
           ResumenScreen(perfil: widget.perfil),
           Modulos(perfil: widget.perfil),
@@ -43,13 +53,10 @@ class InicioScreenState extends State<InicioScreen> {
         ],
       ),
       bottomNavigationBar: CustomBottomNavBar(
-        pageController: _navegacion.pageController,
-        controller: _navegacion.bottomBarController,
-        perfil: widget.perfil,
-        onTap: _navegacion.onTap,
+        pageController: _pageController,
+        controller: _bottomBarController,
+        perfil: widget.perfil
       ),
     );
   }
 }
-
-

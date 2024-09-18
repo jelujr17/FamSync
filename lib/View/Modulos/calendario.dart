@@ -20,7 +20,7 @@ class CalendarioScreenState extends State<Calendario> {
   @override
   void initState() {
     super.initState();
-    _controller = NotchBottomBarController(index: );
+    _controller = NotchBottomBarController(index: 0);
   }
 
   @override
@@ -28,6 +28,13 @@ class CalendarioScreenState extends State<Calendario> {
     _controller.dispose();
     _pageController.dispose();
     super.dispose();
+  }
+
+  // Definimos la función _onPageChanged
+  void _onPageChanged(int index) {
+    setState(() {
+      _controller.index = index;
+    });
   }
 
   @override
@@ -52,9 +59,10 @@ class CalendarioScreenState extends State<Calendario> {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: _pageController,
-          controller: _controller,
-          perfil: widget.perfil),
+        pageController: _pageController,
+        controller: _controller,
+        perfil: widget.perfil, 
+      ),
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Modulos/calendario.dart';
