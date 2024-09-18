@@ -1,7 +1,9 @@
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Modulos/calendario.dart';
+import 'package:smart_family/View/navegacion.dart';
 
 class Modulos extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
@@ -14,6 +16,22 @@ class Modulos extends StatefulWidget {
 }
 
 class ModulosState extends State<Modulos> {
+  final PageController _pageController = PageController(initialPage: 1);
+  late NotchBottomBarController _bottomBarController;
+
+  @override
+  void initState() {
+    super.initState();
+    _bottomBarController = NotchBottomBarController(index: 1);
+  }
+
+  @override
+  void dispose() {
+    _bottomBarController.dispose();
+    _pageController.dispose();
+    super.dispose();
+  }
+
   final List<Map<String, dynamic>> modulos = [
     {'titulo': 'Calendario', 'icono': Icons.calendar_today, 'ruta': 0},
     {'titulo': 'Almacén', 'icono': Icons.shopping_cart, 'ruta': 1},
@@ -51,7 +69,6 @@ class ModulosState extends State<Modulos> {
                   ),
                 );
               }
-              
             },
             child: Card(
               elevation: 4,
@@ -75,6 +92,11 @@ class ModulosState extends State<Modulos> {
           );
         },
       ),
+      extendBody: true,
+      bottomNavigationBar: CustomBottomNavBar(
+          pageController: _pageController,
+          controller: _bottomBarController,
+          perfil: widget.perfil),
     );
   }
 }

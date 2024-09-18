@@ -5,6 +5,7 @@ import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Inicio/EditProfile.dart';
 import 'package:smart_family/View/Inicio/NewProfile.dart';
 import 'package:smart_family/View/Inicio.dart';
+import 'package:smart_family/View/Modulos/resumen.dart';
 import 'package:smart_family/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {
@@ -154,7 +155,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
             context,
             PageTransition(
               type: PageTransitionType.fade,
-              child: InicioScreen(perfil: perfil),
+              child: ResumenScreen(perfil: perfil),
             ),
           );
         } else {

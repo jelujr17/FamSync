@@ -1,29 +1,34 @@
 // lib/View/resumen_screen.dart
 
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/navegacion.dart';
 
 class ResumenScreen extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
   final Perfiles perfil;
 
-  const ResumenScreen(
-      {super.key,
-      required this.perfil,
-      this.navigatorKey});
+  const ResumenScreen({super.key, required this.perfil, this.navigatorKey});
 
   @override
   ResumenScreenState createState() => ResumenScreenState();
 }
 
 class ResumenScreenState extends State<ResumenScreen> {
+  final PageController _pageController = PageController(initialPage: 0);
+  late NotchBottomBarController _bottomBarController;
+
   @override
   void initState() {
     super.initState();
+    _bottomBarController = NotchBottomBarController(index: 0);
   }
 
   @override
   void dispose() {
+    _bottomBarController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -61,6 +66,11 @@ class ResumenScreenState extends State<ResumenScreen> {
           ),
         ),
       ),
+      extendBody: true,
+      bottomNavigationBar: CustomBottomNavBar(
+          pageController: _pageController,
+          controller: _bottomBarController,
+          perfil: widget.perfil),
     );
   }
 }

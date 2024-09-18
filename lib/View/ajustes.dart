@@ -1,9 +1,11 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names, deprecated_member_use
 import 'dart:io';
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/navegacion.dart';
 import 'package:smart_family/components/colores.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -11,10 +13,7 @@ class Ajustes extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;
   final Perfiles perfil;
 
-  const Ajustes(
-      {super.key,
-      required this.perfil,
-      this.navigatorKey});
+  const Ajustes({super.key, required this.perfil, this.navigatorKey});
 
   @override
   AjustesState createState() => AjustesState();
@@ -24,12 +23,20 @@ class AjustesState extends State<Ajustes> {
   bool modoOscuro = false; // Estado para controlar el modo oscuro
   bool notificaciones = true; // Estado para controlar las notificaciones
   String modo = "oscuro";
+  final PageController _pageController = PageController(initialPage: 2);
+  late NotchBottomBarController _bottomBarController;
 
   @override
   void initState() {
     super.initState();
+    _bottomBarController = NotchBottomBarController(index: 2);
+  }
 
-    cargarPreferenciasNotificaciones();
+  @override
+  void dispose() {
+    _bottomBarController.dispose();
+    _pageController.dispose();
+    super.dispose();
   }
 
   // Método para cargar la configuración de notificaciones
@@ -44,11 +51,6 @@ class AjustesState extends State<Ajustes> {
   void guardarPreferenciasNotificaciones() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setBool('Notificaciones', notificaciones);
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 
   @override
@@ -91,6 +93,11 @@ class AjustesState extends State<Ajustes> {
             ],
           ),
         ),
+        extendBody: true,
+        bottomNavigationBar: CustomBottomNavBar(
+            pageController: _pageController,
+            controller: _bottomBarController,
+            perfil: widget.perfil),
       ),
     );
   }

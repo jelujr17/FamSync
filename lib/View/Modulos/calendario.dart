@@ -14,13 +14,13 @@ class Calendario extends StatefulWidget {
 }
 
 class CalendarioScreenState extends State<Calendario> {
-  final PageController _pageController = PageController(initialPage: 0);
+  final PageController _pageController = PageController(initialPage: 1);
   late NotchBottomBarController _controller;
 
   @override
   void initState() {
     super.initState();
-    _controller = NotchBottomBarController(index: 0);
+    _controller = NotchBottomBarController(index: 1);
   }
 
   @override
