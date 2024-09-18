@@ -66,7 +66,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty) {
       try {
         DateFormat format = DateFormat("dd/MM/yyyy");
-        DateTime fechaNacimiento = format.parse(fechaNacimientoStr);
+        format.parse(fechaNacimientoStr);
 
         Perfiles? perfil = await ServicioPerfiles().getPerfilById(widget.Id);
         if (perfil != null) {

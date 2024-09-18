@@ -4,7 +4,7 @@ import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Modulos/modulos.dart';
 import 'package:smart_family/View/Modulos/resumen.dart';
-import 'package:smart_family/View/ajustes.dart';
+import 'package:smart_family/View/perfil.dart';
 import 'package:smart_family/components/colores.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
@@ -12,11 +12,12 @@ class CustomBottomNavBar extends StatefulWidget {
   final NotchBottomBarController controller;
   final Perfiles perfil;
 
-  const CustomBottomNavBar(
-      {super.key,
-      required this.pageController,
-      required this.controller,
-      required this.perfil});
+  const CustomBottomNavBar({
+    super.key,
+    required this.pageController,
+    required this.controller,
+    required this.perfil,
+  });
 
   @override
   _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
@@ -65,40 +66,45 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ],
       onTap: (index) {
         print('Índice tocado en onTap: $index');
-        if (index == 0) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: ResumenScreen(perfil: widget.perfil),
-            ),
-          );
-        }
-        if (index == 1) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: Modulos(perfil: widget.perfil),
-            ),
-          );
-        }
-        if (index == 2) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: Ajustes(perfil: widget.perfil),
-            ),
-          );
-        }
+        
         if (index != _controller.index) {
           setState(() {
             _controller.index = index;
           });
           print('Índice cambiado a: $index');
         }
-        widget.pageController.jumpToPage(index);
+
+        // Navegación según el índice
+        if (index == 0) {
+          Navigator.pushReplacement(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: ResumenScreen(perfil: widget.perfil),
+            ),
+          );
+        } else if (index == 1) {
+          Navigator.pushReplacement(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: Modulos(perfil: widget.perfil),
+            ),
+          );
+        } else if (index == 2) {
+          Navigator.pushReplacement(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: Perfil(perfil: widget.perfil),
+            ),
+          );
+        }
+
+        // Solo hacer el salto de página si el índice ha cambiado
+        if (index != _controller.index) {
+          widget.pageController.jumpToPage(index);
+        }
       },
       kIconSize: 24.0,
     );
