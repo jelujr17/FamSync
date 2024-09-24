@@ -58,6 +58,7 @@ class ServicioPerfiles {
   }
 
   Future<Perfiles?> getPerfilById(int Id) async {
+    print("Id = $Id");
     http.Response response = await http.get(
       Uri.parse('http://localhost:3000/perfiles/getById?Id=$Id'),
       headers: {'Content-type': 'application/json'},
@@ -71,7 +72,6 @@ class ServicioPerfiles {
       // Acceder a los argumentos
       Map<String, dynamic> perfilData = responseData['arguments'];
 
-      // Crear el objeto Usuario con los datos del argumento
       Perfiles perfil = Perfiles(
         Id: perfilData['Id'] ?? 0, // Valor por defecto en caso de null
         UsuarioId: perfilData['UsuarioId'] ?? '',

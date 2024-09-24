@@ -1,9 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/Model/usuario.dart';
 import 'package:smart_family/View/Inicio/register.dart';
 import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
+import 'package:smart_family/View/Modulos/resumen.dart';
 import 'package:smart_family/components/background.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/components/colores.dart';
@@ -57,10 +60,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     labelText: "Correo o número de teléfono",
                     labelStyle: TextStyle(color: Colores.texto), // Gris Oscuro
                     enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
                     ),
                     focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
+                      borderSide:
+                          BorderSide(color: Colores.texto), // Gris Oscuro
                     )),
                 style: const TextStyle(color: Colores.texto), // Gris Oscuro
               ),
@@ -74,7 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   labelText: "Contraseña",
-                  labelStyle: const TextStyle(color: Colores.texto), // Gris Oscuro
+                  labelStyle:
+                      const TextStyle(color: Colores.texto), // Gris Oscuro
                   enabledBorder: const UnderlineInputBorder(
                     borderSide: BorderSide(color: Colores.texto), // Gris Oscuro
                   ),
@@ -134,8 +140,10 @@ class _LoginScreenState extends State<LoginScreen> {
               margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
               child: GestureDetector(
                 onTap: () => {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const RegisterScreen()))
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const RegisterScreen()))
                 },
                 child: const Text(
                   "¿No tienes una cuenta? Registrate ahora",
@@ -157,18 +165,36 @@ class _LoginScreenState extends State<LoginScreen> {
     String password = _passwordController.text;
 
     ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-    Usuario? usuario =
-        await servicioUsuarios.login(emailOrPhone, password);
+    Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
+    final SharedPreferences preferencias =
+        await SharedPreferences.getInstance();
 
     if (usuario != null) {
-      
-      Navigator.push(
-        context,
-        PageTransition(
-          type: PageTransitionType.fade,
-          child: SeleccionPerfil(IdUsuario: usuario.Id),
-        ),
-      );
+      if (preferencias.getInt('IdUsuario') == null) {
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            child: SeleccionPerfil(IdUsuario: usuario.Id),
+          ),
+        );
+      } else {
+        int? preferenciaPerfil = preferencias.getInt('IdUsuario');
+        print("preferenciaPerfil = $preferenciaPerfil");
+        Perfiles? perfil;
+        if (preferenciaPerfil != null) {
+          perfil = await ServicioPerfiles().getPerfilById(preferenciaPerfil);
+        }
+        if (perfil != null) {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: ResumenScreen(perfil: perfil),
+            ),
+          );
+        }
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

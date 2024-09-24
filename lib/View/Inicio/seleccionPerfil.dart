@@ -6,10 +6,10 @@ import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Inicio/EditProfile.dart';
 import 'package:smart_family/View/Inicio/NewProfile.dart';
 import 'package:smart_family/View/Modulos/resumen.dart';
 import 'package:smart_family/components/colores.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SeleccionPerfil extends StatefulWidget {
   final int IdUsuario;
@@ -25,7 +25,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   late AnimationController _controller;
   List<Perfiles> perfiles = [];
   int selectedProfileIndex = -1;
-  bool _isEditMode = true; // Variable para controlar el modo de edición
+  bool _predeterminado = true; // Variable para controlar el modo de edición
 
   @override
   void initState() {
@@ -51,7 +51,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
 
   void _toggleEditMode() {
     setState(() {
-      _isEditMode = !_isEditMode;
+      _predeterminado = !_predeterminado;
     });
   }
 
@@ -119,9 +119,13 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                   onPressed: _toggleEditMode,
                   style: ElevatedButton.styleFrom(
                     foregroundColor: Colors.white,
-                    backgroundColor: Colores.botonesSecundarios,
+                    backgroundColor: _predeterminado
+                        ? Colores.botonesSecundarios
+                        : Colores.eliminar,
                   ),
-                  child: Text(_isEditMode ? 'Configurar perfiles' : 'Listo'),
+                  child: Text(_predeterminado
+                      ? 'Establecer como predeterminado'
+                      : 'Cancelar'),
                 ),
               ),
             ),
@@ -151,32 +155,29 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   // Método para construir un perfil
   Widget _buildPerfilItem(Perfiles perfil, int index) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         print("index: $index");
-        if (_isEditMode == true) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: ResumenScreen(perfil: perfil),
-            ),
-          );
-        } else {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: EditarPerfilScreen(
-                  Id: perfil.Id, IdUsuario: widget.IdUsuario),
-            ),
-          );
+        final SharedPreferences preferencias =
+            await SharedPreferences.getInstance();
+        if (!_predeterminado) {
+          await preferencias.setInt('IdUsuario', perfil.Id);
+          print(preferencias.getInt('IdUsuario'));
         }
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            child: ResumenScreen(
+              perfil: perfil,
+            ),
+          ),
+        );
       },
       child: Column(
         children: [
           CircleAvatar(
             radius: 50,
-            backgroundColor: _isEditMode ? Colores.principal : Colores.botones,
+            backgroundColor: Colores.botones,
             backgroundImage: perfil.FotoPerfil.isNotEmpty ? null : null,
             child: perfil.FotoPerfil.isEmpty
                 ? Text(
