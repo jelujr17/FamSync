@@ -1,5 +1,3 @@
-// ignore_for_file: file_names, library_private_types_in_public_api
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos
@@ -23,18 +21,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
   final TextEditingController _pinController = TextEditingController();
   final TextEditingController _fechaController = TextEditingController();
   bool _isPinVisible = false; // Variable para controlar la visibilidad del PIN
-  File? _imageFile;
-
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
-
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = File(pickedFile.path);
-      });
-    }
-  }
+  XFile? _image;
 
   Future<void> _selectDate(BuildContext context) async {
     DateTime? picked = await showDatePicker(
@@ -63,26 +50,27 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
     final String pin = _pinController.text;
     final String fechaNacimientoStr = _fechaController.text;
 
-    if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty) {
+    if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty && _image != null) {
       try {
         // Utiliza DateFormat para convertir el String a DateTime
         DateFormat format = DateFormat("dd/MM/yyyy");
         DateTime fechaNacimiento = format.parse(fechaNacimientoStr);
 
-        // Aquí puedes manejar la creación del perfil sin convertir a UTC
         print('Nombre del perfil: $nombre');
         print('PIN del perfil: $pin');
         print('Fecha de Nacimiento: $fechaNacimiento');
         print("Id usuario: ${widget.IdUsuario}");
 
-        // Llama a tu servicio con la fecha local
+        // Llama a tu servicio con la imagen
         bool creado = await ServicioPerfiles().registrarPerfil(
           widget.IdUsuario,
           nombre,
-          1,
+          File(_image!.path), // Pasar la imagen aquí
           int.parse(pin),
           fechaNacimientoStr, // Enviar la fecha tal como está
+          1 // Asumiendo que quieres enviar un valor de Infantil
         );
+
         if (creado) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Perfil creado exitosamente')),
@@ -91,8 +79,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
               context, MaterialPageRoute(builder: (context) => SeleccionPerfil(IdUsuario: widget.IdUsuario,)));
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Error al crear un perfil')),
+            const SnackBar(content: Text('Error al crear un perfil')),
           );
         }
       } catch (e) {
@@ -103,6 +90,48 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
       // Mostrar un mensaje de error o alerta si faltan campos
       print('Por favor completa todos los campos.');
     }
+  }
+
+  Future<void> _getImage(ImageSource source) async {
+    final picker = ImagePicker();
+    final pickedImage = await picker.pickImage(source: source);
+    if (pickedImage != null) {
+      setState(() {
+        _image = pickedImage; // Guardar la imagen seleccionada
+      });
+    }
+  }
+
+  // Método para seleccionar la imagen
+  void _pickImage() {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) {
+        return Container(
+          height: 100,
+          child: Column(
+            children: [
+              ListTile(
+                leading: Icon(Icons.camera),
+                title: Text('Tomar foto'),
+                onTap: () {
+                  _getImage(ImageSource.camera);
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.image),
+                title: Text('Seleccionar de la galería'),
+                onTap: () {
+                  _getImage(ImageSource.gallery);
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -130,9 +159,8 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colores.principal,
-                  backgroundImage:
-                      _imageFile != null ? FileImage(_imageFile!) : null,
-                  child: _imageFile == null
+                  backgroundImage: _image != null ? FileImage(File(_image!.path)) : null,
+                  child: _image == null
                       ? const Icon(
                           Icons.add_a_photo,
                           size: 50,
@@ -161,8 +189,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
                     ),
                     onPressed: () {
                       setState(() {
-                        _isPinVisible =
-                            !_isPinVisible; // Cambia la visibilidad del PIN
+                        _isPinVisible = !_isPinVisible; // Cambia la visibilidad del PIN
                       });
                     },
                   ),
@@ -178,10 +205,8 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
                   labelText: 'Fecha de Nacimiento',
                   border: OutlineInputBorder(),
                 ),
-                readOnly:
-                    true, // Para que el usuario no pueda escribir directamente
-                onTap: () => _selectDate(
-                    context), // Mostrar el selector de fecha al tocar
+                readOnly: true, // Para que el usuario no pueda escribir directamente
+                onTap: () => _selectDate(context), // Mostrar el selector de fecha al tocar
               ),
               const SizedBox(height: 20),
               ElevatedButton(
