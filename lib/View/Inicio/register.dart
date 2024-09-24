@@ -5,6 +5,8 @@ import 'package:smart_family/components/background.dart';
 import 'package:smart_family/components/colores.dart';
 
 class RegisterScreen extends StatefulWidget {
+  const RegisterScreen({super.key});
+
   @override
   _RegisterScreenState createState() => _RegisterScreenState();
 }
@@ -250,7 +252,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => LoginScreen()));
+                                builder: (context) => const LoginScreen()));
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
@@ -290,7 +292,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: GestureDetector(
                   onTap: () => {
                     Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => LoginScreen()))
+                        MaterialPageRoute(builder: (context) => const LoginScreen()))
                   },
                   child: const Text(
                     "¿Ya tienes una cuenta? Inicia sesión",

@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos

@@ -9,6 +9,8 @@ import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/components/colores.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -133,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: GestureDetector(
                 onTap: () => {
                   Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => RegisterScreen()))
+                      MaterialPageRoute(builder: (context) => const RegisterScreen()))
                 },
                 child: const Text(
                   "¿No tienes una cuenta? Registrate ahora",

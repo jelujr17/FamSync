@@ -70,7 +70,7 @@ class PerfilState extends State<Perfil> {
           children: [
             Stack(
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 60,
                   backgroundImage: AssetImage(
                       'assets/profile_picture.png'), // Reemplazar con la imagen del perfil

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:mysql1/mysql1.dart';
 import 'package:smart_family/Library/db_data.dart';
-import 'package:bcrypt/bcrypt.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -195,7 +194,6 @@ class ServicioPerfiles {
 
   Future<File> obtenerImagen(String nombre) async {
     Map<String, dynamic> data = {"fileName": nombre};
-
     // Realizar la solicitud al servidor
     final response = await http.post(
       Uri.parse('http://localhost:3000/perfiles/receiveFile'),
@@ -205,14 +203,16 @@ class ServicioPerfiles {
     // Verificar si la solicitud fue exitosa
     if (response.statusCode == 200) {
       // Guardar el contenido de la respuesta en un archivo temporal
-      final tempDir = await Directory.systemTemp;
+      const tempDir =
+          'C:\\Users\\mario\\Documents\\Imagenes_Smart_Family\\Perfiles\\';
       final filePath =
-          '${tempDir.path}/$nombre'; // Puedes usar un nombre de archivo específico si lo deseas
+          '$tempDir/$nombre'; // Puedes usar un nombre de archivo específico si lo deseas
       File file = File(filePath);
       await file.writeAsBytes(response.bodyBytes);
-
+      print("imagen encontrada");
       return file; // Devolver el archivo creado
     } else {
+      print("imagen no encontrada");
       // Si hay un error en la solicitud, lanzar una excepción
       throw Exception('Error al obtener el archivo: ${response.statusCode}');
     }

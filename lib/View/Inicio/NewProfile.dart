@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos
@@ -107,21 +109,21 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
     showModalBottomSheet(
       context: context,
       builder: (context) {
-        return Container(
+        return SizedBox(
           height: 100,
           child: Column(
             children: [
               ListTile(
-                leading: Icon(Icons.camera),
-                title: Text('Tomar foto'),
+                leading: const Icon(Icons.camera),
+                title: const Text('Tomar foto'),
                 onTap: () {
                   _getImage(ImageSource.camera);
                   Navigator.pop(context);
                 },
               ),
               ListTile(
-                leading: Icon(Icons.image),
-                title: Text('Seleccionar de la galería'),
+                leading: const Icon(Icons.image),
+                title: const Text('Seleccionar de la galería'),
                 onTap: () {
                   _getImage(ImageSource.gallery);
                   Navigator.pop(context);

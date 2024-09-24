@@ -1,3 +1,7 @@
+// ignore_for_file: file_names
+
+import 'dart:io';
+
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -173,18 +177,39 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
           CircleAvatar(
             radius: 50,
             backgroundColor: _isEditMode ? Colores.principal : Colores.botones,
-            child: !_isEditMode
-                ? const Icon(
-                    Icons.edit,
-                    size: 30,
-                    color: Colors.white,
-                  )
-                : Text(
-                    perfil.Nombre[0],
+            backgroundImage: perfil.FotoPerfil.isNotEmpty ? null : null,
+            child: perfil.FotoPerfil.isEmpty
+                ? Text(
+                    perfil.Nombre[0], // Mostrar la inicial si no hay imagen
                     style: const TextStyle(
                       color: Colores.texto,
                       fontSize: 30,
                     ),
+                  )
+                : FutureBuilder<File>(
+                    future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<File> snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        // Mientras la imagen se está descargando, mostramos un indicador de carga
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        print("error al obtener la imagen");
+                        // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
+                        return const Icon(Icons.error, color: Colores.texto);
+                      } else if (snapshot.hasData && snapshot.data != null) {
+                        print("imagen descargada");
+                        // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
+                        return CircleAvatar(
+                          radius: 50,
+                          backgroundImage:
+                              FileImage(snapshot.data!), // Mostrar la imagen
+                        );
+                      } else {
+                        // Si no hay datos, mostramos un espacio vacío o algún fallback
+                        return const Icon(Icons.person, color: Colores.texto);
+                      }
+                    },
                   ),
           ),
           const SizedBox(height: 10),
