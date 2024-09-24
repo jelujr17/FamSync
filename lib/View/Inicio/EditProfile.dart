@@ -6,7 +6,6 @@ import 'dart:io'; // Para manejar archivos
 import 'package:intl/intl.dart'; // Paquete para formatear fechas
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
-
 import 'package:smart_family/components/colores.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
@@ -30,18 +29,21 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   @override
   void initState() {
     super.initState();
-    _nombreController.text =
-        widget.perfil.Nombre; // Asignar el nombre del perfil
-    _fechaController.text =
-        widget.perfil.FechaNacimiento; // Asignar la fecha de nacimiento
+    _nombreController.text = widget.perfil.Nombre;
+    _fechaController.text = widget.perfil.FechaNacimiento;
+    _cargarImagenPerfil(); // Llama a cargar la imagen al iniciar
   }
 
+  // Método para cargar la imagen de perfil desde el servicio
   Future<void> _cargarImagenPerfil() async {
     if (widget.perfil.FotoPerfil.isNotEmpty) {
-      // Cargar la imagen si existe en la base de datos
-      _imagenPerfil =
+      File? imagen =
           await ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil);
-      setState(() {});
+      if (imagen != null) {
+        setState(() {
+          _imagenPerfil = imagen; // Actualiza el estado de la imagen
+        });
+      }
     }
   }
 
@@ -51,7 +53,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        _imagenPerfil = File(pickedFile.path);
+        _imagenPerfil =
+            File(pickedFile.path); // Actualiza la imagen seleccionada
       });
     }
   }
@@ -93,13 +96,12 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
           if (pin_actual == int.parse(pin)) {
             bool editado = await ServicioPerfiles().editarPerfil(
-              widget.perfil.Id,
-              nombre,
-              _imagenPerfil,
-              int.parse(nuevopin),
-              fechaNacimientoStr,
-              perfil.FotoPerfil
-            );
+                widget.perfil.Id,
+                nombre,
+                _imagenPerfil,
+                int.parse(nuevopin),
+                fechaNacimientoStr,
+                perfil.FotoPerfil);
             if (editado) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Perfil editado exitosamente')),
@@ -235,47 +237,23 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 child: CircleAvatar(
                   radius: 50,
                   backgroundColor: Colores.principal,
-                  backgroundImage:
-                      widget.perfil.FotoPerfil.isNotEmpty ? null : null,
-                  child: widget.perfil.FotoPerfil.isEmpty
+                  backgroundImage: _imagenPerfil != null
+                      ? FileImage(
+                          _imagenPerfil!) // Muestra la imagen seleccionada
+                      : widget.perfil.FotoPerfil.isNotEmpty
+                          ? null // Muestra la imagen cargada si ya existe
+                          : null,
+                  child: _imagenPerfil == null &&
+                          widget.perfil.FotoPerfil.isEmpty
                       ? Text(
                           widget.perfil
-                              .Nombre[0], // Mostrar la inicial si no hay imagen
+                              .Nombre[0], // Inicial del nombre si no hay imagen
                           style: const TextStyle(
                             color: Colores.texto,
                             fontSize: 30,
                           ),
                         )
-                      : FutureBuilder<File>(
-                          future: ServicioPerfiles()
-                              .obtenerImagen(widget.perfil.FotoPerfil),
-                          builder: (BuildContext context,
-                              AsyncSnapshot<File> snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.waiting) {
-                              // Mientras la imagen se está descargando, mostramos un indicador de carga
-                              return const CircularProgressIndicator();
-                            } else if (snapshot.hasError) {
-                              print("error al obtener la imagen");
-                              // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
-                              return const Icon(Icons.error,
-                                  color: Colores.texto);
-                            } else if (snapshot.hasData &&
-                                snapshot.data != null) {
-                              print("imagen descargada");
-                              // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
-                              return CircleAvatar(
-                                radius: 50,
-                                backgroundImage: FileImage(
-                                    snapshot.data!), // Mostrar la imagen
-                              );
-                            } else {
-                              // Si no hay datos, mostramos un espacio vacío o algún fallback
-                              return const Icon(Icons.person,
-                                  color: Colores.texto);
-                            }
-                          },
-                        ),
+                      : null,
                 ),
               ),
               const SizedBox(height: 20),
@@ -311,7 +289,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               TextField(
                 controller: _newPinController,
                 decoration: InputDecoration(
-                  labelText: 'PIN Nuevo',
+                  labelText: 'Nuevo PIN',
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon: Icon(
@@ -331,28 +309,26 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               const SizedBox(height: 20),
               TextField(
                 controller: _fechaController,
+                readOnly: true,
+                onTap: () => _selectDate(context),
                 decoration: const InputDecoration(
                   labelText: 'Fecha de Nacimiento',
                   border: OutlineInputBorder(),
                 ),
-                readOnly: true,
-                onTap: () => _selectDate(context),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _editarPerfil,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colores.botonesSecundarios,
+                  backgroundColor: Colores.botones, // Color del botón
                 ),
-                child: const Text('Editar Perfil'),
+                child: const Text('Guardar Cambios'),
               ),
-              const SizedBox(height: 200),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _eliminarPerfil,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white,
-                  backgroundColor: Colores.eliminar,
+                  backgroundColor: Colores.eliminar, // Color del botón
                 ),
                 child: const Text('Eliminar Perfil'),
               ),
