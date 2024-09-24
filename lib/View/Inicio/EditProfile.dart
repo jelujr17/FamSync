@@ -10,11 +10,9 @@ import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
 import 'package:smart_family/components/colores.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
-  final int Id;
-  final int IdUsuario;
+  final Perfiles perfil;
 
-  const EditarPerfilScreen(
-      {super.key, required this.Id, required this.IdUsuario});
+  const EditarPerfilScreen({super.key, required this.perfil});
 
   @override
   _EditarPerfilScreenState createState() => _EditarPerfilScreenState();
@@ -27,7 +25,26 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   final TextEditingController _fechaController = TextEditingController();
 
   bool _isPinVisible = false; // Variable para controlar la visibilidad del PIN
-  File? _imageFile;
+  File? _imagenPerfil; // Cambiado a File? para almacenar la imagen
+
+  @override
+  void initState() {
+    super.initState();
+    _nombreController.text =
+        widget.perfil.Nombre; // Asignar el nombre del perfil
+    _fechaController.text =
+        widget.perfil.FechaNacimiento; // Asignar la fecha de nacimiento
+  }
+
+  Future<void> _cargarImagenPerfil() async {
+    if (widget.perfil.FotoPerfil != null &&
+        widget.perfil.FotoPerfil.isNotEmpty) {
+      // Cargar la imagen si existe en la base de datos
+      _imagenPerfil =
+          await ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil);
+      setState(() {});
+    }
+  }
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
@@ -35,7 +52,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
     if (pickedFile != null) {
       setState(() {
-        _imageFile = File(pickedFile.path);
+        _imagenPerfil = File(pickedFile.path);
       });
     }
   }
@@ -70,13 +87,14 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         DateFormat format = DateFormat("dd/MM/yyyy");
         format.parse(fechaNacimientoStr);
 
-        Perfiles? perfil = await ServicioPerfiles().getPerfilById(widget.Id);
+        Perfiles? perfil =
+            await ServicioPerfiles().getPerfilById(widget.perfil.Id);
         if (perfil != null) {
           int pin_actual = perfil.Pin;
 
           if (pin_actual == int.parse(pin)) {
             bool editado = await ServicioPerfiles().editarPerfil(
-              widget.Id,
+              widget.perfil.Id,
               nombre,
               1,
               int.parse(nuevopin),
@@ -90,7 +108,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => SeleccionPerfil(
-                            IdUsuario: widget.IdUsuario,
+                            IdUsuario: widget.perfil.UsuarioId,
                           )));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -117,7 +135,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     // Mostrar ventana emergente de confirmación
     bool confirm = await _mostrarConfirmacionEliminar();
     if (confirm) {
-      bool eliminado = await ServicioPerfiles().eliminarPerfil(widget.Id);
+      bool eliminado =
+          await ServicioPerfiles().eliminarPerfil(widget.perfil.Id);
       if (eliminado) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil eliminado exitosamente')),
@@ -126,7 +145,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             context,
             MaterialPageRoute(
                 builder: (context) => SeleccionPerfil(
-                      IdUsuario: widget.IdUsuario,
+                      IdUsuario: widget.perfil.UsuarioId,
                     )));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -138,7 +157,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
   Future<bool> _mostrarConfirmacionEliminar() async {
     TextEditingController pinController = TextEditingController();
-    Perfiles? perfilEliminar = await ServicioPerfiles().getPerfilById(widget.Id);
+    Perfiles? perfilEliminar =
+        await ServicioPerfiles().getPerfilById(widget.perfil.Id);
 
     return await showDialog(
           context: context,
@@ -216,14 +236,46 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   radius: 50,
                   backgroundColor: Colores.principal,
                   backgroundImage:
-                      _imageFile != null ? FileImage(_imageFile!) : null,
-                  child: _imageFile == null
-                      ? const Icon(
-                          Icons.add_a_photo,
-                          size: 50,
-                          color: Colores.texto,
+                      widget.perfil.FotoPerfil.isNotEmpty ? null : null,
+                  child: widget.perfil.FotoPerfil.isEmpty
+                      ? Text(
+                          widget.perfil
+                              .Nombre[0], // Mostrar la inicial si no hay imagen
+                          style: const TextStyle(
+                            color: Colores.texto,
+                            fontSize: 30,
+                          ),
                         )
-                      : null,
+                      : FutureBuilder<File>(
+                          future: ServicioPerfiles()
+                              .obtenerImagen(widget.perfil.FotoPerfil),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<File> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              // Mientras la imagen se está descargando, mostramos un indicador de carga
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              print("error al obtener la imagen");
+                              // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
+                              return const Icon(Icons.error,
+                                  color: Colores.texto);
+                            } else if (snapshot.hasData &&
+                                snapshot.data != null) {
+                              print("imagen descargada");
+                              // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
+                              return CircleAvatar(
+                                radius: 50,
+                                backgroundImage: FileImage(
+                                    snapshot.data!), // Mostrar la imagen
+                              );
+                            } else {
+                              // Si no hay datos, mostramos un espacio vacío o algún fallback
+                              return const Icon(Icons.person,
+                                  color: Colores.texto);
+                            }
+                          },
+                        ),
                 ),
               ),
               const SizedBox(height: 20),

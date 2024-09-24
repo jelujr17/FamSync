@@ -4,6 +4,8 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/Inicio/EditProfile.dart';
+import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
 import 'package:smart_family/View/ajustes.dart';
 import 'package:smart_family/View/navegacion.dart';
 import 'package:smart_family/components/colores.dart';
@@ -49,12 +51,14 @@ class PerfilState extends State<Perfil> {
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: Ajustes(perfil: widget.perfil,),
-            ),
-          );
+                context,
+                PageTransition(
+                  type: PageTransitionType.fade,
+                  child: Ajustes(
+                    perfil: widget.perfil,
+                  ),
+                ),
+              );
             },
           ),
         ],
@@ -63,7 +67,15 @@ class PerfilState extends State<Perfil> {
         leading: IconButton(
           icon: const Icon(Icons.switch_account),
           onPressed: () {
-            // Acción para cambiar de perfil
+            Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.fade,
+                child: SeleccionPerfil(
+                  IdUsuario: widget.perfil.UsuarioId,
+                ),
+              ),
+            );
           },
         ),
       ),
@@ -75,40 +87,47 @@ class PerfilState extends State<Perfil> {
               children: [
                 CircleAvatar(
                   radius: 60,
-                  backgroundImage: widget.perfil.FotoPerfil.isNotEmpty ? null : null,
-            child: widget.perfil.FotoPerfil.isEmpty
-                ? Text(
-                    widget.perfil.Nombre[0], // Mostrar la inicial si no hay imagen
-                    style: const TextStyle(
-                      color: Colores.texto,
-                      fontSize: 30,
-                    ),
-                  )
-                : FutureBuilder<File>(
-                    future: ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil),
-                    builder:
-                        (BuildContext context, AsyncSnapshot<File> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        // Mientras la imagen se está descargando, mostramos un indicador de carga
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        print("error al obtener la imagen");
-                        // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
-                        return const Icon(Icons.error, color: Colores.texto);
-                      } else if (snapshot.hasData && snapshot.data != null) {
-                        print("imagen descargada");
-                        // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
-                        return CircleAvatar(
-                          radius: 50,
-                          backgroundImage:
-                              FileImage(snapshot.data!), // Mostrar la imagen
-                        );
-                      } else {
-                        // Si no hay datos, mostramos un espacio vacío o algún fallback
-                        return const Icon(Icons.person, color: Colores.texto);
-                      }
-                    },
-                  ),
+                  backgroundImage:
+                      widget.perfil.FotoPerfil.isNotEmpty ? null : null,
+                  child: widget.perfil.FotoPerfil.isEmpty
+                      ? Text(
+                          widget.perfil
+                              .Nombre[0], // Mostrar la inicial si no hay imagen
+                          style: const TextStyle(
+                            color: Colores.texto,
+                            fontSize: 30,
+                          ),
+                        )
+                      : FutureBuilder<File>(
+                          future: ServicioPerfiles()
+                              .obtenerImagen(widget.perfil.FotoPerfil),
+                          builder: (BuildContext context,
+                              AsyncSnapshot<File> snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              // Mientras la imagen se está descargando, mostramos un indicador de carga
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              print("error al obtener la imagen");
+                              // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
+                              return const Icon(Icons.error,
+                                  color: Colores.texto);
+                            } else if (snapshot.hasData &&
+                                snapshot.data != null) {
+                              print("imagen descargada");
+                              // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
+                              return CircleAvatar(
+                                radius: 50,
+                                backgroundImage: FileImage(
+                                    snapshot.data!), // Mostrar la imagen
+                              );
+                            } else {
+                              // Si no hay datos, mostramos un espacio vacío o algún fallback
+                              return const Icon(Icons.person,
+                                  color: Colores.texto);
+                            }
+                          },
+                        ),
                 ),
                 Positioned(
                   bottom: 0,
@@ -116,7 +135,15 @@ class PerfilState extends State<Perfil> {
                   child: IconButton(
                     icon: const Icon(Icons.edit),
                     onPressed: () {
-                      // Navegar a la página de edición de perfil
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.fade,
+                          child: EditarPerfilScreen(
+                            perfil: widget.perfil,
+                          ),
+                        ),
+                      );
                     },
                   ),
                 ),

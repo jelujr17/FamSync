@@ -159,6 +159,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
         print("index: $index");
         final SharedPreferences preferencias =
             await SharedPreferences.getInstance();
+            await preferencias.remove('IdUsuario'); 
         if (!_predeterminado) {
           await preferencias.setInt('IdUsuario', perfil.Id);
           print(preferencias.getInt('IdUsuario'));
