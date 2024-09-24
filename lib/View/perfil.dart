@@ -12,7 +12,9 @@ import 'package:smart_family/components/colores.dart';
 
 class Perfil extends StatefulWidget {
   final Perfiles perfil;
-  const Perfil({super.key, required this.perfil});
+    final GlobalKey<NavigatorState>? navigatorKey;
+
+  const Perfil({super.key, required this.perfil, this.navigatorKey});
 
   @override
   PerfilState createState() => PerfilState();
@@ -26,6 +28,7 @@ class PerfilState extends State<Perfil> {
   void initState() {
     super.initState();
     _bottomBarController = NotchBottomBarController(index: 2);
+    print("Perfil cargado: ${widget.perfil.FotoPerfil}"); // Para depuración
   }
 
   @override

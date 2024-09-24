@@ -186,6 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
           perfil = await ServicioPerfiles().getPerfilById(preferenciaPerfil);
         }
         if (perfil != null) {
+          print("Perfil encontrado en login: ${perfil.FotoPerfil}");
           Navigator.push(
             context,
             PageTransition(

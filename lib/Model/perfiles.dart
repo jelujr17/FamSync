@@ -76,7 +76,7 @@ class ServicioPerfiles {
         Id: perfilData['Id'] ?? 0, // Valor por defecto en caso de null
         UsuarioId: perfilData['UsuarioId'] ?? '',
         Nombre: perfilData['Nombre'] ?? '',
-        FotoPerfil: perfilData['FotoPerfilId'] ?? '',
+        FotoPerfil: perfilData['FotoPerfil'] ?? '',
         Pin: perfilData['Pin'] ?? '',
         FechaNacimiento: perfilData['FechaNacimiento'] ?? '',
         Infantil: perfilData['Infantil'] ?? '',
@@ -152,26 +152,97 @@ class ServicioPerfiles {
     }
   }
 
-  Future<bool> editarPerfil(int Id, String Nombre, int FotoPerfilId, int Pin,
-      String FechaNacimiento) async {
-    MySqlConnection conn = await DB().conexion();
-    print("-------");
-    print(Id);
-    print(Nombre);
-    print(FotoPerfilId);
-    print(Pin);
-    print(FechaNacimiento);
-    try {
-      await conn.query(
-          'UPDATE perfiles SET Nombre = ?, FotoPerfilId = ?, Pin = ?, FechaNacimiento = ? WHERE Id = ?',
-          [Nombre, FotoPerfilId, Pin, FechaNacimiento, Id]);
+  Future<bool> editarPerfil(int Id, String Nombre, File? imagen, int Pin,
+      String FechaNacimiento, String? fotoAnterior) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse('http://localhost:3000/perfiles/uploadImagen'),
+    );
 
-      return true;
+    String nombre = "error";
+    String imageUrl;
+
+    // Si se proporciona una nueva imagen, adjuntarla a la solicitud
+    if (imagen != null) {
+      request.files.add(
+        await http.MultipartFile.fromPath(
+          'imagen',
+          imagen.path,
+        ),
+      );
+
+      // Enviar la solicitud de la nueva imagen
+      try {
+        final response = await request.send();
+        final responseBody = await response.stream.bytesToString();
+
+        if (response.statusCode == 200) {
+          // La solicitud de imagen se completó con éxito
+          print('Solicitud de imagen completada con éxito');
+          Map<String, dynamic> jsonMap = json.decode(responseBody);
+          imageUrl = jsonMap[
+              'imageUrl']; // Asegúrate de que el campo se llame 'imageUrl'
+        } else {
+          // Error en la solicitud de imagen
+          print('Error en la solicitud de imagen: ${responseBody.toString()}');
+          return false;
+        }
+      } catch (e) {
+        // Error al enviar la solicitud
+        print('Error al enviar la solicitud de imagen: $e');
+        return false;
+      }
+
+      // Eliminar la foto anterior si existe
+      if (fotoAnterior != null) {
+        await eliminarFotoAnterior(
+            fotoAnterior); // Llama a la función para eliminar la foto anterior
+      }
+    } else {
+      // Si no hay nueva imagen, usar la URL anterior
+      imageUrl = fotoAnterior ??
+          ''; // Si no hay foto anterior, usar una cadena vacía o manejarlo según tu lógica
+    }
+
+    // Actualizar el perfil en la base de datos con la nueva imagen
+    Map<String, dynamic> perfilData = {
+      'Nombre': Nombre,
+      'FotoPerfil': imageUrl,
+      'Pin': Pin,
+      'FechaNacimiento': FechaNacimiento,
+    };
+
+    try {
+      http.Response response1 = await http.post(
+        Uri.parse('http://localhost:3000/perfiles/update?id=$Id'),
+        headers: {'Content-type': 'application/json'},
+        body: json.encode(perfilData),
+      );
+
+      return response1.statusCode == 200;
     } catch (e) {
-      print('Registro de perfil fallido: $e');
+      print('Error al actualizar el perfil: $e');
       return false;
-    } finally {
-      await conn.close();
+    }
+  }
+
+// Función para eliminar la foto anterior
+  Future<void> eliminarFotoAnterior(String fotoUrl) async {
+    // Aquí haces la lógica para eliminar la imagen del servidor o sistema de archivos
+    try {
+      final response = await http.post(
+        Uri.parse('http://localhost:3000/perfiles/eliminarImagen'),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({'fotoUrl': fotoUrl}),
+      );
+
+      if (response.statusCode == 200) {
+        print('Foto anterior eliminada con éxito');
+      } else {
+        print('Error al eliminar la foto anterior: ${response.body}');
+      }
+    } catch (e) {
+      print('Error al enviar solicitud de eliminación de imagen: $e');
     }
   }
 

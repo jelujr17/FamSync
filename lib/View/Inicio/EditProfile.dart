@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
@@ -37,8 +37,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   }
 
   Future<void> _cargarImagenPerfil() async {
-    if (widget.perfil.FotoPerfil != null &&
-        widget.perfil.FotoPerfil.isNotEmpty) {
+    if (widget.perfil.FotoPerfil.isNotEmpty) {
       // Cargar la imagen si existe en la base de datos
       _imagenPerfil =
           await ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil);
@@ -96,9 +95,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             bool editado = await ServicioPerfiles().editarPerfil(
               widget.perfil.Id,
               nombre,
-              1,
+              _imagenPerfil,
               int.parse(nuevopin),
               fechaNacimientoStr,
+              perfil.FotoPerfil
             );
             if (editado) {
               ScaffoldMessenger.of(context).showSnackBar(

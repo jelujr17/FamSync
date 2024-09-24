@@ -22,6 +22,8 @@ class ResumenScreenState extends State<ResumenScreen> {
   @override
   void initState() {
     super.initState();
+    print("Perfil cargado: ${widget.perfil.FotoPerfil}"); // Para depuración
+
     _bottomBarController = NotchBottomBarController(index: 0);
   }
 
