@@ -60,38 +60,46 @@ class AjustesState extends State<Ajustes> {
       theme: modoOscuro ? ThemeData.dark() : ThemeData.light(),
       home: Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () {
+              Navigator.of(context).pop(); // Esto retrocede una pantalla
+            },
+          ),
           title: const Text('Ajustes'),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 20),
-              _buildSectionHeader('Preferencias de la app'),
-              _buildSettingItem(Icons.language, 'Idioma'),
-              _buildSettingItemMode(
-                  Icon(modoOscuro ? Icons.light_mode : Icons.dark_mode),
-                  'Modo ${modoOscuro ? "claro" : "oscuro"}'),
-              _buildSettingItem(Icons.security, 'Privacidad & Seguridad'),
-              _buildSettingItemNotificaciones(
-                  Icon(notificaciones
-                      ? Icons.notifications
-                      : Icons.notifications_off),
-                  'Notificaciones',
-                  notificaciones),
-              _buildSettingItem2(
-                  const Icon(Icons.clear, color: Colors.red), 'Borrar Cache'),
-              _buildSectionHeader('Conexiones'),
-              _buildSettingItem(Icons.link, 'Cuentas vinculadas'),
-              _buildSettingItem(
-                  Icons.cloud_upload, 'Sincronización y Copias de seguridad'),
-              _buildSectionHeader('Seguridad'),
-              _buildSettingItem(Icons.lock, 'Cambiar Contraseña'),
-              _buildSectionHeader('Soporte'),
-              _buildSettingItem(Icons.help_outline, 'Ayuda & Soporte'),
-              _buildSettingItem(Icons.info_outline, 'Acerca de'),
-            ],
-          ),
+        body: ListView(
+          padding: const EdgeInsets.only(
+              top: 20, bottom: 80), // Aumenta el padding inferior
+          children: [
+            _buildSectionHeader('Preferencias de la app'),
+            _buildSettingItem(Icons.language, 'Idioma'),
+            _buildSettingItemMode(
+              Icon(modoOscuro ? Icons.light_mode : Icons.dark_mode),
+              'Modo ${modoOscuro ? "claro" : "oscuro"}',
+            ),
+            _buildSettingItem(Icons.security, 'Privacidad & Seguridad'),
+            _buildSettingItemNotificaciones(
+              Icon(notificaciones
+                  ? Icons.notifications
+                  : Icons.notifications_off),
+              'Notificaciones',
+              notificaciones,
+            ),
+            _buildSettingItem2(
+              const Icon(Icons.clear, color: Colors.red),
+              'Borrar Cache',
+            ),
+            _buildSectionHeader('Conexiones'),
+            _buildSettingItem(Icons.link, 'Cuentas vinculadas'),
+            _buildSettingItem(
+                Icons.cloud_upload, 'Sincronización y Copias de seguridad'),
+            _buildSectionHeader('Seguridad'),
+            _buildSettingItem(Icons.lock, 'Cambiar Contraseña'),
+            _buildSectionHeader('Soporte'),
+            _buildSettingItem(Icons.help_outline, 'Ayuda & Soporte'),
+            _buildSettingItem(Icons.info_outline, 'Acerca de'),
+          ],
         ),
         extendBody: true,
         bottomNavigationBar: CustomBottomNavBar(

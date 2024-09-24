@@ -3,6 +3,8 @@
 import 'package:mysql1/mysql1.dart';
 import 'package:smart_family/Library/db_data.dart';
 import 'package:bcrypt/bcrypt.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 abstract class Authenticatable {}
 
@@ -34,71 +36,82 @@ class Usuario implements Authenticatable {
 class ServicioUsuarios {
   // BUSCAR USUARIOS //
   Future<List<Usuario>> getUsuarios() async {
-    MySqlConnection conn = await DB().conexion();
-    try {
-      final resultado = await conn.query('SELECT * FROM usuarios');
-      final List<Usuario> usuarios = resultado.map((row) {
-        return Usuario(
-            Id: row['Id'],
-            Telefono: row['Telefono'],
-            Correo: row['Correo'],
-            Nombre: row['Nombre'],
-            Password: row['Password']);
-      }).toList();
+    http.Response response =
+        await http.get(Uri.parse('http://localhost:3000/usuario/get'));
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      List<dynamic> responseData =
+          jsonDecode(response.body); // Parsear la respuesta JSON
+      print(responseData);
+      List<Usuario> usuarios = responseData
+          .map((data) => Usuario(
+                Id: data['Id'],
+                Telefono: data['Telefono'],
+                Correo: data['Correo'],
+                Nombre: data['Nombre'],
+                Password: data['Password'],
+              ))
+          .toList();
       return usuarios;
-    } catch (e) {
-      print('Error al obtener los usuarios existentes: $e');
-      return []; // Devolver una lista vacía en caso de error
-    } finally {
-      await conn.close();
+    } else {
+      throw Exception(
+          'Error al obtener los usuarios'); // Lanzar una excepción en caso de error
     }
   }
 
-  Future<Usuario?> getUsuarioByCorreo(String Correo) async {
-    MySqlConnection conn = await DB().conexion();
-    try {
-      final resultado =
-          await conn.query('SELECT * FROM usuarios WHERE Correo = ?', [Correo]);
-      if (resultado.isNotEmpty) {
-        final usuario = Usuario(
-          Id: resultado.first['Id'],
-          Telefono: resultado.first['Telefono'],
-          Correo: resultado.first['Correo'].toString(),
-          Nombre: resultado.first['Nombre'].toString(),
-          Password: resultado.first['Password'].toString(),
-        );
-        return usuario;
-      }
-      return null;
-    } catch (e) {
-      print('Error al recibir el usuario por correo: $e');
-      return null;
-    } finally {
-      await conn.close();
+  Future<Usuario?> getUsuarioByCorreo(String correo) async {
+    http.Response response = await http.get(
+      Uri.parse('http://localhost:3000/usuarios/getByCorreo?correo=$correo'),
+      headers: {'Content-type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      print(
+          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
+
+      // Acceder a los argumentos
+      Map<String, dynamic> usuarioData = responseData['arguments'];
+
+      // Crear el objeto Usuario con los datos del argumento
+      Usuario usuario = Usuario(
+        Id: usuarioData['Id'] ?? 0, // Valor por defecto en caso de null
+        Telefono: usuarioData['Telefono'] ?? '',
+        Correo: usuarioData['Correo'] ?? '',
+        Nombre: usuarioData['Nombre'] ?? '',
+        Password: usuarioData['Password'] ?? '',
+      );
+      return usuario;
+    } else {
+      throw Exception('Error al obtener el usuario por correo');
     }
   }
 
-  Future<Usuario?> getUsuarioByTelefono(int Telefono) async {
-    MySqlConnection conn = await DB().conexion();
-    try {
-      final resultado = await conn
-          .query('SELECT * FROM usuarios WHERE Telefono = ?', [Telefono]);
-      if (resultado.isNotEmpty) {
-        final usuario = Usuario(
-          Id: resultado.first['Id'],
-          Telefono: resultado.first['Telefono'],
-          Correo: resultado.first['Correo'].toString(),
-          Nombre: resultado.first['Nombre'].toString(),
-          Password: resultado.first['Password'].toString(),
-        );
-        return usuario;
-      }
-      return null;
-    } catch (e) {
-      print('Error al recibir el usuario por telefono: $e');
-      return null;
-    } finally {
-      await conn.close();
+  Future<Usuario?> getUsuarioByTelefono(int telefono) async {
+    http.Response response = await http.get(
+      Uri.parse('http://localhost:3000/usuarios/getByTelefono?telefono=$telefono'),
+      headers: {'Content-type': 'application/json'},
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      print(
+          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
+
+      // Acceder a los argumentos
+      Map<String, dynamic> usuarioData = responseData['arguments'];
+
+      // Crear el objeto Usuario con los datos del argumento
+      Usuario usuario = Usuario(
+        Id: usuarioData['Id'] ?? 0, // Valor por defecto en caso de null
+        Telefono: usuarioData['Telefono'] ?? '',
+        Correo: usuarioData['Correo'] ?? '',
+        Nombre: usuarioData['Nombre'] ?? '',
+        Password: usuarioData['Password'] ?? '',
+      );
+      return usuario;
+    } else {
+      throw Exception('Error al obtener el usuario por telefono');
     }
   }
 
@@ -130,31 +143,26 @@ class ServicioUsuarios {
 
   // REGISTRO DE USUARIO
   Future<bool> isCorreoRegistered(String correo) async {
-    MySqlConnection conn = await DB().conexion();
     try {
-      final resultado =
-          await conn.query('SELECT * FROM usuarios WHERE Correo = ?', [correo]);
-      return resultado.isNotEmpty;
+      Usuario? usuario = await getUsuarioByCorreo(correo);
+      // Si se obtiene un usuario, el correo está registrado
+      return usuario != null;
     } catch (e) {
+      // Manejar el error en caso de que la llamada a la API falle
       print('Error al verificar el correo: $e');
-      return false;
-    } finally {
-      await conn.close();
+      return false; // Devuelve false en caso de error
     }
   }
 
-  // Verificar si el teléfono ya está registrado
   Future<bool> isTelefonoRegistered(int telefono) async {
-    MySqlConnection conn = await DB().conexion();
     try {
-      final resultado = await conn
-          .query('SELECT * FROM usuarios WHERE Telefono = ?', [telefono]);
-      return resultado.isNotEmpty;
+      Usuario? usuario = await getUsuarioByTelefono(telefono);
+      // Si se obtiene un usuario, el teléfono está registrado
+      return usuario != null;
     } catch (e) {
+      // Manejar el error en caso de que la llamada a la API falle
       print('Error al verificar el teléfono: $e');
-      return false;
-    } finally {
-      await conn.close();
+      return false; // Devuelve false en caso de error
     }
   }
 

@@ -5,7 +5,7 @@ class DB {
     MySqlConnection conn;
     try {
       conn = await MySqlConnection.connect(ConnectionSettings(
-        host: 'localhost',
+        host: '172.27.147.244',
         port: 3306,
         user: 'root',
         password: 'root',
