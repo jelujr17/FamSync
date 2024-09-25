@@ -153,68 +153,58 @@ class ServicioPerfiles {
   }
 
   Future<bool> editarPerfil(int Id, String Nombre, File? imagen, int Pin,
-      String FechaNacimiento, String? fotoAnterior) async {
+      String FechaNacimiento, String? fotoAnterior, int Infantil) async {
     var request = http.MultipartRequest(
       'POST',
       Uri.parse('http://localhost:3000/perfiles/uploadImagen'),
     );
 
+    // Paso 2: Adjuntar el archivo a la solicitud
+    request.files.add(
+      await http.MultipartFile.fromPath(
+        'imagen',
+        imagen!.path,
+      ),
+    );
+// Envía la solicitud y maneja la respuesta
     String nombre = "error";
-    String imageUrl;
+    try {
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
-    // Si se proporciona una nueva imagen, adjuntarla a la solicitud
-    if (imagen != null) {
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'imagen',
-          imagen.path,
-        ),
-      );
+      if (response.statusCode == 200) {
+        // La solicitud se completó con éxito
+        print('Solicitud completada con éxito');
 
-      // Enviar la solicitud de la nueva imagen
-      try {
-        final response = await request.send();
-        final responseBody = await response.stream.bytesToString();
-
-        if (response.statusCode == 200) {
-          // La solicitud de imagen se completó con éxito
-          print('Solicitud de imagen completada con éxito');
-          Map<String, dynamic> jsonMap = json.decode(responseBody);
-          imageUrl = jsonMap[
-              'imageUrl']; // Asegúrate de que el campo se llame 'imageUrl'
-        } else {
-          // Error en la solicitud de imagen
-          print('Error en la solicitud de imagen: ${responseBody.toString()}');
-          return false;
-        }
-      } catch (e) {
-        // Error al enviar la solicitud
-        print('Error al enviar la solicitud de imagen: $e');
-        return false;
+        // Lee el cuerpo de la respuesta como una cadena
+        print('Cuerpo de la respuesta: $responseBody');
+        nombre = responseBody;
+      } else {
+        // Error en la solicitud
+        print('Error en la solicitud: ${responseBody.toString()}');
       }
-
-      // Eliminar la foto anterior si existe
-      if (fotoAnterior != null) {
-        await eliminarFotoAnterior(
-            fotoAnterior); // Llama a la función para eliminar la foto anterior
-      }
-    } else {
-      // Si no hay nueva imagen, usar la URL anterior
-      imageUrl = fotoAnterior ??
-          ''; // Si no hay foto anterior, usar una cadena vacía o manejarlo según tu lógica
+    } catch (e) {
+      // Error al enviar la solicitud
+      print('Error al enviar la solicitud: $e');
     }
+
+    Map<String, dynamic> jsonMap = json.decode(nombre);
+    String imageUrl = jsonMap['imageUrl'];
+
 
     // Actualizar el perfil en la base de datos con la nueva imagen
     Map<String, dynamic> perfilData = {
+      'Id': Id,
       'Nombre': Nombre,
       'FotoPerfil': imageUrl,
       'Pin': Pin,
       'FechaNacimiento': FechaNacimiento,
+      'Infantil' : Infantil
     };
 
     try {
       http.Response response1 = await http.post(
-        Uri.parse('http://localhost:3000/perfiles/update?id=$Id'),
+        Uri.parse('http://localhost:3000/perfiles/update'),
         headers: {'Content-type': 'application/json'},
         body: json.encode(perfilData),
       );
@@ -230,10 +220,10 @@ class ServicioPerfiles {
   Future<void> eliminarFotoAnterior(String fotoUrl) async {
     // Aquí haces la lógica para eliminar la imagen del servidor o sistema de archivos
     try {
-      final response = await http.post(
-        Uri.parse('http://localhost:3000/perfiles/eliminarImagen'),
+      final response = await http.get(
+        Uri.parse(
+            'http://localhost:3000/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
         headers: {'Content-type': 'application/json'},
-        body: jsonEncode({'fotoUrl': fotoUrl}),
       );
 
       if (response.statusCode == 200) {

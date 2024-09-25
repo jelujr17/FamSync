@@ -93,7 +93,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             await ServicioPerfiles().getPerfilById(widget.perfil.Id);
         if (perfil != null) {
           int pin_actual = perfil.Pin;
-
+          print("Imagen nueva: ${_imagenPerfil?.path}");
           if (pin_actual == int.parse(pin)) {
             bool editado = await ServicioPerfiles().editarPerfil(
                 widget.perfil.Id,
@@ -101,7 +101,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 _imagenPerfil,
                 int.parse(nuevopin),
                 fechaNacimientoStr,
-                perfil.FotoPerfil);
+                perfil.FotoPerfil,
+                widget.perfil.Infantil);
             if (editado) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Perfil editado exitosamente')),
