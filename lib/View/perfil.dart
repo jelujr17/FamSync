@@ -163,7 +163,7 @@ class PerfilState extends State<Perfil> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: _pageController,
-        controller: _bottomBarController,
+        pagina: 2,
         perfil: widget.perfil,
       ),
     );

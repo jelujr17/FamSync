@@ -71,7 +71,7 @@ class ResumenScreenState extends State<ResumenScreen> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
           pageController: _pageController,
-          controller: _bottomBarController,
+          pagina: 0,
           perfil: widget.perfil),
     );
   }

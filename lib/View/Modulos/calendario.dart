@@ -98,7 +98,7 @@ class CalendarioScreenState extends State<Calendario> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: _pageController,
-        controller: _controller,
+        pagina: 1,
         perfil: widget.perfil,
       ),
     );

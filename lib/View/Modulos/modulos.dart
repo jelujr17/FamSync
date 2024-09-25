@@ -95,7 +95,7 @@ class ModulosState extends State<Modulos> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
           pageController: _pageController,
-          controller: _bottomBarController,
+          pagina: 1,
           perfil: widget.perfil),
     );
   }

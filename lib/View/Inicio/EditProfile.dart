@@ -39,12 +39,10 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     if (widget.perfil.FotoPerfil.isNotEmpty) {
       File? imagen =
           await ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil);
-      if (imagen != null) {
-        setState(() {
-          _imagenPerfil = imagen; // Actualiza el estado de la imagen
-        });
-      }
-    }
+      setState(() {
+        _imagenPerfil = imagen; // Actualiza el estado de la imagen
+      });
+        }
   }
 
   Future<void> _pickImage() async {
