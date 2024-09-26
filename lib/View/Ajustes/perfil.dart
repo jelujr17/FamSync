@@ -43,28 +43,7 @@ class PerfilState extends State<Perfil> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications),
-            onPressed: () {
-              // Navegar a la página de notificaciones
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                PageTransition(
-                  type: PageTransitionType.fade,
-                  child: Ajustes(
-                    perfil: widget.perfil,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
+        
         centerTitle: true,
         // Opción para cambiar de perfil
         leading: IconButton(

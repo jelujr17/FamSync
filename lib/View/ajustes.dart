@@ -3,8 +3,9 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
+import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
 import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/View/perfil.dart';
+import 'package:smart_family/View/Ajustes/perfil.dart';
 import 'package:smart_family/components/colores.dart';
 
 class Ajustes extends StatefulWidget {
@@ -104,16 +105,42 @@ class AjustesState extends State<Ajustes> {
                     widget.perfil.FechaNacimiento,
                     style: const TextStyle(color: ColoresAjustes.texto),
                   ),
-                  trailing: const Icon(Icons.info, color: ColoresAjustes.texto),
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      PageTransition(
-                        type: PageTransitionType.fade,
-                        child: Perfil(perfil: widget.perfil),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize
+                        .min, // Esto asegura que el Row ocupe el mínimo espacio necesario
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          // Acción para el primer ícono (por ejemplo, el ícono de info)
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              type: PageTransitionType.fade,
+                              child:
+                                  Perfil(perfil: widget.perfil,), // Cambia esto por la pantalla correspondiente
+                            ),
+                          );
+                        },
+                        child:
+                            const Icon(Icons.info, color: ColoresAjustes.texto),
                       ),
-                    );
-                  },
+                      const SizedBox(width: 8), // Espacio entre los íconos
+                      GestureDetector(
+                        onTap: () {
+                          // Acción para el segundo ícono (por ejemplo, la flecha)
+                          Navigator.pushReplacement(
+                            context,
+                            PageTransition(
+                              type: PageTransitionType.fade,
+                              child: SeleccionPerfil(IdUsuario: widget.perfil.UsuarioId),
+                            ),
+                          );
+                        },
+                        child: const Icon(Icons.change_circle,
+                            color: ColoresAjustes.texto),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
