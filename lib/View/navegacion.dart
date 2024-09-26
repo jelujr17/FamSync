@@ -77,6 +77,15 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               ),
             );
             break;
+            case 3:
+            Navigator.pushReplacement(
+              context,
+              PageTransition(
+                type: PageTransitionType.fade,
+                child: Modulos(perfil: widget.perfil),
+              ),
+            );
+            break;
         }
 
         // Saltar a la página correspondiente

@@ -6,17 +6,15 @@ import 'package:smart_family/View/Modulos/calendario.dart';
 import 'package:smart_family/View/navegacion.dart';
 
 class Modulos extends StatefulWidget {
-  final GlobalKey<NavigatorState>? navigatorKey;
   final Perfiles perfil;
 
-  const Modulos({super.key, this.navigatorKey, required this.perfil});
+  const Modulos({super.key, required this.perfil});
 
   @override
   ModulosState createState() => ModulosState();
 }
 
 class ModulosState extends State<Modulos> {
-  final PageController _pageController = PageController(initialPage: 1);
   late NotchBottomBarController _bottomBarController;
 
   @override
@@ -28,7 +26,6 @@ class ModulosState extends State<Modulos> {
   @override
   void dispose() {
     _bottomBarController.dispose();
-    _pageController.dispose();
     super.dispose();
   }
 
@@ -39,21 +36,21 @@ class ModulosState extends State<Modulos> {
     {'titulo': 'Ropa', 'icono': Icons.checkroom, 'ruta': 3},
     {'titulo': 'Tareas', 'icono': Icons.task, 'ruta': 4},
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Módulos'),
-        automaticallyImplyLeading: false, // Esto elimina el botón de "atrás"
+        automaticallyImplyLeading: false,
       ),
       body: GridView.builder(
         padding: const EdgeInsets.all(10),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3, // Aumentar el número de columnas
+          crossAxisCount: 3,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio:
-              1, // Ajustar la proporción de alto-ancho de cada botón
+          childAspectRatio: 1,
         ),
         itemCount: modulos.length,
         itemBuilder: (context, index) {
@@ -78,14 +75,9 @@ class ModulosState extends State<Modulos> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(modulo['icono'],
-                      size: 40, color: Colors.blueAccent), // Icono más pequeño
-                  const SizedBox(
-                      height: 5), // Menor espacio entre icono y texto
-                  Text(modulo['titulo'],
-                      style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold)), // Texto más pequeño
+                  Icon(modulo['icono'], size: 40, color: Colors.blueAccent),
+                  const SizedBox(height: 5),
+                  Text(modulo['titulo'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
                 ],
               ),
             ),
@@ -94,7 +86,7 @@ class ModulosState extends State<Modulos> {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: _pageController,
+          pageController: PageController(), // Cambia a PageController() si decides usarlo en el futuro
           pagina: 1,
           perfil: widget.perfil),
     );

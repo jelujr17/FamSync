@@ -6,7 +6,7 @@ class Colores {
   static const Color botones = Color(0xFFFEC868);
   static const Color botonesSecundarios = Color(0xFFFDA769);
   static const Color texto = Color(0xFF473C33);
-  static const Color fondo = Color(0xFFFFFFFF);
+  static const Color fondo = Color(0xFFB0ABAB);
   static const Color eliminar = Color(0xFFE74C3C);
 }
 
@@ -15,6 +15,7 @@ class ColoresAjustes {
   static const Color botones = Color(0xFFFEC868);
   static const Color botonesSecundarios = Color(0xFFFDA769);
   static const Color texto = Color(0xFF473C33);
-  static const Color fondo = Color(0xFF1B3A1A);
+  static const Color fondo = Color(0xFFB0ABAB);
+  static const Color fondoContenedores = Color(0xFFFFFFFF);
   static const Color eliminar = Color(0xFFE74C3C);
 }
