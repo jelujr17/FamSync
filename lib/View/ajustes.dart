@@ -1,8 +1,10 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:smart_family/Model/perfiles.dart';
 import 'package:smart_family/View/navegacion.dart';
+import 'package:smart_family/View/perfil.dart';
 import 'package:smart_family/components/colores.dart';
 
 class Ajustes extends StatefulWidget {
@@ -103,25 +105,41 @@ class AjustesState extends State<Ajustes> {
                     style: const TextStyle(color: ColoresAjustes.texto),
                   ),
                   trailing: const Icon(Icons.info, color: ColoresAjustes.texto),
+                  onTap: () {
+                    Navigator.pushReplacement(
+                      context,
+                      PageTransition(
+                        type: PageTransitionType.fade,
+                        child: Perfil(perfil: widget.perfil),
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
           ),
           // Opciones de ajustes principales
           buildSettingsSection([
-            _buildSettingItem(Icons.favorite, 'Favoritos'),
-            _buildSettingItem(Icons.speaker_group, 'Listas de difusión'),
-            _buildSettingItem(Icons.star, 'Mensajes destacados'),
-            _buildSettingItem(Icons.devices, 'Dispositivos vinculados'),
+            _buildSettingItem(Icons.language, 'Idioma', 0),
+            _buildSettingItem(Icons.accessibility, 'Accesibilidad', 1),
+            _buildSettingItem(
+                Icons.shield_rounded, 'Privacidad & Seguridad', 2),
+            _buildSettingItem(Icons.notifications, 'Notificaciones', 3),
           ]),
           const SizedBox(height: 20), // Separador entre secciones
           // Otra sección de ajustes
           buildSettingsSection([
-            _buildSettingItem(Icons.person, 'Cuenta'),
-            _buildSettingItem(Icons.lock, 'Privacidad'),
-            _buildSettingItem(Icons.chat, 'Chats'),
-            _buildSettingItem(Icons.notifications, 'Notificaciones'),
-            _buildSettingItem(Icons.data_usage, 'Almacenamiento y datos'),
+            _buildSettingItem(Icons.person, 'Cuenta', 20),
+            _buildSettingItem(Icons.lock, 'Privacidad', 21),
+            _buildSettingItem(Icons.chat, 'Chats', 23),
+            _buildSettingItem(Icons.notifications, 'Notificaciones', 24),
+            _buildSettingItem(Icons.data_usage, 'Almacenamiento y datos', 25),
+          ]),
+          const SizedBox(height: 20), // Separador entre secciones
+          // Otra sección de ajustes
+          buildSettingsSection([
+            _buildSettingItem(Icons.help, 'Ayuda y Soporte', 30),
+            _buildSettingItem(Icons.info_outline, 'Acerca de', 31)
           ]),
           const SizedBox(height: 20), // Separador entre secciones
         ],
@@ -151,7 +169,7 @@ class AjustesState extends State<Ajustes> {
   }
 
   // Método para crear los ítems individuales de los ajustes
-  Widget _buildSettingItem(IconData icon, String label) {
+  Widget _buildSettingItem(IconData icon, String label, int index) {
     return ListTile(
       leading: Icon(icon, color: ColoresAjustes.texto),
       title: Text(label, style: const TextStyle(color: ColoresAjustes.texto)),
@@ -159,6 +177,10 @@ class AjustesState extends State<Ajustes> {
           const Icon(Icons.arrow_forward_ios, color: ColoresAjustes.texto),
       onTap: () {
         // Acción al presionar
+        switch (index) {
+          case 0:
+            break;
+        }
       },
     );
   }
