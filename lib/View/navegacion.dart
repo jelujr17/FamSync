@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Modulos/modulos.dart';
-import 'package:smart_family/View/Modulos/resumen.dart';
-import 'package:smart_family/View/ajustes.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/modulos.dart';
+import 'package:famsync/View/Modulos/resumen.dart';
+import 'package:famsync/View/ajustes.dart';
+import 'package:famsync/components/colores.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
   final PageController pageController;

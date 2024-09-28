@@ -3,12 +3,11 @@ import 'dart:io';
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Inicio/EditProfile.dart';
-import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
-import 'package:smart_family/View/ajustes.dart';
-import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Inicio/EditProfile.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/navegacion.dart';
+import 'package:famsync/components/colores.dart';
 
 class Perfil extends StatefulWidget {
   final Perfiles perfil;
@@ -45,21 +44,7 @@ class PerfilState extends State<Perfil> {
         title: const Text('Perfil'),
         
         centerTitle: true,
-        // Opción para cambiar de perfil
-        leading: IconButton(
-          icon: const Icon(Icons.switch_account),
-          onPressed: () {
-            Navigator.push(
-              context,
-              PageTransition(
-                type: PageTransitionType.fade,
-                child: SeleccionPerfil(
-                  IdUsuario: widget.perfil.UsuarioId,
-                ),
-              ),
-            );
-          },
-        ),
+        
       ),
       body: Center(
         child: Column(

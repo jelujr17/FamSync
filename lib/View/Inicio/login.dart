@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/Model/usuario.dart';
-import 'package:smart_family/View/Inicio/register.dart';
-import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
-import 'package:smart_family/View/Modulos/resumen.dart';
-import 'package:smart_family/components/background.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/usuario.dart';
+import 'package:famsync/View/Inicio/register.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Modulos/resumen.dart';
+import 'package:famsync/components/background.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/components/colores.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

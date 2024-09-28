@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
 import 'package:mysql1/mysql1.dart';
-import 'package:smart_family/Library/db_data.dart';
+import 'package:famsync/Library/db_data.dart';
 
 // CLASES DE PERSONAS REALES
 class Categorias {

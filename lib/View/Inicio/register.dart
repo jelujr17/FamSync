@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:smart_family/Model/usuario.dart';
-import 'package:smart_family/View/Inicio/login.dart';
-import 'package:smart_family/components/background.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/Model/usuario.dart';
+import 'package:famsync/View/Inicio/login.dart';
+import 'package:famsync/components/background.dart';
+import 'package:famsync/components/colores.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});

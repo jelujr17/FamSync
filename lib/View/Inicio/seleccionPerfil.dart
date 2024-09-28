@@ -5,10 +5,10 @@ import 'dart:io';
 import 'package:animated_background/animated_background.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Inicio/NewProfile.dart';
-import 'package:smart_family/View/Modulos/resumen.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Inicio/NewProfile.dart';
+import 'package:famsync/View/Modulos/resumen.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SeleccionPerfil extends StatefulWidget {

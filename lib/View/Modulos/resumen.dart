@@ -2,8 +2,8 @@
 
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/navegacion.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/navegacion.dart';
 
 class ResumenScreen extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;

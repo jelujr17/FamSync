@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'View/Inicio/login.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/components/colores.dart';
 
 
 void main() {

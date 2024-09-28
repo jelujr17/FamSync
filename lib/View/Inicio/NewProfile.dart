@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos
 import 'package:intl/intl.dart'; // Paquete para formatear fechas
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/components/colores.dart';
 
 class CrearPerfilScreen extends StatefulWidget {
   final int IdUsuario;

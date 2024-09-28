@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:smart_family/Model/perfiles.dart';
-import 'package:smart_family/View/Inicio/seleccionPerfil.dart';
-import 'package:smart_family/View/navegacion.dart';
-import 'package:smart_family/View/Ajustes/perfil.dart';
-import 'package:smart_family/components/colores.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/navegacion.dart';
+import 'package:famsync/View/Ajustes/perfil.dart';
+import 'package:famsync/components/colores.dart';
 
 class Ajustes extends StatefulWidget {
   final GlobalKey<NavigatorState>? navigatorKey;

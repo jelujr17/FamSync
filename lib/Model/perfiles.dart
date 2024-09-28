@@ -2,7 +2,7 @@
 import 'dart:io';
 
 import 'package:mysql1/mysql1.dart';
-import 'package:smart_family/Library/db_data.dart';
+import 'package:famsync/Library/db_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -265,7 +265,7 @@ class ServicioPerfiles {
     if (response.statusCode == 200) {
       // Guardar el contenido de la respuesta en un archivo temporal
       const tempDir =
-          'C:\\Users\\mario\\Documents\\Imagenes_Smart_Family\\Perfiles\\';
+          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\';
       final filePath =
           '$tempDir/$nombre'; // Puedes usar un nombre de archivo específico si lo deseas
       File file = File(filePath);
