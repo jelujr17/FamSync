@@ -156,22 +156,63 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   Widget _buildPerfilItem(Perfiles perfil, int index) {
     return GestureDetector(
       onTap: () async {
-        print("index: $index");
-        final SharedPreferences preferencias =
-            await SharedPreferences.getInstance();
-            await preferencias.remove('IdUsuario'); 
-        if (!_predeterminado) {
-          await preferencias.setInt('IdUsuario', perfil.Id);
-          print(preferencias.getInt('IdUsuario'));
-        }
-        Navigator.push(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            child: ResumenScreen(
-              perfil: perfil,
-            ),
-          ),
+        TextEditingController _textController = TextEditingController();
+
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Verificación"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  Text("Introduzca el pin de ${perfil.Nombre}"),
+                  const SizedBox(
+                      height: 16), // Espacio entre el texto y el campo de texto
+                  TextField(
+                    controller: _textController,
+                    decoration: const InputDecoration(
+                      hintText: "Escribe el PIN...",
+                    ),
+                    keyboardType: TextInputType
+                        .number, // Define que sea un campo numérico
+                    obscureText: true, // Para que el PIN no sea visible
+                  ),
+                ],
+              ),
+              actions: <Widget>[
+                TextButton(
+                  child: const Text("Iniciar"),
+                  onPressed: () async {
+                    print("Pin introdocido: ${_textController}");
+                    if (_textController.text == perfil.Pin.toString()) {
+                      print("index: $index");
+                      final SharedPreferences preferencias =
+                          await SharedPreferences.getInstance();
+                      await preferencias.remove('IdUsuario');
+                      if (!_predeterminado) {
+                        await preferencias.setInt('IdUsuario', perfil.Id);
+                        print(preferencias.getInt('IdUsuario'));
+                      }
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.fade,
+                          child: ResumenScreen(
+                            perfil: perfil,
+                          ),
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Pin incorrecto')),
+                      );
+                    }
+                  },
+                ),
+              ],
+            );
+          },
         );
       },
       child: Column(
@@ -231,13 +272,19 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   Widget _buildNuevoPerfilButton() {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          PageTransition(
-            type: PageTransitionType.fade,
-            child: CrearPerfilScreen(IdUsuario: widget.IdUsuario),
-          ),
-        );
+        if (perfiles.length < 4) {
+          Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: CrearPerfilScreen(IdUsuario: widget.IdUsuario),
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Ya existen 4 perfiles')),
+          );
+        }
       },
       child: const Column(
         children: [
