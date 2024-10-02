@@ -28,14 +28,14 @@ class AjustesState extends State<Ajustes> {
         title: const Text(
           'Ajustes',
           style: TextStyle(
-              color: ColoresAjustes.texto,
+              color: Colores.texto,
               fontSize: 30,
               fontWeight: FontWeight.bold),
         ),
-        backgroundColor: ColoresAjustes.fondo,
+        backgroundColor: Colores.fondo,
         automaticallyImplyLeading: false, // Elimina la flecha de "volver"
       ),
-      backgroundColor: ColoresAjustes.fondo, // Fondo oscuro para el modo oscuro
+      backgroundColor: Colores.fondo, // Fondo oscuro para el modo oscuro
       body: ListView(
         children: [
           // Sección del perfil
@@ -43,7 +43,7 @@ class AjustesState extends State<Ajustes> {
             padding: const EdgeInsets.all(8.0),
             child: Card(
               color:
-                  ColoresAjustes.fondoContenedores, // Fondo oscuro del perfil
+                  Colores.botonesSecundarios, // Fondo oscuro del perfil
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -103,7 +103,7 @@ class AjustesState extends State<Ajustes> {
                   ),
                   subtitle: Text(
                     widget.perfil.FechaNacimiento,
-                    style: const TextStyle(color: ColoresAjustes.texto),
+                    style: const TextStyle(color: Colores.texto),
                   ),
                   trailing: Row(
                     mainAxisSize: MainAxisSize
@@ -122,7 +122,7 @@ class AjustesState extends State<Ajustes> {
                           );
                         },
                         child:
-                            const Icon(Icons.info, color: ColoresAjustes.texto),
+                            const Icon(Icons.info, color: Colores.texto),
                       ),
                       const SizedBox(width: 8), // Espacio entre los íconos
                       GestureDetector(
@@ -137,7 +137,7 @@ class AjustesState extends State<Ajustes> {
                           );
                         },
                         child: const Icon(Icons.change_circle,
-                            color: ColoresAjustes.texto),
+                            color: Colores.texto),
                       ),
                     ],
                   ),
@@ -183,7 +183,7 @@ class AjustesState extends State<Ajustes> {
   // Método para crear las secciones de ajustes
   Widget buildSettingsSection(List<Widget> items) {
     return Card(
-      color: ColoresAjustes.fondoContenedores,
+      color: Colores.botonesSecundarios,
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 10),
       shape: RoundedRectangleBorder(
@@ -198,10 +198,10 @@ class AjustesState extends State<Ajustes> {
   // Método para crear los ítems individuales de los ajustes
   Widget _buildSettingItem(IconData icon, String label, int index) {
     return ListTile(
-      leading: Icon(icon, color: ColoresAjustes.texto),
-      title: Text(label, style: const TextStyle(color: ColoresAjustes.texto)),
+      leading: Icon(icon, color: Colores.texto),
+      title: Text(label, style: const TextStyle(color: Colores.texto)),
       trailing:
-          const Icon(Icons.arrow_forward_ios, color: ColoresAjustes.texto),
+          const Icon(Icons.arrow_forward_ios, color: Colores.texto),
       onTap: () {
         // Acción al presionar
         switch (index) {

@@ -156,7 +156,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
   Widget _buildPerfilItem(Perfiles perfil, int index) {
     return GestureDetector(
       onTap: () async {
-        TextEditingController _textController = TextEditingController();
+        TextEditingController textController = TextEditingController();
 
         showDialog(
           context: context,
@@ -170,7 +170,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                   const SizedBox(
                       height: 16), // Espacio entre el texto y el campo de texto
                   TextField(
-                    controller: _textController,
+                    controller: textController,
                     decoration: const InputDecoration(
                       hintText: "Escribe el PIN...",
                     ),
@@ -184,8 +184,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                 TextButton(
                   child: const Text("Iniciar"),
                   onPressed: () async {
-                    print("Pin introdocido: ${_textController}");
-                    if (_textController.text == perfil.Pin.toString()) {
+                    if (textController.text == perfil.Pin.toString()) {
                       print("index: $index");
                       final SharedPreferences preferencias =
                           await SharedPreferences.getInstance();

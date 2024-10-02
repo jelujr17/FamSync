@@ -1,4 +1,5 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:famsync/View/Modulos/almacen.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -63,6 +64,15 @@ class ModulosState extends State<Modulos> {
                   PageTransition(
                     type: PageTransitionType.fade,
                     child: Calendario(perfil: widget.perfil),
+                  ),
+                );
+              }
+              else if (modulo['ruta'] == 1) {
+                Navigator.push(
+                  context,
+                  PageTransition(
+                    type: PageTransitionType.fade,
+                    child: Almacen(perfil: widget.perfil),
                   ),
                 );
               }
