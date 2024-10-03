@@ -34,11 +34,9 @@ class ServicioPerfiles {
           'http://localhost:3000/perfiles/getByUsuario?UsuarioId=$UsuarioId'),
       headers: {'Content-type': 'application/json'},
     );
-    print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> responseData =
           jsonDecode(response.body); // Parsear la respuesta JSON
-      print(responseData);
       List<Perfiles> perfiles = responseData
           .map((data) => Perfiles(
                 Id: data['Id'],
@@ -58,12 +56,10 @@ class ServicioPerfiles {
   }
 
   Future<Perfiles?> getPerfilById(int Id) async {
-    print("Id = $Id");
     http.Response response = await http.get(
       Uri.parse('http://localhost:3000/perfiles/getById?Id=$Id'),
       headers: {'Content-type': 'application/json'},
     );
-    print(response.statusCode);
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
       print(
@@ -238,8 +234,7 @@ class ServicioPerfiles {
 
   Future<bool> eliminarPerfil(int Id) async {
     MySqlConnection conn = await DB().conexion();
-    print("-------");
-    print(Id);
+ 
 
     try {
       await conn.query('DELETE FROM perfiles WHERE Id = ?', [Id]);
