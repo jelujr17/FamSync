@@ -3,7 +3,6 @@ import 'dart:ffi';
 import 'dart:io';
 
 import 'package:mysql1/mysql1.dart';
-import 'package:famsync/Library/db_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -14,7 +13,7 @@ class Productos {
   final List<String> Imagenes;
   final String Tienda;
   final int IdSustituto;
-  final Double Precio;
+  final double Precio;
   final int IdPerfilCreador;
   final int IdUsuarioCreador;
   final List<int> Visible;
@@ -32,12 +31,13 @@ class Productos {
 }
 
 class ServicioProductos {
+  final String _host = 'localhost:3000';
   // BUSCAR USUARIOS //
   Future<List<Productos>> getProductos(
       int IdUsuarioCreador, int IdPerfil) async {
     http.Response response = await http.get(
       Uri.parse(
-          'http://localhost:3000/productos/getByUsuario?IdUsuarioCreador=$IdUsuarioCreador&IdPerfil=$IdPerfil'),
+          'http://$_host/productos/getByUsuario?IdUsuarioCreador=$IdUsuarioCreador&IdPerfil=$IdPerfil'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -49,7 +49,7 @@ class ServicioProductos {
           .map((data) => Productos(
                 Id: data['Id'],
                 Nombre: data['Nombre'],
-                Imagenes: data['Imagenes'],
+                Imagenes: data['Imagenes'].to,
                 Tienda: data['Tienda'],
                 IdSustituto: data['IdSustituto'],
                 Precio: data['Precio'],
@@ -68,7 +68,7 @@ class ServicioProductos {
   Future<Productos?> getProductoById(int Id) async {
     print("Id = $Id");
     http.Response response = await http.get(
-      Uri.parse('http://localhost:3000/productos/getById?Id=$Id'),
+      Uri.parse('http://$_host/productos/getById?Id=$Id'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -100,22 +100,22 @@ class ServicioProductos {
 
   // Registro de producto
   Future<bool> registrarProducto(
-      int Nombre,
-      List<File> Imagenes,
+      String Nombre,
+      List<File>? Imagenes,
       String Tienda,
       int IdSustituto,
-      Double Precio,
+      double Precio,
       int IdPerfilCreador,
       int IdUsuarioCreador,
       List<int> Visible) async {
     List<String> NombresImagnes = [];
-    for (int i = 0; i < Imagenes.length; i++) {
+    if(Imagenes != null){
+      for (int i = 0; i < Imagenes.length; i++) {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:3000/productos/uploadImagen'),
+        Uri.parse('http://$_host/productos/uploadImagen'),
       );
-
-      // Paso 2: Adjuntar el archivo a la solicitud
+       // Paso 2: Adjuntar el archivo a la solicitud
       request.files.add(
         await http.MultipartFile.fromPath(
           'imagen',
@@ -148,21 +148,25 @@ class ServicioProductos {
       String imageUrl = jsonMap['imageUrl'];
       NombresImagnes.add(imageUrl);
     }
+    }
+    
+
+     
 
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ProductoData = {
       'Nombre': Nombre.toString(),
-      'Imagenes': NombresImagnes,
+      'Imagenes': NombresImagnes.toString(),
       'Tienda': Tienda.toString(),
       'IdSustituto': IdSustituto,
       'Precio': Precio,
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
-      'Visible': Visible,
+      'Visible': Visible.toString(),
     };
 
     http.Response response1 = await http.post(
-      Uri.parse('http://localhost:3000/productos/create'),
+      Uri.parse('http://$_host/productos/create'),
       headers: {'Content-type': 'application/json'},
       body: json.encode(ProductoData),
     );
@@ -179,7 +183,7 @@ class ServicioProductos {
     for (int i = 0; i < Imagenes.length; i++) {
       var request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:3000/productos/uploadImagen'),
+        Uri.parse('http://$_host/productos/uploadImagen'),
       );
 
       // Paso 2: Adjuntar el archivo a la solicitud
@@ -228,7 +232,7 @@ class ServicioProductos {
     };
     try {
       http.Response response1 = await http.post(
-        Uri.parse('http://localhost:3000/productos/update'),
+        Uri.parse('http://$_host/productos/update'),
         headers: {'Content-type': 'application/json'},
         body: json.encode(ProductoData),
       );
@@ -245,8 +249,7 @@ class ServicioProductos {
     // Aquí haces la lógica para eliminar la imagen del servidor o sistema de archivos
     try {
       final response = await http.get(
-        Uri.parse(
-            'http://localhost:3000/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
+        Uri.parse('http://$_host/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
         headers: {'Content-type': 'application/json'},
       );
 
@@ -259,7 +262,7 @@ class ServicioProductos {
       print('Error al enviar solicitud de eliminación de imagen: $e');
     }
   }
-
+/*
   Future<bool> eliminarProducto(int Id) async {
     MySqlConnection conn = await DB().conexion();
     print("-------");
@@ -275,13 +278,13 @@ class ServicioProductos {
     } finally {
       await conn.close();
     }
-  }
+  }*/
 
   Future<File> obtenerImagen(String nombre) async {
     Map<String, dynamic> data = {"fileName": nombre};
     // Realizar la solicitud al servidor
     final response = await http.post(
-      Uri.parse('http://localhost:3000/productos/receiveFile'),
+      Uri.parse('http://$_host/productos/receiveFile'),
       headers: {'Content-type': 'application/json'},
       body: jsonEncode(data),
     );

@@ -132,7 +132,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     }
   }
 
-  Future<void> _eliminarPerfil() async {
+  Future<void> _eliminarPerfil() async {/*
     // Mostrar ventana emergente de confirmación
     bool confirm = await _mostrarConfirmacionEliminar();
     if (confirm) {
@@ -153,7 +153,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
           const SnackBar(content: Text('Error al eliminar un perfil')),
         );
       }
-    }
+    }*/
   }
 
   Future<bool> _mostrarConfirmacionEliminar() async {

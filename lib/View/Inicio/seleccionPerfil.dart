@@ -238,6 +238,8 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                       } else if (snapshot.hasError) {
                         print("error al obtener la imagen");
                         // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
+                        print(snapshot.error);
+                        print(perfil.FotoPerfil);
                         return const Icon(Icons.error, color: Colores.texto);
                       } else if (snapshot.hasData && snapshot.data != null) {
                         print("imagen descargada");

@@ -101,7 +101,8 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text('Selecciona un perfil:',
+                              const Text(
+                                  'Selecciona los perfiles que verán el producto:',
                                   style: TextStyle(fontSize: 16)),
                               FutureBuilder<List<Perfiles>>(
                                 future: ServicioPerfiles()
@@ -123,6 +124,11 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                   }
 
                                   List<Perfiles> perfiles = snapshot.data!;
+                                  for (int i = 0; i < perfiles.length; i++) {
+                                    if (perfiles[i].Id == widget.perfil.Id) {
+                                      perfiles.removeAt(i);
+                                    }
+                                  }
 
                                   return ListView.builder(
                                     shrinkWrap: true,
@@ -170,7 +176,8 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                           setStateDialog(() {
                                             if (_perfilSeleccionado
                                                 .contains(perfil.Id)) {
-                                                  _perfilSeleccionado.remove(perfil.Id);
+                                              _perfilSeleccionado
+                                                  .remove(perfil.Id);
                                             } else {
                                               _perfilSeleccionado
                                                   .add(perfil.Id);
@@ -190,7 +197,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                       ),
                       actions: [
                         TextButton(
-                          onPressed: () {
+                          onPressed:  () async {
                             if (_perfilSeleccionado == null) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -207,8 +214,11 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
 
                             print(
                                 'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado');
-
-                            Navigator.of(context).pop();
+                            bool creado = await ServicioProductos().registrarProducto(nombre, null, tienda, 1, precio, widget.perfil.Id, widget.perfil.UsuarioId, _perfilSeleccionado);
+                            
+                            if(creado) {
+                              Navigator.of(context).pop();
+                            }
                           },
                           child: const Text('Guardar'),
                         ),

@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
 import 'package:mysql1/mysql1.dart';
-import 'package:famsync/Library/db_data.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -34,10 +33,11 @@ class Usuario implements Authenticatable {
 }
 
 class ServicioUsuarios {
+  final String _host = 'localhost:3000';
   // BUSCAR USUARIOS //
   Future<List<Usuario>> getUsuarios() async {
     http.Response response =
-        await http.get(Uri.parse('http://localhost:3000/usuario/get'));
+        await http.get(Uri.parse('http://$_host/usuario/get'));
     print(response.statusCode);
     if (response.statusCode == 200) {
       List<dynamic> responseData =
@@ -61,7 +61,7 @@ class ServicioUsuarios {
 
   Future<Usuario?> getUsuarioByCorreo(String correo) async {
     http.Response response = await http.get(
-      Uri.parse('http://localhost:3000/usuarios/getByCorreo?correo=$correo'),
+      Uri.parse('http://$_host/usuarios/getByCorreo?correo=$correo'),
       headers: {'Content-type': 'application/json'},
     );
 
@@ -89,7 +89,7 @@ class ServicioUsuarios {
 
   Future<Usuario?> getUsuarioByTelefono(int telefono) async {
     http.Response response = await http.get(
-      Uri.parse('http://localhost:3000/usuarios/getByTelefono?telefono=$telefono'),
+      Uri.parse('http://$_host/usuarios/getByTelefono?telefono=$telefono'),
       headers: {'Content-type': 'application/json'},
     );
 
@@ -165,7 +165,7 @@ class ServicioUsuarios {
       return false; // Devuelve false en caso de error
     }
   }
-
+/*
   // Registro de usuario con verificación
   Future<bool> registrarUsuario(
       int telefono, String correo, String nombre, String password) async {
@@ -192,5 +192,5 @@ class ServicioUsuarios {
     } finally {
       await conn.close();
     }
-  }
+  }*/
 }

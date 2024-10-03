@@ -2,9 +2,10 @@
 import 'dart:io';
 
 import 'package:mysql1/mysql1.dart';
-import 'package:famsync/Library/db_data.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+
+import 'package:path_provider/path_provider.dart';
 
 // CLASES DE PERSONAS REALES
 class Perfiles {
@@ -27,11 +28,13 @@ class Perfiles {
 }
 
 class ServicioPerfiles {
+    final String _host = 'localhost:3000';
+
   // BUSCAR USUARIOS //
   Future<List<Perfiles>> getPerfiles(int UsuarioId) async {
     http.Response response = await http.get(
       Uri.parse(
-          'http://localhost:3000/perfiles/getByUsuario?UsuarioId=$UsuarioId'),
+          'http://$_host/perfiles/getByUsuario?UsuarioId=$UsuarioId'),
       headers: {'Content-type': 'application/json'},
     );
     if (response.statusCode == 200) {
@@ -57,7 +60,7 @@ class ServicioPerfiles {
 
   Future<Perfiles?> getPerfilById(int Id) async {
     http.Response response = await http.get(
-      Uri.parse('http://localhost:3000/perfiles/getById?Id=$Id'),
+      Uri.parse('http://$_host/perfiles/getById?Id=$Id'),
       headers: {'Content-type': 'application/json'},
     );
     if (response.statusCode == 200) {
@@ -89,7 +92,7 @@ class ServicioPerfiles {
       int Pin, String FechaNacimiento, int Infantil) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:3000/perfiles/uploadImagen'),
+      Uri.parse('http://$_host/perfiles/uploadImagen'),
     );
 
     // Paso 2: Adjuntar el archivo a la solicitud
@@ -137,7 +140,7 @@ class ServicioPerfiles {
     };
 
     http.Response response1 = await http.post(
-      Uri.parse('http://localhost:3000/perfiles/create'),
+      Uri.parse('http://$_host/perfiles/create'),
       headers: {'Content-type': 'application/json'},
       body: json.encode(PerfilData),
     );
@@ -152,7 +155,7 @@ class ServicioPerfiles {
       String FechaNacimiento, String? fotoAnterior, int Infantil) async {
     var request = http.MultipartRequest(
       'POST',
-      Uri.parse('http://localhost:3000/perfiles/uploadImagen'),
+      Uri.parse('http://$_host/perfiles/uploadImagen'),
     );
 
     // Paso 2: Adjuntar el archivo a la solicitud
@@ -200,7 +203,7 @@ class ServicioPerfiles {
 
     try {
       http.Response response1 = await http.post(
-        Uri.parse('http://localhost:3000/perfiles/update'),
+        Uri.parse('http://$_host/perfiles/update'),
         headers: {'Content-type': 'application/json'},
         body: json.encode(perfilData),
       );
@@ -218,7 +221,7 @@ class ServicioPerfiles {
     try {
       final response = await http.get(
         Uri.parse(
-            'http://localhost:3000/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
+            'http://$_host/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
         headers: {'Content-type': 'application/json'},
       );
 
@@ -232,7 +235,8 @@ class ServicioPerfiles {
     }
   }
 
-  Future<bool> eliminarPerfil(int Id) async {
+  Future<void> eliminarPerfil(int Id) async {
+  /*
     MySqlConnection conn = await DB().conexion();
  
 
@@ -245,32 +249,31 @@ class ServicioPerfiles {
       return false;
     } finally {
       await conn.close();
-    }
+    }*/
   }
 
   Future<File> obtenerImagen(String nombre) async {
-    Map<String, dynamic> data = {"fileName": nombre};
-    // Realizar la solicitud al servidor
-    final response = await http.post(
-      Uri.parse('http://localhost:3000/perfiles/receiveFile'),
-      headers: {'Content-type': 'application/json'},
-      body: jsonEncode(data),
-    );
-    // Verificar si la solicitud fue exitosa
-    if (response.statusCode == 200) {
-      // Guardar el contenido de la respuesta en un archivo temporal
-      const tempDir =
-          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\';
-      final filePath =
-          '$tempDir/$nombre'; // Puedes usar un nombre de archivo específico si lo deseas
-      File file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-      print("imagen encontrada");
-      return file; // Devolver el archivo creado
-    } else {
-      print("imagen no encontrada");
-      // Si hay un error en la solicitud, lanzar una excepción
-      throw Exception('Error al obtener el archivo: ${response.statusCode}');
-    }
+  Map<String, dynamic> data = {"fileName": nombre};
+  // Realizar la solicitud al servidor
+  final response = await http.post(
+    Uri.parse('http://$_host/perfiles/receiveFile'),
+    headers: {'Content-type': 'application/json'},
+    body: jsonEncode(data),
+  );
+
+  // Verificar si la solicitud fue exitosa
+  if (response.statusCode == 200) {
+    // Obtener el directorio temporal adecuado en el dispositivo
+    final tempDir = await getTemporaryDirectory();
+    final filePath = '${tempDir.path}/$nombre'; // Ruta dentro del directorio temporal
+    File file = File(filePath);
+    await file.writeAsBytes(response.bodyBytes); // Escribir los bytes de la imagen en el archivo
+
+    print("Imagen encontrada y guardada en: $filePath");
+    return file; // Devolver el archivo creado
+  } else {
+    print("Imagen no encontrada");
+    throw Exception('Error al obtener el archivo: ${response.statusCode}');
   }
+}
 }

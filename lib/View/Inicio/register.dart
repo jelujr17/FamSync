@@ -237,7 +237,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState!.validate()) {
-                      bool registrado = await ServicioUsuarios()
+                      /*bool registrado = await ServicioUsuarios()
                           .registrarUsuario(
                               int.parse(_phoneController.text),
                               _emailController.text,
@@ -259,7 +259,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               content: Text(
                                   'El correo o el teléfono ya están registrados')),
                         );
-                      }
+                      }*/
                     }
                   },
                   style: ElevatedButton.styleFrom(
