@@ -55,8 +55,8 @@ class ServicioProductos {
           Precio: data['Precio'],
           IdPerfilCreador: data['IdPerfilCreador'],
           IdUsuarioCreador: data['IdUsuarioCreador'],
-          Visible: List<int>.from(jsonDecode(
-            data['Visible'])), // Asegúrate de que esto también se convierte correctamente
+          Visible: List<int>.from(jsonDecode(data[
+              'Visible'])), // Asegúrate de que esto también se convierte correctamente
         );
       }).toList();
       return productos;
@@ -91,8 +91,7 @@ class ServicioProductos {
         Precio: productoData['Precio'],
         IdPerfilCreador: productoData['IdPerfilCreador'],
         IdUsuarioCreador: productoData['IdUsuarioCreador'],
-        Visible: List<int>.from(jsonDecode(
-            productoData['Visible'])),
+        Visible: List<int>.from(jsonDecode(productoData['Visible'])),
       );
       return producto;
     } else {
@@ -163,7 +162,7 @@ class ServicioProductos {
       'Precio': Precio,
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
-      'Visible': jsonEncode(Visible),
+      'Visible': jsonEncode(Visible).toString(),
     };
 
     http.Response response1 = await http.post(
@@ -263,23 +262,28 @@ class ServicioProductos {
       print('Error al enviar solicitud de eliminación de imagen: $e');
     }
   }
-/*
-  Future<bool> eliminarProducto(int Id) async {
-    MySqlConnection conn = await DB().conexion();
-    print("-------");
-    print(Id);
 
+  Future<bool> eliminarProducto(int idProducto) async {
     try {
-      await conn.query('DELETE FROM perfiles WHERE Id = ?', [Id]);
+      final response = await http.delete(
+        Uri.parse('http://$_host/productos/delete'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'IdProducto': idProducto}), // Enviamos el ID en el cuerpo
+      );
 
-      return true;
+      if (response.statusCode == 200) {
+        print('Producto eliminado con éxito');
+        return true;
+      } else {
+        print('Error al eliminar el producto: ${response.body}');
+        return false;
+      }
     } catch (e) {
-      print('Eliminación de perfil fallido: $e');
+      print('Error al enviar solicitud de eliminación de producto: $e');
       return false;
-    } finally {
-      await conn.close();
     }
-  }*/
+  }
 
   Future<File> obtenerImagen(String nombre) async {
     Map<String, dynamic> data = {"fileName": nombre};

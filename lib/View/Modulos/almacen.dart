@@ -5,6 +5,7 @@ import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:image_picker/image_picker.dart';
 
 class Almacen extends StatefulWidget {
   final Perfiles perfil;
@@ -48,11 +49,75 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
+// Agregar este método en la clase AlmacenState
+  void _confirmarEliminacion(Productos producto) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+              '¿Estás seguro de que deseas eliminar el producto "${producto.Nombre}"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                // Aquí llamas a tu servicio para eliminar el producto
+                bool eliminado = await ServicioProductos().eliminarProducto(producto
+                    .Id); // Asegúrate de implementar este método en tu servicio.
+
+                if (eliminado) {
+                  setState(() {
+                    _productosFuture = ServicioProductos().getProductos(
+                        widget.perfil.UsuarioId, widget.perfil.Id);
+                  });
+                  Navigator.of(context).pop(); // Cierra el diálogo
+                } else {
+                  // Manejar el error si la eliminación falla (opcional)
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error al eliminar el producto.')),
+                  );
+                }
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<XFile>? _imagenesSeleccionadas =
+      []; // Agregar esta línea para almacenar las imágenes seleccionadas
+  final ImagePicker _picker =
+      ImagePicker(); // Crear una instancia de ImagePicker
+
+  Future<void> _seleccionarImagenes() async {
+    final List<XFile>? imagenes = await _picker.pickMultiImage();
+    if (imagenes != null) {
+      setState(() {
+        _imagenesSeleccionadas!.clear();
+        _imagenesSeleccionadas!.addAll(imagenes);
+        print(
+            'Imágenes seleccionadas: ${_imagenesSeleccionadas!.map((img) => img.path).toList()}'); // Agrega esta línea
+      });
+    }
+  }
+
+  // Tu método _showPopup modificado para incluir la opción de añadir imágenes
   void _showPopup() {
+    // Reiniciar los controladores y las listas
     _nombreController.clear();
     _tiendaController.clear();
     _precioController.clear();
-    _sustitutoController.clear(); // Añadir controlador para el sustituto
+    _sustitutoController.clear();
+    _imagenesSeleccionadas!.clear(); // Limpiar las imágenes seleccionadas
 
     _animationController.forward();
 
@@ -81,6 +146,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              // Otros TextFields...
                               TextField(
                                 controller: _nombreController,
                                 decoration: const InputDecoration(
@@ -101,113 +167,79 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              const Text(
-                                  'Selecciona los perfiles que verán el producto:',
-                                  style: TextStyle(fontSize: 16)),
-                              FutureBuilder<List<Perfiles>>(
-                                future: ServicioPerfiles()
-                                    .getPerfiles(widget.perfil.UsuarioId),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                        child:
-                                            Text('Error: ${snapshot.error}'));
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const Center(
-                                        child: Text(
-                                            'No hay perfiles disponibles.'));
-                                  }
 
-                                  List<Perfiles> perfiles = snapshot.data!;
-                                  for (int i = 0; i < perfiles.length; i++) {
-                                    if (perfiles[i].Id == widget.perfil.Id) {
-                                      perfiles.removeAt(i);
-                                    }
-                                  }
-
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: perfiles.length,
-                                    itemBuilder: (context, index) {
-                                      final perfil = perfiles[index];
-
-                                      return ListTile(
-                                        title: Text(
-                                          perfil.Nombre,
-                                          style: const TextStyle(
-                                            color: Colores.texto,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                        leading: perfil.FotoPerfil.isNotEmpty &&
-                                                File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
-                                                    .existsSync()
-                                            ? Stack(
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius:
-                                                        25, // Puedes ajustar el radio según tu necesidad
-                                                    backgroundImage: FileImage(File(
-                                                        'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
-                                                  ),
-                                                  if (_perfilSeleccionado
-                                                      .contains(perfil.Id))
-                                                    const Positioned(
-                                                      right: 0,
-                                                      bottom: 0,
-                                                      child: Icon(
-                                                          Icons.check_circle,
-                                                          color: Colors.green),
-                                                    ),
-                                                ],
-                                              )
-                                            : const Icon(
-                                                Icons.image_not_supported),
-                                        tileColor: _perfilSeleccionado
-                                                .contains(perfil.Id)
-                                            ? Colores.principal.withOpacity(0.2)
-                                            : null,
-                                        onTap: () {
-                                          setStateDialog(() {
-                                            if (_perfilSeleccionado
-                                                .contains(perfil.Id)) {
-                                              _perfilSeleccionado
-                                                  .remove(perfil.Id);
-                                            } else {
-                                              _perfilSeleccionado
-                                                  .add(perfil.Id);
-                                            }
-                                          });
-                                          print(
-                                              'Perfil seleccionado: $_perfilSeleccionado');
-                                        },
-                                      );
-                                    },
-                                  );
-                                },
+                              // Botón para seleccionar imágenes
+                              ElevatedButton(
+                                onPressed: _seleccionarImagenes,
+                                child: const Text('Seleccionar imágenes'),
                               ),
+                              // Mostrar las imágenes seleccionadas
+                              // Mostrar las imágenes seleccionadas
+                              _imagenesSeleccionadas!.isNotEmpty
+                                  ? SizedBox(
+                                      height: 100,
+                                      child: ListView.builder(
+                                        scrollDirection: Axis.horizontal,
+                                        itemCount:
+                                            _imagenesSeleccionadas!.length,
+                                        itemBuilder: (context, index) {
+                                          return Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 5),
+                                            child: Image.file(
+                                              File(
+                                                  _imagenesSeleccionadas![index]
+                                                      .path),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : const Text(
+                                      'No hay imágenes seleccionadas.'),
+
+                              // Otros widgets como la lista de perfiles...
                             ],
                           ),
                         ),
                       ),
                       actions: [
                         TextButton(
-                          onPressed:  () async {
+                          onPressed: () async {
                             String nombre = _nombreController.text;
                             String tienda = _tiendaController.text;
                             double precio =
                                 double.tryParse(_precioController.text) ?? 0.0;
 
-                            print(
-                                'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado');
-                            bool creado = await ServicioProductos().registrarProducto(nombre, null, tienda, 1, precio, widget.perfil.Id, widget.perfil.UsuarioId, _perfilSeleccionado);
-                            
-                            if(creado) {
+                            // Aquí puedes manejar la carga de imágenes antes de crear el producto
+                            List<String> rutasImagenes = _imagenesSeleccionadas!
+                                .map((image) => image.path)
+                                .toList();
+                            List<File> archivosImagenes = rutasImagenes
+                                .map((ruta) => File(ruta))
+                                .toList();
+
+                            bool creado =
+                                await ServicioProductos().registrarProducto(
+                                    nombre,
+                                    archivosImagenes, // Pasar las rutas de las imágenes
+                                    tienda,
+                                    1,
+                                    precio,
+                                    widget.perfil.Id,
+                                    widget.perfil.UsuarioId,
+                                    _perfilSeleccionado);
+
+                            if (creado) {
+                              // Actualiza la lista de productos
+                              setState(() {
+                                _productosFuture = ServicioProductos()
+                                    .getProductos(widget.perfil.UsuarioId,
+                                        widget.perfil.Id);
+                              });
                               Navigator.of(context).pop();
                             }
                           },
@@ -325,7 +357,8 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                   color: Colores
                                       .eliminar), // Cambiar color del icono
                               onPressed: () {
-                                // Maneja la acción de eliminar
+                                _confirmarEliminacion(
+                                    producto); // Llama al método de confirmación
                               },
                             ),
                           ],
