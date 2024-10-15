@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
-import 'package:mysql1/mysql1.dart';
 import 'package:bcrypt/bcrypt.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -76,7 +75,7 @@ class ServicioUsuarios {
       // Crear el objeto Usuario con los datos del argumento
       Usuario usuario = Usuario(
         Id: usuarioData['Id'] ?? 0, // Valor por defecto en caso de null
-        Telefono: usuarioData['Telefono'] ?? '',
+        Telefono: usuarioData['Telefono'] ?? 0,
         Correo: usuarioData['Correo'] ?? '',
         Nombre: usuarioData['Nombre'] ?? '',
         Password: usuarioData['Password'] ?? '',
@@ -115,30 +114,35 @@ class ServicioUsuarios {
     }
   }
 
-  // LOGIN CON DEVUELTA DE USUARIO
   Future<Usuario?> login(String usuario, String password) async {
-    print("usuario: $usuario, contraseña: $password");
-    // Comprobacion de que el correo existe
-    Usuario? usuarioAuxiliar;
-    if (usuario.contains("@")) {
-      usuarioAuxiliar = await getUsuarioByCorreo(usuario);
-    } else {
-      usuarioAuxiliar = await getUsuarioByTelefono(int.parse(usuario));
-    }
-    //------------------------------------------------------------------
+    try {
+      final response = await http.post(
+        Uri.parse('http://$_host/usuarios/login'),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({
+          'usuario': usuario,
+          'password': password,
+        }),
+      );
 
-    if (usuarioAuxiliar == null) {
-      print("No existe un usuario con ese correo o telefono");
-    } else {
-      if (BCrypt.checkpw(password, usuarioAuxiliar.Password)) {
-        print("Contraseña correcta");
-        return usuarioAuxiliar;
+      if (response.statusCode == 200) {
+        Map<String, dynamic> responseData = jsonDecode(response.body);
+        // Crear el objeto Usuario con los datos devueltos
+        return Usuario(
+          Id: responseData['usuario']['Id'],
+          Telefono: responseData['usuario']['Telefono'],
+          Correo: responseData['usuario']['Correo'],
+          Nombre: responseData['usuario']['Nombre'],
+          Password: password, // Asegúrate de no almacenar la contraseña
+        );
       } else {
-        print("Contraseña incorrecta");
+        print(response.statusCode);
+        throw Exception('Error al iniciar sesión');
       }
+    } catch (e) {
+      print('Error en la función de login: $e');
+      return null; // Manejo de errores
     }
-    return null;
-    // Si se devuelve null es que o el usuario no existe o que la contraseña no es correcta
   }
 
   // REGISTRO DE USUARIO
@@ -165,8 +169,7 @@ class ServicioUsuarios {
       return false; // Devuelve false en caso de error
     }
   }
-/*
-  // Registro de usuario con verificación
+
   Future<bool> registrarUsuario(
       int telefono, String correo, String nombre, String password) async {
     if (await isCorreoRegistered(correo)) {
@@ -179,18 +182,28 @@ class ServicioUsuarios {
       return false;
     }
 
-    MySqlConnection conn = await DB().conexion();
     try {
-      await conn.query(
-          'INSERT INTO usuarios (Telefono, Correo, Nombre, Password) VALUES (?, ?, ?, ?)',
-          [telefono, correo, nombre, password]);
+      final response = await http.post(
+        Uri.parse('http://$_host/usuarios/create'),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({
+          'Telefono': telefono,
+          'Correo': correo,
+          'Nombre': nombre,
+          'Password': password,
+        }),
+      );
 
-      return true;
+      if (response.statusCode == 201) {
+        print('Usuario registrado exitosamente');
+        return true;
+      } else {
+        print('Error en el registro: ${response.body}');
+        return false;
+      }
     } catch (e) {
-      print('Registro de usuario fallido: $e');
+      print('Error al registrar usuario: $e');
       return false;
-    } finally {
-      await conn.close();
     }
-  }*/
+  }
 }

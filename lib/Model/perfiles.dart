@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 import 'dart:io';
 
-import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

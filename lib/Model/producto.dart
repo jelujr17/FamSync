@@ -2,7 +2,6 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:mysql1/mysql1.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -45,19 +44,21 @@ class ServicioProductos {
       List<dynamic> responseData =
           jsonDecode(response.body); // Parsear la respuesta JSON
       print(responseData);
-      List<Productos> productos = responseData
-          .map((data) => Productos(
-                Id: data['Id'],
-                Nombre: data['Nombre'],
-                Imagenes: data['Imagenes'].to,
-                Tienda: data['Tienda'],
-                IdSustituto: data['IdSustituto'],
-                Precio: data['Precio'],
-                IdPerfilCreador: data['IdPerfilCreador'],
-                IdUsuarioCreador: data['IdUsuarioCreador'],
-                Visible: data['Visible'],
-              ))
-          .toList();
+      List<Productos> productos = responseData.map((data) {
+        return Productos(
+          Id: data['Id'],
+          Nombre: data['Nombre'],
+          Imagenes: List<String>.from(jsonDecode(
+              data['Imagenes'])), // Desanidar y convertir a List<String>
+          Tienda: data['Tienda'],
+          IdSustituto: data['IdSustituto'],
+          Precio: data['Precio'],
+          IdPerfilCreador: data['IdPerfilCreador'],
+          IdUsuarioCreador: data['IdUsuarioCreador'],
+          Visible: List<int>.from(jsonDecode(
+            data['Visible'])), // Asegúrate de que esto también se convierte correctamente
+        );
+      }).toList();
       return productos;
     } else {
       throw Exception(
@@ -83,13 +84,15 @@ class ServicioProductos {
       Productos producto = Productos(
         Id: productoData['Id'],
         Nombre: productoData['Nombre'],
-        Imagenes: productoData['Imagenes'],
+        Imagenes: List<String>.from(
+            productoData['Imagenes']), // Desanidar y convertir a List<String>
         Tienda: productoData['Tienda'],
         IdSustituto: productoData['IdSustituto'],
         Precio: productoData['Precio'],
         IdPerfilCreador: productoData['IdPerfilCreador'],
         IdUsuarioCreador: productoData['IdUsuarioCreador'],
-        Visible: productoData['Visible'],
+        Visible: List<int>.from(jsonDecode(
+            productoData['Visible'])),
       );
       return producto;
     } else {
@@ -109,60 +112,58 @@ class ServicioProductos {
       int IdUsuarioCreador,
       List<int> Visible) async {
     List<String> NombresImagnes = [];
-    if(Imagenes != null){
+    if (Imagenes != null) {
       for (int i = 0; i < Imagenes.length; i++) {
-      var request = http.MultipartRequest(
-        'POST',
-        Uri.parse('http://$_host/productos/uploadImagen'),
-      );
-       // Paso 2: Adjuntar el archivo a la solicitud
-      request.files.add(
-        await http.MultipartFile.fromPath(
-          'imagen',
-          Imagenes[i].path,
-        ),
-      );
-      // Envía la solicitud y maneja la respuesta
-      String nombre = "error";
-      try {
-        final response = await request.send();
-        final responseBody = await response.stream.bytesToString();
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://$_host/productos/uploadImagen'),
+        );
+        // Paso 2: Adjuntar el archivo a la solicitud
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'imagen',
+            Imagenes[i].path,
+          ),
+        );
+        // Envía la solicitud y maneja la respuesta
+        String nombre = "error";
+        try {
+          final response = await request.send();
+          final responseBody = await response.stream.bytesToString();
 
-        if (response.statusCode == 200) {
-          // La solicitud se completó con éxito
-          print('Solicitud completada con éxito');
+          if (response.statusCode == 200) {
+            // La solicitud se completó con éxito
+            print('Solicitud completada con éxito');
 
-          // Lee el cuerpo de la respuesta como una cadena
-          print('Cuerpo de la respuesta: $responseBody');
-          nombre = responseBody;
-        } else {
-          // Error en la solicitud
-          print('Error en la solicitud: ${responseBody.toString()}');
+            // Lee el cuerpo de la respuesta como una cadena
+            print('Cuerpo de la respuesta: $responseBody');
+            nombre = responseBody;
+          } else {
+            // Error en la solicitud
+            print('Error en la solicitud: ${responseBody.toString()}');
+          }
+        } catch (e) {
+          // Error al enviar la solicitud
+          print('Error al enviar la solicitud: $e');
         }
-      } catch (e) {
-        // Error al enviar la solicitud
-        print('Error al enviar la solicitud: $e');
+
+        Map<String, dynamic> jsonMap = json.decode(nombre);
+        String imageUrl = jsonMap['imageUrl'];
+        NombresImagnes.add(imageUrl);
       }
-
-      Map<String, dynamic> jsonMap = json.decode(nombre);
-      String imageUrl = jsonMap['imageUrl'];
-      NombresImagnes.add(imageUrl);
     }
-    }
-    
-
-     
-
+    List<String> aux = ["prueba1", "prueba2"];
+    Visible.add(IdPerfilCreador);
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ProductoData = {
       'Nombre': Nombre.toString(),
-      'Imagenes': NombresImagnes.toString(),
+      'Imagenes': jsonEncode(aux),
       'Tienda': Tienda.toString(),
       'IdSustituto': IdSustituto,
       'Precio': Precio,
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
-      'Visible': Visible.toString(),
+      'Visible': jsonEncode(Visible),
     };
 
     http.Response response1 = await http.post(

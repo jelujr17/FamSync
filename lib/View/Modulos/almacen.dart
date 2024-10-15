@@ -23,7 +23,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   final TextEditingController _tiendaController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
   final TextEditingController _sustitutoController = TextEditingController();
-  List<int> _perfilSeleccionado = [];
+  final List<int> _perfilSeleccionado = [];
 
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -198,15 +198,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                       actions: [
                         TextButton(
                           onPressed:  () async {
-                            if (_perfilSeleccionado == null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                    content: Text(
-                                        'Por favor, selecciona un perfil.')),
-                              );
-                              return;
-                            }
-
                             String nombre = _nombreController.text;
                             String tienda = _tiendaController.text;
                             double precio =
