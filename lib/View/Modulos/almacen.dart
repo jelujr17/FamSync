@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:famsync/Model/producto.dart';
+import 'package:famsync/View/Modulos/creacionProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -19,15 +20,7 @@ class Almacen extends StatefulWidget {
 class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   late Future<List<Productos>> _productosFuture;
   final int _productosPorPagina = 25;
-
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _tiendaController = TextEditingController();
-  final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _sustitutoController = TextEditingController();
-  final List<int> _perfilSeleccionado = [];
-
   late AnimationController _animationController;
-  late Animation<double> _animation;
 
   @override
   void initState() {
@@ -39,8 +32,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
-    _animation =
-        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController);
   }
 
   @override
@@ -112,152 +103,14 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
 
   // Tu método _showPopup modificado para incluir la opción de añadir imágenes
   void _showPopup() {
-    // Reiniciar los controladores y las listas
-    _nombreController.clear();
-    _tiendaController.clear();
-    _precioController.clear();
-    _sustitutoController.clear();
-    _imagenesSeleccionadas!.clear(); // Limpiar las imágenes seleccionadas
+  showDialog(
+    context: context,
+    builder: (context) {
+      return const ProductCreationCarousel();
+    },
+  );
+}
 
-    _animationController.forward();
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setStateDialog) {
-            return AnimatedBuilder(
-              animation: _animation,
-              builder: (context, child) {
-                return Transform.translate(
-                  offset: Offset(0, 200 * (1 - _animation.value)),
-                  child: Opacity(
-                    opacity: _animation.value,
-                    child: AlertDialog(
-                      contentPadding: const EdgeInsets.all(16.0),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      title: const Text('Crear Nuevo Producto'),
-                      content: SizedBox(
-                        width: 400,
-                        height: 400,
-                        child: SingleChildScrollView(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Otros TextFields...
-                              TextField(
-                                controller: _nombreController,
-                                decoration: const InputDecoration(
-                                  hintText: 'Nombre del producto',
-                                ),
-                              ),
-                              TextField(
-                                controller: _tiendaController,
-                                decoration: const InputDecoration(
-                                  hintText: 'Tienda',
-                                ),
-                              ),
-                              TextField(
-                                controller: _precioController,
-                                keyboardType: TextInputType.number,
-                                decoration: const InputDecoration(
-                                  hintText: 'Precio',
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-
-                              // Botón para seleccionar imágenes
-                              ElevatedButton(
-                                onPressed: _seleccionarImagenes,
-                                child: const Text('Seleccionar imágenes'),
-                              ),
-                              // Mostrar las imágenes seleccionadas
-                              // Mostrar las imágenes seleccionadas
-                              _imagenesSeleccionadas!.isNotEmpty
-                                  ? SizedBox(
-                                      height: 100,
-                                      child: ListView.builder(
-                                        scrollDirection: Axis.horizontal,
-                                        itemCount:
-                                            _imagenesSeleccionadas!.length,
-                                        itemBuilder: (context, index) {
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 5),
-                                            child: Image.file(
-                                              File(
-                                                  _imagenesSeleccionadas![index]
-                                                      .path),
-                                              width: 100,
-                                              height: 100,
-                                              fit: BoxFit.cover,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    )
-                                  : const Text(
-                                      'No hay imágenes seleccionadas.'),
-
-                              // Otros widgets como la lista de perfiles...
-                            ],
-                          ),
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () async {
-                            String nombre = _nombreController.text;
-                            String tienda = _tiendaController.text;
-                            double precio =
-                                double.tryParse(_precioController.text) ?? 0.0;
-
-                            // Aquí puedes manejar la carga de imágenes antes de crear el producto
-                            List<String> rutasImagenes = _imagenesSeleccionadas!
-                                .map((image) => image.path)
-                                .toList();
-                            List<File> archivosImagenes = rutasImagenes
-                                .map((ruta) => File(ruta))
-                                .toList();
-
-                            bool creado =
-                                await ServicioProductos().registrarProducto(
-                                    nombre,
-                                    archivosImagenes, // Pasar las rutas de las imágenes
-                                    tienda,
-                                    1,
-                                    precio,
-                                    widget.perfil.Id,
-                                    widget.perfil.UsuarioId,
-                                    _perfilSeleccionado);
-
-                            if (creado) {
-                              // Actualiza la lista de productos
-                              setState(() {
-                                _productosFuture = ServicioProductos()
-                                    .getProductos(widget.perfil.UsuarioId,
-                                        widget.perfil.Id);
-                              });
-                              Navigator.of(context).pop();
-                            }
-                          },
-                          child: const Text('Guardar'),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-        );
-      },
-    ).whenComplete(() {
-      _animationController.reverse();
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

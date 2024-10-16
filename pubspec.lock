@@ -230,6 +230,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_form_builder:
+    dependency: "direct main"
+    description:
+      name: flutter_form_builder
+      sha256: c278ef69b08957d484f83413f0e77b656a39b7a7bb4eb8a295da3a820ecc6545
+      url: "https://pub.dev"
+    source: hosted
+    version: "9.5.0"
   flutter_lints:
     dependency: "direct dev"
     description:
@@ -243,6 +251,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_onboarding_slider:
+    dependency: "direct main"
+    description:
+      name: flutter_onboarding_slider
+      sha256: "70d6b7c8d469abb31f66fd80c61915d7ff9c05d2c9001ec7db659702e7bc4f9d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.11"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -251,6 +267,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.22"
+  flutter_rating_bar:
+    dependency: "direct main"
+    description:
+      name: flutter_rating_bar
+      sha256: d2af03469eac832c591a1eba47c91ecc871fe5708e69967073c043b2d775ed93
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
   flutter_slidable:
     dependency: "direct main"
     description:
