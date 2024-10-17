@@ -32,7 +32,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
       _imagenesSeleccionadas.addAll(imagenes);
       print(
           'Imágenes seleccionadas: $_imagenesSeleccionadas'); // Imprimir las imágenes seleccionadas
-        });
+    });
   }
 
   @override
@@ -288,15 +288,35 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                     return Padding(
                                       padding: const EdgeInsets.symmetric(
                                           horizontal: 5),
-                                      child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child: Image.file(
-                                          File(_imagenesSeleccionadas[index]
-                                              .path),
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                        ),
+                                      child: Stack(
+                                        children: [
+                                          ClipRRect(
+                                            borderRadius:
+                                                BorderRadius.circular(10),
+                                            child: Image.file(
+                                              File(_imagenesSeleccionadas[index]
+                                                  .path),
+                                              width: 100,
+                                              height: 100,
+                                              fit: BoxFit.cover,
+                                            ),
+                                          ),
+                                          Positioned(
+                                            top: 0,
+                                            right: 0,
+                                            child: IconButton(
+                                              icon: const Icon(
+                                                  Icons.remove_circle,
+                                                  color: Colors.red),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _imagenesSeleccionadas
+                                                      .removeAt(index);
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     );
                                   },
