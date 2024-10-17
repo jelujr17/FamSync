@@ -34,7 +34,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
 
   @override
   Widget build(BuildContext context) {
-    print('Construyendo CustomBottomNavBar');
     return ConvexAppBar(
       items: const [
         TabItem(icon: Icons.home_filled, title: 'Inicio'),
@@ -43,7 +42,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       ],
       initialActiveIndex: pagina, // Establecer el índice activo inicial
       onTap: (index) {
-        print('Índice tocado en onTap: $index');
         setState(() {
           pagina = index; // Actualizar el estado con el nuevo índice
         });
@@ -91,9 +89,9 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         // Saltar a la página correspondiente
         widget.pageController.jumpToPage(index);
       },
-      backgroundColor: Colores.principal, // Color de fondo de la barra
+      backgroundColor: Colores.fondo, // Color de fondo de la barra
       color: Colores.texto, // Color de iconos inactivos
-      activeColor: const Color.fromARGB(255, 255, 255, 255), // Color de iconos activos
+      activeColor:  Colores.principal, // Color de iconos activos
       elevation: 5.0, // Elevación de la barra
       style: TabStyle.fixed, // Estilo de la barra (fijo)
     );

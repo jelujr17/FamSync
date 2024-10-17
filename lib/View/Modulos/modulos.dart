@@ -1,10 +1,10 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
-import 'package:famsync/View/Modulos/almacen.dart';
+import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/calendario.dart';
-import 'package:famsync/View/navegacion.dart';
+import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/components/colores.dart';
 
 class Modulos extends StatefulWidget {
   final Perfiles perfil;
@@ -16,20 +16,6 @@ class Modulos extends StatefulWidget {
 }
 
 class ModulosState extends State<Modulos> {
-  late NotchBottomBarController _bottomBarController;
-
-  @override
-  void initState() {
-    super.initState();
-    _bottomBarController = NotchBottomBarController(index: 1);
-  }
-
-  @override
-  void dispose() {
-    _bottomBarController.dispose();
-    super.dispose();
-  }
-
   final List<Map<String, dynamic>> modulos = [
     {'titulo': 'Calendario', 'icono': Icons.calendar_today, 'ruta': 0},
     {'titulo': 'Almacén', 'icono': Icons.shopping_cart, 'ruta': 1},
@@ -42,63 +28,105 @@ class ModulosState extends State<Modulos> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Módulos'),
-        automaticallyImplyLeading: false,
-      ),
-      body: GridView.builder(
-        padding: const EdgeInsets.all(10),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10,
-          mainAxisSpacing: 10,
-          childAspectRatio: 1,
+        automaticallyImplyLeading: false, // Quita el botón de retroceso
+        title: const Text(
+          'Módulos',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        itemCount: modulos.length,
-        itemBuilder: (context, index) {
-          final modulo = modulos[index];
-          return GestureDetector(
-            onTap: () {
-              if (modulo['ruta'] == 0) {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.fade,
-                    child: Calendario(perfil: widget.perfil),
-                  ),
-                );
-              }
-              else if (modulo['ruta'] == 1) {
-                Navigator.push(
-                  context,
-                  PageTransition(
-                    type: PageTransitionType.fade,
-                    child: Almacen(perfil: widget.perfil),
-                  ),
-                );
-              }
-            },
-            child: Card(
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(15),
-              ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(modulo['icono'], size: 40, color: Colors.blueAccent),
-                  const SizedBox(height: 5),
-                  Text(modulo['titulo'], style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                ],
-              ),
-            ),
-          );
-        },
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 15,
+            mainAxisSpacing: 15,
+            childAspectRatio: 1.2, // Para hacer las tarjetas más rectangulares
+          ),
+          itemCount: modulos.length,
+          itemBuilder: (context, index) {
+            final modulo = modulos[index];
+            return GestureDetector(
+              onTap: () {
+                if (modulo['ruta'] == 0) {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: Calendario(perfil: widget.perfil),
+                    ),
+                  );
+                } else if (modulo['ruta'] == 1) {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: Almacen(perfil: widget.perfil),
+                    ),
+                  );
+                }
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 4,
+                      blurRadius: 10,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            Colores.principal.withOpacity(0.8),
+                            Colores.principal.withOpacity(0.6),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Icon(
+                        modulo['icono'],
+                        size: 40,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      modulo['titulo'],
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      backgroundColor: Colors.white,
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(), // Cambia a PageController() si decides usarlo en el futuro
-          pagina: 1,
-          perfil: widget.perfil),
+          pageController: PageController(), pagina: 1, perfil: widget.perfil),
     );
   }
 }

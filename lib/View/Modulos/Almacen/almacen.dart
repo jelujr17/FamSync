@@ -1,8 +1,7 @@
 import 'dart:io';
-
 import 'package:famsync/Model/producto.dart';
-import 'package:famsync/View/Ajustes/perfil.dart';
-import 'package:famsync/View/Modulos/creacionProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/creacionProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +27,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     super.initState();
     _productosFuture = ServicioProductos()
         .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
-
     _animationController = AnimationController(
       duration: const Duration(milliseconds: 300),
       vsync: this,
@@ -41,7 +39,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     super.dispose();
   }
 
-// Agregar este método en la clase AlmacenState
   void _confirmarEliminacion(Productos producto) {
     showDialog(
       context: context,
@@ -59,9 +56,8 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
             ),
             TextButton(
               onPressed: () async {
-                // Aquí llamas a tu servicio para eliminar el producto
-                bool eliminado = await ServicioProductos().eliminarProducto(producto
-                    .Id); // Asegúrate de implementar este método en tu servicio.
+                bool eliminado =
+                    await ServicioProductos().eliminarProducto(producto.Id);
 
                 if (eliminado) {
                   setState(() {
@@ -70,7 +66,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                   });
                   Navigator.of(context).pop(); // Cierra el diálogo
                 } else {
-                  // Manejar el error si la eliminación falla (opcional)
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
                         content: Text('Error al eliminar el producto.')),
@@ -85,10 +80,8 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     );
   }
 
-  List<XFile>? _imagenesSeleccionadas =
-      []; // Agregar esta línea para almacenar las imágenes seleccionadas
-  final ImagePicker _picker =
-      ImagePicker(); // Crear una instancia de ImagePicker
+  List<XFile>? _imagenesSeleccionadas = [];
+  final ImagePicker _picker = ImagePicker();
 
   Future<void> _seleccionarImagenes() async {
     final List<XFile>? imagenes = await _picker.pickMultiImage();
@@ -96,13 +89,10 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
       setState(() {
         _imagenesSeleccionadas!.clear();
         _imagenesSeleccionadas!.addAll(imagenes);
-        print(
-            'Imágenes seleccionadas: ${_imagenesSeleccionadas!.map((img) => img.path).toList()}'); // Agrega esta línea
       });
     }
   }
 
-  // Tu método _showPopup modificado para incluir la opción de añadir imágenes
   void _showPopup() {
     showDialog(
       context: context,
@@ -110,7 +100,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
         return ProductCreationCarousel(perfil: widget.perfil);
       },
     ).then((_) {
-      // Este bloque se ejecuta cuando el diálogo se cierra
       setState(() {
         _productosFuture = ServicioProductos()
             .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
@@ -122,7 +111,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colores.principal, // Cambiar el color de fondo
+        backgroundColor: Colores.principal,
         title: const Center(
           child: Text(
             'Almacén',
@@ -177,54 +166,70 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                       : productos.length,
                   itemBuilder: (context, index) {
                     final producto = productos[index];
-                    return Card(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8, horizontal: 16),
-                      color: Colores.fondo, // Cambiar el color de la tarjeta
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.all(8),
-                        leading: producto.Imagenes.isNotEmpty &&
-                                File(producto.Imagenes[0]).existsSync()
-                            ? Image.file(
-                                File(producto.Imagenes[0]),
-                                width: 50,
-                                fit: BoxFit.cover,
-                              )
-                            : const Icon(Icons.image_not_supported),
-                        title: Text(producto.Nombre,
-                            style: const TextStyle(
-                                color:
-                                    Colores.texto)), // Cambiar color del texto
-                        subtitle: Text(
-                          'Tienda: ${producto.Tienda} \nPrecio: ${producto.Precio.toString()}€',
-                          style: const TextStyle(
-                              color: Colores.texto), // Cambiar color del texto
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit,
-                                  color: Colores
-                                      .botones), // Cambiar color del icono
-                              onPressed: () {
-                                // Maneja la acción de editar
-                              },
+                    return Dismissible(
+                      key: Key(producto.Id.toString()),
+                      direction: DismissDirection.horizontal,
+                      background: Container(
+                        color: Colores.eliminar,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      secondaryBackground: Container(
+                        color: Colores.botones,
+                        alignment: Alignment.center,
+                        child: const Icon(Icons.edit, color: Colors.white),
+                      ),
+                      confirmDismiss: (direction) async {
+                        if (direction == DismissDirection.endToStart) {
+                          _confirmarEliminacion(producto);
+                          return false; // No se confirma la eliminación aquí
+                        } else if (direction == DismissDirection.startToEnd) {
+                          // Aquí puedes implementar la lógica para editar el producto
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => VerProducto(
+                                  producto: producto,
+                                  perfil: widget
+                                      .perfil), // Navega a la página de detalles
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete,
-                                  color: Colores
-                                      .eliminar), // Cambiar color del icono
-                              onPressed: () {
-                                _confirmarEliminacion(
-                                    producto); // Llama al método de confirmación
-                              },
-                            ),
-                          ],
+                          );
+                          return false; // No se confirma la acción de deslizar a la derecha
+                        }
+                        return false;
+                      },
+                      child: Card(
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        color: Colores.fondo,
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.all(8),
+                          leading: producto.Imagenes.isNotEmpty &&
+                                  File(producto.Imagenes[0]).existsSync()
+                              ? Image.file(
+                                  File(producto.Imagenes[0]),
+                                  width: 50,
+                                  fit: BoxFit.cover,
+                                )
+                              : const Icon(Icons.image_not_supported),
+                          title: Text(producto.Nombre,
+                              style: const TextStyle(color: Colores.texto)),
+                          subtitle: Text(
+                            'Tienda: ${producto.Tienda} \nPrecio: ${producto.Precio.toString()}€',
+                            style: const TextStyle(color: Colores.texto),
+                          ),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VerProducto(
+                                    producto: producto,
+                                    perfil: widget
+                                        .perfil), // Navega a la página de detalles
+                              ),
+                            );
+                          },
                         ),
-                        onTap: () {
-                          // Maneja la acción al tocar el producto
-                        },
                       ),
                     );
                   },
