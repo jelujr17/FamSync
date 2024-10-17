@@ -11,7 +11,6 @@ class Productos {
   final String Nombre;
   final List<String> Imagenes;
   final String Tienda;
-  final int IdSustituto;
   final double Precio;
   final int IdPerfilCreador;
   final int IdUsuarioCreador;
@@ -22,7 +21,6 @@ class Productos {
       required this.Nombre,
       required this.Imagenes,
       required this.Tienda,
-      required this.IdSustituto,
       required this.Precio,
       required this.IdPerfilCreador,
       required this.IdUsuarioCreador,
@@ -51,7 +49,6 @@ class ServicioProductos {
           Imagenes: List<String>.from(jsonDecode(
               data['Imagenes'])), // Desanidar y convertir a List<String>
           Tienda: data['Tienda'],
-          IdSustituto: data['IdSustituto'],
           Precio: data['Precio'],
           IdPerfilCreador: data['IdPerfilCreador'],
           IdUsuarioCreador: data['IdUsuarioCreador'],
@@ -87,7 +84,6 @@ class ServicioProductos {
         Imagenes: List<String>.from(
             productoData['Imagenes']), // Desanidar y convertir a List<String>
         Tienda: productoData['Tienda'],
-        IdSustituto: productoData['IdSustituto'],
         Precio: productoData['Precio'],
         IdPerfilCreador: productoData['IdPerfilCreador'],
         IdUsuarioCreador: productoData['IdUsuarioCreador'],
@@ -105,7 +101,6 @@ class ServicioProductos {
       String Nombre,
       List<File>? Imagenes,
       String Tienda,
-      int IdSustituto,
       double Precio,
       int IdPerfilCreador,
       int IdUsuarioCreador,
@@ -151,14 +146,12 @@ class ServicioProductos {
         NombresImagnes.add(imageUrl);
       }
     }
-    List<String> aux = ["prueba1", "prueba2"];
     Visible.add(IdPerfilCreador);
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ProductoData = {
       'Nombre': Nombre.toString(),
-      'Imagenes': jsonEncode(aux),
+      'Imagenes': jsonEncode(NombresImagnes),
       'Tienda': Tienda.toString(),
-      'IdSustituto': IdSustituto,
       'Precio': Precio,
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
@@ -178,7 +171,7 @@ class ServicioProductos {
   }
 
   Future<bool> editarProducto(int Id, String Nombre, List<File> Imagenes,
-      String Tienda, int IdSustituto, Double Precio, List<int> Visible) async {
+      String Tienda, Double Precio, List<int> Visible) async {
     List<String> NombresImagnes = [];
     for (int i = 0; i < Imagenes.length; i++) {
       var request = http.MultipartRequest(
@@ -226,7 +219,6 @@ class ServicioProductos {
       'Nombre': Nombre.toString(),
       'Imagenes': NombresImagnes,
       'Tienda': Tienda.toString(),
-      'IdSustituto': IdSustituto,
       'Precio': Precio,
       'Visible': Visible,
     };

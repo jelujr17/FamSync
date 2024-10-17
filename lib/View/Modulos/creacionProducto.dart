@@ -1,5 +1,7 @@
+// ignore: file_names
 import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/producto.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -26,12 +28,18 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   // ignore: prefer_final_fields
   List<int> _perfilSeleccionado = [];
 
+  // Agrega esto dentro de tu clase _ProductCreationCarouselState
+  List<File> _imagenesFiles = [];
+
+// En tu función _seleccionarImagenes, después de agregar las imágenes seleccionadas
   Future<void> _seleccionarImagenes() async {
     final List<XFile> imagenes = await _picker.pickMultiImage();
     setState(() {
       _imagenesSeleccionadas.addAll(imagenes);
+      // Convertir XFile a File
+      _imagenesFiles = imagenes.map((xFile) => File(xFile.path)).toList();
       print(
-          'Imágenes seleccionadas: $_imagenesSeleccionadas'); // Imprimir las imágenes seleccionadas
+          'Imágenes seleccionadas: $_imagenesFiles'); // Imprimir las imágenes seleccionadas como File
     });
   }
 
@@ -393,8 +401,29 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                   // Botón "Guardar"
                   if (_currentPageIndex == 2)
                     ElevatedButton.icon(
-                      onPressed: () {
-                        // Lógica para guardar el producto
+                      onPressed: () async {
+                        String nombre = _nombreController.text;
+                        String tienda = _tiendaController.text;
+                        double precio =
+                            double.tryParse(_precioController.text) ?? 0.0;
+                        if (!_perfilSeleccionado.contains(widget.perfil.Id)) {
+                          _perfilSeleccionado.add(widget.perfil.Id);
+                        }
+                        print(
+                            'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado, Imagenes seleccionadas: $_imagenesSeleccionadas');
+                        bool creado = await ServicioProductos()
+                            .registrarProducto(
+                                nombre,
+                                _imagenesFiles,
+                                tienda,
+                                precio,
+                                widget.perfil.Id,
+                                widget.perfil.UsuarioId,
+                                _perfilSeleccionado);
+
+                        if (creado) {
+                          Navigator.of(context).pop();
+                        }
                       },
                       icon: const Icon(Icons.save),
                       label: const Text('Guardar'),
