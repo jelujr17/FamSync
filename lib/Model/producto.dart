@@ -49,7 +49,7 @@ class ServicioProductos {
           Imagenes: List<String>.from(jsonDecode(
               data['Imagenes'])), // Desanidar y convertir a List<String>
           Tienda: data['Tienda'],
-          Precio: data['Precio'],
+          Precio: double.parse(data['Precio'].toString()), // Ajustado aquí
           IdPerfilCreador: data['IdPerfilCreador'],
           IdUsuarioCreador: data['IdUsuarioCreador'],
           Visible: List<int>.from(jsonDecode(data[
@@ -84,7 +84,7 @@ class ServicioProductos {
         Imagenes: List<String>.from(
             productoData['Imagenes']), // Desanidar y convertir a List<String>
         Tienda: productoData['Tienda'],
-        Precio: productoData['Precio'],
+        Precio: double.parse(productoData['Precio']),
         IdPerfilCreador: productoData['IdPerfilCreador'],
         IdUsuarioCreador: productoData['IdUsuarioCreador'],
         Visible: List<int>.from(jsonDecode(productoData['Visible'])),
@@ -171,7 +171,7 @@ class ServicioProductos {
   }
 
   Future<bool> editarProducto(int Id, String Nombre, List<File> Imagenes,
-      String Tienda, Double Precio, List<int> Visible) async {
+      String Tienda, double Precio, List<int> Visible) async {
     List<String> NombresImagnes = [];
     for (int i = 0; i < Imagenes.length; i++) {
       var request = http.MultipartRequest(

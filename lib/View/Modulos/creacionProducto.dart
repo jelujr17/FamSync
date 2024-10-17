@@ -371,7 +371,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                     ),
 
                   // Spacer para empujar el botón "Siguiente" a la derecha en la primera página
-                  if (_currentPageIndex == 0) Spacer(),
+                  if (_currentPageIndex == 0) const Spacer(),
 
                   // Botón "Siguiente"
                   if (_currentPageIndex < 2)
@@ -404,19 +404,23 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                       onPressed: () async {
                         String nombre = _nombreController.text;
                         String tienda = _tiendaController.text;
-                        double precio =
-                            double.tryParse(_precioController.text) ?? 0.0;
+
+                        // Asegúrate de que el perfil actual se agrega solo una vez
                         if (!_perfilSeleccionado.contains(widget.perfil.Id)) {
                           _perfilSeleccionado.add(widget.perfil.Id);
                         }
+
+                        double precio = double.parse(_precioController.text);
+
                         print(
                             'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado, Imagenes seleccionadas: $_imagenesSeleccionadas');
-                        bool creado = await ServicioProductos()
-                            .registrarProducto(
+
+                        bool creado =
+                            await ServicioProductos().registrarProducto(
                                 nombre,
                                 _imagenesFiles,
                                 tienda,
-                                precio,
+                                precio, // Aquí ahora se pasa como double
                                 widget.perfil.Id,
                                 widget.perfil.UsuarioId,
                                 _perfilSeleccionado);

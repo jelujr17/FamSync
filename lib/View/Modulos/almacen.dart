@@ -104,14 +104,19 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
 
   // Tu método _showPopup modificado para incluir la opción de añadir imágenes
   void _showPopup() {
-  showDialog(
-    context: context,
-    builder: (context) {
-      return ProductCreationCarousel(perfil: widget.perfil);
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ProductCreationCarousel(perfil: widget.perfil);
+      },
+    ).then((_) {
+      // Este bloque se ejecuta cuando el diálogo se cierra
+      setState(() {
+        _productosFuture = ServicioProductos()
+            .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -191,7 +196,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                 color:
                                     Colores.texto)), // Cambiar color del texto
                         subtitle: Text(
-                          'Tienda: ${producto.Tienda} \nPrecio: ${producto.Precio.toString()}',
+                          'Tienda: ${producto.Tienda} \nPrecio: ${producto.Precio.toString()}€',
                           style: const TextStyle(
                               color: Colores.texto), // Cambiar color del texto
                         ),
