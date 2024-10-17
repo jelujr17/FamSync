@@ -1,9 +1,14 @@
 import 'dart:io';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProductCreationCarousel extends StatefulWidget {
-  const ProductCreationCarousel({super.key});
+    final Perfiles perfil;
+
+  const ProductCreationCarousel({super.key, required this.perfil});
 
   @override
   _ProductCreationCarouselState createState() =>
@@ -16,11 +21,11 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   final TextEditingController _tiendaController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
   final List<XFile> _imagenesSeleccionadas = [];
-
   final ImagePicker _picker = ImagePicker();
-
-  // Variable para mantener el índice de la página actual
   int _currentPageIndex = 0;
+    // ignore: prefer_final_fields
+    List<int> _perfilSeleccionado = [];
+
 
   Future<void> _seleccionarImagenes() async {
     final List<XFile> imagenes = await _picker.pickMultiImage();
@@ -33,7 +38,6 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   @override
   void initState() {
     super.initState();
-    // Escuchar los cambios de página del PageController
     _pageController.addListener(() {
       setState(() {
         _currentPageIndex = _pageController.page!.toInt();
@@ -50,6 +54,38 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
     super.dispose();
   }
 
+  // Función para validar si los campos están llenos
+  bool _validarCampos() {
+    if (_nombreController.text.isEmpty ||
+        _tiendaController.text.isEmpty ||
+        _precioController.text.isEmpty) {
+      return false; // Si hay algún campo vacío, retorna falso
+    }
+    return true; // Si todos los campos están llenos, retorna verdadero
+  }
+
+  // Función para mostrar alerta si los campos no están completos
+  void _mostrarAlerta() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Campos incompletos'),
+          content: const Text(
+              'Por favor, complete todos los campos antes de continuar.'),
+          actions: [
+            TextButton(
+              child: const Text('OK'),
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -58,6 +94,17 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
         height: 550,
         child: Column(
           children: [
+            const Padding(
+              padding: EdgeInsets.all(20.0),
+              child: Text(
+                'Crear Producto',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blueAccent,
+                ),
+              ),
+            ),
             Expanded(
               child: PageView(
                 controller: _pageController,
@@ -93,7 +140,12 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                         const SizedBox(height: 16),
                         TextField(
                           controller: _precioController,
-                          keyboardType: TextInputType.number,
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
+                          inputFormatters: <TextInputFormatter>[
+                            FilteringTextInputFormatter.allow(RegExp(
+                                r'^\d*\.?\d*')), // Permitir solo dígitos y un punto decimal
+                          ],
                           decoration: InputDecoration(
                             labelText: 'Precio',
                             border: OutlineInputBorder(
@@ -118,23 +170,93 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                         ),
                         const SizedBox(height: 16),
                         Expanded(
-                          child: ListView.builder(
-                            itemCount: 5, // Cambia esto por la lista real
-                            itemBuilder: (context, index) {
-                              return Card(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                elevation: 4,
-                                child: ListTile(
-                                  title: Text('Perfil $index'),
-                                  onTap: () {
-                                    // Lógica para seleccionar perfiles
-                                  },
-                                ),
-                              );
-                            },
-                          ),
+                          child: FutureBuilder<List<Perfiles>>(
+                                future: ServicioPerfiles()
+                                    .getPerfiles(widget.perfil.UsuarioId),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    return Center(
+                                        child:
+                                            Text('Error: ${snapshot.error}'));
+                                  } else if (!snapshot.hasData ||
+                                      snapshot.data!.isEmpty) {
+                                    return const Center(
+                                        child: Text(
+                                            'No hay perfiles disponibles.'));
+                                  }
+
+                                  List<Perfiles> perfiles = snapshot.data!;
+                                  for (int i = 0; i < perfiles.length; i++) {
+                                    if (perfiles[i].Id == widget.perfil.Id) {
+                                      perfiles.removeAt(i);
+                                    }
+                                  }
+
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    itemCount: perfiles.length,
+                                    itemBuilder: (context, index) {
+                                      final perfil = perfiles[index];
+
+                                      return ListTile(
+                                        title: Text(
+                                          perfil.Nombre,
+                                          style: const TextStyle(
+                                            color: Colores.texto,
+                                            fontWeight: FontWeight.normal,
+                                          ),
+                                        ),
+                                        leading: perfil.FotoPerfil.isNotEmpty &&
+                                                File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                                    .existsSync()
+                                            ? Stack(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius:
+                                                        25, // Puedes ajustar el radio según tu necesidad
+                                                    backgroundImage: FileImage(File(
+                                                        'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                                  ),
+                                                  if (_perfilSeleccionado
+                                                      .contains(perfil.Id))
+                                                    const Positioned(
+                                                      right: 0,
+                                                      bottom: 0,
+                                                      child: Icon(
+                                                          Icons.check_circle,
+                                                          color: Colors.green),
+                                                    ),
+                                                ],
+                                              )
+                                            : const Icon(
+                                                Icons.image_not_supported),
+                                        tileColor: _perfilSeleccionado
+                                                .contains(perfil.Id)
+                                            ? Colores.principal.withOpacity(0.2)
+                                            : null,
+                                        onTap: () {
+                                          setState(() {
+                                            if (_perfilSeleccionado
+                                                .contains(perfil.Id)) {
+                                              _perfilSeleccionado
+                                                  .remove(perfil.Id);
+                                            } else {
+                                              _perfilSeleccionado
+                                                  .add(perfil.Id);
+                                            }
+                                          });
+                                          print(
+                                              'Perfil seleccionado: $_perfilSeleccionado');
+                                        },
+                                      );
+                                    },
+                                  );
+                                },
+                              ),
                         ),
                       ],
                     ),
@@ -194,13 +316,12 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                 ],
               ),
             ),
-            // Contenedor para los botones de navegación
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Botón "Atrás" visible solo en la segunda y tercera página
+                  // Botón "Atrás"
                   if (_currentPageIndex > 0)
                     ElevatedButton.icon(
                       onPressed: () {
@@ -210,8 +331,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                             curve: Curves.easeInOut,
                           );
                         } else {
-                          Navigator.of(context)
-                              .pop(); // Cerrar diálogo si es la primera página
+                          Navigator.of(context).pop(); // Cerrar diálogo
                         }
                       },
                       label: const Text('Atrás'),
@@ -226,14 +346,18 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                       ),
                     ),
 
-                  // Botón "Siguiente" visible solo en la primera y segunda página
+                  // Botón "Siguiente"
                   if (_currentPageIndex < 2)
                     ElevatedButton.icon(
                       onPressed: () {
-                        _pageController.nextPage(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                        );
+                        if (_currentPageIndex == 0 && !_validarCampos()) {
+                          _mostrarAlerta(); // Mostrar alerta si no se han completado los campos
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
                       },
                       label: const Text('Siguiente'),
                       icon: const Icon(Icons.arrow_forward),
@@ -247,21 +371,21 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                       ),
                     ),
 
-                  // Botón "Guardar" visible solo en la tercera página
+                  // Botón "Guardar"
                   if (_currentPageIndex == 2)
                     ElevatedButton.icon(
                       onPressed: () {
                         // Lógica para guardar el producto
-                        // Aquí puedes manejar la lógica para guardar los datos.
                       },
                       icon: const Icon(Icons.save),
                       label: const Text('Guardar'),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
+                        backgroundColor: Colors.blueAccent,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
                       ),
                     ),
                 ],

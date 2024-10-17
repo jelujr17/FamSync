@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:famsync/Model/producto.dart';
+import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/View/Modulos/creacionProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
@@ -106,7 +107,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   showDialog(
     context: context,
     builder: (context) {
-      return const ProductCreationCarousel();
+      return ProductCreationCarousel(perfil: widget.perfil);
     },
   );
 }
