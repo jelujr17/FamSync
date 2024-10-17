@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProductCreationCarousel extends StatefulWidget {
-    final Perfiles perfil;
+  final Perfiles perfil;
 
   const ProductCreationCarousel({super.key, required this.perfil});
 
@@ -23,16 +23,16 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   final List<XFile> _imagenesSeleccionadas = [];
   final ImagePicker _picker = ImagePicker();
   int _currentPageIndex = 0;
-    // ignore: prefer_final_fields
-    List<int> _perfilSeleccionado = [];
-
+  // ignore: prefer_final_fields
+  List<int> _perfilSeleccionado = [];
 
   Future<void> _seleccionarImagenes() async {
     final List<XFile> imagenes = await _picker.pickMultiImage();
     setState(() {
-      _imagenesSeleccionadas.clear();
       _imagenesSeleccionadas.addAll(imagenes);
-    });
+      print(
+          'Imágenes seleccionadas: $_imagenesSeleccionadas'); // Imprimir las imágenes seleccionadas
+        });
   }
 
   @override
@@ -171,92 +171,88 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                         const SizedBox(height: 16),
                         Expanded(
                           child: FutureBuilder<List<Perfiles>>(
-                                future: ServicioPerfiles()
-                                    .getPerfiles(widget.perfil.UsuarioId),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const Center(
-                                        child: CircularProgressIndicator());
-                                  } else if (snapshot.hasError) {
-                                    return Center(
-                                        child:
-                                            Text('Error: ${snapshot.error}'));
-                                  } else if (!snapshot.hasData ||
-                                      snapshot.data!.isEmpty) {
-                                    return const Center(
-                                        child: Text(
-                                            'No hay perfiles disponibles.'));
-                                  }
+                            future: ServicioPerfiles()
+                                .getPerfiles(widget.perfil.UsuarioId),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                    child: CircularProgressIndicator());
+                              } else if (snapshot.hasError) {
+                                return Center(
+                                    child: Text('Error: ${snapshot.error}'));
+                              } else if (!snapshot.hasData ||
+                                  snapshot.data!.isEmpty) {
+                                return const Center(
+                                    child:
+                                        Text('No hay perfiles disponibles.'));
+                              }
 
-                                  List<Perfiles> perfiles = snapshot.data!;
-                                  for (int i = 0; i < perfiles.length; i++) {
-                                    if (perfiles[i].Id == widget.perfil.Id) {
-                                      perfiles.removeAt(i);
-                                    }
-                                  }
+                              List<Perfiles> perfiles = snapshot.data!;
+                              for (int i = 0; i < perfiles.length; i++) {
+                                if (perfiles[i].Id == widget.perfil.Id) {
+                                  perfiles.removeAt(i);
+                                }
+                              }
 
-                                  return ListView.builder(
-                                    shrinkWrap: true,
-                                    itemCount: perfiles.length,
-                                    itemBuilder: (context, index) {
-                                      final perfil = perfiles[index];
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: perfiles.length,
+                                itemBuilder: (context, index) {
+                                  final perfil = perfiles[index];
 
-                                      return ListTile(
-                                        title: Text(
-                                          perfil.Nombre,
-                                          style: const TextStyle(
-                                            color: Colores.texto,
-                                            fontWeight: FontWeight.normal,
-                                          ),
-                                        ),
-                                        leading: perfil.FotoPerfil.isNotEmpty &&
-                                                File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
-                                                    .existsSync()
-                                            ? Stack(
-                                                children: [
-                                                  CircleAvatar(
-                                                    radius:
-                                                        25, // Puedes ajustar el radio según tu necesidad
-                                                    backgroundImage: FileImage(File(
-                                                        'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
-                                                  ),
-                                                  if (_perfilSeleccionado
-                                                      .contains(perfil.Id))
-                                                    const Positioned(
-                                                      right: 0,
-                                                      bottom: 0,
-                                                      child: Icon(
-                                                          Icons.check_circle,
-                                                          color: Colors.green),
-                                                    ),
-                                                ],
-                                              )
-                                            : const Icon(
-                                                Icons.image_not_supported),
-                                        tileColor: _perfilSeleccionado
-                                                .contains(perfil.Id)
+                                  return ListTile(
+                                    title: Text(
+                                      perfil.Nombre,
+                                      style: const TextStyle(
+                                        color: Colores.texto,
+                                        fontWeight: FontWeight.normal,
+                                      ),
+                                    ),
+                                    leading: perfil.FotoPerfil.isNotEmpty &&
+                                            File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                                .existsSync()
+                                        ? Stack(
+                                            children: [
+                                              CircleAvatar(
+                                                radius:
+                                                    25, // Puedes ajustar el radio según tu necesidad
+                                                backgroundImage: FileImage(File(
+                                                    'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                              ),
+                                              if (_perfilSeleccionado
+                                                  .contains(perfil.Id))
+                                                const Positioned(
+                                                  right: 0,
+                                                  bottom: 0,
+                                                  child: Icon(
+                                                      Icons.check_circle,
+                                                      color: Colors.green),
+                                                ),
+                                            ],
+                                          )
+                                        : const Icon(Icons.image_not_supported),
+                                    tileColor:
+                                        _perfilSeleccionado.contains(perfil.Id)
                                             ? Colores.principal.withOpacity(0.2)
                                             : null,
-                                        onTap: () {
-                                          setState(() {
-                                            if (_perfilSeleccionado
-                                                .contains(perfil.Id)) {
-                                              _perfilSeleccionado
-                                                  .remove(perfil.Id);
-                                            } else {
-                                              _perfilSeleccionado
-                                                  .add(perfil.Id);
-                                            }
-                                          });
-                                          print(
-                                              'Perfil seleccionado: $_perfilSeleccionado');
-                                        },
-                                      );
+                                    onTap: () {
+                                      setState(() {
+                                        if (_perfilSeleccionado
+                                            .contains(perfil.Id)) {
+                                          _perfilSeleccionado.remove(perfil.Id);
+                                        } else {
+                                          _perfilSeleccionado.add(perfil.Id);
+                                        }
+                                      });
+                                      print(
+                                          'Perfil seleccionado: $_perfilSeleccionado');
                                     },
                                   );
                                 },
-                              ),
+                              );
+                            },
+                          ),
                         ),
                       ],
                     ),
@@ -345,6 +341,9 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                             vertical: 15, horizontal: 20),
                       ),
                     ),
+
+                  // Spacer para empujar el botón "Siguiente" a la derecha en la primera página
+                  if (_currentPageIndex == 0) Spacer(),
 
                   // Botón "Siguiente"
                   if (_currentPageIndex < 2)
