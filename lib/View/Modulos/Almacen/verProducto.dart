@@ -1,9 +1,12 @@
 import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/View/Modulos/Almacen/editarProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:page_transition/page_transition.dart';
 
 class VerProducto extends StatefulWidget {
   final Productos producto;
@@ -45,7 +48,8 @@ class DetallesProducto extends State<VerProducto> {
   void _showMenu(BuildContext context) {
     showMenu(
       context: context,
-      position: const RelativeRect.fromLTRB(100, 50, 0, 0), // Ajusta la posición según tus necesidades
+      position: const RelativeRect.fromLTRB(
+          100, 50, 0, 0), // Ajusta la posición según tus necesidades
       items: [
         const PopupMenuItem<String>(
           value: 'lista',
@@ -63,9 +67,65 @@ class DetallesProducto extends State<VerProducto> {
     ).then((value) {
       if (value != null) {
         // Maneja la opción seleccionada
+        if (value == 'eliminar') {
+          _confirmarEliminacion(widget.producto);
+        }
+        if(value == 'editar'){
+          Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: EditarProducto(perfil: widget.perfil, producto: widget.producto,),
+                    ),
+                  );
+        }
         print('Seleccionaste: $value');
       }
     });
+  }
+
+  void _confirmarEliminacion(Productos producto) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+              '¿Estás seguro de que deseas eliminar el producto "${producto.Nombre}"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cierra el diálogo
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool eliminado =
+                    await ServicioProductos().eliminarProducto(producto.Id);
+
+                if (eliminado) {
+                  // Aquí regresas a la página anterior después de eliminar
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: Almacen(perfil: widget.perfil),
+                    ),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error al eliminar el producto.')),
+                  );
+                }
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override

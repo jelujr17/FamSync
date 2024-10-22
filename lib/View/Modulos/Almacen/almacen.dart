@@ -211,15 +211,32 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                             style: const TextStyle(color: Colores.texto),
                           ),
                           onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VerProducto(
-                                    producto: producto,
-                                    perfil: widget
-                                        .perfil), // Navega a la página de detalles
+                            Navigator.of(context).push(PageRouteBuilder(
+                              pageBuilder:
+                                  (context, animation, secondaryAnimation) =>
+                                      VerProducto(
+                                producto: producto,
+                                perfil: widget.perfil,
                               ),
-                            );
+                              transitionsBuilder: (context, animation,
+                                  secondaryAnimation, child) {
+                                const begin = Offset(
+                                    1.0, 0.0); // Comienza desde la derecha
+                                const end =
+                                    Offset.zero; // Termina en la posición final
+                                const curve =
+                                    Curves.easeInOut; // Curva de animación
+
+                                var tween = Tween(begin: begin, end: end)
+                                    .chain(CurveTween(curve: curve));
+                                var offsetAnimation = animation.drive(tween);
+
+                                return SlideTransition(
+                                  position: offsetAnimation,
+                                  child: child,
+                                );
+                              },
+                            ));
                           },
                         ),
                       ),

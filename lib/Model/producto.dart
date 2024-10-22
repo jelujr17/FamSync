@@ -169,6 +169,29 @@ class ServicioProductos {
     }
   }
 
+  Future<bool> actualizarProducto(Productos producto) async {
+    final response = await http.put(
+      Uri.parse('http://$_host/productos/update'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'Nombre': producto.Nombre,
+        'Tienda': producto.Tienda,
+        'Precio': producto.Precio,
+        'Imagenes': producto.Imagenes,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true; // La actualización fue exitosa
+    } else {
+      // Manejo de errores
+      print('Error al actualizar el producto: ${response.statusCode}');
+      return false; // La actualización falló
+    }
+  }
+
   Future<bool> editarProducto(int Id, String Nombre, List<File> Imagenes,
       String Tienda, double Precio, List<int> Visible) async {
     List<String> NombresImagnes = [];
