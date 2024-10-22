@@ -17,13 +17,85 @@ class VerProducto extends StatefulWidget {
 
 class DetallesProducto extends State<VerProducto> {
   int _currentImageIndex = 0;
+  String? _nombrePerfilCreador;
+  Future<List<Perfiles>>? _futurePerfiles;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      obtenerNombrePerfil(widget.producto.IdPerfilCreador);
+      _futurePerfiles = obtenerPerfiles(widget.producto.Visible);
+    });
+  }
+
+  Future<List<Perfiles>> obtenerPerfiles(List<int> visiblesIds) async {
+    return await ServicioPerfiles().getPerfilesByPerfil(visiblesIds);
+  }
+
+  Future<void> obtenerNombrePerfil(int idPerfil) async {
+    Perfiles? perfil = await ServicioPerfiles().getPerfilById(idPerfil);
+    if (perfil != null) {
+      setState(() {
+        _nombrePerfilCreador = perfil.Nombre;
+      });
+    }
+  }
+
+  void _showMenu(BuildContext context) {
+    showMenu(
+      context: context,
+      position: const RelativeRect.fromLTRB(100, 50, 0, 0), // Ajusta la posición según tus necesidades
+      items: [
+        const PopupMenuItem<String>(
+          value: 'lista',
+          child: Text('Añadir a una lista'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'editar',
+          child: Text('Editar'),
+        ),
+        const PopupMenuItem<String>(
+          value: 'eliminar',
+          child: Text('Eliminar'),
+        ),
+      ],
+    ).then((value) {
+      if (value != null) {
+        // Maneja la opción seleccionada
+        print('Seleccionaste: $value');
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.producto.Nombre),
-        backgroundColor: const Color(0xFFABC270),
+        title: Text(
+          widget.producto.Nombre,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 24,
+          ),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert), // Ícono de tres puntos
+            onPressed: () => _showMenu(context), // Muestra el menú al presionar
+          ),
+        ],
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFFABC270), Color(0xFFFEC868)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+        centerTitle: true,
+        elevation: 4,
       ),
       body: Container(
         decoration: const BoxDecoration(
@@ -34,147 +106,186 @@ class DetallesProducto extends State<VerProducto> {
           ),
         ),
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Mostrar imágenes del producto en un carrusel
-            widget.producto.Imagenes.isNotEmpty
-                ? Column(
-                    children: [
-                      CarouselSlider.builder(
-                        options: CarouselOptions(
-                          height: 200,
-                          enlargeCenterPage: true,
-                          enableInfiniteScroll: true,
-                          autoPlay: true,
-                          autoPlayInterval: const Duration(seconds: 3),
-                          onPageChanged: (index, reason) {
-                            setState(() {
-                              _currentImageIndex = index;
-                            });
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Carrusel de imágenes
+              widget.producto.Imagenes.isNotEmpty
+                  ? Column(
+                      children: [
+                        CarouselSlider.builder(
+                          options: CarouselOptions(
+                            height: 280,
+                            enlargeCenterPage: true,
+                            enableInfiniteScroll: true,
+                            autoPlay: true,
+                            autoPlayInterval: const Duration(seconds: 3),
+                            onPageChanged: (index, reason) {
+                              setState(() {
+                                _currentImageIndex = index;
+                              });
+                            },
+                          ),
+                          itemCount: widget.producto.Imagenes.length,
+                          itemBuilder: (context, index, realIndex) {
+                            final imagePath = widget.producto.Imagenes[index];
+                            final imageFile = File(
+                                'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagePath');
+
+                            if (imageFile.existsSync()) {
+                              return ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: Image.file(
+                                  imageFile,
+                                  fit: BoxFit.cover,
+                                ),
+                              );
+                            } else {
+                              return const Center(
+                                child:
+                                    Icon(Icons.image_not_supported, size: 100),
+                              );
+                            }
                           },
                         ),
-                        itemCount: widget.producto.Imagenes.length,
-                        itemBuilder: (context, index, realIndex) {
-                          final imagePath = widget.producto.Imagenes[index];
-                          final imageFile = File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagePath');
-
-                          // Comprobar si el archivo existe antes de mostrarlo
-                          if (imageFile.existsSync()) {
-                            return ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: Image.file(
-                                imageFile,
-                                fit: BoxFit.cover,
-                              ),
-                            );
-                          } else {
-                            return const Center(
-                              child: Icon(Icons.image_not_supported, size: 100),
-                            );
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                      // Indicadores de la posición del carrusel
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: widget.producto.Imagenes.asMap().entries.map(
-                          (entry) {
-                            return GestureDetector(
-                              onTap: () => setState(() {
-                                _currentImageIndex = entry.key;
-                              }),
-                              child: Container(
-                                width: 12.0,
-                                height: 12.0,
-                                margin: const EdgeInsets.symmetric(
-                                  vertical: 8.0,
-                                  horizontal: 4.0,
-                                ),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: (Theme.of(context).brightness ==
-                                              Brightness.dark
-                                          ? Colors.white
-                                          : Colors.green)
-                                      .withOpacity(
-                                    _currentImageIndex == entry.key ? 0.9 : 0.4,
+                        const SizedBox(height: 8),
+                        // Indicadores del carrusel
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children:
+                              widget.producto.Imagenes.asMap().entries.map(
+                            (entry) {
+                              return GestureDetector(
+                                onTap: () => setState(() {
+                                  _currentImageIndex = entry.key;
+                                }),
+                                child: Container(
+                                  width: 12.0,
+                                  height: 12.0,
+                                  margin: const EdgeInsets.symmetric(
+                                    vertical: 8.0,
+                                    horizontal: 4.0,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: (Theme.of(context).brightness ==
+                                                Brightness.dark
+                                            ? Colors.white
+                                            : Colors.green)
+                                        .withOpacity(
+                                      _currentImageIndex == entry.key
+                                          ? 0.9
+                                          : 0.4,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ).toList(),
-                      ),
-                    ],
-                  )
-                : const Center(
-                    child: Icon(Icons.image_not_supported, size: 100)),
-            // Detalles del producto
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(10),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    spreadRadius: 2,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                              );
+                            },
+                          ).toList(),
+                        ),
+                      ],
+                    )
+                  : const Center(
+                      child: Icon(Icons.image_not_supported, size: 100)),
+              // Barra de nombre del producto
+
+              const SizedBox(height: 16),
+              // Detalles del producto
+              Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      spreadRadius: 2,
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.store, color: Colors.black54),
+                        const SizedBox(width: 8),
+                        Text('Tienda: ${widget.producto.Tienda}',
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.price_change, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text(
+                            'Precio: ${widget.producto.Precio.toStringAsFixed(2)}€',
+                            style: const TextStyle(
+                                fontSize: 20, color: Colors.green)),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                        'Creador del producto: ${_nombrePerfilCreador ?? 'Cargando...'}',
+                        style: const TextStyle(fontSize: 16)),
+                    const SizedBox(height: 8),
+                    const Text('Visible para:', style: TextStyle(fontSize: 16)),
+                    const SizedBox(height: 16),
+                    // Lista de perfiles visibles
+                    FutureBuilder<List<Perfiles>>(
+                      future: _futurePerfiles,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return Text('Error: ${snapshot.error}');
+                        } else if (!snapshot.hasData ||
+                            snapshot.data!.isEmpty) {
+                          return const Text('No hay perfiles visibles.');
+                        } else {
+                          // Mostrar fotos de perfiles
+                          return Wrap(
+                            spacing: 8.0,
+                            children: snapshot.data!.map((perfil) {
+                              return Column(
+                                children: [
+                                  CircleAvatar(
+                                    radius:
+                                        25, // Ajusta el radio según tu necesidad
+                                    backgroundImage: FileImage(File(
+                                        'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    perfil.Nombre,
+                                    style: const TextStyle(fontSize: 16),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              );
+                            }).toList(),
+                          );
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.store, color: Colors.black54),
-                      const SizedBox(width: 8),
-                      Text('Tienda: ${widget.producto.Tienda}',
-                          style: const TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      const Icon(Icons.price_change, color: Colors.green),
-                      const SizedBox(width: 8),
-                      Text(
-                          'Precio: ${widget.producto.Precio.toStringAsFixed(2)}€',
-                          style: const TextStyle(
-                              fontSize: 20, color: Colors.green)),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                      'Creador del Perfil ID: ${widget.producto.IdPerfilCreador}',
-                      style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 8),
-                  Text(
-                      'Creador del Usuario ID: ${widget.producto.IdUsuarioCreador}',
-                      style: const TextStyle(fontSize: 16)),
-                  const SizedBox(height: 8),
-                  Text('Visibilidad: ${widget.producto.Visible.join(", ")}',
-                      style: const TextStyle(fontSize: 16)),
-                ],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Acción de edición aquí
-        },
-        backgroundColor: const Color(0xFFABC270),
-        child: const Icon(Icons.edit),
-      ),
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(), pagina: 1, perfil: widget.perfil),
+        pageController: PageController(),
+        pagina: 1,
+        perfil: widget.perfil,
+      ),
     );
   }
 }

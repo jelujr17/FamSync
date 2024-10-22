@@ -27,13 +27,12 @@ class Perfiles {
 }
 
 class ServicioPerfiles {
-    final String _host = 'localhost:3000';
+  final String _host = 'localhost:3000';
 
   // BUSCAR USUARIOS //
   Future<List<Perfiles>> getPerfiles(int UsuarioId) async {
     http.Response response = await http.get(
-      Uri.parse(
-          'http://$_host/perfiles/getByUsuario?UsuarioId=$UsuarioId'),
+      Uri.parse('http://$_host/perfiles/getByUsuario?UsuarioId=$UsuarioId'),
       headers: {'Content-type': 'application/json'},
     );
     if (response.statusCode == 200) {
@@ -84,6 +83,51 @@ class ServicioPerfiles {
       throw Exception(
           'Error al obtener el perfil'); // Lanzar una excepción en caso de error
     }
+  }
+
+  Future<List<Perfiles>> getPerfilesByPerfil(List<int> IdPerfiles) async {
+    List<Perfiles> perfilesProductos = [];
+
+    try {
+      for (int i = 0; i < IdPerfiles.length; i++) {
+        // Realiza una solicitud HTTP para obtener el perfil por ID
+        http.Response response = await http.get(
+          Uri.parse('http://$_host/perfiles/getById?Id=${IdPerfiles[i]}'),
+          headers: {'Content-type': 'application/json'},
+        );
+
+        // Si la respuesta es exitosa
+        if (response.statusCode == 200) {
+          Map<String, dynamic> responseData = jsonDecode(response.body);
+          print('Respuesta de la API: $responseData'); // Para depuración
+
+          // Acceder a los argumentos del perfil
+          Map<String, dynamic> perfilData = responseData['arguments'];
+
+          // Crear un objeto 'Perfiles' con los datos recibidos
+          Perfiles perfil = Perfiles(
+            Id: perfilData['Id'] ?? 0,
+            UsuarioId: perfilData['UsuarioId'] ?? '',
+            Nombre: perfilData['Nombre'] ?? '',
+            FotoPerfil: perfilData['FotoPerfil'] ?? '',
+            Pin: perfilData['Pin'] ?? '',
+            FechaNacimiento: perfilData['FechaNacimiento'] ?? '',
+            Infantil: perfilData['Infantil'] ?? '',
+          );
+
+          perfilesProductos.add(perfil);
+        } else {
+          // Si la respuesta no es exitosa, lanza un error
+          throw Exception(
+              'Error al obtener el perfil con ID ${IdPerfiles[i]}: ${response.reasonPhrase}');
+        }
+      }
+    } catch (e) {
+      print('Error durante la obtención de perfiles: $e');
+      rethrow; // Relanzar el error para ser manejado por la capa superior
+    }
+
+    return perfilesProductos; // Devolver la lista de perfiles obtenidos
   }
 
   // Registro de usuario con verificación
@@ -189,7 +233,6 @@ class ServicioPerfiles {
     Map<String, dynamic> jsonMap = json.decode(nombre);
     String imageUrl = jsonMap['imageUrl'];
 
-
     // Actualizar el perfil en la base de datos con la nueva imagen
     Map<String, dynamic> perfilData = {
       'Id': Id,
@@ -197,7 +240,7 @@ class ServicioPerfiles {
       'FotoPerfil': imageUrl,
       'Pin': Pin,
       'FechaNacimiento': FechaNacimiento,
-      'Infantil' : Infantil
+      'Infantil': Infantil
     };
 
     try {
@@ -219,8 +262,7 @@ class ServicioPerfiles {
     // Aquí haces la lógica para eliminar la imagen del servidor o sistema de archivos
     try {
       final response = await http.get(
-        Uri.parse(
-            'http://$_host/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
+        Uri.parse('http://$_host/perfiles/eliminarImagen?urlImagen=$fotoUrl'),
         headers: {'Content-type': 'application/json'},
       );
 
@@ -235,7 +277,7 @@ class ServicioPerfiles {
   }
 
   Future<void> eliminarPerfil(int Id) async {
-  /*
+    /*
     MySqlConnection conn = await DB().conexion();
  
 
@@ -252,27 +294,29 @@ class ServicioPerfiles {
   }
 
   Future<File> obtenerImagen(String nombre) async {
-  Map<String, dynamic> data = {"fileName": nombre};
-  // Realizar la solicitud al servidor
-  final response = await http.post(
-    Uri.parse('http://$_host/perfiles/receiveFile'),
-    headers: {'Content-type': 'application/json'},
-    body: jsonEncode(data),
-  );
+    Map<String, dynamic> data = {"fileName": nombre};
+    // Realizar la solicitud al servidor
+    final response = await http.post(
+      Uri.parse('http://$_host/perfiles/receiveFile'),
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode(data),
+    );
 
-  // Verificar si la solicitud fue exitosa
-  if (response.statusCode == 200) {
-    // Obtener el directorio temporal adecuado en el dispositivo
-    final tempDir = await getTemporaryDirectory();
-    final filePath = '${tempDir.path}/$nombre'; // Ruta dentro del directorio temporal
-    File file = File(filePath);
-    await file.writeAsBytes(response.bodyBytes); // Escribir los bytes de la imagen en el archivo
+    // Verificar si la solicitud fue exitosa
+    if (response.statusCode == 200) {
+      // Obtener el directorio temporal adecuado en el dispositivo
+      final tempDir = await getTemporaryDirectory();
+      final filePath =
+          '${tempDir.path}/$nombre'; // Ruta dentro del directorio temporal
+      File file = File(filePath);
+      await file.writeAsBytes(
+          response.bodyBytes); // Escribir los bytes de la imagen en el archivo
 
-    print("Imagen encontrada y guardada en: $filePath");
-    return file; // Devolver el archivo creado
-  } else {
-    print("Imagen no encontrada");
-    throw Exception('Error al obtener el archivo: ${response.statusCode}');
+      print("Imagen encontrada y guardada en: $filePath");
+      return file; // Devolver el archivo creado
+    } else {
+      print("Imagen no encontrada");
+      throw Exception('Error al obtener el archivo: ${response.statusCode}');
+    }
   }
-}
 }
