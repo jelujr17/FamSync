@@ -1,5 +1,4 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:http/http.dart' as http;

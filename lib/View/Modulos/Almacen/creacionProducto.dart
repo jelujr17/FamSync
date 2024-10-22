@@ -414,7 +414,9 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
 
                         print(
                             'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado, Imagenes seleccionadas: $_imagenesSeleccionadas');
-
+                        if (_perfilSeleccionado.contains(widget.perfil.Id)) {
+                          _perfilSeleccionado.remove(widget.perfil.Id);
+                        }
                         bool creado =
                             await ServicioProductos().registrarProducto(
                                 nombre,

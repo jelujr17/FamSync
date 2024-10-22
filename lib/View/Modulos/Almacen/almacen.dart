@@ -6,7 +6,6 @@ import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:image_picker/image_picker.dart';
 
 class Almacen extends StatefulWidget {
   final Perfiles perfil;
@@ -78,19 +77,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
         );
       },
     );
-  }
-
-  List<XFile>? _imagenesSeleccionadas = [];
-  final ImagePicker _picker = ImagePicker();
-
-  Future<void> _seleccionarImagenes() async {
-    final List<XFile>? imagenes = await _picker.pickMultiImage();
-    if (imagenes != null) {
-      setState(() {
-        _imagenesSeleccionadas!.clear();
-        _imagenesSeleccionadas!.addAll(imagenes);
-      });
-    }
   }
 
   void _showPopup() {
@@ -205,11 +191,17 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                         child: ListTile(
                           contentPadding: const EdgeInsets.all(8),
                           leading: producto.Imagenes.isNotEmpty &&
-                                  File(producto.Imagenes[0]).existsSync()
-                              ? Image.file(
-                                  File(producto.Imagenes[0]),
-                                  width: 50,
-                                  fit: BoxFit.cover,
+                                  File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')
+                                      .existsSync()
+                              ? Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius:
+                                          25, // Puedes ajustar el radio según tu necesidad
+                                      backgroundImage: FileImage(File(
+                                          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')),
+                                    ),
+                                  ],
                                 )
                               : const Icon(Icons.image_not_supported),
                           title: Text(producto.Nombre,
