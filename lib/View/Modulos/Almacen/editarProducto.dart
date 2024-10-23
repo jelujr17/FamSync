@@ -1,9 +1,10 @@
-// ignore: file_names
 import 'dart:io';
+import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditarProducto extends StatefulWidget {
   final Productos producto;
@@ -21,7 +22,8 @@ class _EditarProductoState extends State<EditarProducto> {
   late TextEditingController _nombreController;
   late TextEditingController _tiendaController;
   late TextEditingController _precioController;
-  File? _nuevaImagen;
+  List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
+  List<String> _imagenesExistentes = []; // Lista para almacenar imágenes existentes
   List<int> _perfilSeleccionado = [];
 
   @override
@@ -32,6 +34,7 @@ class _EditarProductoState extends State<EditarProducto> {
     _precioController =
         TextEditingController(text: widget.producto.Precio.toString());
     _perfilSeleccionado = widget.producto.Visible;
+    _imagenesExistentes = List.from(widget.producto.Imagenes);
   }
 
   @override
@@ -43,8 +46,13 @@ class _EditarProductoState extends State<EditarProducto> {
   }
 
   Future<void> _pickImage() async {
-    // Implementa tu lógica para seleccionar una nueva imagen
-    // Por ejemplo, usando la biblioteca image_picker
+    final ImagePicker picker = ImagePicker();
+    final List<XFile>? images = await picker.pickMultiImage(); // Selección múltiple de imágenes
+    if (images != null) {
+      setState(() {
+        _nuevasImagenes = images.map((image) => File(image.path)).toList();
+      });
+    }
   }
 
   Future<void> _editarProducto() async {
@@ -60,15 +68,22 @@ class _EditarProductoState extends State<EditarProducto> {
         return;
       }
 
+      // Aquí podrías subir las imágenes nuevas al servidor
+      // y obtener las URLs de las nuevas imágenes
+
       final nuevoProducto = Productos(
-          Id: widget.producto.Id,
-          Nombre: nombre,
-          Tienda: tienda,
-          Precio: precio,
-          IdPerfilCreador: widget.producto.IdPerfilCreador,
-          IdUsuarioCreador: widget.producto.IdUsuarioCreador,
-          Imagenes: widget.producto.Imagenes,
-          Visible: widget.producto.Visible);
+        Id: widget.producto.Id,
+        Nombre: nombre,
+        Tienda: tienda,
+        Precio: precio,
+        IdPerfilCreador: widget.producto.IdPerfilCreador,
+        IdUsuarioCreador: widget.producto.IdUsuarioCreador,
+        Imagenes: [
+          ..._imagenesExistentes, // Imágenes existentes (actualizadas)
+          ..._nuevasImagenes.map((e) => e.path), // Nuevas imágenes
+        ],
+        Visible: widget.producto.Visible,
+      );
 
       final exito = await ServicioProductos().actualizarProducto(nuevoProducto);
 
@@ -80,6 +95,18 @@ class _EditarProductoState extends State<EditarProducto> {
         );
       }
     }
+  }
+
+  void _eliminarImagenExistente(String imagen) {
+    setState(() {
+      _imagenesExistentes.remove(imagen);
+    });
+  }
+
+  void _eliminarImagenNueva(File imagen) {
+    setState(() {
+      _nuevasImagenes.remove(imagen);
+    });
   }
 
   @override
@@ -95,16 +122,54 @@ class _EditarProductoState extends State<EditarProducto> {
           key: _formKey,
           child: Column(
             children: [
-              GestureDetector(
-                onTap: _pickImage,
-                child: _nuevaImagen != null
-                    ? Image.file(_nuevaImagen!)
-                    : (widget.producto.Imagenes.isNotEmpty &&
-                            File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${widget.producto.Imagenes[0]}')
-                                .existsSync())
-                        ? Image.file(File(
-                            'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${widget.producto.Imagenes[0]}'))
-                        : const Icon(Icons.image_not_supported, size: 100),
+              // Sección para mostrar imágenes existentes y nuevas
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  // Mostrar imágenes existentes
+                  ..._imagenesExistentes.map(
+                    (imagen) => Stack(
+                      children: [
+                        Image.file(
+                          File(
+                              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagen'),
+                          width: 175,
+                          height: 175,
+                        ),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: GestureDetector(
+                            onTap: () => _eliminarImagenExistente(imagen),
+                            child: const Icon(Icons.delete, color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Mostrar nuevas imágenes seleccionadas
+                  ..._nuevasImagenes.map(
+                    (imagen) => Stack(
+                      children: [
+                        Image.file(imagen, width: 100, height: 100),
+                        Positioned(
+                          right: 0,
+                          top: 0,
+                          child: GestureDetector(
+                            onTap: () => _eliminarImagenNueva(imagen),
+                            child: const Icon(Icons.delete, color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child: const Text('Añadir Imágenes'),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -139,6 +204,7 @@ class _EditarProductoState extends State<EditarProducto> {
                 },
               ),
               const SizedBox(height: 20),
+              // Mantén el FutureBuilder para los perfiles
               Expanded(
                 child: FutureBuilder<List<Perfiles>>(
                   future:
@@ -211,12 +277,17 @@ class _EditarProductoState extends State<EditarProducto> {
               ),
               ElevatedButton(
                 onPressed: _editarProducto,
-                child: const Text('Actualizar Producto'),
+                child: const Text('Guardar Cambios'),
               ),
             ],
           ),
         ),
       ),
+       bottomNavigationBar: CustomBottomNavBar(
+        pageController: PageController(),
+        pagina: 1,
+        perfil: widget.perfil,
+      )
     );
   }
 }
