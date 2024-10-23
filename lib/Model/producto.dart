@@ -169,17 +169,62 @@ class ServicioProductos {
     }
   }
 
-  Future<bool> actualizarProducto(Productos producto) async {
+  Future<bool> actualizarProducto(int Id, String Nombre, List<File>? Imagenes,
+      String Tienda, double Precio, List<int> Visible) async {
+    List<String> NombresImagnes = [];
+    if (Imagenes != null) {
+      for (int i = 0; i < Imagenes.length; i++) {
+        var request = http.MultipartRequest(
+          'POST',
+          Uri.parse('http://$_host/productos/uploadImagen'),
+        );
+        // Paso 2: Adjuntar el archivo a la solicitud
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            'imagen',
+            Imagenes[i].path,
+          ),
+        );
+        // Envía la solicitud y maneja la respuesta
+        String nombre = "error";
+        try {
+          final response = await request.send();
+          final responseBody = await response.stream.bytesToString();
+
+          if (response.statusCode == 200) {
+            // La solicitud se completó con éxito
+            print('Solicitud completada con éxito');
+
+            // Lee el cuerpo de la respuesta como una cadena
+            print('Cuerpo de la respuesta: $responseBody');
+            nombre = responseBody;
+          } else {
+            // Error en la solicitud
+            print('Error en la solicitud: ${responseBody.toString()}');
+          }
+        } catch (e) {
+          // Error al enviar la solicitud
+          print('Error al enviar la solicitud: $e');
+        }
+
+        Map<String, dynamic> jsonMap = json.decode(nombre);
+        String imageUrl = jsonMap['imageUrl'];
+        NombresImagnes.add(imageUrl);
+      }
+    }
+
     final response = await http.put(
       Uri.parse('http://$_host/productos/update'),
       headers: {
         'Content-Type': 'application/json',
       },
       body: jsonEncode({
-        'Nombre': producto.Nombre,
-        'Tienda': producto.Tienda,
-        'Precio': producto.Precio,
-        'Imagenes': producto.Imagenes,
+        'Id': Id,
+        'Nombre': Nombre.toString(),
+        'Tienda': Tienda.toString(),
+        'Precio': Precio.toString(),
+        'Imagenes': jsonEncode(NombresImagnes),
+        'Visible': jsonEncode(Visible),
       }),
     );
 

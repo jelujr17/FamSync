@@ -23,7 +23,8 @@ class _EditarProductoState extends State<EditarProducto> {
   late TextEditingController _tiendaController;
   late TextEditingController _precioController;
   List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
-  List<String> _imagenesExistentes = []; // Lista para almacenar imágenes existentes
+  List<String> _imagenesExistentes =
+      []; // Lista para almacenar imágenes existentes
   List<int> _perfilSeleccionado = [];
 
   @override
@@ -47,11 +48,12 @@ class _EditarProductoState extends State<EditarProducto> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage(); // Selección múltiple de imágenes
+    final List<XFile> images =
+        await picker.pickMultiImage(); // Selección múltiple de imágenes
     setState(() {
       _nuevasImagenes = images.map((image) => File(image.path)).toList();
     });
-    }
+  }
 
   Future<void> _editarProducto() async {
     if (_formKey.currentState!.validate()) {
@@ -82,8 +84,27 @@ class _EditarProductoState extends State<EditarProducto> {
         ],
         Visible: widget.producto.Visible,
       );
-
-      final exito = await ServicioProductos().actualizarProducto(nuevoProducto);
+      List<File> fotosNuevas = [];
+      if (_imagenesExistentes.isNotEmpty) {
+        for (int i = 0; i < _imagenesExistentes.length; i++) {
+          fotosNuevas.add(File(
+              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${_imagenesExistentes[i]}'));
+        }
+      }
+      if (_nuevasImagenes.isNotEmpty) {
+        for (int i = 0; i < _nuevasImagenes.length; i++) {
+          fotosNuevas.add(_nuevasImagenes[i]);
+        }
+      }
+      print("++++++++++++++++++++++++++++++++++++++++++++++");
+      print(nuevoProducto);
+      final exito = await ServicioProductos().actualizarProducto(
+          widget.producto.Id,
+          nombre,
+          fotosNuevas,
+          tienda,
+          precio,
+          nuevoProducto.Visible);
 
       if (exito) {
         Navigator.of(context).pop(true); // Regresa a la página anterior
@@ -110,182 +131,185 @@ class _EditarProductoState extends State<EditarProducto> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colores.principal,
-        title: const Text('Editar Producto'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              // Sección para mostrar imágenes existentes y nuevas
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  // Mostrar imágenes existentes
-                  ..._imagenesExistentes.map(
-                    (imagen) => Stack(
-                      children: [
-                        Image.file(
-                          File(
-                              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagen'),
-                          width: 175,
-                          height: 175,
-                        ),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () => _eliminarImagenExistente(imagen),
-                            child: const Icon(Icons.delete, color: Colors.red),
+        appBar: AppBar(
+          backgroundColor: Colores.principal,
+          title: const Text('Editar Producto'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                // Sección para mostrar imágenes existentes y nuevas
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    // Mostrar imágenes existentes
+                    ..._imagenesExistentes.map(
+                      (imagen) => Stack(
+                        children: [
+                          Image.file(
+                            File(
+                                'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagen'),
+                            width: 175,
+                            height: 175,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Mostrar nuevas imágenes seleccionadas
-                  ..._nuevasImagenes.map(
-                    (imagen) => Stack(
-                      children: [
-                        Image.file(imagen, width: 100, height: 100),
-                        Positioned(
-                          right: 0,
-                          top: 0,
-                          child: GestureDetector(
-                            onTap: () => _eliminarImagenNueva(imagen),
-                            child: const Icon(Icons.delete, color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Añadir Imágenes'),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa un nombre.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _tiendaController,
-                decoration: const InputDecoration(labelText: 'Tienda'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa una tienda.';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _precioController,
-                decoration: const InputDecoration(labelText: 'Precio'),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa un precio.';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 20),
-              // Mantén el FutureBuilder para los perfiles
-              Expanded(
-                child: FutureBuilder<List<Perfiles>>(
-                  future:
-                      ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasError) {
-                      return Center(child: Text('Error: ${snapshot.error}'));
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Center(
-                          child: Text('No hay perfiles disponibles.'));
-                    }
-
-                    List<Perfiles> perfiles = snapshot.data!;
-
-                    return ListView.builder(
-                      shrinkWrap: true,
-                      itemCount: perfiles.length,
-                      itemBuilder: (context, index) {
-                        final perfil = perfiles[index];
-
-                        return ListTile(
-                          title: Text(
-                            perfil.Nombre,
-                            style: const TextStyle(
-                              color: Colores.texto,
-                              fontWeight: FontWeight.normal,
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => _eliminarImagenExistente(imagen),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.red),
                             ),
                           ),
-                          leading: perfil.FotoPerfil.isNotEmpty &&
-                                  File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
-                                      .existsSync()
-                              ? Stack(
-                                  children: [
-                                    CircleAvatar(
-                                      radius:
-                                          25, // Puedes ajustar el radio según tu necesidad
-                                      backgroundImage: FileImage(File(
-                                          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
-                                    ),
-                                    if (_perfilSeleccionado.contains(perfil.Id))
-                                      const Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Icon(Icons.check_circle,
-                                            color: Colors.green),
-                                      ),
-                                  ],
-                                )
-                              : const Icon(Icons.image_not_supported),
-                          tileColor: _perfilSeleccionado.contains(perfil.Id)
-                              ? Colores.principal.withOpacity(0.2)
-                              : null,
-                          onTap: () {
-                            setState(() {
-                              if (_perfilSeleccionado.contains(perfil.Id)) {
-                                _perfilSeleccionado.remove(perfil.Id);
-                              } else {
-                                _perfilSeleccionado.add(perfil.Id);
-                              }
-                            });
-                            print('Perfil seleccionado: $_perfilSeleccionado');
-                          },
-                        );
-                      },
-                    );
+                        ],
+                      ),
+                    ),
+                    // Mostrar nuevas imágenes seleccionadas
+                    ..._nuevasImagenes.map(
+                      (imagen) => Stack(
+                        children: [
+                          Image.file(imagen, width: 100, height: 100),
+                          Positioned(
+                            right: 0,
+                            top: 0,
+                            child: GestureDetector(
+                              onTap: () => _eliminarImagenNueva(imagen),
+                              child:
+                                  const Icon(Icons.delete, color: Colors.red),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: _pickImage,
+                  child: const Text('Añadir Imágenes'),
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  controller: _nombreController,
+                  decoration: const InputDecoration(labelText: 'Nombre'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa un nombre.';
+                    }
+                    return null;
                   },
                 ),
-              ),
-              ElevatedButton(
-                onPressed: _editarProducto,
-                child: const Text('Guardar Cambios'),
-              ),
-            ],
+                TextFormField(
+                  controller: _tiendaController,
+                  decoration: const InputDecoration(labelText: 'Tienda'),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa una tienda.';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  controller: _precioController,
+                  decoration: const InputDecoration(labelText: 'Precio'),
+                  keyboardType: TextInputType.number,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Por favor ingresa un precio.';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 20),
+                // Mantén el FutureBuilder para los perfiles
+                Expanded(
+                  child: FutureBuilder<List<Perfiles>>(
+                    future:
+                        ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text('No hay perfiles disponibles.'));
+                      }
+
+                      List<Perfiles> perfiles = snapshot.data!;
+
+                      return ListView.builder(
+                        shrinkWrap: true,
+                        itemCount: perfiles.length,
+                        itemBuilder: (context, index) {
+                          final perfil = perfiles[index];
+
+                          return ListTile(
+                            title: Text(
+                              perfil.Nombre,
+                              style: const TextStyle(
+                                color: Colores.texto,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            leading: perfil.FotoPerfil.isNotEmpty &&
+                                    File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                        .existsSync()
+                                ? Stack(
+                                    children: [
+                                      CircleAvatar(
+                                        radius:
+                                            25, // Puedes ajustar el radio según tu necesidad
+                                        backgroundImage: FileImage(File(
+                                            'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                      ),
+                                      if (_perfilSeleccionado
+                                          .contains(perfil.Id))
+                                        const Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Icon(Icons.check_circle,
+                                              color: Colors.green),
+                                        ),
+                                    ],
+                                  )
+                                : const Icon(Icons.image_not_supported),
+                            tileColor: _perfilSeleccionado.contains(perfil.Id)
+                                ? Colores.principal.withOpacity(0.2)
+                                : null,
+                            onTap: () {
+                              setState(() {
+                                if (_perfilSeleccionado.contains(perfil.Id)) {
+                                  _perfilSeleccionado.remove(perfil.Id);
+                                } else {
+                                  _perfilSeleccionado.add(perfil.Id);
+                                }
+                              });
+                              print(
+                                  'Perfil seleccionado: $_perfilSeleccionado');
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
+                ),
+                ElevatedButton(
+                  onPressed: _editarProducto,
+                  child: const Text('Guardar Cambios'),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-       bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 1,
-        perfil: widget.perfil,
-      )
-    );
+        bottomNavigationBar: CustomBottomNavBar(
+          pageController: PageController(),
+          pagina: 1,
+          perfil: widget.perfil,
+        ));
   }
 }
