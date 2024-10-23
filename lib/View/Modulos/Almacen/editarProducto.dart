@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';
@@ -8,8 +9,8 @@ class EditarProducto extends StatefulWidget {
   final Productos producto;
   final Perfiles perfil;
 
-  const EditarProducto({Key? key, required this.producto, required this.perfil})
-      : super(key: key);
+  const EditarProducto(
+      {super.key, required this.producto, required this.perfil});
 
   @override
   _EditarProductoState createState() => _EditarProductoState();
@@ -21,6 +22,7 @@ class _EditarProductoState extends State<EditarProducto> {
   late TextEditingController _tiendaController;
   late TextEditingController _precioController;
   File? _nuevaImagen;
+  List<int> _perfilSeleccionado = [];
 
   @override
   void initState() {
@@ -29,6 +31,7 @@ class _EditarProductoState extends State<EditarProducto> {
     _tiendaController = TextEditingController(text: widget.producto.Tienda);
     _precioController =
         TextEditingController(text: widget.producto.Precio.toString());
+    _perfilSeleccionado = widget.producto.Visible;
   }
 
   @override
@@ -136,6 +139,76 @@ class _EditarProductoState extends State<EditarProducto> {
                 },
               ),
               const SizedBox(height: 20),
+              Expanded(
+                child: FutureBuilder<List<Perfiles>>(
+                  future:
+                      ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Center(
+                          child: Text('No hay perfiles disponibles.'));
+                    }
+
+                    List<Perfiles> perfiles = snapshot.data!;
+
+                    return ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: perfiles.length,
+                      itemBuilder: (context, index) {
+                        final perfil = perfiles[index];
+
+                        return ListTile(
+                          title: Text(
+                            perfil.Nombre,
+                            style: const TextStyle(
+                              color: Colores.texto,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          leading: perfil.FotoPerfil.isNotEmpty &&
+                                  File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                      .existsSync()
+                              ? Stack(
+                                  children: [
+                                    CircleAvatar(
+                                      radius:
+                                          25, // Puedes ajustar el radio según tu necesidad
+                                      backgroundImage: FileImage(File(
+                                          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                    ),
+                                    if (_perfilSeleccionado.contains(perfil.Id))
+                                      const Positioned(
+                                        right: 0,
+                                        bottom: 0,
+                                        child: Icon(Icons.check_circle,
+                                            color: Colors.green),
+                                      ),
+                                  ],
+                                )
+                              : const Icon(Icons.image_not_supported),
+                          tileColor: _perfilSeleccionado.contains(perfil.Id)
+                              ? Colores.principal.withOpacity(0.2)
+                              : null,
+                          onTap: () {
+                            setState(() {
+                              if (_perfilSeleccionado.contains(perfil.Id)) {
+                                _perfilSeleccionado.remove(perfil.Id);
+                              } else {
+                                _perfilSeleccionado.add(perfil.Id);
+                              }
+                            });
+                            print('Perfil seleccionado: $_perfilSeleccionado');
+                          },
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
               ElevatedButton(
                 onPressed: _editarProducto,
                 child: const Text('Actualizar Producto'),
