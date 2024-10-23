@@ -47,13 +47,11 @@ class _EditarProductoState extends State<EditarProducto> {
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
-    final List<XFile>? images = await picker.pickMultiImage(); // Selección múltiple de imágenes
-    if (images != null) {
-      setState(() {
-        _nuevasImagenes = images.map((image) => File(image.path)).toList();
-      });
+    final List<XFile> images = await picker.pickMultiImage(); // Selección múltiple de imágenes
+    setState(() {
+      _nuevasImagenes = images.map((image) => File(image.path)).toList();
+    });
     }
-  }
 
   Future<void> _editarProducto() async {
     if (_formKey.currentState!.validate()) {
