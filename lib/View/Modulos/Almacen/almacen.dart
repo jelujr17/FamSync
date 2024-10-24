@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:famsync/Model/producto.dart';
 import 'package:famsync/View/Modulos/Almacen/creacionProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/listas.dart';
 import 'package:famsync/View/Modulos/Almacen/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
@@ -93,6 +94,31 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     });
   }
 
+  void _showPopup1() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Esto permite controlar el tamaño de la ventana emergente
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize:
+              0.6, // Ajusta el tamaño inicial (0.6 significa 60% de la pantalla)
+          minChildSize: 0.4, // Tamaño mínimo al que se puede reducir la hoja
+          maxChildSize: 0.9, // Tamaño máximo al que se puede expandir la hoja
+          builder: (BuildContext context, ScrollController scrollController) {
+            return ListasPage(
+              perfil: widget.perfil,
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -113,7 +139,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
         ],
         leading: IconButton(
           icon: const Icon(Icons.checklist_outlined),
-          onPressed: _showPopup,
+          onPressed: _showPopup1,
         ),
       ),
       body: Column(

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:famsync/View/Modulos/Almacen/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';
@@ -107,7 +108,29 @@ class _EditarProductoState extends State<EditarProducto> {
           nuevoProducto.Visible);
 
       if (exito) {
-        Navigator.of(context).pop(true); // Regresa a la página anterior
+        Productos? producto =
+            await ServicioProductos().getProductoById(widget.producto.Id);
+
+        Navigator.of(context).push(PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) => VerProducto(
+            producto: producto!,
+            perfil: widget.perfil,
+          ),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0); // Comienza desde la derecha
+            const end = Offset.zero; // Termina en la posición final
+            const curve = Curves.easeInOut; // Curva de animación
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        )); // Regresa a la página anterior
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al actualizar el producto.')),

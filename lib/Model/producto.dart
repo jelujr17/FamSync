@@ -80,10 +80,11 @@ class ServicioProductos {
       Productos producto = Productos(
         Id: productoData['Id'],
         Nombre: productoData['Nombre'],
-        Imagenes: List<String>.from(
-            productoData['Imagenes']), // Desanidar y convertir a List<String>
+        Imagenes: List<String>.from(jsonDecode(
+            productoData['Imagenes'])), // Desanidar y convertir a List<String>
+
         Tienda: productoData['Tienda'],
-        Precio: double.parse(productoData['Precio']),
+        Precio: double.parse(productoData['Precio'].toString()),
         IdPerfilCreador: productoData['IdPerfilCreador'],
         IdUsuarioCreador: productoData['IdUsuarioCreador'],
         Visible: List<int>.from(jsonDecode(productoData['Visible'])),

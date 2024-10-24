@@ -11,13 +11,15 @@ class Listas {
   final int IdPerfil;
   final int IdUsuario;
   final List<int> Visible;
+  final List<int> Productos;
 
   Listas(
       {required this.Id,
       required this.Nombre,
       required this.IdPerfil,
       required this.IdUsuario,
-      required this.Visible});
+      required this.Visible,
+      required this.Productos});
 }
 
 class ServiciosListas {
@@ -40,8 +42,8 @@ class ServiciosListas {
           Nombre: data['Nombre'],
           IdUsuario: data['IdUsuario'],
           IdPerfil: data['IdPerfil'],
-          Visible: List<int>.from(jsonDecode(data[
-              'Visible'])), // Asegúrate de que esto también se convierte correctamente
+          Visible: List<int>.from(jsonDecode(data['Visible'])),
+          Productos: List<int>.from(jsonDecode(data['Productos'])),
         );
       }).toList();
       return listas;
@@ -72,6 +74,7 @@ class ServiciosListas {
         IdPerfil: listaData['IdPerfilCreador'],
         IdUsuario: listaData['IdUsuarioCreador'],
         Visible: List<int>.from(jsonDecode(listaData['Visible'])),
+        Productos: List<int>.from(jsonDecode(listaData['Productos'])),
       );
       return producto;
     } else {
@@ -83,12 +86,16 @@ class ServiciosListas {
   // Registro de producto
   Future<bool> registrarLista(
       String Nombre, int IdPerfil, int IdUsuario, List<int> Visible) async {
+    Visible.add(IdPerfil);
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ListaData = {
       'Nombre': Nombre.toString(),
       'IdUsuario': IdUsuario,
       'IdPerfil': IdPerfil,
       'Visible': jsonEncode(Visible).toString(),
+      'Productos': jsonEncode(
+        [],
+      ).toString()
     };
 
     http.Response response1 = await http.post(
@@ -103,7 +110,8 @@ class ServiciosListas {
     }
   }
 
-  Future<bool> actualizarLista(int Id, String Nombre, List<int> Visible) async {
+  Future<bool> actualizarLista(
+      int Id, String Nombre, List<int> Visible, List<int> Productos) async {
     final response = await http.put(
       Uri.parse('http://$_host/listas/update'),
       headers: {
@@ -113,6 +121,7 @@ class ServiciosListas {
         'Id': Id,
         'Nombre': Nombre.toString(),
         'Visible': jsonEncode(Visible),
+        'Productos': jsonEncode(Productos),
       }),
     );
 
