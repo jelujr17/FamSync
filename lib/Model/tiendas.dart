@@ -4,30 +4,25 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 // CLASES DE PERSONAS REALES
-class Listas {
+class Tiendas {
   final int Id;
   final String Nombre;
-  final int IdPerfil;
   final int IdUsuario;
-  final List<int> Visible;
-  final List<int> Productos;
 
-  Listas(
-      {required this.Id,
-      required this.Nombre,
-      required this.IdPerfil,
-      required this.IdUsuario,
-      required this.Visible,
-      required this.Productos});
+  Tiendas({
+    required this.Id,
+    required this.Nombre,
+    required this.IdUsuario,
+  });
 }
 
-class ServiciosListas {
+class ServiciosTiendas {
   final String _host = 'localhost:3000';
   // BUSCAR USUARIOS //
-  Future<List<Listas>> getListas(int IdUsuario, int IdPerfil) async {
+  Future<List<Tiendas>> getTiendas(int IdUsuario) async {
     http.Response response = await http.get(
       Uri.parse(
-          'http://$_host/listas/getByUsuario?IdUsuario=$IdUsuario&IdPerfil=$IdPerfil'),
+          'http://$_host/tiendas/getByUsuario?IdUsuario=$IdUsuario'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -35,24 +30,21 @@ class ServiciosListas {
       List<dynamic> responseData =
           jsonDecode(response.body); // Parsear la respuesta JSON
       print(responseData);
-      List<Listas> listas = responseData.map((data) {
-        return Listas(
+      List<Tiendas> tiendas = responseData.map((data) {
+        return Tiendas(
           Id: data['Id'],
           Nombre: data['Nombre'],
           IdUsuario: data['IdUsuario'],
-          IdPerfil: data['IdPerfil'],
-          Visible: List<int>.from(jsonDecode(data['Visible'])),
-          Productos: List<int>.from(jsonDecode(data['Productos'])),
         );
       }).toList();
-      return listas;
+      return tiendas;
     } else {
       throw Exception(
           'Error al obtener las listas de un usuario'); // Lanzar una excepción en caso de error
     }
   }
 
-  Future<Listas?> getListasById(int Id) async {
+  Future<Tiendas?> getTiendasById(int Id) async {
     print("Id = $Id");
     http.Response response = await http.get(
       Uri.parse('http://$_host/listas/getById?Id=$Id'),
@@ -65,17 +57,14 @@ class ServiciosListas {
           'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
 
       // Acceder a los argumentos
-      Map<String, dynamic> listaData = responseData['arguments'];
+      Map<String, dynamic> tiendaData = responseData['arguments'];
 
-      Listas producto = Listas(
-        Id: listaData['Id'],
-        Nombre: listaData['Nombre'],
-        IdPerfil: listaData['IdPerfilCreador'],
-        IdUsuario: listaData['IdUsuarioCreador'],
-        Visible: List<int>.from(jsonDecode(listaData['Visible'])),
-        Productos: List<int>.from(jsonDecode(listaData['Productos'])),
+       Tiendas tienda = Tiendas(
+        Id: tiendaData['Id'],
+        Nombre: tiendaData['Nombre'],
+        IdUsuario: tiendaData['IdUsuarioCreador'],
       );
-      return producto;
+      return tienda;
     } else {
       throw Exception(
           'Error al obtener la lista por ID'); // Lanzar una excepción en caso de error
