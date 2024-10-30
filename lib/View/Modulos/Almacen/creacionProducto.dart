@@ -1,11 +1,11 @@
-// ignore: file_names
 import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/producto.dart';
+import 'package:famsync/Model/tiendas.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:drop_down_search_field/drop_down_search_field.dart';
 
 class ProductCreationCarousel extends StatefulWidget {
   final Perfiles perfil;
@@ -20,32 +20,36 @@ class ProductCreationCarousel extends StatefulWidget {
 class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   final PageController _pageController = PageController();
   final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _tiendaController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
+  final TextEditingController _dropdownSearchFieldController =
+      TextEditingController();
+
   final List<XFile> _imagenesSeleccionadas = [];
   final ImagePicker _picker = ImagePicker();
   int _currentPageIndex = 0;
-  // ignore: prefer_final_fields
   List<int> _perfilSeleccionado = [];
-
-  // Agrega esto dentro de tu clase _ProductCreationCarouselState
   List<File> _imagenesFiles = [];
+  List<Tiendas> tiendasDisponibles = [];
+  Tiendas? _tiendaSeleccionada; // Variable para la tienda seleccionada
+  String? tiendaSeleccionada;
 
-// En tu función _seleccionarImagenes, después de agregar las imágenes seleccionadas
+  List<String> nombresTienda = [];
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+
   Future<void> _seleccionarImagenes() async {
     final List<XFile> imagenes = await _picker.pickMultiImage();
     setState(() {
       _imagenesSeleccionadas.addAll(imagenes);
-      // Convertir XFile a File
       _imagenesFiles = imagenes.map((xFile) => File(xFile.path)).toList();
-      print(
-          'Imágenes seleccionadas: $_imagenesFiles'); // Imprimir las imágenes seleccionadas como File
+      print('Imágenes seleccionadas: $_imagenesFiles');
     });
   }
 
   @override
   void initState() {
     super.initState();
+    obtenerTiendas();
+    obtenerNombresTiendas();
     _pageController.addListener(() {
       setState(() {
         _currentPageIndex = _pageController.page!.toInt();
@@ -53,26 +57,45 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
     });
   }
 
+  List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(
+        nombresTienda); // Asegúrate de que nombresTienda esté correctamente poblada
+
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
+  }
+
+  void obtenerTiendas() async {
+    tiendasDisponibles =
+        await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+    obtenerNombresTiendas(); // Asegúrate de que esto se llame después de obtener las tiendas
+
+    setState(() {});
+  }
+
+  void obtenerNombresTiendas() {
+    nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+    print(nombresTienda);
+  }
+
   @override
   void dispose() {
     _pageController.dispose();
     _nombreController.dispose();
-    _tiendaController.dispose();
     _precioController.dispose();
     super.dispose();
   }
 
-  // Función para validar si los campos están llenos
   bool _validarCampos() {
     if (_nombreController.text.isEmpty ||
-        _tiendaController.text.isEmpty ||
+        _tiendaSeleccionada == null ||
         _precioController.text.isEmpty) {
-      return false; // Si hay algún campo vacío, retorna falso
+      return false;
     }
-    return true; // Si todos los campos están llenos, retorna verdadero
+    return true;
   }
 
-  // Función para mostrar alerta si los campos no están completos
   void _mostrarAlerta() {
     showDialog(
       context: context,
@@ -85,7 +108,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
             TextButton(
               child: const Text('OK'),
               onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -118,7 +141,6 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                 controller: _pageController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
-                  // Primera pantalla: Nombre, tienda y precio
                   Padding(
                     padding: const EdgeInsets.all(20.0),
                     child: Column(
@@ -135,24 +157,50 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        TextField(
-                          controller: _tiendaController,
-                          decoration: InputDecoration(
-                            labelText: 'Tienda',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            prefixIcon: const Icon(Icons.store),
+
+                        // DropdownButton para seleccionar la tienda
+                        DropDownSearchFormField(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            decoration: const InputDecoration(
+                                labelText: 'Selecciona una tienda'),
+                            controller: _dropdownSearchFieldController,
                           ),
+                          suggestionsCallback: (pattern) {
+                            return getSuggestions(
+                                pattern); // Debe devolver una lista de nombres de tienda
+                          },
+                          itemBuilder: (context, String suggestion) {
+                            return ListTile(
+                              title: Text(suggestion),
+                            );
+                          },
+                          itemSeparatorBuilder: (context, index) {
+                            return const Divider();
+                          },
+                          transitionBuilder:
+                              (context, suggestionsBox, controller) {
+                            return suggestionsBox;
+                          },
+                          onSuggestionSelected: (String suggestion) {
+                            _dropdownSearchFieldController.text = suggestion;
+                            tiendaSeleccionada =
+                                suggestion; // Actualiza la variable de tienda seleccionada
+                          },
+                          suggestionsBoxController: suggestionBoxController,
+                          validator: (value) => value!.isEmpty
+                              ? 'Por favor selecciona una tienda'
+                              : null,
+                          displayAllSuggestionWhenTap: true,
                         ),
+
                         const SizedBox(height: 16),
                         TextField(
                           controller: _precioController,
                           keyboardType: const TextInputType.numberWithOptions(
                               decimal: true),
                           inputFormatters: <TextInputFormatter>[
-                            FilteringTextInputFormatter.allow(RegExp(
-                                r'^\d*\.?\d*')), // Permitir solo dígitos y un punto decimal
+                            FilteringTextInputFormatter.allow(
+                                RegExp(r'^\d*\.?\d*')),
                           ],
                           decoration: InputDecoration(
                             labelText: 'Precio',
@@ -209,53 +257,53 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                 itemBuilder: (context, index) {
                                   final perfil = perfiles[index];
 
-                                  return ListTile(
-                                    title: Text(
-                                      perfil.Nombre,
-                                      style: const TextStyle(
-                                        color: Colores.texto,
-                                        fontWeight: FontWeight.normal,
-                                      ),
-                                    ),
-                                    leading: perfil.FotoPerfil.isNotEmpty &&
-                                            File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
-                                                .existsSync()
-                                        ? Stack(
-                                            children: [
-                                              CircleAvatar(
-                                                radius:
-                                                    25, // Puedes ajustar el radio según tu necesidad
-                                                backgroundImage: FileImage(File(
-                                                    'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
-                                              ),
-                                              if (_perfilSeleccionado
-                                                  .contains(perfil.Id))
-                                                const Positioned(
-                                                  right: 0,
-                                                  bottom: 0,
-                                                  child: Icon(
-                                                      Icons.check_circle,
-                                                      color: Colors.green),
+                                  return Container(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 4),
+                                    child: Row(
+                                      children: [
+                                        perfil.FotoPerfil.isNotEmpty &&
+                                                File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                                    .existsSync()
+                                            ? ClipOval(
+                                                child: Image.file(
+                                                  File(
+                                                      'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}'),
+                                                  width: 40,
+                                                  height: 40,
+                                                  fit: BoxFit.cover,
                                                 ),
-                                            ],
-                                          )
-                                        : const Icon(Icons.image_not_supported),
-                                    tileColor:
-                                        _perfilSeleccionado.contains(perfil.Id)
-                                            ? Colores.principal.withOpacity(0.2)
-                                            : null,
-                                    onTap: () {
-                                      setState(() {
-                                        if (_perfilSeleccionado
-                                            .contains(perfil.Id)) {
-                                          _perfilSeleccionado.remove(perfil.Id);
-                                        } else {
-                                          _perfilSeleccionado.add(perfil.Id);
-                                        }
-                                      });
-                                      print(
-                                          'Perfil seleccionado: $_perfilSeleccionado');
-                                    },
+                                              )
+                                            : const Icon(
+                                                Icons.image_not_supported,
+                                                size: 40),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            perfil.Nombre,
+                                            style: const TextStyle(
+                                              color: Colores.texto,
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Checkbox(
+                                          value: _perfilSeleccionado
+                                              .contains(perfil.Id),
+                                          onChanged: (bool? value) {
+                                            setState(() {
+                                              if (value == true) {
+                                                _perfilSeleccionado
+                                                    .add(perfil.Id);
+                                              } else {
+                                                _perfilSeleccionado
+                                                    .remove(perfil.Id);
+                                              }
+                                            });
+                                          },
+                                        ),
+                                      ],
+                                    ),
                                   );
                                 },
                               );
@@ -294,8 +342,8 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                   itemCount: _imagenesSeleccionadas.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 5),
+                                      padding:
+                                          const EdgeInsets.only(right: 8.0),
                                       child: Stack(
                                         children: [
                                           ClipRRect(
@@ -304,14 +352,14 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                             child: Image.file(
                                               File(_imagenesSeleccionadas[index]
                                                   .path),
-                                              width: 100,
-                                              height: 100,
+                                              width: 70,
+                                              height: 70,
                                               fit: BoxFit.cover,
                                             ),
                                           ),
                                           Positioned(
-                                            top: 0,
                                             right: 0,
+                                            top: 0,
                                             child: IconButton(
                                               icon: const Icon(
                                                   Icons.remove_circle,
@@ -330,120 +378,43 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                   },
                                 ),
                               )
-                            : const Text(
-                                'No hay imágenes seleccionadas.',
-                                style: TextStyle(color: Colors.grey),
-                              ),
+                            : const Text('No hay imágenes seleccionadas.'),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  // Botón "Atrás"
-                  if (_currentPageIndex > 0)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        if (_currentPageIndex > 0) {
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: _currentPageIndex > 0
+                      ? () {
                           _pageController.previousPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                           );
-                        } else {
-                          Navigator.of(context).pop(); // Cerrar diálogo
                         }
-                      },
-                      label: const Text('Atrás'),
-                      icon: const Icon(Icons.arrow_back),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 20),
-                      ),
-                    ),
-
-                  // Spacer para empujar el botón "Siguiente" a la derecha en la primera página
-                  if (_currentPageIndex == 0) const Spacer(),
-
-                  // Botón "Siguiente"
-                  if (_currentPageIndex < 2)
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        if (_currentPageIndex == 0 && !_validarCampos()) {
-                          _mostrarAlerta(); // Mostrar alerta si no se han completado los campos
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
+                      : null,
+                ),
+                IconButton(
+                  icon: const Icon(Icons.arrow_forward),
+                  onPressed: _currentPageIndex < 2
+                      ? () {
+                          if (_validarCampos()) {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            _mostrarAlerta();
+                          }
                         }
-                      },
-                      label: const Text('Siguiente'),
-                      icon: const Icon(Icons.arrow_forward),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orangeAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 20),
-                      ),
-                    ),
-
-                  // Botón "Guardar"
-                  if (_currentPageIndex == 2)
-                    ElevatedButton.icon(
-                      onPressed: () async {
-                        String nombre = _nombreController.text;
-                        String tienda = _tiendaController.text;
-
-                        // Asegúrate de que el perfil actual se agrega solo una vez
-                        if (!_perfilSeleccionado.contains(widget.perfil.Id)) {
-                          _perfilSeleccionado.add(widget.perfil.Id);
-                        }
-
-                        double precio = double.parse(_precioController.text);
-
-                        print(
-                            'Producto: $nombre, Tienda: $tienda, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado, Imagenes seleccionadas: $_imagenesSeleccionadas');
-                        if (_perfilSeleccionado.contains(widget.perfil.Id)) {
-                          _perfilSeleccionado.remove(widget.perfil.Id);
-                        }
-                        bool creado =
-                            await ServicioProductos().registrarProducto(
-                                nombre,
-                                _imagenesFiles,
-                                tienda,
-                                precio, // Aquí ahora se pasa como double
-                                widget.perfil.Id,
-                                widget.perfil.UsuarioId,
-                                _perfilSeleccionado);
-
-                        if (creado) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      icon: const Icon(Icons.save),
-                      label: const Text('Guardar'),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blueAccent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 20),
-                      ),
-                    ),
-                ],
-              ),
+                      : null,
+                ),
+              ],
             ),
           ],
         ),

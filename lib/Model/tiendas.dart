@@ -21,8 +21,7 @@ class ServiciosTiendas {
   // BUSCAR USUARIOS //
   Future<List<Tiendas>> getTiendas(int IdUsuario) async {
     http.Response response = await http.get(
-      Uri.parse(
-          'http://$_host/tiendas/getByUsuario?IdUsuario=$IdUsuario'),
+      Uri.parse('http://$_host/tiendas/getByUsuario?IdUsuario=$IdUsuario'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -40,14 +39,14 @@ class ServiciosTiendas {
       return tiendas;
     } else {
       throw Exception(
-          'Error al obtener las listas de un usuario'); // Lanzar una excepción en caso de error
+          'Error al obtener las tiendas de un usuario ${response.statusCode}'); // Lanzar una excepción en caso de error
     }
   }
 
   Future<Tiendas?> getTiendasById(int Id) async {
     print("Id = $Id");
     http.Response response = await http.get(
-      Uri.parse('http://$_host/listas/getById?Id=$Id'),
+      Uri.parse('http://$_host/tiendas/getById?Id=$Id'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -59,7 +58,7 @@ class ServiciosTiendas {
       // Acceder a los argumentos
       Map<String, dynamic> tiendaData = responseData['arguments'];
 
-       Tiendas tienda = Tiendas(
+      Tiendas tienda = Tiendas(
         Id: tiendaData['Id'],
         Nombre: tiendaData['Nombre'],
         IdUsuario: tiendaData['IdUsuarioCreador'],
@@ -67,29 +66,21 @@ class ServiciosTiendas {
       return tienda;
     } else {
       throw Exception(
-          'Error al obtener la lista por ID'); // Lanzar una excepción en caso de error
+          'Error al obtener la tienda por ID'); // Lanzar una excepción en caso de error
     }
   }
 
   // Registro de producto
-  Future<bool> registrarLista(
-      String Nombre, int IdPerfil, int IdUsuario, List<int> Visible) async {
-    Visible.add(IdPerfil);
-    // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
-    Map<String, dynamic> ListaData = {
+  Future<bool> registrarTienda(String Nombre, int IdUsuario) async {
+    Map<String, dynamic> TiendaData = {
       'Nombre': Nombre.toString(),
-      'IdUsuario': IdUsuario,
-      'IdPerfil': IdPerfil,
-      'Visible': jsonEncode(Visible).toString(),
-      'Productos': jsonEncode(
-        [],
-      ).toString()
+      'IdUsuario': IdUsuario
     };
 
     http.Response response1 = await http.post(
-      Uri.parse('http://$_host/listas/create'),
+      Uri.parse('http://$_host/tiendas/create'),
       headers: {'Content-type': 'application/json'},
-      body: json.encode(ListaData),
+      body: json.encode(TiendaData),
     );
     if (response1.statusCode == 200) {
       return true;
@@ -98,7 +89,7 @@ class ServiciosTiendas {
     }
   }
 
-  Future<bool> actualizarLista(
+  /*Future<bool> actualizarLista(
       int Id, String Nombre, List<int> Visible, List<int> Productos) async {
     final response = await http.put(
       Uri.parse('http://$_host/listas/update'),
@@ -121,25 +112,25 @@ class ServiciosTiendas {
       return false; // La actualización falló
     }
   }
-
-  Future<bool> eliminarLista(int idLista) async {
+*/
+  Future<bool> eliminarTienda(int IdTienda) async {
     try {
       final response = await http.delete(
-        Uri.parse('http://$_host/listas/delete'),
+        Uri.parse('http://$_host/tiendas/delete'),
         headers: {'Content-Type': 'application/json'},
         body:
-            jsonEncode({'IdProducto': idLista}), // Enviamos el ID en el cuerpo
+            jsonEncode({'Id': IdTienda}), // Enviamos el ID en el cuerpo
       );
 
       if (response.statusCode == 200) {
-        print('Producto eliminado con éxito');
+        print('Tienda eliminado con éxito');
         return true;
       } else {
-        print('Error al eliminar el producto: ${response.body}');
+        print('Error al eliminar la tienda: ${response.body}');
         return false;
       }
     } catch (e) {
-      print('Error al enviar solicitud de eliminación de producto: $e');
+      print('Error al enviar solicitud de eliminación de la tienda: $e');
       return false;
     }
   }
