@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/producto.dart';
 import 'package:famsync/Model/tiendas.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,6 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   List<int> _perfilSeleccionado = [];
   List<File> _imagenesFiles = [];
   List<Tiendas> tiendasDisponibles = [];
-  Tiendas? _tiendaSeleccionada; // Variable para la tienda seleccionada
   String? tiendaSeleccionada;
 
   List<String> nombresTienda = [];
@@ -89,7 +89,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
 
   bool _validarCampos() {
     if (_nombreController.text.isEmpty ||
-        _tiendaSeleccionada == null ||
+        tiendaSeleccionada == null ||
         _precioController.text.isEmpty) {
       return false;
     }
@@ -263,53 +263,53 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                 itemBuilder: (context, index) {
                                   final perfil = perfiles[index];
 
-                                  return Container(
-                                    margin:
-                                        const EdgeInsets.symmetric(vertical: 4),
-                                    child: Row(
-                                      children: [
-                                        perfil.FotoPerfil.isNotEmpty &&
-                                                File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
-                                                    .existsSync()
-                                            ? ClipOval(
-                                                child: Image.file(
-                                                  File(
-                                                      'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}'),
-                                                  width: 40,
-                                                  height: 40,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                            : const Icon(
-                                                Icons.image_not_supported,
-                                                size: 40),
-                                        const SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            perfil.Nombre,
-                                            style: const TextStyle(
-                                              color: Colores.texto,
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        ),
-                                        Checkbox(
-                                          value: _perfilSeleccionado
-                                              .contains(perfil.Id),
-                                          onChanged: (bool? value) {
-                                            setState(() {
-                                              if (value == true) {
-                                                _perfilSeleccionado
-                                                    .add(perfil.Id);
-                                              } else {
-                                                _perfilSeleccionado
-                                                    .remove(perfil.Id);
-                                              }
-                                            });
-                                          },
-                                        ),
-                                      ],
+                                  return ListTile(
+                                    title: Text(
+                                      perfil.Nombre,
+                                      style: const TextStyle(
+                                        color: Colores.texto,
+                                        fontWeight: FontWeight.normal,
+                                      ),
                                     ),
+                                    leading: perfil.FotoPerfil.isNotEmpty &&
+                                            File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                                .existsSync()
+                                        ? Stack(
+                                            children: [
+                                              CircleAvatar(
+                                                radius:
+                                                    25, // Puedes ajustar el radio según tu necesidad
+                                                backgroundImage: FileImage(File(
+                                                    'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                              ),
+                                              if (_perfilSeleccionado
+                                                  .contains(perfil.Id))
+                                                const Positioned(
+                                                  right: 0,
+                                                  bottom: 0,
+                                                  child: Icon(
+                                                      Icons.check_circle,
+                                                      color: Colors.green),
+                                                ),
+                                            ],
+                                          )
+                                        : const Icon(Icons.image_not_supported),
+                                    tileColor:
+                                        _perfilSeleccionado.contains(perfil.Id)
+                                            ? Colores.principal.withOpacity(0.2)
+                                            : null,
+                                    onTap: () {
+                                      setState(() {
+                                        if (_perfilSeleccionado
+                                            .contains(perfil.Id)) {
+                                          _perfilSeleccionado.remove(perfil.Id);
+                                        } else {
+                                          _perfilSeleccionado.add(perfil.Id);
+                                        }
+                                      });
+                                      print(
+                                          'Perfil seleccionado: $_perfilSeleccionado');
+                                    },
                                   );
                                 },
                               );
@@ -348,8 +348,8 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                   itemCount: _imagenesSeleccionadas.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
-                                      padding:
-                                          const EdgeInsets.only(right: 8.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 5),
                                       child: Stack(
                                         children: [
                                           ClipRRect(
@@ -358,14 +358,14 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                             child: Image.file(
                                               File(_imagenesSeleccionadas[index]
                                                   .path),
-                                              width: 70,
-                                              height: 70,
+                                              width: 100,
+                                              height: 100,
                                               fit: BoxFit.cover,
                                             ),
                                           ),
                                           Positioned(
-                                            right: 0,
                                             top: 0,
+                                            right: 0,
                                             child: IconButton(
                                               icon: const Icon(
                                                   Icons.remove_circle,
@@ -384,43 +384,119 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                   },
                                 ),
                               )
-                            : const Text('No hay imágenes seleccionadas.'),
+                            : const Text(
+                                'No hay imágenes seleccionadas.',
+                                style: TextStyle(color: Colors.grey),
+                              ),
                       ],
                     ),
                   ),
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: _currentPageIndex > 0
-                      ? () {
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Botón "Atrás"
+                  if (_currentPageIndex > 0)
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (_currentPageIndex > 0) {
                           _pageController.previousPage(
                             duration: const Duration(milliseconds: 300),
                             curve: Curves.easeInOut,
                           );
+                        } else {
+                          Navigator.of(context).pop(); // Cerrar diálogo
                         }
-                      : null,
-                ),
-                IconButton(
-                  icon: const Icon(Icons.arrow_forward),
-                  onPressed: _currentPageIndex < 2
-                      ? () {
-                          if (_validarCampos()) {
-                            _pageController.nextPage(
-                              duration: const Duration(milliseconds: 300),
-                              curve: Curves.easeInOut,
-                            );
-                          } else {
-                            _mostrarAlerta();
-                          }
+                      },
+                      label: const Text('Atrás'),
+                      icon: const Icon(Icons.arrow_back),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
+                      ),
+                    ),
+
+                  // Spacer para empujar el botón "Siguiente" a la derecha en la primera página
+                  if (_currentPageIndex == 0) const Spacer(),
+
+                  // Botón "Siguiente"
+                  if (_currentPageIndex < 2)
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        if (_currentPageIndex == 0 && !_validarCampos()) {
+                          _mostrarAlerta(); // Mostrar alerta si no se han completado los campos
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
                         }
-                      : null,
-                ),
-              ],
+                      },
+                      label: const Text('Siguiente'),
+                      icon: const Icon(Icons.arrow_forward),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orangeAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
+                      ),
+                    ),
+
+                  // Botón "Guardar"
+                  if (_currentPageIndex == 2)
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        String nombre = _nombreController.text;
+
+                        // Asegúrate de que el perfil actual se agrega solo una vez
+                        if (!_perfilSeleccionado.contains(widget.perfil.Id)) {
+                          _perfilSeleccionado.add(widget.perfil.Id);
+                        }
+
+                        double precio = double.parse(_precioController.text);
+
+                        print(
+                            'Producto: $nombre, Tienda: $tiendaSeleccionada, Precio: $precio, Perfil seleccionado: $_perfilSeleccionado, Imagenes seleccionadas: $_imagenesSeleccionadas');
+                        if (_perfilSeleccionado.contains(widget.perfil.Id)) {
+                          _perfilSeleccionado.remove(widget.perfil.Id);
+                        }
+                        bool creado =
+                            await ServicioProductos().registrarProducto(
+                                nombre,
+                                _imagenesFiles,
+                                tiendaSeleccionada!,
+                                precio, // Aquí ahora se pasa como double
+                                widget.perfil.Id,
+                                widget.perfil.UsuarioId,
+                                _perfilSeleccionado);
+
+                        if (creado) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      icon: const Icon(Icons.save),
+                      label: const Text('Guardar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blueAccent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 15, horizontal: 20),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ],
         ),
