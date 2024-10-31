@@ -139,7 +139,7 @@ class ServiciosListas {
         Uri.parse('http://$_host/listas/delete'),
         headers: {'Content-Type': 'application/json'},
         body:
-            jsonEncode({'IdProducto': idLista}), // Enviamos el ID en el cuerpo
+            jsonEncode({'IdLista': idLista}), // Enviamos el ID en el cuerpo
       );
 
       if (response.statusCode == 200) {

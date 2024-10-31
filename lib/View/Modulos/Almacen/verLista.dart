@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class DetallesListaDialog extends StatefulWidget {
   final Listas lista; // Recibe la lista seleccionada
 
-  const DetallesListaDialog({super.key, required this.lista});
+  const DetallesListaDialog({super.key, required this.lista, required void Function() onEdit, required void Function() onDelete});
 
   @override
   _ListasViewState createState() => _ListasViewState();
