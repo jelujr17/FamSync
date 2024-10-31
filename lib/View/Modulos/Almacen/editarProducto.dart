@@ -267,9 +267,12 @@ class _EditarProductoState extends State<EditarProducto> {
 
                       return ListView.builder(
                         shrinkWrap: true,
-                        itemCount: perfiles.length,
+                        itemCount: perfiles.length > 1
+                            ? perfiles.length - 1
+                            : 0, // Restamos 1 si hay más de un perfil
                         itemBuilder: (context, index) {
-                          final perfil = perfiles[index];
+                          final perfil = perfiles[index +
+                              1]; // Obtenemos el perfil a partir del segundo
 
                           return ListTile(
                             title: Text(
@@ -321,6 +324,7 @@ class _EditarProductoState extends State<EditarProducto> {
                     },
                   ),
                 ),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _editarProducto,
                   child: const Text('Guardar Cambios'),
@@ -328,11 +332,6 @@ class _EditarProductoState extends State<EditarProducto> {
               ],
             ),
           ),
-        ),
-        bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(),
-          pagina: 1,
-          perfil: widget.perfil,
         ));
   }
 }

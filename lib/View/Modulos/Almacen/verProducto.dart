@@ -70,14 +70,17 @@ class DetallesProducto extends State<VerProducto> {
         if (value == 'eliminar') {
           _confirmarEliminacion(widget.producto);
         }
-        if(value == 'editar'){
+        if (value == 'editar') {
           Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.fade,
-                      child: EditarProducto(perfil: widget.perfil, producto: widget.producto,),
-                    ),
-                  );
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: EditarProducto(
+                perfil: widget.perfil,
+                producto: widget.producto,
+              ),
+            ),
+          );
         }
         print('Seleccionaste: $value');
       }
@@ -138,6 +141,35 @@ class DetallesProducto extends State<VerProducto> {
             fontWeight: FontWeight.bold,
             fontSize: 24,
           ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back), // Ícono de flecha hacia atrás
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              PageRouteBuilder(
+                pageBuilder: (context, animation, secondaryAnimation) =>
+                    Almacen(perfil: widget.perfil),
+                transitionsBuilder:
+                    (context, animation, secondaryAnimation, child) {
+                  const begin =
+                      Offset(-1.0, 0.0); // Desplazamiento desde la derecha
+                  const end = Offset.zero; // Posición final
+                  const curve = Curves.easeInOut;
+
+                  var tween = Tween(begin: begin, end: end)
+                      .chain(CurveTween(curve: curve));
+                  var offsetAnimation = animation.drive(tween);
+
+                  return SlideTransition(
+                    position: offsetAnimation,
+                    child: child,
+                  );
+                },
+              ),
+              (route) => false, // Elimina todas las rutas anteriores
+            );
+          },
         ),
         actions: [
           IconButton(
