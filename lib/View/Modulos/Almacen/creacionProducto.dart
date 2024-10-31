@@ -161,8 +161,14 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                         // DropdownButton para seleccionar la tienda
                         DropDownSearchFormField(
                           textFieldConfiguration: TextFieldConfiguration(
-                            decoration: const InputDecoration(
-                                labelText: 'Selecciona una tienda'),
+                            decoration: InputDecoration(
+                              labelText: 'Selecciona una tienda',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              prefixIcon: const Icon(Icons
+                                  .store), // Puedes cambiar el ícono si lo deseas
+                            ),
                             controller: _dropdownSearchFieldController,
                           ),
                           suggestionsCallback: (pattern) {
