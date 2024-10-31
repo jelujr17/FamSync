@@ -1,36 +1,31 @@
+import 'dart:io';
 import 'package:famsync/Model/listas.dart';
 import 'package:famsync/Model/producto.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class DetallesListaDialog extends StatefulWidget {
-  final Listas lista; // Recibe la lista seleccionada
+  final Listas lista;
 
-  const DetallesListaDialog({super.key, required this.lista, required void Function() onEdit, required void Function() onDelete});
+  const DetallesListaDialog({
+    super.key,
+    required this.lista,
+    required void Function() onEdit,
+    required void Function() onDelete,
+  });
 
   @override
-  _ListasViewState createState() => _ListasViewState();
+  _DetallesListaDialogState createState() => _DetallesListaDialogState();
 }
 
-class _ListasViewState extends State<DetallesListaDialog>
-    with SingleTickerProviderStateMixin {
+class _DetallesListaDialogState extends State<DetallesListaDialog> {
   List<Productos> productosLista = [];
-  late AnimationController _animationController;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     obtenerProductos(widget.lista.Productos);
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   Future<void> obtenerProductos(List<int> idsProductos) async {
@@ -41,11 +36,14 @@ class _ListasViewState extends State<DetallesListaDialog>
       );
 
       setState(() {
-        productosLista = productos
-            .whereType<Productos>()
-            .toList(); // Filtra los productos nulos
+        productosLista = productos.whereType<Productos>().toList();
+        isLoading = false;
       });
     }
+  }
+
+  void agregarAlCarrito(Productos producto) {
+    print('Producto añadido al carrito: ${producto.Nombre}');
   }
 
   @override
@@ -54,48 +52,130 @@ class _ListasViewState extends State<DetallesListaDialog>
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
-      backgroundColor: Colores.fondo, // Color de fondo del diálogo
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              widget.lista.Nombre,
-              style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colores.texto),
+      backgroundColor: Colors.transparent,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Fondo colorido detrás del contenedor
+          Container(
+            decoration: BoxDecoration(
+              color: Colores.principal.withOpacity(0.5), // Color de fondo
+              borderRadius: BorderRadius.circular(16),
             ),
-            const Divider(color: Colores.principal), // Separador
-            Expanded(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: productosLista.length,
-                itemBuilder: (context, index) {
-                  var elemento = productosLista[index]; // Obtén cada elemento
-                  return Card(
-                    color: Colores.botones, // Color de las tarjetas
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        elemento.Nombre, // Muestra el nombre del elemento
+          ),
+          // Contenedor principal con borde
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white, // Fondo blanco para el contenedor
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                const BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        widget.lista.Nombre,
                         style: const TextStyle(
-                          color: Colores.texto, // Color del texto
+                          fontSize: 24,
                           fontWeight: FontWeight.bold,
+                          color: Colores.texto,
                         ),
                       ),
-                    ),
-                  );
-                },
+                      IconButton(
+                        icon: const Icon(Icons.close, color: Colores.eliminar),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
+                  ),
+                  const Divider(color: Colores.texto, thickness: 1),
+                  isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : Expanded(
+                          child: ListView.builder(
+                            itemCount: productosLista.length,
+                            itemBuilder: (context, index) {
+                              var elemento = productosLista[index];
+                              return Card(
+                                margin: const EdgeInsets.symmetric(vertical: 8),
+                                elevation: 5,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                  side: BorderSide(
+                                    color: Colores.principal.withOpacity(0.6),
+                                    width: 1,
+                                  ),
+                                ),
+                                child: ListTile(
+                                  leading: elemento.Imagenes.isNotEmpty &&
+                                          File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${elemento.Imagenes[0]}')
+                                              .existsSync()
+                                      ? ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(12),
+                                          child: Image.file(
+                                            File(
+                                                'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${elemento.Imagenes[0]}'),
+                                            width: 50,
+                                            height: 50,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : const Icon(Icons.image_not_supported,
+                                          color: Colores.texto),
+                                  title: Text(
+                                    elemento.Nombre,
+                                    style: const TextStyle(
+                                      color: Colores.texto,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    '\$${elemento.Precio.toStringAsFixed(2)}',
+                                    style:
+                                        const TextStyle(color: Colores.texto),
+                                  ),
+                                  trailing: ElevatedButton(
+                                    onPressed: () => agregarAlCarrito(elemento),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Colores.eliminar.withOpacity(0.85),
+                                      side: const BorderSide(
+                                          color: Colores.texto, width: 1),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Eliminar',
+                                      style: TextStyle(color: Colores.fondo),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

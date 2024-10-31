@@ -4,6 +4,26 @@ import 'package:famsync/View/Modulos/Almacen/VerLista.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 20);
+    path.quadraticBezierTo(
+      size.width / 2, // Posición del pico de la curva
+      size.height + 20, // Altura del pico de la curva
+      size.width,
+      size.height - 20,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
 class ListasPage extends StatefulWidget {
   final Perfiles perfil;
 
@@ -67,7 +87,7 @@ class _ListasPageState extends State<ListasPage> {
                   }
                 },
                 child: const Text('Agregar',
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: Colores.fondo)),
               ),
             ],
           ),
@@ -77,7 +97,8 @@ class _ListasPageState extends State<ListasPage> {
   }
 
   void _showEditarListaDialog(Listas lista) {
-    final TextEditingController nombreController = TextEditingController(text: lista.Nombre);
+    final TextEditingController nombreController =
+        TextEditingController(text: lista.Nombre);
 
     showDialog(
       context: context,
@@ -103,7 +124,6 @@ class _ListasPageState extends State<ListasPage> {
                   backgroundColor: Colores.botonesSecundarios,
                 ),
                 onPressed: () async {
-                  // Lógica para actualizar la lista
                   bool result = await ServiciosListas().actualizarLista(
                       lista.Id, lista.Nombre, lista.Productos, lista.Visible);
                   if (result) {
@@ -117,7 +137,7 @@ class _ListasPageState extends State<ListasPage> {
                   }
                 },
                 child: const Text('Actualizar',
-                    style: TextStyle(color: Colors.white)),
+                    style: TextStyle(color: Colores.fondo)),
               ),
             ],
           ),
@@ -134,17 +154,18 @@ class _ListasPageState extends State<ListasPage> {
           backgroundColor: Colores.fondo,
           title: const Text('Eliminar Lista',
               style: TextStyle(color: Colores.texto)),
-          content: Text('¿Estás seguro de que deseas eliminar "${lista.Nombre}"?'),
+          content:
+              Text('¿Estás seguro de que deseas eliminar "${lista.Nombre}"?'),
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Cancelar', style: TextStyle(color: Colors.grey)),
+              child: const Text('Cancelar',
+                  style: TextStyle(color: Colores.texto)),
             ),
             TextButton(
               onPressed: () async {
-                // Lógica para eliminar la lista
                 bool result = await ServiciosListas().eliminarLista(lista.Id);
                 if (result) {
                   Navigator.pop(context);
@@ -156,7 +177,8 @@ class _ListasPageState extends State<ListasPage> {
                   print('Error al eliminar la lista');
                 }
               },
-              child: const Text('Eliminar', style: TextStyle(color: Colors.red)),
+              child: const Text('Eliminar',
+                  style: TextStyle(color: Colores.eliminar)),
             ),
           ],
         );
@@ -172,18 +194,22 @@ class _ListasPageState extends State<ListasPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       builder: (context) {
-        return DraggableScrollableSheet(
-          expand: false,
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          builder: (BuildContext context, ScrollController scrollController) {
-            return DetallesListaDialog(
-              lista: lista,
-              onEdit: () => _showEditarListaDialog(lista),
-              onDelete: () => _confirmarEliminarLista(lista),
-            );
-          },
+        return Container(
+          width: MediaQuery.of(context).size.width *
+              0.8, // Cambia el 0.8 a cualquier valor entre 0 y 1 para ajustar el ancho
+          child: DraggableScrollableSheet(
+            expand: false,
+            initialChildSize: 0.6,
+            minChildSize: 0.4,
+            maxChildSize: 0.9,
+            builder: (BuildContext context, ScrollController scrollController) {
+              return DetallesListaDialog(
+                lista: lista,
+                onEdit: () => _showEditarListaDialog(lista),
+                onDelete: () => _confirmarEliminarLista(lista),
+              );
+            },
+          ),
         );
       },
     );
@@ -192,12 +218,43 @@ class _ListasPageState extends State<ListasPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        backgroundColor: const Color(0xFFABC270),
-        title: const Text('Mis Listas', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        elevation: 4, // Sombra en el AppBar
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipPath(
+          clipper: CurvedAppBarClipper(),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            title: const Text(
+              'Mis Listas',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colores.fondo,
+                shadows: [
+                  Shadow(
+                    offset: Offset(0, 1),
+                    blurRadius: 3.0,
+                    color: Colores.texto,
+                  ),
+                ],
+              ),
+            ),
+            centerTitle: true,
+            elevation: 4,
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Colores.botones,
+                    Colores.botonesSecundarios,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
       body: FutureBuilder<List<Listas>>(
         future: _listasFuture,
@@ -216,7 +273,7 @@ class _ListasPageState extends State<ListasPage> {
                 itemBuilder: (context, index) {
                   Listas lista = snapshot.data![index];
                   return Card(
-                    color: const Color(0xFFFEC868),
+                    color: Colores.fondoAux,
                     elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15),
@@ -225,7 +282,7 @@ class _ListasPageState extends State<ListasPage> {
                       title: Text(
                         lista.Nombre,
                         style: const TextStyle(
-                          color: Color(0xFF473C33),
+                          color: Colores.texto,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -233,11 +290,12 @@ class _ListasPageState extends State<ListasPage> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.blue),
+                            icon: const Icon(Icons.edit, color: Colores.texto),
                             onPressed: () => _showEditarListaDialog(lista),
                           ),
                           IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
+                            icon: const Icon(Icons.delete,
+                                color: Colores.eliminar),
                             onPressed: () => _confirmarEliminarLista(lista),
                           ),
                         ],
@@ -255,8 +313,8 @@ class _ListasPageState extends State<ListasPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showAgregarListaDialog,
-        backgroundColor: const Color(0xFFFDA769),
-        child: const Icon(Icons.add, color: Colors.white),
+        backgroundColor: Colores.principal,
+        child: const Icon(Icons.add, color: Colores.fondo),
       ),
     );
   }

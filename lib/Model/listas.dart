@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
+import 'package:famsync/Model/producto.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -82,6 +83,35 @@ class ServiciosListas {
     }
   }
 
+  Future<bool> incluirProducto(Productos producto, Listas lista) async {
+    List<int> productos = lista.Productos;
+    if (productos.contains(producto.Id)) {
+      return (false);
+    }else{
+      productos.add(producto.Id);
+    }
+    final response = await http.put(
+      Uri.parse('http://$_host/listas/update'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        'Id': lista.Id,
+        'Nombre': lista.Nombre.toString(),
+        'Visible': jsonEncode(lista.Visible),
+        'Productos': jsonEncode(productos),
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return true; // La actualización fue exitosa
+    } else {
+      // Manejo de errores
+      print('Error al actualizar la lista: ${response.statusCode}');
+      return false; // La actualización falló
+    }
+  }
+
   // Registro de producto
   Future<bool> registrarLista(
       String Nombre, int IdPerfil, int IdUsuario, List<int> Visible) async {
@@ -138,8 +168,7 @@ class ServiciosListas {
       final response = await http.delete(
         Uri.parse('http://$_host/listas/delete'),
         headers: {'Content-Type': 'application/json'},
-        body:
-            jsonEncode({'IdLista': idLista}), // Enviamos el ID en el cuerpo
+        body: jsonEncode({'IdLista': idLista}), // Enviamos el ID en el cuerpo
       );
 
       if (response.statusCode == 200) {

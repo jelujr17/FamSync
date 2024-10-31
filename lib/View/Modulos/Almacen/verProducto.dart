@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:famsync/Model/listas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Almacen/editarProducto.dart';
 import 'package:famsync/View/navegacion.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -82,9 +84,101 @@ class DetallesProducto extends State<VerProducto> {
             ),
           );
         }
+        if (value == "lista") {
+          seleccionarLista(widget.producto);
+        }
         print('Seleccionaste: $value');
       }
     });
+  }
+
+  void seleccionarLista(Productos producto) {
+    Future<List<Listas>> _listasFuture =
+        ServiciosListas().getListas(widget.perfil.UsuarioId, widget.perfil.Id);
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colores.fondo,
+          title:
+              const Text('Mis Listas', style: TextStyle(color: Colores.texto)),
+          content: SizedBox(
+            width: double
+                .maxFinite, // Asegura que el contenido use todo el ancho disponible
+            child: buildListDialogContent(
+                _listasFuture), // Llama a la función que devuelve el FutureBuilder
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child:
+                  const Text('Cerrar', style: TextStyle(color: Colores.texto)),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget buildListDialogContent(Future<List<Listas>> listasFuture) {
+    return FutureBuilder<List<Listas>>(
+      future: listasFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        } else if (snapshot.hasError) {
+          return Center(child: Text('Error: ${snapshot.error}'));
+        } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          return const Center(child: Text('No hay listas disponibles'));
+        } else {
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: ListView.builder(
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                Listas lista = snapshot.data![index];
+                return Card(
+                  color: Colores.fondoAux,
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: ListTile(
+                    title: Text(
+                      lista.Nombre,
+                      style: const TextStyle(
+                        color: Colores.texto,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    onTap: () async {
+                      bool intento = await ServiciosListas()
+                          .incluirProducto(widget.producto, lista);
+                      if (intento) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content:
+                                  Text('Producto insertado correctamente.')),
+                        );
+                        Navigator.pop(context);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Ha ocurrido un error al insertar el producto en la lista.')),
+                        );
+                      }
+                    },
+                  ),
+                );
+              },
+            ),
+          );
+        }
+      },
+    );
   }
 
   void _confirmarEliminacion(Productos producto) {
