@@ -43,7 +43,7 @@ class AjustesState extends State<Ajustes> {
             padding: const EdgeInsets.all(8.0),
             child: Card(
               color:
-                  Colores.botonesSecundarios, // Fondo oscuro del perfil
+                  Colores.fondoAux, // Fondo oscuro del perfil
               elevation: 2,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -183,7 +183,7 @@ class AjustesState extends State<Ajustes> {
   // Método para crear las secciones de ajustes
   Widget buildSettingsSection(List<Widget> items) {
     return Card(
-      color: Colores.botonesSecundarios,
+      color: Colores.fondoAux,
       elevation: 2,
       margin: const EdgeInsets.symmetric(horizontal: 10),
       shape: RoundedRectangleBorder(

@@ -122,24 +122,48 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colores.principal,
-        title: const Center(
-          child: Text(
-            'Almacén',
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 24),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipPath(
+          clipper: CurvedAppBarClipper(), // Usa tu clipper aquí
+          child: AppBar(
+            backgroundColor: Colores.botonesSecundarios,
+            title: const Center(
+              child: Text(
+                'Almacén',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 24),
+              ),
+            ),
+            actions: [
+              Container(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 8.0), // Margen alrededor del botón
+                decoration: const BoxDecoration(
+                  color: Colores.fondo, // Color de fondo
+                  shape: BoxShape.circle, // Forma circular
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.add,
+                      color: Colores.texto), // Color del ícono
+                  onPressed: _showPopup,
+                ),
+              ),
+            ],
+            leading: Container(
+              margin: const EdgeInsets.symmetric(
+                  horizontal: 8.0), // Margen alrededor del botón
+              decoration: const BoxDecoration(
+                color: Colores.fondo, // Color de fondo
+                shape: BoxShape.circle, // Forma circular
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.checklist_outlined,
+                    color: Colores.texto), // Color del ícono
+                onPressed: _showPopup1,
+              ),
+            ),
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _showPopup,
-          ),
-        ],
-        leading: IconButton(
-          icon: const Icon(Icons.checklist_outlined),
-          onPressed: _showPopup1,
         ),
       ),
       body: Column(

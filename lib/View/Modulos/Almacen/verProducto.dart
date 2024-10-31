@@ -3,6 +3,7 @@ import 'package:famsync/Model/listas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Almacen/editarProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/listas.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -93,30 +94,75 @@ class DetallesProducto extends State<VerProducto> {
   }
 
   void seleccionarLista(Productos producto) {
-    Future<List<Listas>> _listasFuture =
+    Future<List<Listas>> listasFuture =
         ServiciosListas().getListas(widget.perfil.UsuarioId, widget.perfil.Id);
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
+        return Dialog(
           backgroundColor: Colores.fondo,
-          title:
-              const Text('Mis Listas', style: TextStyle(color: Colores.texto)),
-          content: SizedBox(
-            width: double
-                .maxFinite, // Asegura que el contenido use todo el ancho disponible
-            child: buildListDialogContent(
-                _listasFuture), // Llama a la función que devuelve el FutureBuilder
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child:
-                  const Text('Cerrar', style: TextStyle(color: Colores.texto)),
-            ),
-          ],
+          child: Column(
+            mainAxisSize: MainAxisSize.min, // Ajusta el tamaño del diálogo
+            children: [
+              // AppBar personalizada
+              ClipPath(
+                clipper:
+                    CurvedAppBarClipper(), // Asegúrate de que este clipper esté disponible
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colores.botones,
+                        Colores.botonesSecundarios,
+                      ],
+                    ),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
+                  child: Center(
+                    child: Text(
+                      'Mis Listas',
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w600,
+                        color: Colores.fondo,
+                        shadows: [
+                          Shadow(
+                            offset: Offset(0, 1),
+                            blurRadius: 3.0,
+                            color: Colores.texto,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              // Contenido del diálogo
+              SizedBox(
+                width: double.maxFinite,
+                height: 400, // Ajusta la altura según sea necesario
+                child: buildListDialogContent(listasFuture),
+              ),
+              // Botón de cerrar
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Cerrar',
+                    style: TextStyle(color: Colores.texto),
+                  ),
+                ),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -140,7 +186,7 @@ class DetallesProducto extends State<VerProducto> {
               itemBuilder: (context, index) {
                 Listas lista = snapshot.data![index];
                 return Card(
-                  color: Colores.fondoAux,
+                  // Cambia el color del Card
                   elevation: 5,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(15),

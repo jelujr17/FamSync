@@ -91,7 +91,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       },
       backgroundColor: Colores.fondo, // Color de fondo de la barra
       color: Colores.texto, // Color de iconos inactivos
-      activeColor:  Colores.principal, // Color de iconos activos
+      activeColor:  Colores.botonesSecundarios, // Color de iconos activos
       elevation: 5.0, // Elevación de la barra
       style: TabStyle.fixed, // Estilo de la barra (fijo)
     );
