@@ -42,8 +42,16 @@ class _DetallesListaDialogState extends State<DetallesListaDialog> {
     }
   }
 
-  void agregarAlCarrito(Productos producto) {
-    print('Producto añadido al carrito: ${producto.Nombre}');
+  void quitarProducto(Productos producto) async {
+    List<int> productos = widget.lista.Productos;
+    productos.remove(producto.Id);
+    bool result = await ServiciosListas().actualizarLista(
+        widget.lista.Id, widget.lista.Nombre, widget.lista.Visible, productos);
+    if (result) {
+      obtenerProductos(productos);
+    } else {
+      print('Error al editar la lista');
+    }
   }
 
   @override
@@ -68,8 +76,8 @@ class _DetallesListaDialogState extends State<DetallesListaDialog> {
             decoration: BoxDecoration(
               color: Colors.white, // Fondo blanco para el contenedor
               borderRadius: BorderRadius.circular(16),
-              boxShadow: [
-                const BoxShadow(
+              boxShadow: const [
+                BoxShadow(
                   color: Colors.black26,
                   blurRadius: 10,
                   spreadRadius: 5,
@@ -90,7 +98,7 @@ class _DetallesListaDialogState extends State<DetallesListaDialog> {
                         style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
-                          color: Colores.texto,
+                          color: Color.fromARGB(255, 71, 51, 71),
                         ),
                       ),
                       IconButton(
@@ -149,7 +157,7 @@ class _DetallesListaDialogState extends State<DetallesListaDialog> {
                                         const TextStyle(color: Colores.texto),
                                   ),
                                   trailing: ElevatedButton(
-                                    onPressed: () => agregarAlCarrito(elemento),
+                                    onPressed: () => quitarProducto(elemento),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor:
                                           Colores.eliminar.withOpacity(0.85),
