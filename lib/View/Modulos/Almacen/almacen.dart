@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:famsync/Model/producto.dart';
-import 'package:famsync/View/Modulos/Almacen/creacionProducto.dart';
-import 'package:famsync/View/Modulos/Almacen/listas.dart';
-import 'package:famsync/View/Modulos/Almacen/verProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/creacionProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/Listas/listas.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';

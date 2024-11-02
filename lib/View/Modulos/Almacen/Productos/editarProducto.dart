@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:famsync/View/Modulos/Almacen/verProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/producto.dart';

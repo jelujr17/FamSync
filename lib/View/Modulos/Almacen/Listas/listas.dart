@@ -125,7 +125,7 @@ class _ListasPageState extends State<ListasPage> {
                 ),
                 onPressed: () async {
                   bool result = await ServiciosListas().actualizarLista(
-                      lista.Id, lista.Nombre, lista.Productos, lista.Visible);
+                      lista.Id, nombreController.text, lista.Visible, lista.Productos);
                   if (result) {
                     Navigator.pop(context);
                     setState(() {
