@@ -107,10 +107,16 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
               ),
               ListTile(
                 title: const Text('Por Tienda'),
-                onTap: () {
-                  // Lógica para filtrar por tienda
+                onTap: () async {
+                  final productos =
+                      await _productosFuture; // Espera a que se resuelva el Future
+                  productos.sort((a, b) =>
+                      b.Tienda.compareTo(a.Tienda)); // Ordena la lista
+                  setState(() {
+                    _productosFuture = Future.value(
+                        productos); // Actualiza el Future con la lista ordenada
+                  });
                   Navigator.of(context).pop();
-                  // Aquí puedes implementar el filtrado
                 },
               ),
               // Agrega más opciones de filtrado según sea necesario
