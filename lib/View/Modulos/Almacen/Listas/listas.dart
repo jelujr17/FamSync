@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:famsync/Model/listas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/VerLista.dart';
@@ -97,6 +99,8 @@ class _ListasPageState extends State<ListasPage> {
   }
 
   void _showEditarListaDialog(Listas lista) {
+    List<int> perfilSeleccionado =
+        List.from(lista.Visible); // Crea una copia de la lista
     final TextEditingController nombreController =
         TextEditingController(text: lista.Nombre);
 
@@ -107,39 +111,126 @@ class _ListasPageState extends State<ListasPage> {
           backgroundColor: Colores.fondo,
           title: const Text('Editar Lista',
               style: TextStyle(color: Colores.texto)),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de la lista',
-                  labelStyle: TextStyle(color: Colores.texto),
+          content: SizedBox(
+            width: 300, // Ancho fijo
+            height: 400, // Establece una altura fija aquí
+            child: Column(
+              mainAxisSize: MainAxisSize.min, // Ajusta el tamaño vertical
+              children: [
+                TextField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre de la lista',
+                    labelStyle: TextStyle(color: Colores.texto),
+                  ),
+                  style: const TextStyle(color: Colores.texto),
                 ),
-                style: const TextStyle(color: Colores.texto),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colores.botonesSecundarios,
+                const SizedBox(height: 20),
+                Expanded(
+                  child: FutureBuilder<List<Perfiles>>(
+                    future:
+                        ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const Center(child: CircularProgressIndicator());
+                      } else if (snapshot.hasError) {
+                        return Center(child: Text('Error: ${snapshot.error}'));
+                      } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                        return const Center(
+                            child: Text('No hay perfiles disponibles.'));
+                      }
+
+                      List<Perfiles> perfiles = snapshot.data!;
+
+                      return StatefulBuilder(
+                        builder: (BuildContext context, StateSetter setState) {
+                          return ListView.builder(
+                            shrinkWrap: true,
+                            itemCount:
+                                perfiles.length > 1 ? perfiles.length - 1 : 0,
+                            itemBuilder: (context, index) {
+                              final perfil = perfiles[index +
+                                  1]; // Obtenemos el perfil a partir del segundo
+
+                              // Aquí comprobamos si el perfil está seleccionado
+                              bool isSelected =
+                                  perfilSeleccionado.contains(perfil.Id);
+
+                              return ListTile(
+                                title: Text(
+                                  perfil.Nombre,
+                                  style: const TextStyle(
+                                    color: Colores.texto,
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                                leading: perfil.FotoPerfil.isNotEmpty &&
+                                        File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                            .existsSync()
+                                    ? Stack(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 25,
+                                            backgroundImage: FileImage(File(
+                                                'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')),
+                                          ),
+                                          if (isSelected) // Solo mostramos el icono si el perfil está seleccionado
+                                            const Positioned(
+                                              right: 0,
+                                              bottom: 0,
+                                              child: Icon(Icons.check_circle,
+                                                  color: Colors.green),
+                                            ),
+                                        ],
+                                      )
+                                    : const Icon(Icons.image_not_supported),
+                                tileColor: isSelected
+                                    ? Colores.principal.withOpacity(0.2)
+                                    : null,
+                                onTap: () {
+                                  setState(() {
+                                    if (isSelected) {
+                                      perfilSeleccionado.remove(perfil.Id);
+                                    } else {
+                                      perfilSeleccionado.add(perfil.Id);
+                                    }
+                                  });
+                                  print(
+                                      'Perfil seleccionado: $perfilSeleccionado');
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ),
-                onPressed: () async {
-                  bool result = await ServiciosListas().actualizarLista(
-                      lista.Id, nombreController.text, lista.Visible, lista.Productos);
-                  if (result) {
-                    Navigator.pop(context);
-                    setState(() {
-                      _listasFuture = ServiciosListas()
-                          .getListas(widget.perfil.UsuarioId, widget.perfil.Id);
-                    });
-                  } else {
-                    print('Error al editar la lista');
-                  }
-                },
-                child: const Text('Actualizar',
-                    style: TextStyle(color: Colores.fondo)),
-              ),
-            ],
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colores.botonesSecundarios,
+                  ),
+                  onPressed: () async {
+                    bool result = await ServiciosListas().actualizarLista(
+                        lista.Id,
+                        nombreController.text,
+                        perfilSeleccionado, // Actualiza con la lista seleccionada
+                        lista.Productos);
+                    if (result) {
+                      Navigator.pop(context);
+                      setState(() {
+                        _listasFuture = ServiciosListas().getListas(
+                            widget.perfil.UsuarioId, widget.perfil.Id);
+                      });
+                    } else {
+                      print('Error al editar la lista');
+                    }
+                  },
+                  child: const Text('Actualizar',
+                      style: TextStyle(color: Colores.fondo)),
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -194,7 +285,7 @@ class _ListasPageState extends State<ListasPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       builder: (context) {
-        return Container(
+        return SizedBox(
           width: MediaQuery.of(context).size.width *
               0.8, // Cambia el 0.8 a cualquier valor entre 0 y 1 para ajustar el ancho
           child: DraggableScrollableSheet(
