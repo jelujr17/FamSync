@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/producto.dart';
-import 'package:famsync/Model/tiendas.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

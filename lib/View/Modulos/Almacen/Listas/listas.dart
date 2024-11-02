@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:famsync/Model/listas.dart';
+import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/verLista.dart';
 import 'package:famsync/components/colores.dart';

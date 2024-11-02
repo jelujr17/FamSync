@@ -1,6 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
-import 'package:famsync/Model/producto.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 

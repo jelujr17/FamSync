@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:famsync/Model/producto.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/creacionProducto.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/listas.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
@@ -7,6 +7,26 @@ import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
+
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 20);
+    path.quadraticBezierTo(
+      size.width / 2, // Posición del pico de la curva
+      size.height + 20, // Altura del pico de la curva
+      size.width,
+      size.height - 20,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
 
 class Almacen extends StatefulWidget {
   final Perfiles perfil;
@@ -37,6 +57,68 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  void _mostrarMenuFiltro() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+      builder: (context) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          height: 300, // Ajusta la altura según tus necesidades
+          child: Column(
+            children: [
+              const Text(
+                'Filtrar Productos',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 20),
+              // Ejemplo de opciones de filtrado
+              ListTile(
+                title: const Text('Precio Ascendente'),
+                onTap: () async {
+                  final productos =
+                      await _productosFuture; // Espera a que se resuelva el Future
+                  productos.sort((a, b) =>
+                      a.Precio.compareTo(b.Precio)); // Ordena la lista
+                  setState(() {
+                    _productosFuture = Future.value(
+                        productos); // Actualiza el Future con la lista ordenada
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: const Text('Precio Descendente'),
+                onTap: () async {
+                  final productos =
+                      await _productosFuture; // Espera a que se resuelva el Future
+                  productos.sort((a, b) =>
+                      b.Precio.compareTo(a.Precio)); // Ordena la lista
+                  setState(() {
+                    _productosFuture = Future.value(
+                        productos); // Actualiza el Future con la lista ordenada
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              ListTile(
+                title: const Text('Por Tienda'),
+                onTap: () {
+                  // Lógica para filtrar por tienda
+                  Navigator.of(context).pop();
+                  // Aquí puedes implementar el filtrado
+                },
+              ),
+              // Agrega más opciones de filtrado según sea necesario
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _confirmarEliminacion(Productos producto) {
@@ -175,7 +257,9 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.filter_list),
-                  onPressed: () {},
+                  onPressed: () {
+                    _mostrarMenuFiltro(); // Llama a la función para mostrar el menú de filtro
+                  },
                 ),
                 hintText: 'Buscar productos...',
                 border: const OutlineInputBorder(),

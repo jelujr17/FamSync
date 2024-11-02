@@ -1,15 +1,34 @@
 import 'dart:io';
-import 'package:famsync/Model/listas.dart';
+import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/editarProducto.dart';
-import 'package:famsync/View/Modulos/Almacen/Listas/listas.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:famsync/Model/producto.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:page_transition/page_transition.dart';
+
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 20);
+    path.quadraticBezierTo(
+      size.width / 2, // Posición del pico de la curva
+      size.height + 20, // Altura del pico de la curva
+      size.width,
+      size.height - 20,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
 
 class VerProducto extends StatefulWidget {
   final Productos producto;
