@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:famsync/Model/Almacen/tiendas.dart';
 
 class EditarProducto extends StatefulWidget {
   final Productos producto;
@@ -23,14 +25,24 @@ class _EditarProductoState extends State<EditarProducto> {
   late TextEditingController _nombreController;
   late TextEditingController _tiendaController;
   late TextEditingController _precioController;
+  final TextEditingController _dropdownSearchFieldController =
+      TextEditingController();
+
   List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
   List<String> _imagenesExistentes =
       []; // Lista para almacenar imágenes existentes
   List<int> _perfilSeleccionado = [];
+  List<Tiendas> tiendasDisponibles = [];
+  String? tiendaSeleccionada;
+  List<String> nombresTienda = [];
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
 
   @override
   void initState() {
     super.initState();
+
+    obtenerTiendas();
+    obtenerNombresTiendas();
     _nombreController = TextEditingController(text: widget.producto.Nombre);
     _tiendaController = TextEditingController(text: widget.producto.Tienda);
     _precioController =
@@ -47,6 +59,28 @@ class _EditarProductoState extends State<EditarProducto> {
     super.dispose();
   }
 
+  void obtenerTiendas() async {
+    tiendasDisponibles =
+        await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+    obtenerNombresTiendas(); // Asegúrate de que esto se llame después de obtener las tiendas
+    tiendaSeleccionada = widget.producto.Tienda;
+    setState(() {});
+  }
+
+  void obtenerNombresTiendas() {
+    nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+    print(nombresTienda);
+  }
+
+  List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(
+        nombresTienda); // Asegúrate de que nombresTienda esté correctamente poblada
+
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
+  }
+
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final List<XFile> images =
@@ -59,7 +93,7 @@ class _EditarProductoState extends State<EditarProducto> {
   Future<void> _editarProducto() async {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text;
-      final tienda = _tiendaController.text;
+      final tienda = tiendaSeleccionada;
       final precio = double.tryParse(_precioController.text);
 
       if (precio == null) {
@@ -75,7 +109,7 @@ class _EditarProductoState extends State<EditarProducto> {
       final nuevoProducto = Productos(
         Id: widget.producto.Id,
         Nombre: nombre,
-        Tienda: tienda,
+        Tienda: tienda!,
         Precio: precio,
         IdPerfilCreador: widget.producto.IdPerfilCreador,
         IdUsuarioCreador: widget.producto.IdUsuarioCreador,
@@ -226,16 +260,8 @@ class _EditarProductoState extends State<EditarProducto> {
                     return null;
                   },
                 ),
-                TextFormField(
-                  controller: _tiendaController,
-                  decoration: const InputDecoration(labelText: 'Tienda'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Por favor ingresa una tienda.';
-                    }
-                    return null;
-                  },
-                ),
+                const SizedBox(height: 20),
+
                 TextFormField(
                   controller: _precioController,
                   decoration: const InputDecoration(labelText: 'Precio'),
@@ -248,7 +274,45 @@ class _EditarProductoState extends State<EditarProducto> {
                   },
                 ),
                 const SizedBox(height: 20),
-                // Mantén el FutureBuilder para los perfiles
+
+                DropDownSearchFormField(
+                  textFieldConfiguration: TextFieldConfiguration(
+                    decoration: InputDecoration(
+                      labelText: tiendaSeleccionada!,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      prefixIcon: const Icon(
+                          Icons.store), // Puedes cambiar el ícono si lo deseas
+                    ),
+                    controller: _dropdownSearchFieldController,
+                  ),
+                  suggestionsCallback: (pattern) {
+                    return getSuggestions(
+                        pattern); // Debe devolver una lista de nombres de tienda
+                  },
+                  itemBuilder: (context, String suggestion) {
+                    return ListTile(
+                      title: Text(suggestion),
+                    );
+                  },
+                  itemSeparatorBuilder: (context, index) {
+                    return const Divider();
+                  },
+                  transitionBuilder: (context, suggestionsBox, controller) {
+                    return suggestionsBox;
+                  },
+                  onSuggestionSelected: (String suggestion) {
+                    _dropdownSearchFieldController.text = suggestion;
+                    tiendaSeleccionada =
+                        suggestion; // Actualiza la variable de tienda seleccionada
+                  },
+                  suggestionsBoxController: suggestionBoxController,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Por favor selecciona una tienda' : null,
+                  displayAllSuggestionWhenTap: true,
+                ),
+                const SizedBox(height: 20),
                 Expanded(
                   child: FutureBuilder<List<Perfiles>>(
                     future:
