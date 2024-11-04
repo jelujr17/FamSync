@@ -67,6 +67,10 @@ dependencies:
   flutter_form_builder: ^9.5.0
   flutter_rating_bar: ^4.0.1
   drop_down_search_field: ^1.0.6
+  flutter_localizations:
+    sdk: flutter
+  flutter_neat_and_clean_calendar: ^0.4.15
+
 
 
 dev_dependencies:

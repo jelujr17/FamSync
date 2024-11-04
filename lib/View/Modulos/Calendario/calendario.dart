@@ -1,6 +1,8 @@
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:kalender/kalender.dart';
+import 'package:intl/intl.dart';
+import 'package:table_calendar/table_calendar.dart';
+import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/navegacion.dart';
 
@@ -14,206 +16,108 @@ class Calendario extends StatefulWidget {
 }
 
 class CalendarioScreenState extends State<Calendario> {
-  final PageController _pageController = PageController(initialPage: 1);
-  late NotchBottomBarController _controller;
-
-  final CalendarController<Event> controller = CalendarController(
-    calendarDateTimeRange: DateTimeRange(
-      start: DateTime(DateTime.now().year - 1),
-      end: DateTime(DateTime.now().year + 1),
-    ),
-  );
-  final CalendarEventsController<Event> eventController =
-      CalendarEventsController<Event>();
-
-  late ViewConfiguration currentConfiguration = viewConfigurations[0];
-  List<ViewConfiguration> viewConfigurations = [
-    CustomMultiDayConfiguration(
-      name: 'Day',
-      numberOfDays: 1,
-      startHour: 6,
-      endHour: 18,
-    ),
-    WeekConfiguration(),
-    MonthConfiguration(),
-    ScheduleConfiguration(),
-  ];
+  DateTime selectedDate = DateTime.now();
+  late Map<DateTime, List<Eventos>> events;
 
   @override
   void initState() {
     super.initState();
-    _controller = NotchBottomBarController(index: 1);
-    _addSampleEvents();
+    events = {}; // Inicializa el mapa de eventos
   }
 
-  void _addSampleEvents() {
-    DateTime now = DateTime.now();
-    eventController.addEvents([
-      CalendarEvent(
-        dateTimeRange: DateTimeRange(
-          start: now,
-          end: now.add(const Duration(hours: 1)),
-        ),
-        eventData: Event(title: 'Evento 1'),
-      ),
-      CalendarEvent(
-        dateTimeRange: DateTimeRange(
-          start: now.add(const Duration(hours: 2)),
-          end: now.add(const Duration(hours: 5)),
-        ),
-        eventData: Event(title: 'Evento 2'),
-      ),
-    ]);
+  // Método actualizado para incluir el año
+  String _formatMonth(DateTime date) {
+    return DateFormat('MMMM yyyy', 'es_ES').format(date).capitalize(); // Formato "Noviembre 2024"
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _pageController.dispose();
-    super.dispose();
+  // Método para obtener los días de la semana en formato abreviado
+  List<String> _getAbbreviatedDaysOfWeek() {
+    return ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
   }
 
   @override
   Widget build(BuildContext context) {
-    final calendar = CalendarView<Event>(
-      controller: controller,
-      eventsController: eventController,
-      viewConfiguration: currentConfiguration,
-      tileBuilder: _tileBuilder,
-      multiDayTileBuilder: _multiDayTileBuilder, // Añadido aquí
-      scheduleTileBuilder: _scheduleTileBuilder,
-      components: CalendarComponents(
-        calendarHeaderBuilder: _calendarHeader,
-      ),
-      eventHandlers: CalendarEventHandlers(
-        onEventTapped: _onEventTapped,
-        onEventChanged: _onEventChanged,
-        onCreateEvent: _onCreateEvent,
-        onEventCreated: _onEventCreated,
-      ),
-    );
-
     return Scaffold(
-      body: calendar,
+      appBar: AppBar(
+        title: const Text("Calendario"),
+        centerTitle: true,
+      ),
+      body: Column(
+        children: [
+          // Encabezado personalizado para el mes
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+            alignment: Alignment.centerLeft,
+            child: Text(
+              _formatMonth(selectedDate),
+              style: const TextStyle(fontSize: 40, color: Colores.principal),
+            ),
+          ),
+          // Encabezado de los días de la semana
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: _getAbbreviatedDaysOfWeek().map((day) {
+                return Expanded(
+                  child: Text(
+                    day,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colores.texto,
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+          TableCalendar<Eventos>(
+            firstDay: DateTime(2000),
+            lastDay: DateTime(2100),
+            focusedDay: selectedDate,
+            selectedDayPredicate: (day) => isSameDay(selectedDate, day),
+            onDaySelected: (selectedDay, focusedDay) {
+              setState(() {
+                selectedDate = selectedDay; // Actualiza la fecha seleccionada
+              });
+            },
+            eventLoader: (day) => events[day] ?? [], // Carga los eventos para el día
+            calendarStyle: const CalendarStyle(
+              selectedDecoration: BoxDecoration(
+                color: Colores.botones,
+                shape: BoxShape.circle,
+              ),
+              todayDecoration: BoxDecoration(
+                color: Colores.principal,
+                shape: BoxShape.circle,
+              ),
+            ),
+            headerStyle: const HeaderStyle(
+              formatButtonVisible: false, // Oculta el botón de formato
+              leftChevronVisible: false, // Oculta el icono de flecha izquierda
+              rightChevronVisible: false, // Oculta el icono de flecha derecha
+              headerPadding: EdgeInsets.zero, // Espaciado cero para el encabezado
+              titleCentered: false, // Alinea el texto del mes a la izquierda
+            ),
+            locale: 'es_ES', // Configura el locale a español
+            startingDayOfWeek: StartingDayOfWeek.monday, // Semana comienza el lunes
+          ),
+        ],
+      ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-        pageController: _pageController,
+        pageController: PageController(),
         pagina: 1,
         perfil: widget.perfil,
       ),
     );
   }
-
-  CalendarEvent<Event> _onCreateEvent(DateTimeRange dateTimeRange) {
-    return CalendarEvent(
-      dateTimeRange: dateTimeRange,
-      eventData: Event(title: 'Nuevo Evento'),
-    );
-  }
-
-  Future<void> _onEventCreated(CalendarEvent<Event> event) async {
-    eventController.addEvent(event);
-    eventController.deselectEvent();
-  }
-
-  Future<void> _onEventTapped(CalendarEvent<Event> event) async {
-    print('Evento seleccionado: ${event.eventData?.title}');
-  }
-
-  Future<void> _onEventChanged(
-    DateTimeRange initialDateTimeRange,
-    CalendarEvent<Event> event,
-  ) async {
-    eventController.deselectEvent();
-  }
-
-  Widget _tileBuilder(CalendarEvent<Event> event, TileConfiguration configuration) {
-    final color = event.eventData?.color ?? Colors.blue;
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
-      margin: EdgeInsets.zero,
-      elevation: configuration.tileType == TileType.ghost ? 0 : 8,
-      color: configuration.tileType != TileType.ghost
-          ? color
-          : color.withAlpha(100),
-      child: Center(
-        child: configuration.tileType != TileType.ghost
-            ? Text(event.eventData?.title ?? 'Nuevo Evento')
-            : null,
-      ),
-    );
-  }
-
-  Widget _multiDayTileBuilder(CalendarEvent<Event> event, MultiDayTileConfiguration configuration) {
-    final color = event.eventData?.color ?? Colors.blue;
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 2),
-      elevation: configuration.tileType == TileType.selected ? 8 : 0,
-      color: configuration.tileType == TileType.ghost
-          ? color.withAlpha(100)
-          : color,
-      child: Center(
-        child: configuration.tileType != TileType.ghost
-            ? Text(event.eventData?.title ?? 'Nuevo Evento')
-            : null,
-      ),
-    );
-  }
-
-  Widget _scheduleTileBuilder(CalendarEvent<Event> event, DateTime date) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: event.eventData?.color ?? Colors.blue,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(event.eventData?.title ?? 'Nuevo Evento'),
-    );
-  }
-
-  Widget _calendarHeader(DateTimeRange dateTimeRange) {
-    return Row(
-      children: [
-        DropdownMenu(
-          onSelected: (value) {
-            if (value == null) return;
-            setState(() {
-              currentConfiguration = value;
-            });
-          },
-          initialSelection: currentConfiguration,
-          dropdownMenuEntries: viewConfigurations
-              .map((e) => DropdownMenuEntry(value: e, label: e.name))
-              .toList(),
-        ),
-        IconButton(
-          onPressed: controller.animateToPreviousPage,
-          icon: const Icon(Icons.navigate_before_rounded),
-        ),
-        IconButton(
-          onPressed: controller.animateToNextPage,
-          icon: const Icon(Icons.navigate_next_rounded),
-        ),
-        IconButton(
-          onPressed: () {
-            controller.animateToDate(DateTime.now());
-          },
-          icon: const Icon(Icons.today),
-        ),
-      ],
-    );
-  }
 }
 
-class Event {
-  Event({
-    required this.title,
-    this.description,
-    this.color,
-  });
-
-  final String title;
-  final String? description;
-  final Color? color;
+// Extensión para capitalizar la primera letra de un String
+extension StringCasingExtension on String {
+  String capitalize() {
+    if (this.isEmpty) return ''; // Asegúrate de que el string no esté vacío
+    return '${this[0].toUpperCase()}${this.substring(1)}';
+  }
 }

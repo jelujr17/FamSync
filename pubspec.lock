@@ -255,10 +255,18 @@ packages:
     source: hosted
     version: "3.0.2"
   flutter_localizations:
-    dependency: transitive
+    dependency: "direct main"
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_neat_and_clean_calendar:
+    dependency: "direct main"
+    description:
+      name: flutter_neat_and_clean_calendar
+      sha256: "0a759951486b113f64b8c996bf53b549a1dea447cbbf119405802948b6b403c3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.15"
   flutter_onboarding_slider:
     dependency: "direct main"
     description:
@@ -267,6 +275,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.11"
+  flutter_platform_widgets:
+    dependency: transitive
+    description:
+      name: flutter_platform_widgets
+      sha256: "84f39540cf433aa44b235b7fca6518d1bd30aa281d8196f00be60bc76cac96f4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
