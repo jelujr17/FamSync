@@ -2,7 +2,7 @@ import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/calendario.dart';
+import 'package:famsync/View/Modulos/Calendario/calendario.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
 
