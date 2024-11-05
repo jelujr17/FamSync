@@ -70,6 +70,11 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_neat_and_clean_calendar: ^0.4.15
+  syncfusion_flutter_datepicker: ^27.1.58
+  flutter_calendar_carousel: ^2.4.4
+  scrollable_clean_calendar: ^1.5.0
+  webview_flutter: ^4.10.0
+  device_calendar: ^4.3.3
 
 
 

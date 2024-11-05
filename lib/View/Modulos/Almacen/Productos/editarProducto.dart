@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';

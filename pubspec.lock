@@ -145,6 +145,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  device_calendar:
+    dependency: "direct main"
+    description:
+      name: device_calendar
+      sha256: "683fb93ec302b6a65c0ce57df40ff9dcc2404f59c67a2f8b93e59318c8a0a225"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.3.3"
   device_frame:
     dependency: transitive
     description:
@@ -238,6 +246,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_calendar_carousel:
+    dependency: "direct main"
+    description:
+      name: flutter_calendar_carousel
+      sha256: "675a2331da6ecd7ba180ba7cd6551a18d41861187bb7537c11859a2df72d1646"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.4"
   flutter_form_builder:
     dependency: "direct main"
     description:
@@ -717,6 +733,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.2"
+  scrollable_clean_calendar:
+    dependency: "direct main"
+    description:
+      name: scrollable_clean_calendar
+      sha256: e68f13b49dd70f70d6e6cbb39e3a76d2ff920671cd9b10a33370dd298c0f595e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   scrollable_positioned_list:
     dependency: transitive
     description:
@@ -802,6 +826,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   stack_trace:
     dependency: transitive
     description:
@@ -838,18 +870,18 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: "6a2445aef2adc77136aedaf8b0c1b7f22c43b43d7036f219414db9acd679570a"
+      sha256: "31d2ddf410ee41abb3ecf85b7b6e8e1563307ad52ee784ddd91337e30280f715"
       url: "https://pub.dev"
     source: hosted
-    version: "27.1.57"
+    version: "27.1.58"
   syncfusion_flutter_datepicker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: syncfusion_flutter_datepicker
-      sha256: "69ed9fd90279024284083373120217e713bb0685cd248d84416edc061e73c273"
+      sha256: e25797401bec43cd64c475150f87150e8bc3e67212d4d1273ff35483ea793a8b
       url: "https://pub.dev"
     source: hosted
-    version: "27.1.57"
+    version: "27.1.58"
   table_calendar:
     dependency: "direct main"
     description:
@@ -1002,6 +1034,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.1.0"
+  webview_flutter:
+    dependency: "direct main"
+    description:
+      name: webview_flutter
+      sha256: "889a0a678e7c793c308c68739996227c9661590605e70b1f6cf6b9a6634f7aec"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.10.0"
+  webview_flutter_android:
+    dependency: transitive
+    description:
+      name: webview_flutter_android
+      sha256: dec83a8da0a2dcd8a25418534cc59348dbc2855fa1dd0cc929c62b6029fde392
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.1"
+  webview_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: webview_flutter_platform_interface
+      sha256: d937581d6e558908d7ae3dc1989c4f87b786891ab47bb9df7de548a151779d8d
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.10.0"
+  webview_flutter_wkwebview:
+    dependency: transitive
+    description:
+      name: webview_flutter_wkwebview
+      sha256: f14ee08021772fed913da8daebcfdeb46be457081e521e93e9918fe6cd1ce9e8
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.16.1"
   win32:
     dependency: transitive
     description:
