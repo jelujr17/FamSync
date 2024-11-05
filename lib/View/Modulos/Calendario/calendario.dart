@@ -1,5 +1,6 @@
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Calendario/Eventos/crearEvento.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -51,6 +52,38 @@ class _CalendarScreenState extends State<Calendario> {
     }
   }
 
+  void _showPopup1() {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true, // Esto permite controlar el tamaño de la ventana emergente
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(
+          top: Radius.circular(25.0)), // Bordes redondeados en la parte superior
+    ),
+    builder: (context) {
+      return DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.9, // Ajusta el tamaño inicial al 90% de la pantalla
+        minChildSize: 0.4, // Tamaño mínimo al que se puede reducir la hoja
+        maxChildSize: 0.95, // Tamaño máximo al que se puede expandir la hoja
+        builder: (BuildContext context, ScrollController scrollController) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(25.0)), // Bordes redondeados
+            child: Container(
+              color: Colors.white, // Cambia el color de fondo según lo necesites
+              child: CrearEventoPage(
+                perfil: widget.perfil,
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,6 +114,7 @@ class _CalendarScreenState extends State<Calendario> {
               ),
             ),
             hideArrows: false,
+            isExpanded: true,
             expandableDateFormat: "EEEE, d 'de' MMMM 'del' yyyy",
             locale: 'es_ES',
             todayButtonText: 'Calendario',
@@ -97,9 +131,7 @@ class _CalendarScreenState extends State<Calendario> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          setState(() {
-            print("Botón de agregar evento presionado");
-          });
+          _showPopup1();
         },
         backgroundColor: Colores.botones,
         shape: const CircleBorder(),

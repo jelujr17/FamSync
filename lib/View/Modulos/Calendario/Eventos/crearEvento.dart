@@ -1,77 +1,54 @@
+import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/View/navegacion.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:device_calendar/device_calendar.dart'; // Importar la biblioteca
 
 class CrearEventoPage extends StatefulWidget {
-    final Perfiles perfil;
+  final Perfiles perfil;
 
   const CrearEventoPage({super.key, required this.perfil});
+
   @override
   _CrearEventoPageState createState() => _CrearEventoPageState();
 }
 
 class _CrearEventoPageState extends State<CrearEventoPage> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _nombreController = TextEditingController();
-  final TextEditingController _descripcionController = TextEditingController();
-  DateTime? _fechaInicio;
-  DateTime? _fechaFin;
+  String nombre = '';
+  String descripcion = '';
+  DateTime fechaInicio = DateTime.now();
+  DateTime fechaFin = DateTime.now();
+  int idUsuarioCreador = 1; // Cambia esto según tu lógica
+  int idPerfilCreador = 1; // Cambia esto según tu lógica
+  List<int> visible = [];
+  int idCategoria = 1; // Cambia esto según tu lógica
 
-  DeviceCalendarPlugin _deviceCalendarPlugin = DeviceCalendarPlugin();
-  List<Calendar> _calendars = [];
+  final ServicioEventos servicioEventos = ServicioEventos();
+  bool eventoRecurrente = false;
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchCalendars(); // Cargar los calendarios disponibles
-  }
-
-  Future<void> _fetchCalendars() async {
-    // Obtener la lista de calendarios disponibles
-    final calendarsResult = await _deviceCalendarPlugin.retrieveCalendars();
-    setState(() {
-      _calendars = calendarsResult.data ?? [];
-    });
-  }
-
-  Future<void> _selectFecha(BuildContext context, bool isInicio) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: isInicio ? (_fechaInicio ?? DateTime.now()) : (_fechaFin ?? DateTime.now()),
-      firstDate: DateTime(2000),
-      lastDate: DateTime(2101),
-    );
-    if (picked != null && picked != (_fechaInicio ?? DateTime.now())) {
-      setState(() {
-        if (isInicio) {
-          _fechaInicio = picked;
-        } else {
-          _fechaFin = picked;
-        }
-      });
-    }
-  }
-
-  void _crearEvento() async {
+  Future<void> _registrarEvento() async {
     if (_formKey.currentState!.validate()) {
-      if (_fechaInicio != null && _fechaFin != null) {
-        // Crear el evento en el calendario
-     
+      bool resultado = await servicioEventos.registrarEvento(
+        nombre,
+        descripcion,
+        fechaInicio,
+        fechaFin,
+        idUsuarioCreador,
+        idPerfilCreador,
+        visible,
+        idCategoria,
+      );
 
-        if (true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Evento creado en el calendario')),
-          );
-          Navigator.pop(context); // Regresar a la página anterior
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error al crear el evento en el calendario')),
-          );
-        }
+      if (resultado) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Evento creado con éxito')),
+        );
+        Navigator.pop(context); // Cierra el modal después de crear el evento
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, seleccione las fechas')),
+          const SnackBar(content: Text('Error al crear el evento')),
         );
       }
     }
@@ -80,70 +57,194 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Crear Evento'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipPath(
+          clipper: CurvedAppBarClipper(), // Usa tu clipper aquí
+          child: AppBar(
+            backgroundColor: Colores.botonesSecundarios,
+            title: const Text(
+              'Crear Evento',
+              style: TextStyle(fontSize: 24),
+            ),
+          ),
+        ),
       ),
-      body: Padding(
+      body: Container(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
-          child: Column(
+          child: ListView(
             children: [
-              TextFormField(
-                controller: _nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre del Evento'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, ingrese el nombre del evento';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _descripcionController,
-                decoration: const InputDecoration(labelText: 'Descripción'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor, ingrese la descripción';
-                  }
-                  return null;
-                },
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Expanded(
-                    child: ListTile(
-                      title: const Text('Fecha de Inicio'),
-                      subtitle: Text(_fechaInicio == null
-                          ? 'No seleccionada'
-                          : DateFormat('yyyy-MM-dd').format(_fechaInicio!)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: () => _selectFecha(context, true),
+              Card(
+                elevation: 4,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Contenedor para Nombre y Descripción
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colores.fondo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Nombre',
+                                prefixIcon: Icon(Icons.event_note),
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor ingresa un nombre';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  nombre = value;
+                                });
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            TextFormField(
+                              decoration: const InputDecoration(
+                                labelText: 'Descripción',
+                                prefixIcon: Icon(Icons.description),
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return 'Por favor ingresa una descripción';
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                setState(() {
+                                  descripcion = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ),
-                  Expanded(
-                    child: ListTile(
-                      title: const Text('Fecha de Fin'),
-                      subtitle: Text(_fechaFin == null
-                          ? 'No seleccionada'
-                          : DateFormat('yyyy-MM-dd').format(_fechaFin!)),
-                      trailing: IconButton(
-                        icon: const Icon(Icons.calendar_today),
-                        onPressed: () => _selectFecha(context, false),
+                      const SizedBox(height: 20),
+                      // Contenedor para Fechas
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colores.fondo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SwitchListTile(
+                              title: const Text('Todo el día'),
+                              value: eventoRecurrente,
+                              onChanged: (bool value) {
+                                setState(() {
+                                  eventoRecurrente = value;
+                                });
+                              },
+                              activeColor: Colores.principal,
+                              inactiveThumbColor: Colores.texto,
+                              inactiveTrackColor: Colors.grey[300],
+                            ),
+                            _buildDateTimeField(
+                              label: 'Fecha de Inicio',
+                              dateTime: fechaInicio,
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: fechaInicio,
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2101),
+                                );
+                                if (pickedDate != null &&
+                                    pickedDate != fechaInicio) {
+                                  setState(() {
+                                    fechaInicio = pickedDate;
+                                  });
+                                }
+                              },
+                            ),
+                            const SizedBox(height: 16),
+                            _buildDateTimeField(
+                              label: 'Fecha de Fin',
+                              dateTime: fechaFin,
+                              onTap: () async {
+                                DateTime? pickedDate = await showDatePicker(
+                                  context: context,
+                                  initialDate: fechaFin,
+                                  firstDate: fechaInicio, // Cambia esto para que la fecha de fin no sea antes de la de inicio
+                                  lastDate: DateTime(2101),
+                                );
+                                if (pickedDate != null &&
+                                    pickedDate != fechaFin) {
+                                  setState(() {
+                                    fechaFin = pickedDate;
+                                  });
+                                }
+                              },
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                ],
+                ),
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: _crearEvento,
-                child: const Text('Crear Evento en Calendario'),
+                onPressed: _registrarEvento,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  backgroundColor: Colores.botones,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                ),
+                child: const Text(
+                  'Crear Evento',
+                  style: TextStyle(fontSize: 18, color: Colores.texto),
+                ),
               ),
             ],
+          ),
+        ),
+      ),
+      bottomNavigationBar: CustomBottomNavBar(
+        pageController: PageController(),
+        pagina: 1,
+        perfil: widget.perfil,
+      ),
+    );
+  }
+
+  Widget _buildDateTimeField({
+    required String label,
+    required DateTime dateTime,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AbsorbPointer(
+        child: TextField(
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: const Icon(Icons.calendar_today),
+            border: const OutlineInputBorder(),
+          ),
+          controller: TextEditingController(
+            text: "${dateTime.toLocal()}".split(' ')[0],
           ),
         ),
       ),
