@@ -1,10 +1,9 @@
-import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-import 'package:table_calendar/table_calendar.dart';
+import 'package:syncfusion_flutter_datepicker/datepicker.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/navegacion.dart';
+import 'package:intl/intl.dart';
 
 class Calendario extends StatefulWidget {
   final Perfiles perfil;
@@ -23,16 +22,74 @@ class CalendarioScreenState extends State<Calendario> {
   void initState() {
     super.initState();
     events = {}; // Inicializa el mapa de eventos
+    // Cambia la configuración de idioma para Intl a español.
+    Intl.defaultLocale = 'es_ES';
   }
 
-  // Método actualizado para incluir el año
-  String _formatMonth(DateTime date) {
-    return DateFormat('MMMM yyyy', 'es_ES').format(date).capitalize(); // Formato "Noviembre 2024"
+  List<Eventos> getEventsForDay(DateTime day) {
+    return events[day] ?? [];
   }
 
-  // Método para obtener los días de la semana en formato abreviado
-  List<String> _getAbbreviatedDaysOfWeek() {
-    return ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+  void _addEvent(String name, DateTime date) {}
+
+  void _showAddEventDialog() {
+    final TextEditingController nameController = TextEditingController();
+    DateTime selectedEventDate = selectedDate;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Añadir Evento'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(labelText: 'Nombre del Evento'),
+              ),
+              const SizedBox(height: 8),
+              ListTile(
+                title: Text(DateFormat('yyyy-MM-dd HH:mm').format(selectedEventDate)),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_today),
+                  onPressed: () async {
+                    DateTime? pickedDate = await showDatePicker(
+                      context: context,
+                      initialDate: selectedEventDate,
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime(2100),
+                    );
+                    if (pickedDate != null) {
+                      setState(() {
+                        selectedEventDate = pickedDate;
+                      });
+                    }
+                  },
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                if (nameController.text.isNotEmpty) {
+                  _addEvent(nameController.text, selectedEventDate);
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -44,65 +101,50 @@ class CalendarioScreenState extends State<Calendario> {
       ),
       body: Column(
         children: [
-          // Encabezado personalizado para el mes
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-            alignment: Alignment.centerLeft,
-            child: Text(
-              _formatMonth(selectedDate),
-              style: const TextStyle(fontSize: 40, color: Colores.principal),
-            ),
-          ),
-          // Encabezado de los días de la semana
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: _getAbbreviatedDaysOfWeek().map((day) {
-                return Expanded(
-                  child: Text(
-                    day,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colores.texto,
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-          ),
-          TableCalendar<Eventos>(
-            firstDay: DateTime(2000),
-            lastDay: DateTime(2100),
-            focusedDay: selectedDate,
-            selectedDayPredicate: (day) => isSameDay(selectedDate, day),
-            onDaySelected: (selectedDay, focusedDay) {
+          SfDateRangePicker(
+            initialSelectedDate: selectedDate,
+            onSelectionChanged: (DateRangePickerSelectionChangedArgs args) {
               setState(() {
-                selectedDate = selectedDay; // Actualiza la fecha seleccionada
+                selectedDate = args.value;
               });
             },
-            eventLoader: (day) => events[day] ?? [], // Carga los eventos para el día
-            calendarStyle: const CalendarStyle(
-              selectedDecoration: BoxDecoration(
-                color: Colores.botones,
-                shape: BoxShape.circle,
-              ),
-              todayDecoration: BoxDecoration(
-                color: Colores.principal,
-                shape: BoxShape.circle,
-              ),
+            
+            monthViewSettings: const DateRangePickerMonthViewSettings(
+              firstDayOfWeek: 1, // Configura el lunes como primer día de la semana
             ),
-            headerStyle: const HeaderStyle(
-              formatButtonVisible: false, // Oculta el botón de formato
-              leftChevronVisible: false, // Oculta el icono de flecha izquierda
-              rightChevronVisible: false, // Oculta el icono de flecha derecha
-              headerPadding: EdgeInsets.zero, // Espaciado cero para el encabezado
-              titleCentered: false, // Alinea el texto del mes a la izquierda
+            selectionColor: Colors.blue,
+            todayHighlightColor: Colors.orange,
+            showTodayButton: false, // Oculta el botón de "Today"
+            headerStyle: const DateRangePickerHeaderStyle(
+              textAlign: TextAlign.center,
+              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            locale: 'es_ES', // Configura el locale a español
-            startingDayOfWeek: StartingDayOfWeek.monday, // Semana comienza el lunes
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child: ListView.builder(
+              itemCount: getEventsForDay(selectedDate).length,
+              itemBuilder: (context, index) {
+                final evento = getEventsForDay(selectedDate)[index];
+                DateTime fechaInicio = DateFormat("yyyy-MM-dd HH:mm").parse(evento.FechaInicio);
+
+                return ListTile(
+                  title: Text(evento.Nombre),
+                  subtitle: Text(DateFormat('yyyy-MM-dd HH:mm').format(fechaInicio)),
+                );
+              },
+            ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddEventDialog,
+        backgroundColor: Colors.orange,
+        shape: const CircleBorder(),
+        child: const Icon(
+          Icons.add,
+          size: 36,
+        ),
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
@@ -111,13 +153,5 @@ class CalendarioScreenState extends State<Calendario> {
         perfil: widget.perfil,
       ),
     );
-  }
-}
-
-// Extensión para capitalizar la primera letra de un String
-extension StringCasingExtension on String {
-  String capitalize() {
-    if (this.isEmpty) return ''; // Asegúrate de que el string no esté vacío
-    return '${this[0].toUpperCase()}${this.substring(1)}';
   }
 }
