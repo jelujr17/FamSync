@@ -23,7 +23,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   int idUsuarioCreador = 1; // Cambia esto según tu lógica
   int idPerfilCreador = 1; // Cambia esto según tu lógica
   List<int> visible = [];
-  Color colorSeleccionado = Colors.blue; // Inicializa con un color predeterminado
+  Color colorSeleccionado =
+      Colores.principal; // Inicializa con un color predeterminado
 
   final ServicioEventos servicioEventos = ServicioEventos();
   bool eventoRecurrente = false;
@@ -31,40 +32,40 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   // Función para mostrar el picker de colores
   void _mostrarSelectorColor() async {
     Color color = await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Selecciona un color'),
-          content: SingleChildScrollView(
-            child: ColorPicker(
-              pickerColor: colorSeleccionado,
-              onColorChanged: (Color color) {
-                setState(() {
-                  colorSeleccionado = color;
-                });
-              },
-              showLabel: true,
-              pickerAreaHeightPercent: 0.8,
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(colorSeleccionado);
-              },
-              child: const Text('Seleccionar'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancelar'),
-            ),
-          ],
-        );
-      },
-    ) ?? colorSeleccionado;
-    
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Selecciona un color'),
+              content: SingleChildScrollView(
+                child: ColorPicker(
+                  pickerColor: colorSeleccionado,
+                  onColorChanged: (Color color) {
+                    setState(() {
+                      colorSeleccionado = color;
+                    });
+                  },
+                  pickerAreaHeightPercent: 0.8,
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(colorSeleccionado);
+                  },
+                  child: const Text('Seleccionar'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancelar'),
+                ),
+              ],
+            );
+          },
+        ) ??
+        colorSeleccionado;
+
     setState(() {
       colorSeleccionado = color;
     });
@@ -115,12 +116,14 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         ),
       ),
       body: Container(
+        color: Colores.fondo,
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: ListView(
             children: [
               Card(
+                color: Colores.fondoAux,
                 elevation: 4,
                 margin: const EdgeInsets.symmetric(vertical: 8),
                 child: Padding(
@@ -179,28 +182,34 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Campo para seleccionar color
+                      // Campo para seleccionar color (con el mismo estilo)
                       Container(
                         decoration: BoxDecoration(
                           color: Colores.fondo,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(16.0),
-                        child: ListTile(
-                          title: const Text('Selecciona un color'),
-                          trailing: Container(
-                            width: 30,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: colorSeleccionado,
-                              shape: BoxShape.circle,
-                            ),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Selecciona un color',
+                            border: OutlineInputBorder(),
                           ),
-                          onTap: _mostrarSelectorColor,
+                          child: ListTile(
+                            title: const Text('Selecciona un color'),
+                            trailing: Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(
+                                color: colorSeleccionado,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            onTap: _mostrarSelectorColor,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Contenedor para Fechas
+                      // Contenedor para las fechas y "Todo el día"
                       Container(
                         decoration: BoxDecoration(
                           color: Colores.fondo,
@@ -210,18 +219,27 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SwitchListTile(
-                              title: const Text('Todo el día'),
-                              value: eventoRecurrente,
-                              onChanged: (bool value) {
-                                setState(() {
-                                  eventoRecurrente = value;
-                                });
-                              },
-                              activeColor: Colores.principal,
-                              inactiveThumbColor: Colores.texto,
-                              inactiveTrackColor: Colors.grey[300],
+                            const SizedBox(height: 16),
+                            // Campo "Todo el día" dentro del mismo contenedor
+                            InputDecorator(
+                              decoration: const InputDecoration(
+                                labelText: 'Todo el día',
+                                border: OutlineInputBorder(),
+                              ),
+                              child: SwitchListTile(
+                                title: const Text('Todo el día'),
+                                value: eventoRecurrente,
+                                onChanged: (bool value) {
+                                  setState(() {
+                                    eventoRecurrente = value;
+                                  });
+                                },
+                                activeColor: Colores.principal,
+                                inactiveThumbColor: Colores.texto,
+                                inactiveTrackColor: Colores.fondoAux,
+                              ),
                             ),
+                            const SizedBox(height: 16),
                             _buildDateTimeField(
                               label: 'Fecha de Inicio',
                               dateTime: fechaInicio,
@@ -312,14 +330,18 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
           }
         }
       },
-      child: InputDecorator(
-        decoration: InputDecoration(
-          labelText: label,
-          border: OutlineInputBorder(),
-        ),
-        child: Text(
-          "${dateTime.toLocal()}".split(' ')[0], // Muestra solo la fecha
-          style: TextStyle(fontSize: 16, color: Colors.black),
+      child: AbsorbPointer(
+        child: TextField(
+          decoration: InputDecoration(
+            labelText: label,
+            prefixIcon: const Icon(Icons.calendar_today),
+            border: const OutlineInputBorder(),
+          ),
+          controller: TextEditingController(
+            text: isAllDay
+                ? "${dateTime.toLocal()}".split(' ')[0]
+                : "${dateTime.toLocal()}".split('.')[0],
+          ),
         ),
       ),
     );
