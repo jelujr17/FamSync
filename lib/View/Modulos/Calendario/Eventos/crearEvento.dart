@@ -162,39 +162,22 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                             _buildDateTimeField(
                               label: 'Fecha de Inicio',
                               dateTime: fechaInicio,
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: fechaInicio,
-                                  firstDate: DateTime(2000),
-                                  lastDate: DateTime(2101),
-                                );
-                                if (pickedDate != null &&
-                                    pickedDate != fechaInicio) {
-                                  setState(() {
-                                    fechaInicio = pickedDate;
-                                  });
-                                }
+                              isAllDay: eventoRecurrente,
+                              onDateTimeChanged: (DateTime newDate) {
+                                setState(() {
+                                  fechaInicio = newDate;
+                                });
                               },
                             ),
                             const SizedBox(height: 16),
                             _buildDateTimeField(
                               label: 'Fecha de Fin',
                               dateTime: fechaFin,
-                              onTap: () async {
-                                DateTime? pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: fechaFin,
-                                  firstDate:
-                                      fechaInicio, // Cambia esto para que la fecha de fin no sea antes de la de inicio
-                                  lastDate: DateTime(2101),
-                                );
-                                if (pickedDate != null &&
-                                    pickedDate != fechaFin) {
-                                  setState(() {
-                                    fechaFin = pickedDate;
-                                  });
-                                }
+                              isAllDay: eventoRecurrente,
+                              onDateTimeChanged: (DateTime newDate) {
+                                setState(() {
+                                  fechaFin = newDate;
+                                });
                               },
                             ),
                           ],
@@ -230,10 +213,42 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   Widget _buildDateTimeField({
     required String label,
     required DateTime dateTime,
-    required VoidCallback onTap,
+    required bool isAllDay,
+    required ValueChanged<DateTime> onDateTimeChanged,
   }) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: () async {
+        // Mostrar selector de fecha
+        DateTime? pickedDate = await showDatePicker(
+          context: context,
+          initialDate: dateTime,
+          firstDate: DateTime(2000),
+          lastDate: DateTime(2101),
+        );
+
+        if (pickedDate != null) {
+          if (isAllDay) {
+            // Si es un evento de todo el día, solo seleccionamos la fecha
+            onDateTimeChanged(pickedDate);
+          } else {
+            // Si no es un evento de todo el día, seleccionamos la fecha y hora
+            TimeOfDay? pickedTime = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay.fromDateTime(dateTime),
+            );
+            if (pickedTime != null) {
+              final newDateTime = DateTime(
+                pickedDate.year,
+                pickedDate.month,
+                pickedDate.day,
+                pickedTime.hour,
+                pickedTime.minute,
+              );
+              onDateTimeChanged(newDateTime);
+            }
+          }
+        }
+      },
       child: AbsorbPointer(
         child: TextField(
           decoration: InputDecoration(
@@ -242,7 +257,9 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
             border: const OutlineInputBorder(),
           ),
           controller: TextEditingController(
-            text: "${dateTime.toLocal()}".split(' ')[0],
+            text: isAllDay
+                ? "${dateTime.toLocal()}".split(' ')[0]
+                : "${dateTime.toLocal()}".split('.')[0],
           ),
         ),
       ),
