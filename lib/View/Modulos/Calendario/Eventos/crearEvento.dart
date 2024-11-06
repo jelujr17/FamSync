@@ -62,11 +62,13 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         child: ClipPath(
           clipper: CurvedAppBarClipper(), // Usa tu clipper aquí
           child: AppBar(
+            automaticallyImplyLeading: false,
             backgroundColor: Colores.botonesSecundarios,
             title: const Text(
               'Crear Evento',
               style: TextStyle(fontSize: 24),
             ),
+            centerTitle: true,
           ),
         ),
       ),
@@ -183,7 +185,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                                 DateTime? pickedDate = await showDatePicker(
                                   context: context,
                                   initialDate: fechaFin,
-                                  firstDate: fechaInicio, // Cambia esto para que la fecha de fin no sea antes de la de inicio
+                                  firstDate:
+                                      fechaInicio, // Cambia esto para que la fecha de fin no sea antes de la de inicio
                                   lastDate: DateTime(2101),
                                 );
                                 if (pickedDate != null &&
@@ -220,11 +223,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 1,
-        perfil: widget.perfil,
       ),
     );
   }
