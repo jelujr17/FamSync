@@ -12,7 +12,7 @@ class Eventos {
   final int IdUsuarioCreador;
   final int IdPerfilCreador;
   final List<int> Visible;
-  final int IdCategoria;
+  final String Color;
 
   Eventos(
       {required this.Id,
@@ -23,7 +23,7 @@ class Eventos {
       required this.IdUsuarioCreador,
       required this.IdPerfilCreador,
       required this.Visible,
-      required this.IdCategoria});
+      required this.Color});
 }
 
 class ServicioEventos {
@@ -50,7 +50,7 @@ class ServicioEventos {
             IdUsuarioCreador: data['IdUsuarioCreador'],
             IdPerfilCreador: data['IdPerfilCreador'],
             Visible: List<int>.from(jsonDecode(data['Visible'])),
-            IdCategoria: data['IdCategoria']);
+            Color: data['Color']);
       }).toList();
       return eventos;
     } else {
@@ -83,7 +83,7 @@ class ServicioEventos {
           IdUsuarioCreador: eventoData['IdUsuarioCreador'],
           IdPerfilCreador: eventoData['IdPerfilCreador'],
           Visible: List<int>.from(jsonDecode(eventoData['Visible'])),
-          IdCategoria: eventoData['IdCategoria']);
+          Color: eventoData['Color']);
       return evento;
     } else {
       throw Exception(
@@ -100,7 +100,7 @@ class ServicioEventos {
       int IdUsuarioCreador,
       int IdPerfilCreador,
       List<int> Visible,
-      int IdCategoria) async {
+      String Color) async {
     Visible.add(IdPerfilCreador);
     Map<String, dynamic> EventoData = {
       'Nombre': Nombre.toString(),
@@ -110,7 +110,7 @@ class ServicioEventos {
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
       'Visible': jsonEncode(Visible).toString(),
-      'IdCategoria': IdCategoria
+      'Color': Color
     };
 
     http.Response response1 = await http.post(
@@ -134,7 +134,7 @@ class ServicioEventos {
       int IdUsuarioCreador,
       int IdPerfilCreador,
       List<int> Visible,
-      int IdCategoria) async {
+      String Color) async {
     final response = await http.put(
       Uri.parse('http://$_host/eventos/update'),
       headers: {
@@ -149,7 +149,7 @@ class ServicioEventos {
         'IdPerfilCreador': IdPerfilCreador,
         'IdUsuarioCreador': IdUsuarioCreador,
         'Visible': jsonEncode(Visible).toString(),
-        'IdCategoria': IdCategoria
+        'Color': Color
       }),
     );
 

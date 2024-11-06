@@ -1,9 +1,9 @@
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart'; // Importa la librería para el selector de colores
 
 class CrearEventoPage extends StatefulWidget {
   final Perfiles perfil;
@@ -23,10 +23,52 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   int idUsuarioCreador = 1; // Cambia esto según tu lógica
   int idPerfilCreador = 1; // Cambia esto según tu lógica
   List<int> visible = [];
-  int idCategoria = 1; // Cambia esto según tu lógica
+  Color colorSeleccionado = Colors.blue; // Inicializa con un color predeterminado
 
   final ServicioEventos servicioEventos = ServicioEventos();
   bool eventoRecurrente = false;
+
+  // Función para mostrar el picker de colores
+  void _mostrarSelectorColor() async {
+    Color color = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Selecciona un color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: colorSeleccionado,
+              onColorChanged: (Color color) {
+                setState(() {
+                  colorSeleccionado = color;
+                });
+              },
+              showLabel: true,
+              pickerAreaHeightPercent: 0.8,
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(colorSeleccionado);
+              },
+              child: const Text('Seleccionar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+          ],
+        );
+      },
+    ) ?? colorSeleccionado;
+    
+    setState(() {
+      colorSeleccionado = color;
+    });
+  }
 
   Future<void> _registrarEvento() async {
     if (_formKey.currentState!.validate()) {
@@ -38,7 +80,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         idUsuarioCreador,
         idPerfilCreador,
         visible,
-        idCategoria,
+        colorSeleccionado.toString(), // Guarda el color seleccionado
       );
 
       if (resultado) {
@@ -134,6 +176,27 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                               },
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      // Campo para seleccionar color
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colores.fondo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
+                        child: ListTile(
+                          title: const Text('Selecciona un color'),
+                          trailing: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: colorSeleccionado,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          onTap: _mostrarSelectorColor,
                         ),
                       ),
                       const SizedBox(height: 20),
@@ -249,18 +312,14 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
           }
         }
       },
-      child: AbsorbPointer(
-        child: TextField(
-          decoration: InputDecoration(
-            labelText: label,
-            prefixIcon: const Icon(Icons.calendar_today),
-            border: const OutlineInputBorder(),
-          ),
-          controller: TextEditingController(
-            text: isAllDay
-                ? "${dateTime.toLocal()}".split(' ')[0]
-                : "${dateTime.toLocal()}".split('.')[0],
-          ),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(),
+        ),
+        child: Text(
+          "${dateTime.toLocal()}".split(' ')[0], // Muestra solo la fecha
+          style: TextStyle(fontSize: 16, color: Colors.black),
         ),
       ),
     );
