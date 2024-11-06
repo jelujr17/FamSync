@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
-/*
-import 'package:mysql1/mysql1.dart';
+
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // CLASES DE PERSONAS REALES
 class Modulos {
@@ -8,49 +9,61 @@ class Modulos {
   final String Nombre;
   final String Descripcion;
 
-  Modulos({required this.Id, required this.Nombre, required this.Descripcion});
+  Modulos({
+    required this.Id,
+    required this.Nombre,
+    required this.Descripcion,
+  });
 }
 
-class ServicioModulos {
+class ServiciosModulos {
+  final String _host = 'localhost:3000';
+  // BUSCAR USUARIOS //
   Future<List<Modulos>> getModulos() async {
-    MySqlConnection conn = await DB().conexion();
-    try {
-      // Asegúrate de que la columna 'UsuarioId' y las demás existan en tu tabla y estén correctamente escritas.
-      final resultado = await conn.query('SELECT * FROM modulos');
-      final List<Modulos> modulos = resultado.map((row) {
-        return Modulos(
-            Id: row['Id'],
-            Nombre: row['Nombre'].toString(),
-            Descripcion: row['Descripcion'].toString());
-      }).toList();
+    http.Response response =
+        await http.get(Uri.parse('http://$_host/modulos/get'));
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      List<dynamic> responseData =
+          jsonDecode(response.body); // Parsear la respuesta JSON
+      print(responseData);
+      List<Modulos> modulos = responseData
+          .map((data) => Modulos(
+                Id: data['Id'],
+                Nombre: data['Nombre'],
+                Descripcion: data['Descripcion'],
+              ))
+          .toList();
       return modulos;
-    } catch (e) {
-      print('Error al obtener los mosdulos existentes.');
-      return []; // Devolver una lista vacía en caso de error
-    } finally {
-      await conn.close();
+    } else {
+      throw Exception(
+          'Error al obtener los modulos'); // Lanzar una excepción en caso de error
     }
   }
 
   Future<Modulos?> getModulosById(int Id) async {
-    MySqlConnection conn = await DB().conexion();
-    try {
-      final resultado =
-          await conn.query('SELECT * FROM modulos WHERE Id = ?', [Id]);
-      if (resultado.isNotEmpty) {
-        final modulo = Modulos(
-            Id: resultado.first['Id'],
-            Nombre: resultado.first['Nombre'].toString(),
-            Descripcion: resultado.first['Descripcion'].toString());
-        return modulo;
-      }
-      return null;
-    } catch (e) {
-      print('Error al recibir el modulo por id: $e');
-      return null;
-    } finally {
-      await conn.close();
+    print("Id = $Id");
+    http.Response response = await http.get(
+      Uri.parse('http://$_host/modulos/getById?Id=$Id'),
+      headers: {'Content-type': 'application/json'},
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      print(
+          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
+
+      // Acceder a los argumentos
+      Map<String, dynamic> modulosData = responseData['arguments'];
+
+      Modulos categoria = Modulos(
+          Id: modulosData['Id'],
+          Nombre: modulosData['Nombre'],
+          Descripcion: modulosData['Descripcion']);
+      return categoria;
+    } else {
+      throw Exception(
+          'Error al obtener el modulo por ID'); // Lanzar una excepción en caso de error
     }
   }
 }
-*/

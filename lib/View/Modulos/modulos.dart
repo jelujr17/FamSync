@@ -1,3 +1,4 @@
+import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -22,6 +23,7 @@ class ModulosState extends State<Modulos> {
     {'titulo': 'Medicina', 'icono': Icons.medical_services, 'ruta': 2},
     {'titulo': 'Ropa', 'icono': Icons.checkroom, 'ruta': 3},
     {'titulo': 'Tareas', 'icono': Icons.task, 'ruta': 4},
+    {'titulo': 'Categorías', 'icono': Icons.category, 'ruta': 5},
   ];
 
   @override
@@ -69,6 +71,15 @@ class ModulosState extends State<Modulos> {
                     PageTransition(
                       type: PageTransitionType.fade,
                       child: Almacen(perfil: widget.perfil),
+                    ),
+                  );
+                }
+                else if (modulo['ruta'] == 5) {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: CategoriaPage(perfil: widget.perfil),
                     ),
                   );
                 }

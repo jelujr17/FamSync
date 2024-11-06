@@ -76,6 +76,7 @@ dependencies:
   webview_flutter: ^4.10.0
   device_calendar: ^4.3.3
   flutter_colorpicker: ^1.1.0
+  fluttertoast: ^8.2.8
 
 
 
