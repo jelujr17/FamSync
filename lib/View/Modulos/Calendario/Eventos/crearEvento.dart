@@ -1,4 +1,6 @@
+import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
@@ -25,50 +27,43 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   List<int> visible = [];
   Color colorSeleccionado =
       Colores.principal; // Inicializa con un color predeterminado
-
+  final TextEditingController _dropdownSearchFieldController =
+      TextEditingController();
   final ServicioEventos servicioEventos = ServicioEventos();
   bool eventoRecurrente = false;
+  List<String> nombresCategorias = [];
+  SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
 
-  // Función para mostrar el picker de colores
-  void _mostrarSelectorColor() async {
-    Color color = await showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return AlertDialog(
-              title: const Text('Selecciona un color'),
-              content: SingleChildScrollView(
-                child: ColorPicker(
-                  pickerColor: colorSeleccionado,
-                  onColorChanged: (Color color) {
-                    setState(() {
-                      colorSeleccionado = color;
-                    });
-                  },
-                  pickerAreaHeightPercent: 0.8,
-                ),
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop(colorSeleccionado);
-                  },
-                  child: const Text('Seleccionar'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Cancelar'),
-                ),
-              ],
-            );
-          },
-        ) ??
-        colorSeleccionado;
+  List<Categorias> categoriasDisponibles = [];
+  String? categoriaSeleccionada;
 
-    setState(() {
-      colorSeleccionado = color;
-    });
+  @override
+  void initState() {
+    super.initState();
+    obtenerCategorias();
+    obtenerNombresCategorias();
+  }
+
+  void obtenerCategorias() async {
+    categoriasDisponibles =
+        await ServiciosCategorias().getCategoriasByModulo(widget.perfil.Id, 2);
+    obtenerNombresCategorias(); // Asegúrate de que esto se llame después de obtener las tiendas
+
+    setState(() {});
+  }
+
+  void obtenerNombresCategorias() {
+    nombresCategorias = categoriasDisponibles.map((e) => e.Nombre).toList();
+    print(nombresCategorias);
+  }
+
+  List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(
+        nombresCategorias); // Asegúrate de que nombresTienda esté correctamente poblada
+
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
   }
 
   Future<void> _registrarEvento() async {
@@ -189,25 +184,67 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         padding: const EdgeInsets.all(16.0),
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Selecciona un color',
-                            border: OutlineInputBorder(),
-                          ),
-                          child: ListTile(
-                            title: const Text('Selecciona un color'),
-                            trailing: Container(
-                              width: 30,
-                              height: 30,
-                              decoration: BoxDecoration(
-                                color: colorSeleccionado,
-                                shape: BoxShape.circle,
+                        child: DropDownSearchFormField(
+                          textFieldConfiguration: TextFieldConfiguration(
+                            decoration: InputDecoration(
+                              labelText: 'Selecciona una categoria',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
                               ),
+                              prefixIcon: const Icon(Icons.store),
                             ),
-                            onTap: _mostrarSelectorColor,
+                            controller: _dropdownSearchFieldController,
                           ),
+                          suggestionsCallback: (pattern) {
+                            return getSuggestions(
+                                pattern); // Debe devolver una lista de nombres de tienda
+                          },
+                          itemBuilder: (context, String suggestion) {
+                            // Mapa de categorías con sus colores
+                            Map<String, Color> categoriasColores = {};
+                            for (int i = 0;
+                                i < categoriasDisponibles.length;
+                                i++) {
+                              // Asegúrate de que el color se convierte correctamente
+                              String colorHex = categoriasDisponibles[i].Color;
+                              Color categoriaColor = Color(int.parse("0xFF" +
+                                  colorHex)); // Agregar '0xFF' para opacidad completa
+                              categoriasColores[categoriasDisponibles[i]
+                                  .Nombre] = categoriaColor;
+                            }
+
+                            // Obtiene el color para la categoría seleccionada
+                            Color categoriaColor =
+                                categoriasColores[suggestion] ?? Colors.grey;
+
+                            return ListTile(
+                              leading: CircleAvatar(
+                                backgroundColor: categoriaColor,
+                                radius: 12,
+                              ),
+                              title: Text(suggestion),
+                            );
+                          },
+                          itemSeparatorBuilder: (context, index) {
+                            return const Divider();
+                          },
+                          transitionBuilder:
+                              (context, suggestionsBox, controller) {
+                            return suggestionsBox;
+                          },
+                          onSuggestionSelected: (String suggestion) {
+                            _dropdownSearchFieldController.text = suggestion;
+                            categoriaSeleccionada =
+                                suggestion; // Actualiza la variable de tienda seleccionada
+                          },
+                          suggestionsBoxController: suggestionBoxController,
+                          validator: (value) => value!.isEmpty
+                              ? 'Por favor selecciona una categoria'
+                              : null,
+                          displayAllSuggestionWhenTap: true,
                         ),
                       ),
+
                       const SizedBox(height: 20),
                       // Contenedor para las fechas y "Todo el día"
                       Container(

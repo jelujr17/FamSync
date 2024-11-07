@@ -49,6 +49,33 @@ class ServiciosCategorias {
     }
   }
 
+  Future<List<Categorias>> getCategoriasByModulo(int IdPerfil,  int IdModulo) async {
+
+    http.Response response = await http.get(
+      Uri.parse('http://$_host/categorias/getByModulo?IdPerfil=$IdPerfil&IdModulo=$IdModulo'),
+      headers: {'Content-type': 'application/json'},
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      List<dynamic> responseData =
+          jsonDecode(response.body); // Parsear la respuesta JSON
+      print(responseData);
+      List<Categorias> categorias = responseData.map((data) {
+        return Categorias(
+          Id: data['Id'],
+          IdModulo: data['IdModulo'],
+          Color: data['Color'],
+          Nombre: data['Nombre'],
+          IdPerfil: data['IdPerfil'],
+        );
+      }).toList();
+      return categorias;
+    } else {
+      throw Exception(
+          'Error al obtener las categorías de un perfil ${response.statusCode}'); // Lanzar una excepción en caso de error
+    }
+  }
+
   Future<Categorias?> getCategoriasById(int Id) async {
     print("Id = $Id");
     http.Response response = await http.get(
