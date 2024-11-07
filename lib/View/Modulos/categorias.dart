@@ -4,11 +4,12 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
 class CategoriaPage extends StatefulWidget {
   final Perfiles perfil;
 
-  CategoriaPage({required this.perfil});
+  const CategoriaPage({super.key, required this.perfil});
 
   @override
   _CategoriaPageState createState() => _CategoriaPageState();
@@ -22,8 +23,8 @@ class _CategoriaPageState extends State<CategoriaPage> {
   final TextEditingController _searchController = TextEditingController();
   final PageController _pageController = PageController();
   final ServiciosModulos _serviciosModulos = ServiciosModulos();
-
   Future<List<Modulos>>? _modulosFuture;
+  Color _selectedColor = Colors.blue;
 
   @override
   void initState() {
@@ -68,111 +69,133 @@ class _CategoriaPageState extends State<CategoriaPage> {
   }
 
   void _showCreateCategoryDialog() {
-    TextEditingController nombreController = TextEditingController();
-    String? selectedColor;
-    Modulos? selectedModulo;
+  TextEditingController nombreController = TextEditingController();
+  Modulos? selectedModulo;
 
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Crear Categoría'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nombreController,
-              decoration: const InputDecoration(labelText: 'Nombre'),
-            ),
-            DropdownButtonFormField<String>(
-              value: selectedColor,
-              decoration: const InputDecoration(labelText: 'Color'),
-              items: [
-                'Rojo',
-                'Azul',
-                'Verde',
-                'Amarillo',
-                'Naranja',
-              ].map((color) {
-                return DropdownMenuItem(
-                  value: color,
-                  child: Text(color),
+  showDialog(
+    context: context,
+    builder: (context) => StatefulBuilder(
+      builder: (context, setState) {
+        return AlertDialog(
+          title: const Text('Crear Categoría'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(labelText: 'Nombre'),
+              ),
+              const SizedBox(height: 20),
+              Text('Color'),
+              GestureDetector(
+                onTap: () {
+                  _showColorPickerDialog((color) {
+                    setState(() {
+                      _selectedColor = color;
+                    });
+                  });
+                },
+                child: Container(
+                  width: double.infinity,
+                  height: 40,
+                  color: _selectedColor,
+                ),
+              ),
+              const SizedBox(height: 20),
+              FutureBuilder<List<Modulos>>(
+                future: _modulosFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return const Text('Error al cargar los módulos');
+                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                    return const Text('No hay módulos disponibles');
+                  } else {
+                    return DropdownButtonFormField<Modulos>(
+                      decoration: const InputDecoration(labelText: 'Módulo'),
+                      items: snapshot.data!.map((modulo) {
+                        return DropdownMenuItem<Modulos>(
+                          value: modulo,
+                          child: Text(modulo.Nombre),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          selectedModulo = value;
+                        });
+                      },
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () async {
+                if (nombreController.text.isEmpty || selectedModulo == null) {
+                  _showToast('Todos los campos son obligatorios');
+                  return;
+                }
+                bool result = await _serviciosTiendas.registratCategoria(
+                  selectedModulo!.Id,
+                  nombreController.text,
+                  _selectedColor.value.toRadixString(16),
+                  widget.perfil.Id,
                 );
-              }).toList(),
-              onChanged: (value) {
-                setState(() {
-                  selectedColor = value;
-                });
-              },
-              validator: (value) =>
-                  value == null ? 'Seleccione un color' : null,
-            ),
-            FutureBuilder<List<Modulos>>(
-              future: _modulosFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Text('Error al cargar los módulos');
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Text('No hay módulos disponibles');
+                if (result) {
+                  _showToast('Categoría creada con éxito');
+                  Navigator.pop(context);
+                  setState(() {
+                    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.Id);
+                  });
                 } else {
-                  return DropdownButtonFormField<Modulos>(
-                    decoration: const InputDecoration(labelText: 'Módulo'),
-                    items: snapshot.data!.map((modulo) {
-                      return DropdownMenuItem<Modulos>(
-                        value: modulo,
-                        child: Text(modulo.Nombre),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      setState(() {
-                        selectedModulo = value;
-                      });
-                    },
-                  );
+                  _showToast('Error al crear la categoría');
                 }
               },
+              child: const Text('Crear'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancelar'),
             ),
           ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () async {
-              if (nombreController.text.isEmpty ||
-                  selectedColor == null ||
-                  selectedModulo == null) {
-                _showToast('Todos los campos son obligatorios');
-                return;
-              }
-              bool result = await _serviciosTiendas.registratCategoria(
-                selectedModulo!.Id,
-                nombreController.text,
-                selectedColor!,
-                widget.perfil.Id,
-              );
-              if (result) {
-                _showToast('Categoría creada con éxito');
-                Navigator.pop(context);
-                setState(() {
-                  _categoriasFuture =
-                      _serviciosTiendas.getCategorias(widget.perfil.Id);
-                });
-              } else {
-                _showToast('Error al crear la categoría');
-              }
+        );
+      },
+    ),
+  );
+}
+
+void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Seleccione un color'),
+        content: SingleChildScrollView(
+          child: ColorPicker(
+            pickerColor: _selectedColor,
+            onColorChanged: (Color color) {
+              onColorSelected(color); // Notificar cambio de color
             },
-            child: const Text('Crear'),
           ),
+        ),
+        actions: <Widget>[
           TextButton(
+            child: const Text('Seleccionar'),
             onPressed: () {
-              Navigator.pop(context);
+              Navigator.of(context).pop();
             },
-            child: const Text('Cancelar'),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
 
   void _reloadCategories() {
     setState(() {
@@ -184,6 +207,30 @@ class _CategoriaPageState extends State<CategoriaPage> {
         _categoriasFiltradas = data;
       });
     });
+  }
+
+  void _showCategoryDetailsDialog(Categorias categoria) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Detalles de ${categoria.Nombre}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Nombre: ${categoria.Nombre}'),
+            Text('Color: ${categoria.Color}'),
+            Text('Módulo: ${categoria.IdModulo}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showDeleteCategoryDialog(Categorias categoria) {
@@ -229,7 +276,6 @@ class _CategoriaPageState extends State<CategoriaPage> {
         return Container(
           padding: const EdgeInsets.all(16.0),
           height: 300,
-          // ignore: prefer_const_constructors
           child: Column(
             children: const [
               Text(
@@ -285,6 +331,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
                     icon: const Icon(Icons.delete),
                     onPressed: () => _showDeleteCategoryDialog(categoria),
                   ),
+                  onTap: () => _showCategoryDetailsDialog(categoria),
                 );
               },
             ),
@@ -293,13 +340,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _showCreateCategoryDialog,
-        tooltip: 'Crear Categoría',
         child: const Icon(Icons.add),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: _pageController,
-        pagina: 1,
-        perfil: widget.perfil,
       ),
     );
   }
