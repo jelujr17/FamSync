@@ -5,7 +5,6 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart'; // Importa la librería para el selector de colores
 
 class CrearEventoPage extends StatefulWidget {
   final Perfiles perfil;
@@ -33,9 +32,10 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   bool eventoRecurrente = false;
   List<String> nombresCategorias = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
-
+  Map<String, Color> colorNombreCategoria = {};
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
+  Map<String, Color> categoriasColores = {}; // Definir categoriasColores aquí
 
   @override
   void initState() {
@@ -47,7 +47,14 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   void obtenerCategorias() async {
     categoriasDisponibles =
         await ServiciosCategorias().getCategoriasByModulo(widget.perfil.Id, 2);
-    obtenerNombresCategorias(); // Asegúrate de que esto se llame después de obtener las tiendas
+
+    // Llenar categoriasColores después de obtener las categorías
+    for (var categoria in categoriasDisponibles) {
+      categoriasColores[categoria.Nombre] =
+          Color(int.parse("0xFF${categoria.Color}"));
+    }
+
+    obtenerNombresCategorias();
 
     setState(() {});
   }
@@ -178,6 +185,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                       ),
                       const SizedBox(height: 20),
                       // Campo para seleccionar color (con el mismo estilo)
+                      // Campo para seleccionar color
                       Container(
                         decoration: BoxDecoration(
                           color: Colores.fondo,
@@ -187,33 +195,26 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                         child: DropDownSearchFormField(
                           textFieldConfiguration: TextFieldConfiguration(
                             decoration: InputDecoration(
-                              labelText: 'Selecciona una categoria',
+                              labelText: 'Selecciona una categoría',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              prefixIcon: const Icon(Icons.store),
+                              prefixIcon: Icon(
+                                Icons.store,
+                                color: categoriaSeleccionada == null ||
+                                        categoriaSeleccionada!.isEmpty
+                                    ? Colors
+                                        .grey // Si no hay categoría seleccionada, el color será gris
+                                    : colorSeleccionado, // Si hay categoría seleccionada, usa el color correspondiente
+                              ),
                             ),
                             controller: _dropdownSearchFieldController,
                           ),
                           suggestionsCallback: (pattern) {
-                            return getSuggestions(
-                                pattern); // Debe devolver una lista de nombres de tienda
+                            return getSuggestions(pattern);
                           },
                           itemBuilder: (context, String suggestion) {
-                            // Mapa de categorías con sus colores
-                            Map<String, Color> categoriasColores = {};
-                            for (int i = 0;
-                                i < categoriasDisponibles.length;
-                                i++) {
-                              // Asegúrate de que el color se convierte correctamente
-                              String colorHex = categoriasDisponibles[i].Color;
-                              Color categoriaColor = Color(int.parse("0xFF" +
-                                  colorHex)); // Agregar '0xFF' para opacidad completa
-                              categoriasColores[categoriasDisponibles[i]
-                                  .Nombre] = categoriaColor;
-                            }
-
-                            // Obtiene el color para la categoría seleccionada
+                            // Obtenemos el color de la categoría a partir del mapa categoriasColores
                             Color categoriaColor =
                                 categoriasColores[suggestion] ?? Colors.grey;
 
@@ -225,21 +226,28 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                               title: Text(suggestion),
                             );
                           },
-                          itemSeparatorBuilder: (context, index) {
-                            return const Divider();
-                          },
-                          transitionBuilder:
-                              (context, suggestionsBox, controller) {
-                            return suggestionsBox;
-                          },
+                          itemSeparatorBuilder: (context, index) =>
+                              const Divider(),
+                          suggestionsBoxDecoration:
+                              const SuggestionsBoxDecoration(
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  150, // Ajusta el tamaño de la lista de categorías
+                            ),
+                          ),
                           onSuggestionSelected: (String suggestion) {
                             _dropdownSearchFieldController.text = suggestion;
-                            categoriaSeleccionada =
-                                suggestion; // Actualiza la variable de tienda seleccionada
+                            categoriaSeleccionada = suggestion;
+
+                            // Actualiza el color del texto seleccionado y el color del contenedor
+                            setState(() {
+                              colorSeleccionado =
+                                  categoriasColores[suggestion] ?? Colors.grey;
+                            });
                           },
                           suggestionsBoxController: suggestionBoxController,
                           validator: (value) => value!.isEmpty
-                              ? 'Por favor selecciona una categoria'
+                              ? 'Por favor selecciona una categoría'
                               : null,
                           displayAllSuggestionWhenTap: true,
                         ),
