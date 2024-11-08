@@ -36,6 +36,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
   Map<String, Color> categoriasColores = {}; // Definir categoriasColores aquí
+  int?
+      idCategoriaSeleccionada; // Para almacenar el ID de la categoría seleccionada
 
   @override
   void initState() {
@@ -75,16 +77,29 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
 
   Future<void> _registrarEvento() async {
     if (_formKey.currentState!.validate()) {
+      // Asegúrate de que una categoría esté seleccionada antes de enviar
+      if (categoriaSeleccionada == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Por favor selecciona una categoría')),
+        );
+        return;
+      }
+
+      // Obtén el ID de la categoría seleccionada
+      idCategoriaSeleccionada = categoriasDisponibles
+          .firstWhere((categoria) => categoria.Nombre == categoriaSeleccionada)
+          .Id;
+
       bool resultado = await servicioEventos.registrarEvento(
-        nombre,
-        descripcion,
-        fechaInicio,
-        fechaFin,
-        idUsuarioCreador,
-        idPerfilCreador,
-        visible,
-        colorSeleccionado.toString(), // Guarda el color seleccionado
-      );
+          nombre,
+          descripcion,
+          fechaInicio,
+          fechaFin,
+          idUsuarioCreador,
+          idPerfilCreador,
+          visible,
+          idCategoriaSeleccionada!,
+          [1, 2]);
 
       if (resultado) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -243,6 +258,10 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                             setState(() {
                               colorSeleccionado =
                                   categoriasColores[suggestion] ?? Colors.grey;
+                              // Almacenar el id de la categoría seleccionada
+                              idCategoriaSeleccionada = categoriasDisponibles
+                                  .firstWhere((c) => c.Nombre == suggestion)
+                                  .Id;
                             });
                           },
                           suggestionsBoxController: suggestionBoxController,

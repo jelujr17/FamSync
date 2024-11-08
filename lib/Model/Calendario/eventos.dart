@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
- 
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -12,7 +12,8 @@ class Eventos {
   final int IdUsuarioCreador;
   final int IdPerfilCreador;
   final List<int> Visible;
-  final String Color;
+  final int IdCategoria;
+  final List<int> Participantes;
 
   Eventos(
       {required this.Id,
@@ -23,7 +24,8 @@ class Eventos {
       required this.IdUsuarioCreador,
       required this.IdPerfilCreador,
       required this.Visible,
-      required this.Color});
+      required this.IdCategoria,
+      required this.Participantes});
 }
 
 class ServicioEventos {
@@ -50,7 +52,8 @@ class ServicioEventos {
             IdUsuarioCreador: data['IdUsuarioCreador'],
             IdPerfilCreador: data['IdPerfilCreador'],
             Visible: List<int>.from(jsonDecode(data['Visible'])),
-            Color: data['Color']);
+            IdCategoria: data['IdCategoria'],
+            Participantes: data['Participantes']);
       }).toList();
       return eventos;
     } else {
@@ -83,7 +86,8 @@ class ServicioEventos {
           IdUsuarioCreador: eventoData['IdUsuarioCreador'],
           IdPerfilCreador: eventoData['IdPerfilCreador'],
           Visible: List<int>.from(jsonDecode(eventoData['Visible'])),
-          Color: eventoData['Color']);
+          IdCategoria: eventoData['IdCategoria'],
+          Participantes: eventoData['Participantes']);
       return evento;
     } else {
       throw Exception(
@@ -100,7 +104,8 @@ class ServicioEventos {
       int IdUsuarioCreador,
       int IdPerfilCreador,
       List<int> Visible,
-      String Color) async {
+      int IdCategoria,
+      List<int> Participantes) async {
     Visible.add(IdPerfilCreador);
     Map<String, dynamic> EventoData = {
       'Nombre': Nombre.toString(),
@@ -110,7 +115,8 @@ class ServicioEventos {
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
       'Visible': jsonEncode(Visible).toString(),
-      'Color': Color
+      'IdCategoria': IdCategoria,
+      'Participantes': jsonEncode(Participantes).toString()
     };
 
     http.Response response1 = await http.post(
@@ -134,7 +140,7 @@ class ServicioEventos {
       int IdUsuarioCreador,
       int IdPerfilCreador,
       List<int> Visible,
-      String Color) async {
+      int IdCategoria, List<int> Participantes) async {
     final response = await http.put(
       Uri.parse('http://$_host/eventos/update'),
       headers: {
@@ -149,7 +155,8 @@ class ServicioEventos {
         'IdPerfilCreador': IdPerfilCreador,
         'IdUsuarioCreador': IdUsuarioCreador,
         'Visible': jsonEncode(Visible).toString(),
-        'Color': Color
+        'IdCategoria': IdCategoria,
+        'Participantes': jsonEncode(Participantes).toString(),
       }),
     );
 

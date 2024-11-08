@@ -86,7 +86,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
                 decoration: const InputDecoration(labelText: 'Nombre'),
               ),
               const SizedBox(height: 20),
-              Text('Color'),
+              const Text('Color'),
               GestureDetector(
                 onTap: () {
                   _showColorPickerDialog((color) {
@@ -276,8 +276,8 @@ void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
         return Container(
           padding: const EdgeInsets.all(16.0),
           height: 300,
-          child: Column(
-            children: const [
+          child: const Column(
+            children: [
               Text(
                 'Filtrar Productos',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
