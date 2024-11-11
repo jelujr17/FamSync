@@ -1,7 +1,6 @@
 import 'package:famsync/Model/Categorias.dart';
 import 'package:famsync/Model/modulos.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';

@@ -77,7 +77,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
 
   Future<void> _registrarEvento() async {
     if (_formKey.currentState!.validate()) {
-      // Asegúrate de que una categoría esté seleccionada antes de enviar
       if (categoriaSeleccionada == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Por favor selecciona una categoría')),
@@ -85,27 +84,35 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         return;
       }
 
-      // Obtén el ID de la categoría seleccionada
       idCategoriaSeleccionada = categoriasDisponibles
           .firstWhere((categoria) => categoria.Nombre == categoriaSeleccionada)
           .Id;
 
+      // Si es un evento de todo el día, ajustamos las horas de las fechas
+      if (eventoRecurrente) {
+        fechaInicio = DateTime(
+            fechaInicio.year, fechaInicio.month, fechaInicio.day, 0, 0, 0);
+        fechaFin =
+            DateTime(fechaFin.year, fechaFin.month, fechaFin.day, 23, 59, 59);
+      }
+
       bool resultado = await servicioEventos.registrarEvento(
-          nombre,
-          descripcion,
-          fechaInicio,
-          fechaFin,
-          idUsuarioCreador,
-          idPerfilCreador,
-          visible,
-          idCategoriaSeleccionada!,
-          [1, 2]);
+        nombre,
+        descripcion,
+        fechaInicio,
+        fechaFin,
+        idUsuarioCreador,
+        idPerfilCreador,
+        visible,
+        idCategoriaSeleccionada!,
+        [1, 2],
+      );
 
       if (resultado) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Evento creado con éxito')),
         );
-        Navigator.pop(context); // Cierra el modal después de crear el evento
+        Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al crear el evento')),
@@ -373,8 +380,14 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
 
         if (pickedDate != null) {
           if (isAllDay) {
-            // Si es un evento de todo el día, solo seleccionamos la fecha
-            onDateTimeChanged(pickedDate);
+            // Si es un evento de todo el día, solo seleccionamos la fecha y establecemos la hora a las 00:00
+            pickedDate = DateTime(pickedDate.year, pickedDate.month,
+                pickedDate.day, 0, 0, 0, 0, 0);
+            // Para la fecha de fin, la ajustamos a las 23:59
+            DateTime pickedEndDate = DateTime(pickedDate.year, pickedDate.month,
+                pickedDate.day, 23, 59, 59, 999);
+            onDateTimeChanged(pickedDate); // Llamar al inicio
+            onDateTimeChanged(pickedEndDate); // Llamar al final
           } else {
             // Si no es un evento de todo el día, seleccionamos la fecha y hora
             TimeOfDay? pickedTime = await showTimePicker(
@@ -403,8 +416,9 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
           ),
           controller: TextEditingController(
             text: isAllDay
-                ? "${dateTime.toLocal()}".split(' ')[0]
-                : "${dateTime.toLocal()}".split('.')[0],
+                ? "${dateTime.toLocal()}".split(' ')[0] // Solo fecha (sin hora)
+                : "${"${dateTime.toLocal()}".split(' ')[0]}    ${"${dateTime.toLocal().hour}:${dateTime.toLocal().minute}" // Solo hora y minuto
+                    .padLeft(5, '0')}", // Asegura que el formato sea HH:mm
           ),
         ),
       ),
