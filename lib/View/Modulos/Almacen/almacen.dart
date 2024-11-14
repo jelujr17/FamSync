@@ -390,7 +390,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(), pagina: 1, perfil: widget.perfil),
+          pageController: PageController(), pagina: 0, perfil: widget.perfil),
     );
   }
 }

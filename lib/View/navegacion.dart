@@ -1,9 +1,9 @@
+import 'package:famsync/View/Asistente%20Virtual/VS.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/modulos.dart';
-import 'package:famsync/View/Modulos/resumen.dart';
 import 'package:famsync/View/ajustes.dart';
 import 'package:famsync/components/colores.dart';
 
@@ -36,8 +36,8 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
   Widget build(BuildContext context) {
     return ConvexAppBar(
       items: const [
-        TabItem(icon: Icons.home_filled, title: 'Inicio'),
         TabItem(icon: Icons.widgets, title: 'Módulos'),
+        TabItem(icon: Icons.details, title: 'Yaya'),
         TabItem(icon: Icons.settings, title: 'Ajustes'),
       ],
       initialActiveIndex: pagina, // Establecer el índice activo inicial
@@ -53,7 +53,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               context,
               PageTransition(
                 type: PageTransitionType.fade,
-                child: ResumenScreen(perfil: widget.perfil),
+                child: Modulos(perfil: widget.perfil),
               ),
             );
             break;
@@ -62,7 +62,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               context,
               PageTransition(
                 type: PageTransitionType.fade,
-                child: Modulos(perfil: widget.perfil),
+                child: VirtualAssistantPage(),
               ),
             );
             break;
@@ -75,15 +75,6 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               ),
             );
             break;
-            case 3:
-            Navigator.pushReplacement(
-              context,
-              PageTransition(
-                type: PageTransitionType.fade,
-                child: Modulos(perfil: widget.perfil),
-              ),
-            );
-            break;
         }
 
         // Saltar a la página correspondiente
@@ -91,7 +82,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
       },
       backgroundColor: Colores.fondo, // Color de fondo de la barra
       color: Colores.texto, // Color de iconos inactivos
-      activeColor:  Colores.botonesSecundarios, // Color de iconos activos
+      activeColor: Colores.botonesSecundarios, // Color de iconos activos
       elevation: 5.0, // Elevación de la barra
       style: TabStyle.fixed, // Estilo de la barra (fijo)
     );

@@ -53,7 +53,7 @@ class ServicioEventos {
             IdPerfilCreador: data['IdPerfilCreador'],
             Visible: List<int>.from(jsonDecode(data['Visible'])),
             IdCategoria: data['IdCategoria'],
-            Participantes: data['Participantes']);
+            Participantes: List<int>.from(jsonDecode(data['Participantes'])));
       }).toList();
       return eventos;
     } else {

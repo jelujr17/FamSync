@@ -21,8 +21,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   String descripcion = '';
   DateTime fechaInicio = DateTime.now();
   DateTime fechaFin = DateTime.now();
-  int idUsuarioCreador = 1; // Cambia esto según tu lógica
-  int idPerfilCreador = 1; // Cambia esto según tu lógica
   List<int> visible = [];
   Color colorSeleccionado =
       Colores.principal; // Inicializa con un color predeterminado
@@ -101,8 +99,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         descripcion,
         fechaInicio,
         fechaFin,
-        idUsuarioCreador,
-        idPerfilCreador,
+        widget.perfil.UsuarioId,
+        widget.perfil.Id,
         visible,
         idCategoriaSeleccionada!,
         [1, 2],
