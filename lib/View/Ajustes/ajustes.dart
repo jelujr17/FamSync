@@ -165,8 +165,7 @@ class AjustesState extends State<Ajustes> {
           const SizedBox(height: 20), // Separador entre secciones
           // Otra sección de ajustes
           buildSettingsSection([
-            _buildSettingItem(Icons.help, 'Ayuda y Soporte', 30),
-            _buildSettingItem(Icons.info_outline, 'Acerca de', 31)
+            _buildSettingItem(Icons.info, 'Ayuda y Soporte', 30),
           ]),
           const SizedBox(height: 20), // Separador entre secciones
         ],

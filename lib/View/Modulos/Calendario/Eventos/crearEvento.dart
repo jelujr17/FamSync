@@ -46,7 +46,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
 
   void obtenerCategorias() async {
     categoriasDisponibles =
-        await ServiciosCategorias().getCategoriasByModulo(widget.perfil.Id, 2);
+        await ServiciosCategorias().getCategoriasByModulo(widget.perfil.Id, 1);
 
     // Llenar categoriasColores después de obtener las categorías
     for (var categoria in categoriasDisponibles) {

@@ -4,19 +4,17 @@ import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/modulos.dart';
-import 'package:famsync/View/ajustes.dart';
+import 'package:famsync/View/Ajustes/ajustes.dart';
 import 'package:famsync/components/colores.dart';
 
 class CustomBottomNavBar extends StatefulWidget {
-  final PageController pageController;
   final Perfiles perfil;
   final int pagina;
 
   const CustomBottomNavBar({
     super.key,
-    required this.pageController,
     required this.perfil,
-    required this.pagina,
+    required this.pagina, required PageController pageController,
   });
 
   @override
@@ -24,12 +22,12 @@ class CustomBottomNavBar extends StatefulWidget {
 }
 
 class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  late int pagina; // Usar late para que se inicialice en initState
+  late int pagina;
 
   @override
   void initState() {
     super.initState();
-    pagina = widget.pagina; // Inicializar con el valor pasado
+    pagina = widget.pagina;
   }
 
   @override
@@ -40,13 +38,13 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
         TabItem(icon: Icons.details, title: 'Yaya'),
         TabItem(icon: Icons.settings, title: 'Ajustes'),
       ],
-      initialActiveIndex: pagina, // Establecer el índice activo inicial
+      initialActiveIndex: pagina,
       onTap: (index) {
         setState(() {
-          pagina = index; // Actualizar el estado con el nuevo índice
+          pagina = index;
         });
 
-        // Navegación según el índice
+        // Navegación entre pantallas sin `jumpToPage`
         switch (index) {
           case 0:
             Navigator.pushReplacement(
@@ -62,7 +60,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               context,
               PageTransition(
                 type: PageTransitionType.fade,
-                child: VirtualAssistantPage(),
+                child: VirtualAssistantPage(perfil: widget.perfil),
               ),
             );
             break;
@@ -76,15 +74,12 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
             );
             break;
         }
-
-        // Saltar a la página correspondiente
-        widget.pageController.jumpToPage(index);
       },
-      backgroundColor: Colores.fondo, // Color de fondo de la barra
-      color: Colores.texto, // Color de iconos inactivos
-      activeColor: Colores.botonesSecundarios, // Color de iconos activos
-      elevation: 5.0, // Elevación de la barra
-      style: TabStyle.fixed, // Estilo de la barra (fijo)
+      backgroundColor: Colores.fondo,
+      color: Colores.texto,
+      activeColor: Colores.botonesSecundarios,
+      elevation: 5.0,
+      style: TabStyle.fixed,
     );
   }
 }

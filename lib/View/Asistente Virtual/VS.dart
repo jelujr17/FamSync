@@ -1,6 +1,13 @@
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 
 class VirtualAssistantPage extends StatefulWidget {
+  final GlobalKey<NavigatorState>? navigatorKey;
+  final Perfiles perfil;
+  const VirtualAssistantPage(
+      {super.key, required this.perfil, this.navigatorKey});
+
   @override
   _VirtualAssistantPageState createState() => _VirtualAssistantPageState();
 }
@@ -103,6 +110,12 @@ class _VirtualAssistantPageState extends State<VirtualAssistantPage> {
           ),
         ],
       ),
+      extendBody: true,
+      bottomNavigationBar: CustomBottomNavBar(
+          pageController:
+              PageController(), // Cambia a PageController() si decides usarlo en el futuro
+          pagina: 1,
+          perfil: widget.perfil),
     );
   }
 

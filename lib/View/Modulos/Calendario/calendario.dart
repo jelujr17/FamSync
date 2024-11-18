@@ -30,21 +30,22 @@ class _CalendarScreenState extends State<Calendario> {
     _cargarEventos(); // Cargar eventos al iniciar
   }
 
+
+
   Future<void> _cargarEventos() async {
     try {
       List<Categorias> categorias = await ServiciosCategorias()
           .getCategoriasByModulo(widget.perfil.Id, 1);
+      print("Número de categorias obtenidas: ${categorias.length}");
       List<Eventos> eventos = await _servicioEventos.getEventos(
         widget.perfil.UsuarioId,
         widget.perfil.Id,
-      );  
+      );
       print("La verdadera vuelta");
       setState(() {
         _listaDeEventos = eventos.map((evento) {
           final categoria = categorias.firstWhere(
-            (cat) =>
-                cat.Id ==
-                evento.IdCategoria, 
+            (cat) => cat.Id == evento.IdCategoria,
           );
 
           return NeatCleanCalendarEvent(
@@ -68,15 +69,14 @@ class _CalendarScreenState extends State<Calendario> {
     showModalBottomSheet(
       context: context,
       isScrollControlled:
-          true, // Esto permite controlar el tamaño de la ventana emergente
+          true, // Permite controlar el tamaño de la ventana emergente
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize:
-              0.9, // Ajusta el tamaño inicial al 90% de la pantalla
+          initialChildSize: 0.9, // Tamaño inicial al 90% de la pantalla
           minChildSize: 0.4, // Tamaño mínimo al que se puede reducir la hoja
           maxChildSize: 0.95, // Tamaño máximo al que se puede expandir la hoja
           builder: (BuildContext context, ScrollController scrollController) {
@@ -93,7 +93,11 @@ class _CalendarScreenState extends State<Calendario> {
           },
         );
       },
-    );
+    ).then((_) {
+      setState(() {
+        _cargarEventos(); // Recargar eventos al cerrar la ventana emergente
+      });
+    });
   }
 
   @override
@@ -125,14 +129,6 @@ class _CalendarScreenState extends State<Calendario> {
                   selectedColor: Colores.principal,
                   todayColor: Colores.botones,
                   defaultDayColor: Colores.texto,
-                  datePickerDarkTheme: ThemeData.dark().copyWith(
-                    colorScheme: const ColorScheme.dark(
-                      primary: Colors.blue,
-                      onPrimary: Colors.yellow,
-                      surface: Colors.grey,
-                      onSurface: Colors.yellow,
-                    ),
-                  ),
                   hideArrows: false,
                   isExpanded: true,
                   expandableDateFormat: "EEEE, d 'de' MMMM 'del' yyyy",
