@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/categorias.dart';
@@ -56,34 +58,67 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   }
 
   void _seleccionarParticipantes() async {
+    // Mostrar el diálogo de selección de participantes
     final seleccionados = await showDialog<List<Perfiles>>(
       context: context,
       builder: (BuildContext context) {
         List<Perfiles> seleccionadosTemp =
             List.from(participantesSeleccionados);
+
         return AlertDialog(
           title: const Text('Selecciona participantes'),
           content: StatefulBuilder(
             builder: (context, setState) {
-              return Container(
+              return SizedBox(
                 width: double.maxFinite,
+                height: 200,
                 child: ListView.builder(
                   shrinkWrap: true,
                   itemCount: participantesDisponibles.length,
                   itemBuilder: (context, index) {
-                    final participante = participantesDisponibles[index];
-                    final seleccionado =
-                        seleccionadosTemp.contains(participante);
-                    return CheckboxListTile(
-                      value: seleccionado,
-                      title:
-                          Text(participante.Nombre), // Usa el atributo adecuado
-                      onChanged: (bool? value) {
+                    final perfil = participantesDisponibles[index];
+                    final seleccionado = seleccionadosTemp.contains(perfil);
+
+                    return ListTile(
+                      title: Text(
+                        perfil.Nombre,
+                        style: const TextStyle(
+                          color: Colores.texto,
+                          fontWeight: FontWeight.normal,
+                        ),
+                      ),
+                      leading: Stack(
+                        children: [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundImage: perfil.FotoPerfil.isNotEmpty &&
+                                    File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}')
+                                        .existsSync()
+                                ? FileImage(File(
+                                    'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}'))
+                                : null,
+                            child: perfil.FotoPerfil.isEmpty
+                                ? const Icon(Icons.person)
+                                : null,
+                          ),
+                          if (seleccionado)
+                            const Positioned(
+                              right: 0,
+                              bottom: 0,
+                              child:
+                                  Icon(Icons.check_circle, color: Colors.green),
+                            ),
+                        ],
+                      ),
+                      tileColor: seleccionado
+                          ? Colores.principal.withOpacity(0.2)
+                          : null,
+                      onTap: () {
                         setState(() {
-                          if (value == true) {
-                            seleccionadosTemp.add(participante);
+                          if (seleccionado) {
+                            seleccionadosTemp.remove(perfil);
                           } else {
-                            seleccionadosTemp.remove(participante);
+                            seleccionadosTemp.add(perfil);
                           }
                         });
                       },
@@ -107,6 +142,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
       },
     );
 
+    // Si se aceptaron cambios, actualiza la lista de participantes seleccionados
     if (seleccionados != null) {
       setState(() {
         participantesSeleccionados = seleccionados;
@@ -345,7 +381,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                       ),
 
                       const SizedBox(height: 16),
-                      // Botón para seleccionar participantes
                       Container(
                         width: double
                             .infinity, // Esto asegura que ocupe todo el ancho posible
@@ -374,12 +409,9 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                                   style: TextStyle(color: Colores.texto)),
                             ),
                             const SizedBox(height: 8),
-                            // Mostrar participantes seleccionados
                             Wrap(
-                              spacing:
-                                  8.0, // Añade espacio horizontal entre los chips
-                              runSpacing:
-                                  4.0, // Añade espacio vertical entre filas de chips
+                              spacing: 8.0,
+                              runSpacing: 4.0,
                               children: participantesSeleccionados.map((p) {
                                 return Chip(
                                   label: Text(p.Nombre),

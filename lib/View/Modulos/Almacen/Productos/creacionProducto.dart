@@ -132,7 +132,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blueAccent,
+                  color: Colores.texto,
                 ),
               ),
             ),

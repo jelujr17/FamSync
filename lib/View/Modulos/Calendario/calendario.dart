@@ -56,7 +56,6 @@ class _CalendarScreenState extends State<Calendario> {
           );
         }).toList();
 
-        // Ordena los eventos por la hora de inicio
         _listaDeEventos.sort((a, b) => a.startTime.compareTo(b.startTime));
       });
     } catch (e) {
