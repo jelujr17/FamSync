@@ -11,7 +11,6 @@ class Eventos {
   final String FechaFin;
   final int IdUsuarioCreador;
   final int IdPerfilCreador;
-  final List<int> Visible;
   final int IdCategoria;
   final List<int> Participantes;
 
@@ -23,7 +22,6 @@ class Eventos {
       required this.FechaFin,
       required this.IdUsuarioCreador,
       required this.IdPerfilCreador,
-      required this.Visible,
       required this.IdCategoria,
       required this.Participantes});
 }
@@ -51,7 +49,6 @@ class ServicioEventos {
             FechaFin: data['FechaFin'],
             IdUsuarioCreador: data['IdUsuarioCreador'],
             IdPerfilCreador: data['IdPerfilCreador'],
-            Visible: List<int>.from(jsonDecode(data['Visible'])),
             IdCategoria: data['IdCategoria'],
             Participantes: List<int>.from(jsonDecode(data['Participantes'])));
       }).toList();
@@ -85,7 +82,6 @@ class ServicioEventos {
           FechaFin: eventoData['FechaFin'],
           IdUsuarioCreador: eventoData['IdUsuarioCreador'],
           IdPerfilCreador: eventoData['IdPerfilCreador'],
-          Visible: List<int>.from(jsonDecode(eventoData['Visible'])),
           IdCategoria: eventoData['IdCategoria'],
           Participantes: eventoData['Participantes']);
       return evento;
@@ -103,10 +99,8 @@ class ServicioEventos {
       DateTime FechaFin,
       int IdUsuarioCreador,
       int IdPerfilCreador,
-      List<int> Visible,
       int IdCategoria,
       List<int> Participantes) async {
-    Visible.add(IdPerfilCreador);
     Map<String, dynamic> EventoData = {
       'Nombre': Nombre.toString(),
       'Descripcion': Descripcion.toString(),
@@ -114,7 +108,6 @@ class ServicioEventos {
       'FechaFin': FechaFin.toString(),
       'IdPerfilCreador': IdPerfilCreador,
       'IdUsuarioCreador': IdUsuarioCreador,
-      'Visible': jsonEncode(Visible).toString(),
       'IdCategoria': IdCategoria,
       'Participantes': jsonEncode(Participantes).toString()
     };
@@ -139,7 +132,6 @@ class ServicioEventos {
       DateTime FechaFin,
       int IdUsuarioCreador,
       int IdPerfilCreador,
-      List<int> Visible,
       int IdCategoria, List<int> Participantes) async {
     final response = await http.put(
       Uri.parse('http://$_host/eventos/update'),
@@ -154,7 +146,6 @@ class ServicioEventos {
         'FechaFin': FechaFin.toString(),
         'IdPerfilCreador': IdPerfilCreador,
         'IdUsuarioCreador': IdUsuarioCreador,
-        'Visible': jsonEncode(Visible).toString(),
         'IdCategoria': IdCategoria,
         'Participantes': jsonEncode(Participantes).toString(),
       }),

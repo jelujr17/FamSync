@@ -36,12 +36,82 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   Map<String, Color> categoriasColores = {}; // Definir categoriasColores aquí
   int?
       idCategoriaSeleccionada; // Para almacenar el ID de la categoría seleccionada
+  List<Perfiles> participantesSeleccionados = [];
+  List<Perfiles> participantesDisponibles = [];
 
   @override
   void initState() {
     super.initState();
     obtenerCategorias();
+    obtenerParticipantes();
     obtenerNombresCategorias();
+  }
+
+  void obtenerParticipantes() async {
+    // Ejemplo: Obtén la lista desde tu API
+    participantesDisponibles =
+        await ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+
+    setState(() {});
+  }
+
+  void _seleccionarParticipantes() async {
+    final seleccionados = await showDialog<List<Perfiles>>(
+      context: context,
+      builder: (BuildContext context) {
+        List<Perfiles> seleccionadosTemp =
+            List.from(participantesSeleccionados);
+        return AlertDialog(
+          title: const Text('Selecciona participantes'),
+          content: StatefulBuilder(
+            builder: (context, setState) {
+              return Container(
+                width: double.maxFinite,
+                child: ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: participantesDisponibles.length,
+                  itemBuilder: (context, index) {
+                    final participante = participantesDisponibles[index];
+                    final seleccionado =
+                        seleccionadosTemp.contains(participante);
+                    return CheckboxListTile(
+                      value: seleccionado,
+                      title:
+                          Text(participante.Nombre), // Usa el atributo adecuado
+                      onChanged: (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            seleccionadosTemp.add(participante);
+                          } else {
+                            seleccionadosTemp.remove(participante);
+                          }
+                        });
+                      },
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancelar'),
+              onPressed: () => Navigator.pop(context),
+            ),
+            TextButton(
+              child: const Text('Aceptar'),
+              onPressed: () => Navigator.pop(context, seleccionadosTemp),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (seleccionados != null) {
+      setState(() {
+        participantesSeleccionados = seleccionados;
+      });
+    }
   }
 
   void obtenerCategorias() async {
@@ -101,7 +171,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         fechaFin,
         widget.perfil.UsuarioId,
         widget.perfil.Id,
-        visible,
         idCategoriaSeleccionada!,
         [1, 2],
       );
@@ -204,8 +273,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      // Campo para seleccionar color (con el mismo estilo)
-                      // Campo para seleccionar color
                       Container(
                         decoration: BoxDecoration(
                           color: Colores.fondo,
@@ -274,6 +341,57 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                               ? 'Por favor selecciona una categoría'
                               : null,
                           displayAllSuggestionWhenTap: true,
+                        ),
+                      ),
+
+                      const SizedBox(height: 16),
+                      // Botón para seleccionar participantes
+                      Container(
+                        width: double
+                            .infinity, // Esto asegura que ocupe todo el ancho posible
+                        decoration: BoxDecoration(
+                          color: Colores.fondo,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment
+                              .center, // Centra el contenido verticalmente
+                          crossAxisAlignment: CrossAxisAlignment
+                              .center, // Centra el contenido horizontalmente
+                          children: [
+                            const Text(
+                              'Participantes',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _seleccionarParticipantes,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colores.botones,
+                              ),
+                              child: const Text('Seleccionar Participantes',
+                                  style: TextStyle(color: Colores.texto)),
+                            ),
+                            const SizedBox(height: 8),
+                            // Mostrar participantes seleccionados
+                            Wrap(
+                              spacing:
+                                  8.0, // Añade espacio horizontal entre los chips
+                              runSpacing:
+                                  4.0, // Añade espacio vertical entre filas de chips
+                              children: participantesSeleccionados.map((p) {
+                                return Chip(
+                                  label: Text(p.Nombre),
+                                  onDeleted: () {
+                                    setState(() {
+                                      participantesSeleccionados.remove(p);
+                                    });
+                                  },
+                                );
+                              }).toList(),
+                            ),
+                          ],
                         ),
                       ),
 

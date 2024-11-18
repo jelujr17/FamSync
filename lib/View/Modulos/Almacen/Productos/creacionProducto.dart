@@ -28,7 +28,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   final List<XFile> _imagenesSeleccionadas = [];
   final ImagePicker _picker = ImagePicker();
   int _currentPageIndex = 0;
-  List<int> _perfilSeleccionado = [];
+  final List<int> _perfilSeleccionado = [];
   List<File> _imagenesFiles = [];
   List<Tiendas> tiendasDisponibles = [];
   String? tiendaSeleccionada;
