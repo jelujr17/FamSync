@@ -2,6 +2,7 @@ import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Calendario/Eventos/crearEvento.dart';
+import 'package:famsync/View/Modulos/Calendario/Eventos/verDetallesEvento.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -29,8 +30,6 @@ class _CalendarScreenState extends State<Calendario> {
     super.initState();
     _cargarEventos(); // Cargar eventos al iniciar
   }
-
-
 
   Future<void> _cargarEventos() async {
     try {
@@ -100,6 +99,31 @@ class _CalendarScreenState extends State<Calendario> {
     });
   }
 
+  void _showPopup(NeatCleanCalendarEvent evento) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled:
+          true, // Esto permite controlar el tamaño de la ventana emergente
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize:
+              0.6, // Ajusta el tamaño inicial (0.6 significa 60% de la pantalla)
+          minChildSize: 0.4, // Tamaño mínimo al que se puede reducir la hoja
+          maxChildSize: 0.9, // Tamaño máximo al que se puede expandir la hoja
+          builder: (BuildContext context, ScrollController scrollController) {
+            return DetalleEventoPage(
+              evento: evento,
+            );
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -137,6 +161,7 @@ class _CalendarScreenState extends State<Calendario> {
                   allDayEventText: 'Todo el día',
                   onEventSelected: (value) {
                     print('Evento seleccionado: ${value.summary}');
+                    _showPopup(value);
                   },
                   onDateSelected: (value) {
                     print('Fecha seleccionada: $value');

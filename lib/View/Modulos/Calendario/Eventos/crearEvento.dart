@@ -415,8 +415,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
           controller: TextEditingController(
             text: isAllDay
                 ? "${dateTime.toLocal()}".split(' ')[0] // Solo fecha (sin hora)
-                : "${"${dateTime.toLocal()}".split(' ')[0]}    ${"${dateTime.toLocal().hour}:${dateTime.toLocal().minute}" // Solo hora y minuto
-                    .padLeft(5, '0')}", // Asegura que el formato sea HH:mm
+                : "${"${dateTime.toLocal()}".split(' ')[0]}    ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}", // Formato de hora correcta
           ),
         ),
       ),
