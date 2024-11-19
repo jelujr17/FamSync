@@ -199,7 +199,10 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         fechaFin =
             DateTime(fechaFin.year, fechaFin.month, fechaFin.day, 23, 59, 59);
       }
-
+      List<int> idsParticipantes = [];
+      for (int i = 0; i < participantesSeleccionados.length; i++) {
+        idsParticipantes.add(participantesSeleccionados[i].Id);
+      }
       bool resultado = await servicioEventos.registrarEvento(
         nombre,
         descripcion,
@@ -208,7 +211,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         widget.perfil.UsuarioId,
         widget.perfil.Id,
         idCategoriaSeleccionada!,
-        [1, 2],
+        idsParticipantes,
       );
 
       if (resultado) {
@@ -326,9 +329,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                                 Icons.store,
                                 color: categoriaSeleccionada == null ||
                                         categoriaSeleccionada!.isEmpty
-                                    ? Colors
-                                        .grey // Si no hay categoría seleccionada, el color será gris
-                                    : colorSeleccionado, // Si hay categoría seleccionada, usa el color correspondiente
+                                    ? Colors.grey
+                                    : colorSeleccionado,
                               ),
                             ),
                             controller: _dropdownSearchFieldController,
@@ -337,7 +339,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                             return getSuggestions(pattern);
                           },
                           itemBuilder: (context, String suggestion) {
-                            // Obtenemos el color de la categoría a partir del mapa categoriasColores
                             Color categoriaColor =
                                 categoriasColores[suggestion] ?? Colors.grey;
 
@@ -361,8 +362,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                           onSuggestionSelected: (String suggestion) {
                             _dropdownSearchFieldController.text = suggestion;
                             categoriaSeleccionada = suggestion;
-
-                            // Actualiza el color del texto seleccionado y el color del contenedor
                             setState(() {
                               colorSeleccionado =
                                   categoriasColores[suggestion] ?? Colors.grey;
