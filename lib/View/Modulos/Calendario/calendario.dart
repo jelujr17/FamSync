@@ -47,12 +47,27 @@ class _CalendarScreenState extends State<Calendario> {
             (cat) => cat.Id == evento.IdCategoria,
           );
 
+          // Verificamos si el evento es todo el día
+          bool esTodoElDia = false;
+          DateTime fechaInicio = DateTime.parse(evento.FechaInicio);
+          DateTime fechaFin = DateTime.parse(evento.FechaFin);
+
+          // Comprobamos si la hora de inicio es 00:00 y la de fin es 23:59
+          if (fechaInicio.hour == 0 &&
+              fechaInicio.minute == 0 &&
+              fechaFin.hour == 23 &&
+              fechaFin.minute == 59) {
+            esTodoElDia = true;
+          }
+
           return NeatCleanCalendarEvent(
             evento.Nombre,
             description: evento.Descripcion,
-            startTime: DateTime.parse(evento.FechaInicio),
-            endTime: DateTime.parse(evento.FechaFin),
+            startTime: fechaInicio,
+            endTime: fechaFin,
             color: Color(int.parse("0xFF${categoria.Color}")),
+            isAllDay:
+                esTodoElDia, // Esta es una propiedad que marcará si es todo el día
           );
         }).toList();
 
@@ -149,6 +164,7 @@ class _CalendarScreenState extends State<Calendario> {
                   ],
                   eventsList: _listaDeEventos,
                   isExpandable: true,
+                  selectedTodayColor: Colores.botones,
                   selectedColor: Colores.principal,
                   todayColor: Colores.botones,
                   defaultDayColor: Colores.texto,
@@ -157,7 +173,8 @@ class _CalendarScreenState extends State<Calendario> {
                   expandableDateFormat: "EEEE, d 'de' MMMM 'del' yyyy",
                   locale: 'es_ES',
                   todayButtonText: 'Calendario',
-                  allDayEventText: 'Todo el día',
+                  allDayEventText:
+                      'Todo el día', // El texto que aparece si es todo el día
                   onEventSelected: (value) {
                     print('Evento seleccionado: ${value.summary}');
                     _showPopup(value);
