@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/NewProfile.dart';
-import 'package:famsync/View/Modulos/resumen.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -56,7 +56,7 @@ class ResumenScreenState extends State<ResumenScreen> {
               ),
               const SizedBox(height: 20),
               Text(
-                'Hola, Usuario ${widget.perfil.Nombre}!\n\n'
+                'Hola, ${widget.perfil.Nombre}!\n\n'
                 'Esta es la pantalla de bienvenida donde puedes encontrar información general y acceder a otras funciones de la aplicación.',
                 textAlign: TextAlign.center,
                 style: TextStyle(

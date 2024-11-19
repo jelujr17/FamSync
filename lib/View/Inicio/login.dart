@@ -6,7 +6,7 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
 import 'package:famsync/View/Inicio/register.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
-import 'package:famsync/View/Modulos/resumen.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/components/background.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/components/colores.dart';
