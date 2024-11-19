@@ -34,7 +34,7 @@ class _CalendarScreenState extends State<Calendario> {
   Future<void> _cargarEventos() async {
     try {
       List<Categorias> categorias = await ServiciosCategorias()
-          .getCategoriasByModulo(widget.perfil.Id, 1);
+          .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
       print("Número de categorias obtenidas: ${categorias.length}");
       List<Eventos> eventos = await _servicioEventos.getEventos(
         widget.perfil.UsuarioId,

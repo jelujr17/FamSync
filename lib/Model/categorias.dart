@@ -9,23 +9,23 @@ class Categorias {
   final int IdModulo;
   final String Color;
   final String Nombre;
-  final int IdPerfil;
+  final int IdUsuario;
 
   Categorias({
     required this.Id,
     required this.IdModulo,
     required this.Color,
     required this.Nombre,
-    required this.IdPerfil,
+    required this.IdUsuario,
   });
 }
 
 class ServiciosCategorias {
   final String _host = 'localhost:3000';
   // BUSCAR USUARIOS //
-  Future<List<Categorias>> getCategorias(int IdPerfil) async {
+  Future<List<Categorias>> getCategorias(int IdUsuario) async {
     http.Response response = await http.get(
-      Uri.parse('http://$_host/categorias/getByPerfil?IdPerfil=$IdPerfil'),
+      Uri.parse('http://$_host/categorias/getByPerfil?IdUsuario=$IdUsuario'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -39,7 +39,7 @@ class ServiciosCategorias {
           IdModulo: data['IdModulo'],
           Color: data['Color'],
           Nombre: data['Nombre'],
-          IdPerfil: data['IdPerfil'],
+          IdUsuario: data['IdUsuario'],
         );
       }).toList();
       return categorias;
@@ -49,10 +49,10 @@ class ServiciosCategorias {
     }
   }
 
-  Future<List<Categorias>> getCategoriasByModulo(int IdPerfil,  int IdModulo) async {
+  Future<List<Categorias>> getCategoriasByModulo(int IdUsuario,  int IdModulo) async {
 
     http.Response response = await http.get(
-      Uri.parse('http://$_host/categorias/getByModulo?IdPerfil=$IdPerfil&IdModulo=$IdModulo'),
+      Uri.parse('http://$_host/categorias/getByModulo?IdUsuario=$IdUsuario&IdModulo=$IdModulo'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);
@@ -66,7 +66,7 @@ class ServiciosCategorias {
           IdModulo: data['IdModulo'],
           Color: data['Color'],
           Nombre: data['Nombre'],
-          IdPerfil: data['IdPerfil'],
+          IdUsuario: data['IdUsuario'],
         );
       }).toList();
       return categorias;
@@ -96,7 +96,7 @@ class ServiciosCategorias {
           IdModulo: categoriaData['IdModulo'],
           Nombre: categoriaData['Nombre'],
           Color: categoriaData['Color'],
-          IdPerfil: categoriaData['IdPerfil']);
+          IdUsuario: categoriaData['IdUsuario']);
       return categoria;
     } else {
       throw Exception(
@@ -106,12 +106,12 @@ class ServiciosCategorias {
 
   // Registro de producto
   Future<bool> registratCategoria(
-      int IdModulo, String Nombre, String Color, int IdPerfil) async {
+      int IdModulo, String Nombre, String Color, int IdUsuario) async {
     Map<String, dynamic> CategoriaData = {
       'IdModulo': IdModulo,
       'Nombre': Nombre.toString(),
       'Color': Color.toString(),
-      'IdPerfil': IdPerfil
+      'IdUsuario': IdUsuario
     };
 
     http.Response response1 = await http.post(

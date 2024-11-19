@@ -29,7 +29,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
   void initState() {
     super.initState();
     _serviciosTiendas = ServiciosCategorias();
-    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.Id);
+    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
     _modulosFuture = _serviciosModulos.getModulos();
 
     _categoriasFuture.then((data) {
@@ -141,13 +141,13 @@ class _CategoriaPageState extends State<CategoriaPage> {
                   selectedModulo!.Id,
                   nombreController.text,
                   _selectedColor.value.toRadixString(16),
-                  widget.perfil.Id,
+                  widget.perfil.UsuarioId,
                 );
                 if (result) {
                   _showToast('Categoría creada con éxito');
                   Navigator.pop(context);
                   setState(() {
-                    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.Id);
+                    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
                   });
                 } else {
                   _showToast('Error al crear la categoría');
@@ -198,7 +198,7 @@ void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
 
   void _reloadCategories() {
     setState(() {
-      _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.Id);
+      _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
     });
     _categoriasFuture.then((data) {
       setState(() {
