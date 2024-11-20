@@ -89,35 +89,33 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Descripción del evento
-              _buildCardSection(
-                context,
-                'Descripción:',
-                widget.evento.description,
-              ),
-              const SizedBox(height: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Descripción del evento
+            _buildCardSection(
+              context,
+              'Descripción:',
+              widget.evento.description,
+            ),
+            const SizedBox(height: 16),
 
-              // Fechas mejoradas
-              _buildDateSection(
-                context,
-                'Fecha de inicio:',
-                DateTime.parse(widget.eventoSeleccionado.FechaInicio),
-                Icons.calendar_today,
-              ),
-              const SizedBox(height: 8),
-              _buildDateSection(
-                context,
-                'Fecha de finalización:',
-                DateTime.parse(widget.eventoSeleccionado.FechaFin),
-                Icons.event_available,
-              ),
-              const SizedBox(height: 16),
-            ],
-          ),
+            // Fechas mejoradas
+            _buildDateSection(
+              context,
+              'Fecha de inicio:',
+              DateTime.parse(widget.eventoSeleccionado.FechaInicio),
+              Icons.calendar_today,
+            ),
+            const SizedBox(height: 8),
+            _buildDateSection(
+              context,
+              'Fecha de finalización:',
+              DateTime.parse(widget.eventoSeleccionado.FechaFin),
+              Icons.event_available,
+            ),
+            const SizedBox(height: 16),
+          ],
         ),
       ),
     );
