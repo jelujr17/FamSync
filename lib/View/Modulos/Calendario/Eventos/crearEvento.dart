@@ -151,8 +151,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   }
 
   void obtenerCategorias() async {
-    categoriasDisponibles =
-        await ServiciosCategorias().getCategoriasByModulo(widget.perfil.UsuarioId, 1);
+    categoriasDisponibles = await ServiciosCategorias()
+        .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
 
     // Llenar categoriasColores después de obtener las categorías
     for (var categoria in categoriasDisponibles) {
@@ -470,12 +470,26 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
                             ),
                             const SizedBox(height: 16),
                             _buildDateTimeField(
-                              label: 'Fecha de Fin',
+                              label: 'Fecha Final',
                               dateTime: fechaFin,
                               isAllDay: eventoRecurrente,
                               onDateTimeChanged: (DateTime newDate) {
                                 setState(() {
-                                  fechaFin = newDate;
+                                  if (newDate.isBefore(fechaInicio)) {
+                                    // Mostrar mensaje al usuario
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          'La fecha final no puede ser anterior a la fecha de inicio.',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        duration: Duration(seconds: 2),
+                                      ),
+                                    );
+                                  } else {
+                                    fechaFin = newDate;
+                                  }
                                 });
                               },
                             ),
