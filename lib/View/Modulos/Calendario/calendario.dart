@@ -14,23 +14,26 @@ class Calendario extends StatefulWidget {
   const Calendario({super.key, required this.perfil});
 
   @override
-  _CalendarScreenState createState() => _CalendarScreenState();
+  CalendarScreenState createState() => CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<Calendario> {
+class CalendarScreenState extends State<Calendario> {
   bool mostrarEventos = true;
   List<NeatCleanCalendarEvent> _listaDeEventos = [];
   List<String> aux = ["de", "del"];
   final ServicioEventos _servicioEventos =
       ServicioEventos(); // Instancia del servicio
   List<Eventos> eventos = [];
+
+  bool eliminado = false;
+
   @override
   void initState() {
     super.initState();
-    _cargarEventos(); // Cargar eventos al iniciar
+    cargarEventos(); // Cargar eventos al iniciar
   }
 
-  Future<void> _cargarEventos() async {
+  Future<void> cargarEventos() async {
     try {
       List<Categorias> categorias = await ServiciosCategorias()
           .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
@@ -86,8 +89,6 @@ class _CalendarScreenState extends State<Calendario> {
     }
   }
 
-
-
   void _showPopup1() {
     showModalBottomSheet(
       context: context,
@@ -118,14 +119,12 @@ class _CalendarScreenState extends State<Calendario> {
       },
     ).then((_) {
       setState(() {
-        _cargarEventos(); // Recargar eventos al cerrar la ventana emergente
+        cargarEventos();
       });
     });
   }
 
-  void _showPopup(NeatCleanCalendarEvent eventoNeat) {
-    // Busca el evento en la lista de modelos, asegurando que las fechas sean equivalentes
-     
+  void _showPopup(NeatCleanCalendarEvent eventoNeat) async {
     Map<String, dynamic>? datos = eventoNeat.metadata;
     Eventos eventoSeleccionado = Eventos(
       Id: datos!['Id'],
@@ -138,7 +137,8 @@ class _CalendarScreenState extends State<Calendario> {
       IdCategoria: datos['IdCategoria'],
       Participantes: datos['Participantes'],
     );
-    showModalBottomSheet(
+
+    final bool? resultado = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       shape: const RoundedRectangleBorder(
@@ -160,6 +160,13 @@ class _CalendarScreenState extends State<Calendario> {
         );
       },
     );
+
+    // Verifica el resultado y actúa en consecuencia
+    if (resultado == true) {
+      setState(() {
+        cargarEventos(); // Recargar la lista de eventos si se eliminó uno
+      });
+    }
   }
 
   @override

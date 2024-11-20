@@ -132,7 +132,8 @@ class ServicioEventos {
       DateTime FechaFin,
       int IdUsuarioCreador,
       int IdPerfilCreador,
-      int IdCategoria, List<int> Participantes) async {
+      int IdCategoria,
+      List<int> Participantes) async {
     final response = await http.put(
       Uri.parse('http://$_host/eventos/update'),
       headers: {
@@ -157,6 +158,29 @@ class ServicioEventos {
       // Manejo de errores
       print('Error al actualizar el evento: ${response.statusCode}');
       return false; // La actualización falló
+    }
+  }
+
+  // Función para eliminar la foto anterior
+  Future<bool> eliminarEvento(int idEvento) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('http://$_host/eventos/delete'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(
+            {'IdEvento': idEvento}), // Enviamos el ID en el cuerpo
+      );
+
+      if (response.statusCode == 200) {
+        print('Evento eliminado con éxito');
+        return true;
+      } else {
+        print('Error al eliminar el evento: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Error al enviar solicitud de eliminación de evento: $e');
+      return false;
     }
   }
 }

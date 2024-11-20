@@ -129,6 +129,8 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
               Icons.event_available,
             ),
             const SizedBox(height: 16),
+
+            // Sección de participantes
             _buildParticipantesSection(
               context,
               'Participante/s:',
@@ -136,9 +138,83 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
               widget.eventoSeleccionado.IdPerfilCreador,
               Icons.person,
             ),
+            const SizedBox(height: 16),
+
+            // Espaciador para empujar el botón hacia abajo
+
+            // Botón de eliminar
+            Align(
+              alignment: Alignment.center,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  _confirmarEliminarEvento(widget.eventoSeleccionado);
+                },
+                icon: const Icon(
+                  Icons.delete,
+                  color: Colores.fondo, // Cambia el color del ícono
+                ),
+                label: const Text(
+                  'Eliminar evento',
+                  style: TextStyle(
+                      color: Colores.fondo), // Cambia el color del texto
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      Colores.eliminar, // Cambia el color de fondo del botón
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  textStyle: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  foregroundColor: Colores
+                      .texto, // Cambia el color principal (texto e ícono)
+                ),
+              ),
+            ),
           ],
         ),
       ),
+    );
+  }
+
+  void _confirmarEliminarEvento(Eventos evento) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar eliminación'),
+          content: Text(
+              '¿Estás seguro de que deseas eliminar el evento "${evento.Nombre}"?'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(false); // Cierra el diálogo sin hacer nada
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                bool eliminado =
+                    await ServicioEventos().eliminarEvento(evento.Id);
+
+                if (eliminado) {
+                  // Si se elimina correctamente, cierra el diálogo y regresa
+                  Navigator.of(context).pop(true);
+                  Navigator.of(context).pop(true);
+                } else {
+                  // Si ocurre un error, muestra un mensaje de error
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error al eliminar el evento.')),
+                  );
+                }
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
     );
   }
 
