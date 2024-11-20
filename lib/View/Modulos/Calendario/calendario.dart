@@ -21,10 +21,9 @@ class _CalendarScreenState extends State<Calendario> {
   bool mostrarEventos = true;
   List<NeatCleanCalendarEvent> _listaDeEventos = [];
   List<String> aux = ["de", "del"];
-
   final ServicioEventos _servicioEventos =
       ServicioEventos(); // Instancia del servicio
-
+  List<Eventos> eventos = [];
   @override
   void initState() {
     super.initState();
@@ -36,10 +35,11 @@ class _CalendarScreenState extends State<Calendario> {
       List<Categorias> categorias = await ServiciosCategorias()
           .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
       print("Número de categorias obtenidas: ${categorias.length}");
-      List<Eventos> eventos = await _servicioEventos.getEventos(
+      eventos = await _servicioEventos.getEventos(
         widget.perfil.UsuarioId,
         widget.perfil.Id,
       );
+
       print("La verdadera vuelta");
       setState(() {
         _listaDeEventos = eventos.map((evento) {
@@ -59,16 +59,24 @@ class _CalendarScreenState extends State<Calendario> {
               fechaFin.minute == 59) {
             esTodoElDia = true;
           }
-
-          return NeatCleanCalendarEvent(
-            evento.Nombre,
-            description: evento.Descripcion,
-            startTime: fechaInicio,
-            endTime: fechaFin,
-            color: Color(int.parse("0xFF${categoria.Color}")),
-            isAllDay:
-                esTodoElDia, // Esta es una propiedad que marcará si es todo el día
-          );
+          Map<String, dynamic> eventoMap = {
+            'Id': evento.Id,
+            'Nombre': evento.Nombre,
+            'Descripcion': evento.Descripcion,
+            'FechaInicio': evento.FechaInicio,
+            'FechaFin': evento.FechaFin,
+            'IdCategoria': evento.IdCategoria,
+            'Participantes': evento.Participantes,
+            'IdPerfilCreador': evento.IdPerfilCreador,
+            'IdUsuarioCreador': evento.IdUsuarioCreador
+          };
+          return NeatCleanCalendarEvent(evento.Nombre,
+              description: evento.Descripcion,
+              startTime: fechaInicio,
+              endTime: fechaFin,
+              color: Color(int.parse("0xFF${categoria.Color}")),
+              isAllDay: esTodoElDia,
+              metadata: eventoMap);
         }).toList();
 
         _listaDeEventos.sort((a, b) => a.startTime.compareTo(b.startTime));
@@ -77,6 +85,8 @@ class _CalendarScreenState extends State<Calendario> {
       print('Error al cargar eventos: $e');
     }
   }
+
+
 
   void _showPopup1() {
     showModalBottomSheet(
@@ -113,24 +123,38 @@ class _CalendarScreenState extends State<Calendario> {
     });
   }
 
-  void _showPopup(NeatCleanCalendarEvent evento) {
+  void _showPopup(NeatCleanCalendarEvent eventoNeat) {
+    // Busca el evento en la lista de modelos, asegurando que las fechas sean equivalentes
+     
+    Map<String, dynamic>? datos = eventoNeat.metadata;
+    Eventos eventoSeleccionado = Eventos(
+      Id: datos!['Id'],
+      Nombre: datos['Nombre'],
+      Descripcion: datos['Descripcion'],
+      FechaInicio: datos['FechaInicio'],
+      FechaFin: datos['FechaFin'],
+      IdUsuarioCreador: datos['IdUsuarioCreador'],
+      IdPerfilCreador: datos['IdPerfilCreador'],
+      IdCategoria: datos['IdCategoria'],
+      Participantes: datos['Participantes'],
+    );
     showModalBottomSheet(
       context: context,
-      isScrollControlled:
-          true, // Esto permite controlar el tamaño de la ventana emergente
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
       ),
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize:
-              0.6, // Ajusta el tamaño inicial (0.6 significa 60% de la pantalla)
-          minChildSize: 0.4, // Tamaño mínimo al que se puede reducir la hoja
-          maxChildSize: 0.9, // Tamaño máximo al que se puede expandir la hoja
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
           builder: (BuildContext context, ScrollController scrollController) {
             return DetalleEventoPage(
-              evento: evento,
+              evento: eventoNeat,
+              perfil: widget.perfil,
+              eventoSeleccionado: eventoSeleccionado,
             );
           },
         );

@@ -1,82 +1,211 @@
+import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
+import 'package:intl/intl.dart'; // Para formatear fechas
 
-class DetalleEventoPage extends StatelessWidget {
+class CurvedAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    final path = Path();
+    path.lineTo(0, size.height - 20);
+    path.quadraticBezierTo(
+      size.width / 2,
+      size.height + 20,
+      size.width,
+      size.height - 20,
+    );
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}
+
+class DetalleEventoPage extends StatefulWidget {
   final NeatCleanCalendarEvent evento;
+  final Perfiles perfil;
+  final Eventos eventoSeleccionado;
 
-  const DetalleEventoPage({super.key, required this.evento});
+  const DetalleEventoPage(
+      {super.key,
+      required this.evento,
+      required this.perfil,
+      required this.eventoSeleccionado});
+
+  @override
+  _DetallesEventoState createState() => _DetallesEventoState();
+}
+
+class _DetallesEventoState extends State<DetalleEventoPage> {
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          evento.summary,
-          style: const TextStyle(color: Colors.white),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipPath(
+          clipper: CurvedAppBarClipper(),
+          child: AppBar(
+            automaticallyImplyLeading: false,
+            title: Text(
+              widget.evento.summary,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Colores.fondo,
+                shadows: [
+                  Shadow(
+                    offset: Offset(0, 1),
+                    blurRadius: 3.0,
+                    color: Colores.texto,
+                  ),
+                ],
+              ),
+            ),
+            centerTitle: true,
+            elevation: 4,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    widget.evento.color!,
+                    Colores.botonesSecundarios,
+                  ],
+                ),
+              ),
+            ),
+          ),
         ),
-        backgroundColor: evento.color,
-        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20.0),
+        child: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Descripción del evento
+              _buildCardSection(
+                context,
+                'Descripción:',
+                widget.evento.description,
+              ),
+              const SizedBox(height: 16),
+
+              // Fechas mejoradas
+              _buildDateSection(
+                context,
+                'Fecha de inicio:',
+                DateTime.parse(widget.eventoSeleccionado.FechaInicio),
+                Icons.calendar_today,
+              ),
+              const SizedBox(height: 8),
+              _buildDateSection(
+                context,
+                'Fecha de finalización:',
+                DateTime.parse(widget.eventoSeleccionado.FechaFin),
+                Icons.event_available,
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Método para crear las secciones dentro de las tarjetas
+  Widget _buildCardSection(BuildContext context, String title, String content) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 3,
+      color: Colors.grey[100],
+      child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Descripción:',
-              style: Theme.of(context).textTheme.titleLarge,
+              title,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
             ),
             const SizedBox(height: 8),
             Text(
-              evento.description ?? 'Sin descripción',
-              style: Theme.of(context).textTheme.bodyLarge,
+              content,
+              style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                    fontSize: 16,
+                    height: 1.5,
+                    color: Colors.black87,
+                  ),
             ),
-            const SizedBox(height: 16),
-            Text(
-              'Fecha y hora:',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Inicio: ${_formatearFecha(evento.startTime)}',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            Text(
-              'Fin: ${_formatearFecha(evento.endTime)}',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Todo el día:',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              evento.isAllDay ? 'Sí' : 'No',
-              style: Theme.of(context).textTheme.bodyLarge,
-            ),
-            const Spacer(),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                icon: const Icon(Icons.arrow_back),
-                label: const Text('Volver'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: evento.color,
-                  foregroundColor: Colors.white,
-                ),
-              ),
-            )
           ],
         ),
       ),
     );
   }
 
+  // Método para mostrar las fechas de inicio y fin con íconos y formato mejorado
+  Widget _buildDateSection(
+      BuildContext context, String title, DateTime date, IconData icon) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 3,
+      color: Colors.grey[100],
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Icon(
+              icon,
+              color: Colores.botones,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _formatearFecha(date),
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontSize: 16,
+                        color: Colors.black54,
+                      ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Formatear la fecha y hora para presentación mejorada
   String _formatearFecha(DateTime fecha) {
-    return '${fecha.day}/${fecha.month}/${fecha.year} - ${fecha.hour}:${fecha.minute.toString().padLeft(2, '0')}';
+    final DateFormat dateFormat = DateFormat('dd MMMM yyyy, HH:mm');
+    return dateFormat.format(fecha);
   }
 }
