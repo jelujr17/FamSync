@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/colores.dart';
@@ -41,9 +43,21 @@ class DetalleEventoPage extends StatefulWidget {
 }
 
 class _DetallesEventoState extends State<DetalleEventoPage> {
+  List<Perfiles> participantes = [];
+
   @override
   void initState() {
     super.initState();
+    obtenerParticipantes();
+  }
+
+  void obtenerParticipantes() async {
+    // Ejemplo: Obtén la lista desde tu API
+    participantes =
+        await ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+    List<int> aux = widget.eventoSeleccionado.Participantes;
+    participantes.removeWhere((participante) => !aux.contains(participante.Id));
+    setState(() {});
   }
 
   @override
@@ -115,6 +129,13 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
               Icons.event_available,
             ),
             const SizedBox(height: 16),
+            _buildParticipantesSection(
+              context,
+              'Participante/s:',
+              participantes,
+              widget.eventoSeleccionado.IdPerfilCreador,
+              Icons.person,
+            ),
           ],
         ),
       ),
@@ -195,6 +216,96 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildParticipantesSection(BuildContext context, String title,
+      List<Perfiles> participantes, int idCreador, IconData icon) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 3,
+      color: Colors.grey[100],
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título
+            Row(
+              children: [
+                Icon(
+                  icon,
+                  color: Colores.botones,
+                  size: 28,
+                ),
+                const SizedBox(width: 16),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Contenido de los participantes
+            participantes.isEmpty
+                ? const Text(
+                    'No hay participantes para este evento.',
+                    style: TextStyle(fontSize: 16, color: Colors.black54),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(
+                        left: 16.0), // Desplaza a la derecha
+                    child: Wrap(
+                      spacing: 16.0, // Espacio horizontal entre elementos
+                      runSpacing: 16.0, // Espacio vertical entre líneas
+                      children: participantes.map((perfil) {
+                        final bool esCreador = perfil.Id == idCreador;
+
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(
+                                  2), // Espacio para el borde
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: esCreador
+                                    ? Border.all(
+                                        color:
+                                            Colores.botones, // Color del borde
+                                        width: 3, // Grosor del borde
+                                      )
+                                    : null, // Sin borde si no es el creador
+                              ),
+                              child: CircleAvatar(
+                                radius: 25, // Ajusta el tamaño del avatar
+                                backgroundImage: FileImage(
+                                  File(
+                                    'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Perfiles\\${perfil.FotoPerfil}',
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              perfil.Nombre,
+                              style: const TextStyle(fontSize: 14),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        );
+                      }).toList(),
+                    ),
+                  ),
           ],
         ),
       ),
