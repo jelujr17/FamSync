@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Calendario/Eventos/editarEvento.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
@@ -142,39 +143,118 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
 
             // Espaciador para empujar el botón hacia abajo
 
-            // Botón de eliminar
-            Align(
-              alignment: Alignment.center,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  _confirmarEliminarEvento(widget.eventoSeleccionado);
-                },
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colores.fondo, // Cambia el color del ícono
-                ),
-                label: const Text(
-                  'Eliminar evento',
-                  style: TextStyle(
-                      color: Colores.fondo), // Cambia el color del texto
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      Colores.eliminar, // Cambia el color de fondo del botón
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  textStyle: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.center, // Alinea los botones en el centro
+              children: [
+                // Botón de eliminar
+                ElevatedButton.icon(
+                  onPressed: () {
+                    _confirmarEliminarEvento(widget.eventoSeleccionado);
+                  },
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colores.fondo, // Cambia el color del ícono
                   ),
-                  foregroundColor: Colores
-                      .texto, // Cambia el color principal (texto e ícono)
+                  label: const Text(
+                    'Eliminar evento',
+                    style: TextStyle(
+                        color: Colores.fondo), // Cambia el color del texto
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Colores.eliminar, // Cambia el color de fondo del botón
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    foregroundColor: Colores
+                        .texto, // Cambia el color principal (texto e ícono)
+                  ),
                 ),
-              ),
+
+                const SizedBox(width: 20), // Espacio entre los botones
+
+                // Botón de editar
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet<bool>(
+                      context: context,
+                      isScrollControlled: true,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(25.0)),
+                      ),
+                      builder: (context) {
+                        return DraggableScrollableSheet(
+                          expand: false,
+                          initialChildSize: 0.6,
+                          minChildSize: 0.4,
+                          maxChildSize: 0.9,
+                          builder: (BuildContext context,
+                              ScrollController scrollController) {
+                            return EditarEventoPage(
+                              perfil: widget.perfil,
+                              evento: widget.eventoSeleccionado,
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colores.fondo, // Cambia el color del ícono
+                  ),
+                  label: const Text(
+                    'Editar evento',
+                    style: TextStyle(
+                        color: Colores.fondo), // Cambia el color del texto
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor:
+                        Colores.principal, // Cambia el color de fondo del botón
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 24, vertical: 12),
+                    textStyle: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    foregroundColor: Colores
+                        .texto, // Cambia el color principal (texto e ícono)
+                  ),
+                ),
+              ],
             ),
           ],
         ),
       ),
+    );
+  }
+
+  void irEditar(Eventos evento) async {
+    final bool? resultado = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(25.0)),
+      ),
+      builder: (context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.6,
+          minChildSize: 0.4,
+          maxChildSize: 0.9,
+          builder: (BuildContext context, ScrollController scrollController) {
+            return EditarEventoPage(
+              perfil: widget.perfil,
+              evento: evento,
+            );
+          },
+        );
+      },
     );
   }
 
@@ -189,7 +269,7 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // Cierra el diálogo sin hacer nada
+                Navigator.of(context).pop(); // Cierra el diálogo sin hacer nada
               },
               child: const Text('Cancelar'),
             ),

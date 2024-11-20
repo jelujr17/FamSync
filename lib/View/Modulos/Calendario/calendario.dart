@@ -147,7 +147,7 @@ class CalendarScreenState extends State<Calendario> {
       builder: (context) {
         return DraggableScrollableSheet(
           expand: false,
-          initialChildSize: 0.6,
+          initialChildSize: 0.7,
           minChildSize: 0.4,
           maxChildSize: 0.9,
           builder: (BuildContext context, ScrollController scrollController) {
