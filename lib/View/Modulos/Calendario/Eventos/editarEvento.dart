@@ -256,7 +256,8 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Evento editado con éxito')),
         );
-        Navigator.pop(context);
+        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error al editar el evento')),
@@ -340,11 +341,13 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
                   color: Colores.fondo,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                padding: const EdgeInsets.all(16.0),
                 child: DropDownSearchFormField(
                   textFieldConfiguration: TextFieldConfiguration(
                     decoration: InputDecoration(
-                      labelText: 'Selecciona una categoría',
+                      labelText: categoriaSeleccionada == null ||
+                              categoriaSeleccionada!.isEmpty
+                          ? 'Selecciona una categoría'
+                          : categoriaSeleccionada,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -393,9 +396,6 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
                     });
                   },
                   suggestionsBoxController: suggestionBoxController,
-                  validator: (value) => value!.isEmpty
-                      ? 'Por favor selecciona una categoría'
-                      : null,
                   displayAllSuggestionWhenTap: true,
                 ),
               ),
@@ -561,41 +561,6 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildCategoryDropDown() {
-    return DropDownSearchFormField(
-      textFieldConfiguration: TextFieldConfiguration(
-        controller: _dropdownSearchFieldController,
-        decoration: InputDecoration(
-          labelText: 'Selecciona una categoría',
-          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          prefixIcon: Icon(Icons.store,
-              color: categoriaSeleccionada == null
-                  ? Colors.grey
-                  : colorSeleccionado),
-        ),
-      ),
-      suggestionsCallback: getSuggestions,
-      itemBuilder: (context, String suggestion) {
-        Color categoriaColor = categoriasColores[suggestion] ?? Colors.grey;
-        return ListTile(
-          leading: CircleAvatar(backgroundColor: categoriaColor, radius: 12),
-          title: Text(suggestion),
-        );
-      },
-      itemSeparatorBuilder: (context, index) => const Divider(),
-      onSuggestionSelected: (String suggestion) {
-        _dropdownSearchFieldController.text = suggestion;
-        categoriaSeleccionada = suggestion;
-        setState(() {
-          colorSeleccionado = categoriasColores[suggestion] ?? Colors.grey;
-          idCategoriaSeleccionada = categoriasDisponibles
-              .firstWhere((c) => c.Nombre == suggestion)
-              .Id;
-        });
-      },
     );
   }
 
