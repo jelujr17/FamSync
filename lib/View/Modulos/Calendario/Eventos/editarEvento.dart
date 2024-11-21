@@ -50,6 +50,7 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
     fechaInicio = DateTime.parse(widget.evento.FechaInicio);
     fechaFin = DateTime.parse(widget.evento.FechaFin);
     suggestionBoxController = SuggestionsBoxController();
+    todoElDia();
   }
 
   Future<void> obtenerCategorias() async {
@@ -76,6 +77,15 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
     return nombresCategorias
         .where((s) => s.toLowerCase().contains(query.toLowerCase()))
         .toList();
+  }
+
+  void todoElDia() {
+    if (fechaInicio.hour == 0 &&
+        fechaInicio.minute == 0 &&
+        fechaFin.hour == 23 &&
+        fechaFin.minute == 59) {
+      eventoRecurrente = true;
+    }
   }
 
   void guardarCambios() {
@@ -138,6 +148,25 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
                 TextFormField(controller: descripcionController, maxLines: 3)),
             const SizedBox(height: 16),
             _buildCategoryDropDown(),
+            const SizedBox(height: 16),
+            InputDecorator(
+              decoration: const InputDecoration(
+                labelText: 'Todo el día',
+                border: OutlineInputBorder(),
+              ),
+              child: SwitchListTile(
+                title: const Text('Todo el día'),
+                value: eventoRecurrente,
+                onChanged: (bool value) {
+                  setState(() {
+                    eventoRecurrente = value;
+                  });
+                },
+                activeColor: Colores.principal,
+                inactiveThumbColor: Colores.texto,
+                inactiveTrackColor: Colores.fondoAux,
+              ),
+            ),
             const SizedBox(height: 16),
             _buildDateSection(
               label: 'Fecha de Inicio',
