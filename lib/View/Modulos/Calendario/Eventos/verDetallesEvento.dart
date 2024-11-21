@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Calendario/Eventos/editarEvento.dart';
 import 'package:famsync/components/colores.dart';
@@ -45,11 +46,18 @@ class DetalleEventoPage extends StatefulWidget {
 
 class _DetallesEventoState extends State<DetalleEventoPage> {
   List<Perfiles> participantes = [];
+  Categorias? categoria;
 
   @override
   void initState() {
     super.initState();
     obtenerParticipantes();
+    obtenerCategoria();
+  }
+
+  void obtenerCategoria() async {
+    categoria = await ServiciosCategorias()
+        .getCategoriasById(widget.eventoSeleccionado.IdCategoria);
   }
 
   void obtenerParticipantes() async {
@@ -128,6 +136,15 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
               'Fecha de finalización:',
               DateTime.parse(widget.eventoSeleccionado.FechaFin),
               Icons.event_available,
+            ),
+            const SizedBox(height: 16),
+
+            _buildCategoriaSection(
+              context,
+              'Categoría',
+              categoria!.Nombre,
+              Color(int.parse("0xFF${categoria!.Color}")),
+              Icons.category,
             ),
             const SizedBox(height: 16),
 
@@ -326,6 +343,71 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
                     height: 1.5,
                     color: Colors.black87,
                   ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCategoriaSection(BuildContext context, String title,
+      String content, Color color, IconData icon) {
+    return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      elevation: 3,
+      color: Colors.grey[100],
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(
+              icon,
+              color: Colores.botones,
+              size: 28,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black87,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Text(
+                        content,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              fontSize: 16,
+                              color: Colors.black54,
+                            ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Agregar el círculo con el color junto al contenido
+                      Container(
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          color: color, // Color de la categoría
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
