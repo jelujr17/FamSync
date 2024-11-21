@@ -141,11 +141,38 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildCardSection('Nombre del evento:',
-                TextFormField(controller: nombreController)),
+            TextFormField(
+              controller: nombreController, // Usar el controlador inicializado
+
+              decoration: const InputDecoration(
+                labelText: 'Nombre',
+                prefixIcon: Icon(Icons.event_note),
+                border: OutlineInputBorder(),
+              ),
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor ingresa un nombre';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 16),
-            _buildCardSection('Descripción:',
-                TextFormField(controller: descripcionController, maxLines: 3)),
+            TextFormField(
+              controller: descripcionController,
+              decoration: const InputDecoration(
+                labelText: 'Descripción',
+                prefixIcon: Icon(Icons.description),
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 5, // Permite expandirse hasta 5 líneas
+              minLines: 3, // Tamaño inicial de 3 líneas
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor ingresa una descripción';
+                }
+                return null;
+              },
+            ),
             const SizedBox(height: 16),
             _buildCategoryDropDown(),
             const SizedBox(height: 16),
