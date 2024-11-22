@@ -1,9 +1,21 @@
 import 'package:famsync/View/Inicio/login.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 
 void main() {
+  if (kDebugMode) {
+  // Mostrar el error solo en modo debug
+  FlutterError.onError = (FlutterErrorDetails details) {
+    // Esto solo se muestra en debug
+    FlutterError.dumpErrorToConsole(details);
+  };
+} else {
+  // En producción, ignorar el error visualmente
+  FlutterError.onError = (FlutterErrorDetails details) {};
+}
+
     Intl.defaultLocale = 'es_ES';
 
   runApp(const MyApp());
