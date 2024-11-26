@@ -1,4 +1,5 @@
-import 'package:famsync/View/Asistente%20Virtual/VS.dart';
+import 'package:famsync/View/Asistente%20Virtual/chatVS.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 import 'package:page_transition/page_transition.dart';
@@ -60,7 +61,7 @@ class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
               context,
               PageTransition(
                 type: PageTransitionType.fade,
-                child: VirtualAssistantPage(perfil: widget.perfil),
+                child: Resumen(perfil: widget.perfil),
               ),
             );
             break;

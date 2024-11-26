@@ -6,17 +6,17 @@ import 'package:intl/intl.dart';
 
 void main() {
   if (kDebugMode) {
-  // Mostrar el error solo en modo debug
-  FlutterError.onError = (FlutterErrorDetails details) {
-    // Esto solo se muestra en debug
-    FlutterError.dumpErrorToConsole(details);
-  };
-} else {
-  // En producción, ignorar el error visualmente
-  FlutterError.onError = (FlutterErrorDetails details) {};
-}
+    // Mostrar el error solo en modo debug
+    FlutterError.onError = (FlutterErrorDetails details) {
+      // Esto solo se muestra en debug
+      FlutterError.dumpErrorToConsole(details);
+    };
+  } else {
+    // En producción, ignorar el error visualmente
+    FlutterError.onError = (FlutterErrorDetails details) {};
+  }
 
-    Intl.defaultLocale = 'es_ES';
+  Intl.defaultLocale = 'es_ES';
 
   runApp(const MyApp());
 }

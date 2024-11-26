@@ -3,11 +3,11 @@
 import 'dart:io';
 
 import 'package:animated_background/animated_background.dart';
+import 'package:famsync/View/Modulos/modulos.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/NewProfile.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -197,7 +197,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                         context,
                         PageTransition(
                           type: PageTransitionType.fade,
-                          child: ResumenScreen(
+                          child: Modulos(
                             perfil: perfil,
                           ),
                         ),

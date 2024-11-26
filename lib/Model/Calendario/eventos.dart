@@ -59,6 +59,38 @@ class ServicioEventos {
     }
   }
 
+  Future<List<Eventos>> getEventosDiarios(
+      int IdUsuarioCreador, int IdPerfil) async {
+    http.Response response = await http.get(
+      Uri.parse(
+          'http://$_host/eventos/getByUsuarioDiario?IdUsuarioCreador=$IdUsuarioCreador&IdPerfil=$IdPerfil'),
+      headers: {'Content-type': 'application/json'},
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      List<dynamic> responseData =
+          jsonDecode(response.body); // Parsear la respuesta JSON
+      print(responseData);
+      List<Eventos> eventos = responseData.map((data) {
+        return Eventos(
+            Id: data['Id'],
+            Nombre: data['Nombre'],
+            Descripcion: data['Descripcion'],
+            FechaInicio: data['FechaInicio'],
+            FechaFin: data['FechaFin'],
+            IdUsuarioCreador: data['IdUsuarioCreador'],
+            IdPerfilCreador: data['IdPerfilCreador'],
+            IdCategoria: data['IdCategoria'],
+            Participantes: List<int>.from(jsonDecode(data['Participantes'])));
+      }).toList();
+      print('------------------------------------${eventos.length}');
+      return eventos;
+    } else {
+      throw Exception(
+          'Error al obtener los productos de un usuario'); // Lanzar una excepción en caso de error
+    }
+  }
+
   Future<Eventos?> getEventoById(int Id) async {
     print("Id = $Id");
     http.Response response = await http.get(
@@ -167,8 +199,7 @@ class ServicioEventos {
       final response = await http.delete(
         Uri.parse('http://$_host/eventos/delete'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(
-            {'IdEvento': idEvento}), // Enviamos el ID en el cuerpo
+        body: jsonEncode({'IdEvento': idEvento}), // Enviamos el ID en el cuerpo
       );
 
       if (response.statusCode == 200) {

@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -21,6 +20,7 @@ class Ajustes extends StatefulWidget {
 class AjustesState extends State<Ajustes> {
   bool notificaciones = true;
   bool modoOscuro = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,30 +28,29 @@ class AjustesState extends State<Ajustes> {
         title: const Text(
           'Ajustes',
           style: TextStyle(
-              color: Colores.texto,
-              fontSize: 30,
-              fontWeight: FontWeight.bold),
+            color: Colores.texto,
+            fontSize: 30,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         backgroundColor: Colores.fondo,
-        automaticallyImplyLeading: false, // Elimina la flecha de "volver"
+        
+        automaticallyImplyLeading: false,
       ),
-      backgroundColor: Colores.fondo, // Fondo oscuro para el modo oscuro
+      backgroundColor: Colores.fondo,
       body: ListView(
         children: [
           // Sección del perfil
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Card(
-              color:
-                  Colores.fondoAux, // Fondo oscuro del perfil
-              elevation: 2,
+              color: Colores.fondoAux,
+              elevation: 5,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(15),
               ),
               child: SizedBox(
-                // Aumentar el tamaño del contenedor
-                height:
-                    60, // Puedes ajustar este valor para mayor o menor altura
+                height: 80,
                 child: ListTile(
                   leading: CircleAvatar(
                     radius: 30,
@@ -59,8 +58,7 @@ class AjustesState extends State<Ajustes> {
                         widget.perfil.FotoPerfil.isNotEmpty ? null : null,
                     child: widget.perfil.FotoPerfil.isEmpty
                         ? Text(
-                            widget.perfil.Nombre[
-                                0], // Mostrar la inicial si no hay imagen
+                            widget.perfil.Nombre[0],
                             style: const TextStyle(
                               color: Colores.texto,
                               fontSize: 30,
@@ -73,66 +71,66 @@ class AjustesState extends State<Ajustes> {
                                 AsyncSnapshot<File> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
-                                // Mientras la imagen se está descargando, mostramos un indicador de carga
                                 return const CircularProgressIndicator();
                               } else if (snapshot.hasError) {
-                                print("error al obtener la imagen");
-                                // Si hay un error al cargar la imagen, mostramos un ícono de error o similar
-                                return const Icon(Icons.error,
-                                    color: Colores.texto);
+                                return const Icon(
+                                  Icons.error,
+                                  color: Colores.texto,
+                                );
                               } else if (snapshot.hasData &&
                                   snapshot.data != null) {
-                                print("imagen descargada");
-                                // Si la imagen se ha descargado correctamente, devolvemos un CircleAvatar con la imagen
                                 return CircleAvatar(
                                   radius: 50,
-                                  backgroundImage: FileImage(
-                                      snapshot.data!), // Mostrar la imagen
+                                  backgroundImage: FileImage(snapshot.data!),
                                 );
                               } else {
-                                // Si no hay datos, mostramos un espacio vacío o algún fallback
-                                return const Icon(Icons.person,
-                                    color: Colores.texto);
+                                return const Icon(
+                                  Icons.person,
+                                  color: Colores.texto,
+                                );
                               }
                             },
                           ),
                   ),
                   title: Text(
                     widget.perfil.Nombre,
-                    style: const TextStyle(color: Colores.texto, fontSize: 20),
+                    style: const TextStyle(
+                      color: Colores.texto,
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   subtitle: Text(
                     widget.perfil.FechaNacimiento,
-                    style: const TextStyle(color: Colores.texto),
+                    style: const TextStyle(
+                      color: Colores.texto,
+                      fontSize: 16,
+                    ),
                   ),
                   trailing: Row(
-                    mainAxisSize: MainAxisSize
-                        .min, // Esto asegura que el Row ocupe el mínimo espacio necesario
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       GestureDetector(
                         onTap: () {
-                          // Acción para el primer ícono (por ejemplo, el ícono de info)
                           Navigator.push(
                             context,
                             PageTransition(
                               type: PageTransitionType.fade,
-                              child:
-                                  Perfil(perfil: widget.perfil,), // Cambia esto por la pantalla correspondiente
+                              child: Perfil(perfil: widget.perfil),
                             ),
                           );
                         },
-                        child:
-                            const Icon(Icons.info, color: Colores.texto),
+                        child: const Icon(Icons.info, color: Colores.texto),
                       ),
-                      const SizedBox(width: 8), // Espacio entre los íconos
+                      const SizedBox(width: 10),
                       GestureDetector(
                         onTap: () {
-                          // Acción para el segundo ícono (por ejemplo, la flecha)
                           Navigator.pushReplacement(
                             context,
                             PageTransition(
                               type: PageTransitionType.fade,
-                              child: SeleccionPerfil(IdUsuario: widget.perfil.UsuarioId),
+                              child: SeleccionPerfil(
+                                  IdUsuario: widget.perfil.UsuarioId),
                             ),
                           );
                         },
@@ -145,7 +143,7 @@ class AjustesState extends State<Ajustes> {
               ),
             ),
           ),
-          // Opciones de ajustes principales
+          // Sección de ajustes principales
           buildSettingsSection([
             _buildSettingItem(Icons.language, 'Idioma', 0),
             _buildSettingItem(Icons.accessibility, 'Accesibilidad', 1),
@@ -153,7 +151,7 @@ class AjustesState extends State<Ajustes> {
                 Icons.shield_rounded, 'Privacidad & Seguridad', 2),
             _buildSettingItem(Icons.notifications, 'Notificaciones', 3),
           ]),
-          const SizedBox(height: 20), // Separador entre secciones
+          const SizedBox(height: 20),
           // Otra sección de ajustes
           buildSettingsSection([
             _buildSettingItem(Icons.person, 'Cuenta', 20),
@@ -162,20 +160,20 @@ class AjustesState extends State<Ajustes> {
             _buildSettingItem(Icons.notifications, 'Notificaciones', 24),
             _buildSettingItem(Icons.data_usage, 'Almacenamiento y datos', 25),
           ]),
-          const SizedBox(height: 20), // Separador entre secciones
-          // Otra sección de ajustes
+          const SizedBox(height: 20),
+          // Sección de ayuda
           buildSettingsSection([
             _buildSettingItem(Icons.info, 'Ayuda y Soporte', 30),
           ]),
-          const SizedBox(height: 20), // Separador entre secciones
+          const SizedBox(height: 20),
         ],
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController:
-              PageController(), // Cambia a PageController() si decides usarlo en el futuro
-          pagina: 2,
-          perfil: widget.perfil),
+        pageController: PageController(),
+        pagina: 2,
+        perfil: widget.perfil,
+      ),
     );
   }
 
@@ -183,10 +181,10 @@ class AjustesState extends State<Ajustes> {
   Widget buildSettingsSection(List<Widget> items) {
     return Card(
       color: Colores.fondoAux,
-      elevation: 2,
+      elevation: 5,
       margin: const EdgeInsets.symmetric(horizontal: 10),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(15),
       ),
       child: Column(
         children: items,
@@ -198,9 +196,15 @@ class AjustesState extends State<Ajustes> {
   Widget _buildSettingItem(IconData icon, String label, int index) {
     return ListTile(
       leading: Icon(icon, color: Colores.texto),
-      title: Text(label, style: const TextStyle(color: Colores.texto)),
-      trailing:
-          const Icon(Icons.arrow_forward_ios, color: Colores.texto),
+      title: Text(
+        label,
+        style: const TextStyle(
+          color: Colores.texto,
+          fontSize: 18,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colores.texto),
       onTap: () {
         // Acción al presionar
         switch (index) {

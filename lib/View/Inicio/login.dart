@@ -1,12 +1,12 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
 import 'package:famsync/View/Inicio/register.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/components/background.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/components/colores.dart';
@@ -191,7 +191,7 @@ class _LoginScreenState extends State<LoginScreen> {
             context,
             PageTransition(
               type: PageTransitionType.fade,
-              child: ResumenScreen(perfil: perfil),
+              child: Resumen(perfil: perfil),
             ),
           );
         }

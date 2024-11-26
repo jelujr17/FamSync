@@ -77,7 +77,18 @@ dependencies:
   device_calendar: ^4.3.3
   flutter_colorpicker: ^1.1.0
   fluttertoast: ^8.2.8
+  flutter_settings_ui: ^3.0.1
+  flutter_native_splash: ^2.4.3
+  animate_gradient: ^0.0.3
 
+
+flutter_native_splash:
+  color: "#FFFFFF" # Color de fondo del splash screen
+  image: assets/images/main.png # Ruta al logo de FamSync
+  android: true # Habilitar en Android
+  ios: true # Habilitar en iOS
+  web: false # Opcional: Deshabilitar en web
+  fullscreen: true # Opcional: Pantalla completa sin barra de estado
 
 
 dev_dependencies:
