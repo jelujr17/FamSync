@@ -1,4 +1,3 @@
-import 'package:famsync/View/Asistente%20Virtual/chatVS.dart';
 import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:famsync/View/Ajustes/Preferencias/preferencias.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -34,7 +36,6 @@ class AjustesState extends State<Ajustes> {
           ),
         ),
         backgroundColor: Colores.fondo,
-        
         automaticallyImplyLeading: false,
       ),
       backgroundColor: Colores.fondo,
@@ -145,7 +146,6 @@ class AjustesState extends State<Ajustes> {
           ),
           // Sección de ajustes principales
           buildSettingsSection([
-            _buildSettingItem(Icons.language, 'Idioma', 0),
             _buildSettingItem(Icons.accessibility, 'Accesibilidad', 1),
             _buildSettingItem(
                 Icons.shield_rounded, 'Privacidad & Seguridad', 2),
@@ -154,16 +154,15 @@ class AjustesState extends State<Ajustes> {
           const SizedBox(height: 20),
           // Otra sección de ajustes
           buildSettingsSection([
-            _buildSettingItem(Icons.person, 'Cuenta', 20),
-            _buildSettingItem(Icons.lock, 'Privacidad', 21),
-            _buildSettingItem(Icons.chat, 'Chats', 23),
-            _buildSettingItem(Icons.notifications, 'Notificaciones', 24),
-            _buildSettingItem(Icons.data_usage, 'Almacenamiento y datos', 25),
+            _buildSettingItem(Icons.person, 'Cuenta', 4),
+            _buildSettingItem(Icons.settings, 'Preferencias', 5),
+            _buildSettingItem(Icons.lock, 'Privacidad', 6),
+            _buildSettingItem(Icons.data_usage, 'Almacenamiento y datos', 7),
           ]),
           const SizedBox(height: 20),
           // Sección de ayuda
           buildSettingsSection([
-            _buildSettingItem(Icons.info, 'Ayuda y Soporte', 30),
+            _buildSettingItem(Icons.info, 'Ayuda y Soporte', 8),
           ]),
           const SizedBox(height: 20),
         ],
@@ -209,6 +208,22 @@ class AjustesState extends State<Ajustes> {
         // Acción al presionar
         switch (index) {
           case 0:
+            Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: Resumen(perfil: widget.perfil),
+              ),
+            );
+            break;
+          case 5:
+            Navigator.push(
+              context,
+              PageTransition(
+                type: PageTransitionType.rightToLeft,
+                child: const Preferencias(),
+              ),
+            );
             break;
         }
       },
