@@ -52,22 +52,58 @@ class AgendaState extends State<Agenda> {
 
   void cargarInformacionFilto() {
     //creamos los filtros predeterminados
-    Filtrado filtrado1 =
-        Filtrado(Id: 1, Nombre: 'Todas', Conteo: tareasObtenidas.length);
-    Filtrado filtrado2 = Filtrado(Id: 2, Nombre: 'Programadas', Conteo: 0);
-    Filtrado filtrado3 = Filtrado(Id: 3, Nombre: 'Por hacer', Conteo: 0);
-    Filtrado filtrado4 = Filtrado(Id: 4, Nombre: 'Completadas', Conteo: 0);
-    Filtrado filtrado5 = Filtrado(Id: 5, Nombre: 'Urgente', Conteo: 0);
+    Filtrado filtrado1 = Filtrado(
+        Id: 1,
+        Nombre: 'Todas',
+        Conteo: tareasObtenidas.length,
+        Icono: const Icon(
+          Icons.all_inbox,
+          color: Colores.principal,
+        ));
+    Filtrado filtrado2 = Filtrado(
+        Id: 2,
+        Nombre: 'Programadas',
+        Conteo: 0,
+        Icono: const Icon(
+          Icons.calendar_month,
+          color: Colores.botonesSecundarios,
+        ));
+    Filtrado filtrado3 = Filtrado(
+        Id: 3,
+        Nombre: 'Por hacer',
+        Conteo: 0,
+        Icono: const Icon(
+          Icons.start,
+          color: Colores.botones,
+        ));
+    Filtrado filtrado4 = Filtrado(
+        Id: 4,
+        Nombre: 'Completadas',
+        Conteo: 0,
+        Icono: const Icon(
+          Icons.done,
+          color: Colores.hecho,
+        ));
+    Filtrado filtrado5 = Filtrado(
+        Id: 5,
+        Nombre: 'Urgente',
+        Conteo: 0,
+        Icono: const Icon(
+          Icons.warning,
+          color: Colores.eliminar,
+        ));
 
-    print("kafnkafkwnfanvanw ${tareasObtenidas.length}");
     for (int i = 0; i < tareasObtenidas.length; i++) {
       if (tareasObtenidas[i].IdEvento != null) {
         filtrado2.Conteo++;
-      } else if (tareasObtenidas[i].Progreso == 0) {
+      }
+      if (tareasObtenidas[i].Progreso == 0) {
         filtrado3.Conteo++;
-      } else if (tareasObtenidas[i].Progreso == 100) {
+      }
+      if (tareasObtenidas[i].Progreso == 100) {
         filtrado4.Conteo++;
-      } else if (tareasObtenidas[i].Prioridad == 3) {
+      }
+      if (tareasObtenidas[i].Prioridad == 3) {
         filtrado5.Conteo++;
       }
     }
@@ -78,6 +114,31 @@ class AgendaState extends State<Agenda> {
       filtros.add(filtrado4);
       filtros.add(filtrado5);
     });
+  }
+
+  List<Tareas> enviarTareas(int opcion) {
+    switch (opcion) {
+      case 1:
+        return tareasObtenidas;
+      case 2:
+        return tareasObtenidas
+            .where((element) => element.IdEvento != null)
+            .toList();
+      case 3:
+        return tareasObtenidas
+            .where((element) => element.Progreso == 0)
+            .toList();
+      case 4:
+        return tareasObtenidas
+            .where((element) => element.Progreso == 100)
+            .toList();
+      case 5:
+        return tareasObtenidas
+            .where((element) => element.Prioridad == 3)
+            .toList();
+      default:
+        return []; 
+    }
   }
 
   @override
@@ -137,7 +198,7 @@ class AgendaState extends State<Agenda> {
                       mainAxisSpacing: 12.0,
                       crossAxisSpacing: 12.0,
                       childAspectRatio:
-                          1.8, // Reducir altura de los contenedores
+                          2.5, // Incrementar para reducir la altura
                     ),
                     itemCount: filtros.length,
                     itemBuilder: (context, index) {
@@ -145,13 +206,14 @@ class AgendaState extends State<Agenda> {
 
                       return GestureDetector(
                         onTap: () {
-                          // Filtrar tareas según la categoría seleccionada
-
+                          // Acción al seleccionar una categoría
+                          List<Tareas> tareas = enviarTareas(categoria.Id);
                           Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => TareasPage(
                                 perfil: widget.perfil,
+                                tareas: tareas,
                               ),
                             ),
                           );
@@ -168,21 +230,17 @@ class AgendaState extends State<Agenda> {
                               ),
                             ],
                           ),
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(8), // Reducir padding
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(
-                                Icons.category,
-                                size: 36, // Reducir tamaño del icono
-                                color: Colores.botonesSecundarios,
-                              ),
-                              const SizedBox(height: 8),
+                              categoria.Icono,
+                              const SizedBox(height: 6), // Reducir separación
                               Text(
                                 categoria.Nombre,
                                 textAlign: TextAlign.center,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13, // Reducir tamaño del texto
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -190,7 +248,7 @@ class AgendaState extends State<Agenda> {
                               Text(
                                 "${categoria.Conteo} tareas",
                                 style: const TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11, // Reducir tamaño del texto
                                   color: Colores.texto,
                                 ),
                               ),
@@ -220,10 +278,12 @@ class Filtrado {
   final int Id;
   final String Nombre;
   int Conteo;
+  final Icon Icono;
 
   Filtrado({
     required this.Id,
     required this.Nombre,
     required this.Conteo,
+    required this.Icono,
   });
 }

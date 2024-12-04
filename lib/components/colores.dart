@@ -9,4 +9,5 @@ class Colores {
   static const Color fondoAux = Color(0xFFEBE5E5);
   static const Color fondo = Color(0xFFFFFFFF);
   static const Color eliminar = Color(0xFFE74C3C);
+  static const Color hecho = Color(0xFF64E73C);
 }

@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 
 class TareasPage extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
-  const TareasPage({super.key, required this.perfil});
+  final List<Tareas> tareas;
+  const TareasPage({super.key, required this.perfil, required this.tareas});
 
   @override
   State<TareasPage> createState() => TareasState();
