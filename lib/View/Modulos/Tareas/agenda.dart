@@ -137,12 +137,74 @@ class AgendaState extends State<Agenda> {
             .where((element) => element.Prioridad == 3)
             .toList();
       default:
-        return []; 
+        return [];
     }
+  }
+
+  Widget buildFiltroCard(Filtrado categoria) {
+    return GestureDetector(
+      onTap: () {
+        List<Tareas> tareas = enviarTareas(categoria.Id);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => TareasPage(
+              perfil: widget.perfil,
+              tareas: tareas,
+            ),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colores.fondo,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: const [
+            BoxShadow(
+              color: Colores.principal,
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            categoria.Icono,
+            const SizedBox(height: 6),
+            Text(
+              categoria.Nombre,
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              "${categoria.Conteo} tareas",
+              style: const TextStyle(
+                fontSize: 11,
+                color: Colores.texto,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Lista filtrada de tareas basada en la barra de búsqueda
+    List<Tareas> tareasFiltradas = filtroEventos.isEmpty
+        ? [] // Si no hay filtro, no se muestran tareas aquí
+        : tareasObtenidas
+            .where((tarea) => tarea.Nombre.toLowerCase()
+                .contains(filtroEventos)) // Filtrar por nombre
+            .toList();
+
     return Scaffold(
       backgroundColor: Colores.fondoAux,
       appBar: PreferredSize(
@@ -175,7 +237,7 @@ class AgendaState extends State<Agenda> {
                 });
               },
               decoration: InputDecoration(
-                hintText: "Buscar eventos...",
+                hintText: "Buscar tareas...",
                 prefixIcon: const Icon(Icons.search, color: Colores.texto),
                 filled: true,
                 fillColor: Colores.fondo,
@@ -187,10 +249,48 @@ class AgendaState extends State<Agenda> {
               ),
             ),
           ),
-          // Lista de categorías en un GridView
-          Expanded(
-            child: filtros.isNotEmpty
-                ? GridView.builder(
+          // Mostrar resultados de búsqueda o las categorías
+          filtroEventos.isNotEmpty
+              ? Expanded(
+                  child: tareasFiltradas.isNotEmpty
+                      ? ListView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          itemCount: tareasFiltradas.length,
+                          itemBuilder: (context, index) {
+                            final tarea = tareasFiltradas[index];
+                            return ListTile(
+                              title: Text(
+                                tarea.Nombre,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              subtitle: Text("Progreso: ${tarea.Progreso}%"),
+                              trailing: tarea.Prioridad == 3
+                                  ? const Icon(
+                                      Icons.warning,
+                                      color: Colores.eliminar,
+                                    )
+                                  : null,
+                              onTap: () {
+                                // Acción al seleccionar una tarea
+                                
+                              },
+                            );
+                          },
+                        )
+                      : const Center(
+                          child: Text(
+                            "No se encontraron tareas",
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colores.texto,
+                            ),
+                          ),
+                        ),
+                )
+              : Expanded(
+                  child: GridView.builder(
                     padding: const EdgeInsets.all(16.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
@@ -201,67 +301,10 @@ class AgendaState extends State<Agenda> {
                           2.5, // Incrementar para reducir la altura
                     ),
                     itemCount: filtros.length,
-                    itemBuilder: (context, index) {
-                      final categoria = filtros[index];
-
-                      return GestureDetector(
-                        onTap: () {
-                          // Acción al seleccionar una categoría
-                          List<Tareas> tareas = enviarTareas(categoria.Id);
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TareasPage(
-                                perfil: widget.perfil,
-                                tareas: tareas,
-                              ),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: Colores.fondo,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: const [
-                              BoxShadow(
-                                color: Colores.principal,
-                                blurRadius: 8,
-                                offset: Offset(0, 4),
-                              ),
-                            ],
-                          ),
-                          padding: const EdgeInsets.all(8), // Reducir padding
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              categoria.Icono,
-                              const SizedBox(height: 6), // Reducir separación
-                              Text(
-                                categoria.Nombre,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(
-                                  fontSize: 13, // Reducir tamaño del texto
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "${categoria.Conteo} tareas",
-                                style: const TextStyle(
-                                  fontSize: 11, // Reducir tamaño del texto
-                                  color: Colores.texto,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  )
-                : const Center(
-                    child: CircularProgressIndicator(),
+                    itemBuilder: (context, index) =>
+                        buildFiltroCard(filtros[index]),
                   ),
-          ),
+                ),
         ],
       ),
       extendBody: true,
