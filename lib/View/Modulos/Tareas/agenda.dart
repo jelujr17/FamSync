@@ -23,6 +23,7 @@ class AgendaState extends State<Agenda> {
   List<Tareas> tareasObtenidas = [];
   final TextEditingController _searchController = TextEditingController();
   List<Filtrado> filtros = [];
+  Map<int, int> conteoCategorias = {};
 
   @override
   void initState() {
@@ -35,12 +36,15 @@ class AgendaState extends State<Agenda> {
       // Obtener categorías por módulo
       List<Categorias> categoriasObtenidas = await ServiciosCategorias()
           .getCategoriasByModulo(widget.perfil.UsuarioId, 5);
-
+      Map<int, int> aux = {};
       // Obtener tareas
       tareasObtenidas = await ServicioTareas().getTareas(widget.perfil.Id);
-
+      for (int i = 0; i < categoriasObtenidas.length; i++) {
+        aux[categoriasObtenidas[i].Id] = 0;
+      }
       setState(() {
         categorias = categoriasObtenidas;
+        conteoCategorias = aux;
         cargarInformacionFilto();
       });
 
@@ -106,6 +110,8 @@ class AgendaState extends State<Agenda> {
       if (tareasObtenidas[i].Prioridad == 3) {
         filtrado5.Conteo++;
       }
+      conteoCategorias[tareasObtenidas[i].Categoria] =
+          (conteoCategorias[tareasObtenidas[i].Categoria] ?? 0) + 1;
     }
     setState(() {
       filtros.add(filtrado1);
@@ -322,10 +328,24 @@ class AgendaState extends State<Agenda> {
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colores.texto,
-                      size: 16,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment
+                          .start, // Alinea los elementos a la izquierda
+                      children: [
+                        Text(
+                          conteoCategorias[item.Id]!.toString(),
+                          textAlign: TextAlign.end,
+                          style: const TextStyle(
+                            color: Colores.texto,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const Icon(
+                          Icons.arrow_forward_ios,
+                          color: Colores.texto,
+                          size: 16,
+                        ),
+                      ],
                     ),
                   ],
                 ),
