@@ -9,8 +9,10 @@ class Tareas {
   final List<int> Destinatario;
   final String Nombre;
   final String Descripcion;
-  final int Estado;
   final int Categoria;
+  final int? IdEvento;
+  final int Prioridad;
+  final int Progreso;
 
   Tareas({
     required this.Id,
@@ -18,8 +20,10 @@ class Tareas {
     required this.Destinatario,
     required this.Nombre,
     required this.Descripcion,
-    required this.Estado,
     required this.Categoria,
+    required this.IdEvento,
+    required this.Prioridad,
+    required this.Progreso,
   });
 }
 
@@ -43,8 +47,10 @@ class ServicioTareas {
             Destinatario: List<int>.from(jsonDecode(data['Destinatario'])),
             Nombre: data['Nombre'],
             Descripcion: data['Descripcion'],
-            Estado: data['Estado'],
-            Categoria: data['Categoria']);
+            Categoria: data['Categoria'],
+            IdEvento: data['IdEvento'],
+            Prioridad: data['Prioridad'],
+            Progreso: data['Progreso']);
       }).toList();
       return tareas;
     } else {
@@ -74,8 +80,10 @@ class ServicioTareas {
           Destinatario: List<int>.from(jsonDecode(tareaData['Destinatario'])),
           Nombre: tareaData['Nombre'],
           Descripcion: tareaData['Descripcion'],
-          Estado: tareaData['Estado'],
-          Categoria: tareaData['Categoria']);
+          Categoria: tareaData['Categoria'],
+          IdEvento: tareaData['IdEvento'],
+          Prioridad: tareaData['Prioridad'],
+          Progreso: tareaData['Progreso']);
       return tarea;
     } else {
       throw Exception(
@@ -84,8 +92,16 @@ class ServicioTareas {
   }
 
   // Registro de producto
-  Future<bool> registrarTarea(int Creador, List<int> Destinatario,
-      String Nombre, String Descripcion, int Estado, int Categoria) async {
+  Future<bool> registrarTarea(
+      int Creador,
+      List<int> Destinatario,
+      String Nombre,
+      String Descripcion,
+      int IdEvento,
+      int Estado,
+      int Categoria,
+      int Prioridad,
+      int Progreso) async {
     Map<String, dynamic> TareaData = {
       'Creador': Creador,
       'Destinatario': jsonEncode(Destinatario).toString(),
@@ -93,6 +109,9 @@ class ServicioTareas {
       'Descripcion': Descripcion.toString(),
       'Estado': Estado,
       'Categoria': Categoria,
+      'IdEvento': IdEvento,
+      'Prioridad': 'Prioridad',
+      'Progreso': 'Progreso'
     };
 
     http.Response response1 = await http.post(
@@ -107,8 +126,15 @@ class ServicioTareas {
     }
   }
 
-  Future<bool> actualizarTarea(int Id, int Creador, List<int> Destinatario,
-      String Nombre, String Descripcion, int Estado, int Categoria) async {
+  Future<bool> actualizarTarea(
+      int Id,
+      int Creador,
+      List<int> Destinatario,
+      String Nombre,
+      String Descripcion,
+      int IdEvento,
+      int Estado,
+      int Categoria) async {
     final response = await http.put(
       Uri.parse('http://$_host/tareas/update'),
       headers: {
@@ -122,6 +148,9 @@ class ServicioTareas {
         'Descripcion': Descripcion.toString(),
         'Estado': Estado,
         'Categoria': Categoria,
+        'IdEvento': IdEvento,
+        'Prioridad': 'Prioridad',
+        'Progreso': 'Progreso'
       }),
     );
 

@@ -1,3 +1,4 @@
+import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
@@ -71,6 +72,15 @@ class ModulosState extends State<Modulos> {
                     PageTransition(
                       type: PageTransitionType.fade,
                       child: Almacen(perfil: widget.perfil),
+                    ),
+                  );
+                }
+                else if (modulo['ruta'] == 4) {
+                  Navigator.push(
+                    context,
+                    PageTransition(
+                      type: PageTransitionType.fade,
+                      child: Agenda(perfil: widget.perfil),
                     ),
                   );
                 }
