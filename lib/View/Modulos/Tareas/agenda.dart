@@ -279,38 +279,37 @@ class AgendaState extends State<Agenda> {
   }
 
   Widget buildContenedoresAdicionales() {
-    return Expanded(
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Título antes de la lista
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-              child: Text(
-                'Mis Categorías',
-                style: TextStyle(
-                  color: Colores.texto,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start, // Alinear a la izquierda
+      children: [
+        // Título antes de la lista
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          child: Text(
+            'Mis Categorías', // Título
+            style: TextStyle(
+              color: Colores.texto,
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
             ),
-            // Lista de categorías
-            ...categorias.map((item) {
+          ),
+        ),
+        // Lista de categorías (con scroll)
+        SizedBox(
+          height: 200, // Establece una altura fija si lo deseas
+          child: ListView.builder(
+            itemCount: categorias.length,
+            itemBuilder: (context, index) {
+              final item = categorias[index];
               return Container(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 8.0,
-                  horizontal: 16.0,
-                ),
+                margin:
+                    const EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
                 padding: const EdgeInsets.all(16.0),
                 decoration: BoxDecoration(
                   color: Color(int.parse("0xFF${item.Color}")).withOpacity(0.2),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: Color(int.parse("0xFF${item.Color}")),
-                    width: 2,
-                  ),
+                      color: Color(int.parse("0xFF${item.Color}")), width: 2),
                 ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -331,15 +330,16 @@ class AgendaState extends State<Agenda> {
                   ],
                 ),
               );
-            })
-          ],
+            },
+          ),
         ),
-      ),
+      ],
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // Lista filtrada de tareas basada en la barra de búsqueda
     List<Tareas> tareasFiltradas = filtroEventos.isEmpty
         ? [] // Si no hay filtro, no se muestran tareas aquí
         : tareasObtenidas
@@ -367,120 +367,77 @@ class AgendaState extends State<Agenda> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Barra de búsqueda
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: TextField(
-                onChanged: (value) {
-                  setState(() {
-                    filtroEventos = value.toLowerCase(); // Actualizar filtro
-                  });
-                },
-                controller:
-                    _searchController, // Controlador para manejar el texto
-                decoration: InputDecoration(
-                  hintText: "Buscar eventos...",
-                  prefixIcon: const Icon(Icons.search, color: Colores.texto),
-                  suffixIcon: filtroEventos.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.highlight_off,
-                              color: Colores.texto),
-                          onPressed: () {
-                            _searchController.clear(); // Limpiar texto
-                            setState(() {
-                              filtroEventos = ""; // Reiniciar filtro
-                            });
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: Colores.fondo,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12.0),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+      body: Column(
+        children: [
+          // Barra de búsqueda
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextField(
+              onChanged: (value) {
+                setState(() {
+                  filtroEventos = value.toLowerCase(); // Actualizar filtro
+                });
+              },
+              controller:
+                  _searchController, // Controlador para manejar el texto
+              decoration: InputDecoration(
+                hintText: "Buscar eventos...",
+                prefixIcon: const Icon(Icons.search, color: Colores.texto),
+                suffixIcon: filtroEventos.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.highlight_off,
+                            color: Colores.texto),
+                        onPressed: () {
+                          _searchController.clear(); // Limpiar texto
+                          setState(() {
+                            filtroEventos = ""; // Reiniciar filtro
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: Colores.fondo,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
+                  borderSide: BorderSide.none,
                 ),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
               ),
             ),
-            // Mostrar resultados de búsqueda o las categorías
-            if (filtroEventos.isNotEmpty)
-              buildListaTareasFiltradas(tareasFiltradas)
-            else
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(16.0),
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 12.0,
-                      crossAxisSpacing: 12.0,
-                      childAspectRatio: 2.5,
-                    ),
-                    itemCount: filtros.length,
-                    itemBuilder: (context, index) =>
-                        buildFiltroCard(filtros[index]),
-                  ),
-                  const SizedBox(height: 16.0),
-                  // Título y lista de categorías
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Text(
-                      'Mis Categorías',
-                      style: TextStyle(
-                        color: Colores.texto,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 8.0),
-                  ...categorias.map((item) {
-                    return Container(
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 8.0, horizontal: 16.0),
-                      padding: const EdgeInsets.all(16.0),
-                      decoration: BoxDecoration(
-                        color: Color(int.parse("0xFF${item.Color}"))
-                            .withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(
-                          color: Color(int.parse("0xFF${item.Color}")),
-                          width: 2,
+          ),
+          // Mostrar resultados de búsqueda o las categorías
+          filtroEventos.isNotEmpty
+              ? Expanded(
+                  child: buildListaTareasFiltradas(tareasFiltradas),
+                )
+              : Expanded(
+                  child: Column(
+                    children: [
+                      Expanded(
+                        flex: 1,
+                        child: GridView.builder(
+                          padding: const EdgeInsets.all(16.0),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 12.0,
+                            crossAxisSpacing: 12.0,
+                            childAspectRatio:
+                                2.5, // Incrementar para reducir la altura
+                          ),
+                          itemCount: filtros.length,
+                          itemBuilder: (context, index) =>
+                              buildFiltroCard(filtros[index]),
                         ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            item.Nombre,
-                            style: const TextStyle(
-                              color: Colores.texto,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const Icon(
-                            Icons.arrow_forward_ios,
-                            color: Colores.texto,
-                            size: 16,
-                          ),
-                        ],
+                      const SizedBox(height: 16.0),
+                      Expanded(
+                        child: buildContenedoresAdicionales(),
                       ),
-                    );
-                  }),
-                ],
-              ),
-          ],
-        ),
+                    ],
+                  ),
+                ),
+        ],
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(

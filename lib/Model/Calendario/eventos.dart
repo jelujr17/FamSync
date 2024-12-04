@@ -13,6 +13,7 @@ class Eventos {
   final int IdPerfilCreador;
   final int IdCategoria;
   final List<int> Participantes;
+  final int? IdTarea;
 
   Eventos(
       {required this.Id,
@@ -23,7 +24,8 @@ class Eventos {
       required this.IdUsuarioCreador,
       required this.IdPerfilCreador,
       required this.IdCategoria,
-      required this.Participantes});
+      required this.Participantes,
+      required this.IdTarea});
 }
 
 class ServicioEventos {
@@ -50,7 +52,8 @@ class ServicioEventos {
             IdUsuarioCreador: data['IdUsuarioCreador'],
             IdPerfilCreador: data['IdPerfilCreador'],
             IdCategoria: data['IdCategoria'],
-            Participantes: List<int>.from(jsonDecode(data['Participantes'])));
+            Participantes: List<int>.from(jsonDecode(data['Participantes'])),
+            IdTarea: data['IdTarea']);
       }).toList();
       return eventos;
     } else {
@@ -81,7 +84,8 @@ class ServicioEventos {
             IdUsuarioCreador: data['IdUsuarioCreador'],
             IdPerfilCreador: data['IdPerfilCreador'],
             IdCategoria: data['IdCategoria'],
-            Participantes: List<int>.from(jsonDecode(data['Participantes'])));
+            Participantes: List<int>.from(jsonDecode(data['Participantes'])),
+            IdTarea: data['IdTarea']);
       }).toList();
       print('------------------------------------${eventos.length}');
       return eventos;
@@ -115,7 +119,8 @@ class ServicioEventos {
           IdUsuarioCreador: eventoData['IdUsuarioCreador'],
           IdPerfilCreador: eventoData['IdPerfilCreador'],
           IdCategoria: eventoData['IdCategoria'],
-          Participantes: eventoData['Participantes']);
+          Participantes: eventoData['Participantes'],
+          IdTarea: eventoData['IdTarea']);
       return evento;
     } else {
       throw Exception(

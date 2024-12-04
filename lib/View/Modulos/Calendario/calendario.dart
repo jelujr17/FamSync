@@ -71,7 +71,8 @@ class CalendarScreenState extends State<Calendario> {
             'IdCategoria': evento.IdCategoria,
             'Participantes': evento.Participantes,
             'IdPerfilCreador': evento.IdPerfilCreador,
-            'IdUsuarioCreador': evento.IdUsuarioCreador
+            'IdUsuarioCreador': evento.IdUsuarioCreador,
+            'IdTarea': evento.IdTarea
           };
           return NeatCleanCalendarEvent(evento.Nombre,
               description: evento.Descripcion,
@@ -136,6 +137,7 @@ class CalendarScreenState extends State<Calendario> {
       IdPerfilCreador: datos['IdPerfilCreador'],
       IdCategoria: datos['IdCategoria'],
       Participantes: datos['Participantes'],
+      IdTarea: datos['IdTarea']
     );
 
     final bool? resultado = await showModalBottomSheet<bool>(
