@@ -21,7 +21,7 @@ class AgendaState extends State<Agenda> {
   Map<int, int> conteoTareas = {};
   String filtroEventos = ""; // Controlador del texto de búsqueda
   List<Tareas> tareasObtenidas = [];
-
+  final TextEditingController _searchController = TextEditingController();
   List<Filtrado> filtros = [];
 
   @override
@@ -236,9 +236,22 @@ class AgendaState extends State<Agenda> {
                   filtroEventos = value.toLowerCase(); // Actualizar filtro
                 });
               },
+              controller:
+                  _searchController, // Controlador para manejar el texto
               decoration: InputDecoration(
-                hintText: "Buscar tareas...",
+                hintText: "Buscar eventos...",
                 prefixIcon: const Icon(Icons.search, color: Colores.texto),
+                suffixIcon: filtroEventos.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.highlight_off, color: Colores.texto),
+                        onPressed: () {
+                          _searchController.clear(); // Limpiar texto
+                          setState(() {
+                            filtroEventos = ""; // Reiniciar filtro
+                          });
+                        },
+                      )
+                    : null,
                 filled: true,
                 fillColor: Colores.fondo,
                 border: OutlineInputBorder(
@@ -274,7 +287,6 @@ class AgendaState extends State<Agenda> {
                                   : null,
                               onTap: () {
                                 // Acción al seleccionar una tarea
-                                
                               },
                             );
                           },
