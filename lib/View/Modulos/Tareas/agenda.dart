@@ -374,8 +374,7 @@ class AgendaState extends State<Agenda> {
         child: ClipPath(
           clipper: CurvedAppBarClipper(),
           child: AppBar(
-            automaticallyImplyLeading:
-                false, // Evita que se muestre el icono de retroceso
+            automaticallyImplyLeading: false, // Evitar el retroceso automático
             backgroundColor: Colores.principal,
             title: const Center(
               child: Text(
@@ -384,6 +383,21 @@ class AgendaState extends State<Agenda> {
                 style: TextStyle(fontSize: 24),
               ),
             ),
+            actions: [
+              Container(
+                margin: const EdgeInsets.symmetric(
+                    horizontal: 8.0), // Margen alrededor del botón
+                decoration: const BoxDecoration(
+                  color: Colores.fondo, // Color de fondo
+                  shape: BoxShape.circle, // Forma circular
+                ),
+                child: const IconButton(
+                  icon: Icon(Icons.add,
+                      color: Colores.texto), // Color del ícono
+                  onPressed: null,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -459,6 +473,7 @@ class AgendaState extends State<Agenda> {
                 ),
         ],
       ),
+      
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
