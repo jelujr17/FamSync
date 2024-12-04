@@ -195,9 +195,151 @@ class AgendaState extends State<Agenda> {
     );
   }
 
+  Widget buildListaTareasFiltradas(List<Tareas> tareasFiltradas) {
+    return tareasFiltradas.isNotEmpty
+        ? ListView.builder(
+            padding: const EdgeInsets.all(16.0),
+            itemCount: tareasFiltradas.length,
+            itemBuilder: (context, index) {
+              final tarea = tareasFiltradas[index];
+              return ListTile(
+                title: Text(
+                  tarea.Nombre,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: LinearProgressIndicator(
+                        value: tarea.Progreso / 100,
+                        backgroundColor: Colores.fondo,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          tarea.Progreso < 100
+                              ? Colores.botones
+                              : Colores.hecho, // Color según el progreso
+                        ),
+                        minHeight: 6,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      "${tarea.Progreso}%", // Mostrar el porcentaje junto a la barra
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colores.texto,
+                      ),
+                    ),
+                  ],
+                ),
+                trailing: tarea.Prioridad == 3
+                    ? const Icon(
+                        Icons.warning,
+                        color: Colores.eliminar,
+                      )
+                    : null,
+                onTap: () {
+                  // Acción al seleccionar una tarea
+                },
+              );
+            },
+          )
+        : const Center(
+            child: Text(
+              "No se encontraron tareas",
+              style: TextStyle(
+                fontSize: 16,
+                color: Colores.texto,
+              ),
+            ),
+          );
+  }
+
+  Widget buildListaDeContenedores(List<String> items) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        return Container(
+          padding: const EdgeInsets.all(16.0),
+          margin: const EdgeInsets.symmetric(vertical: 8.0),
+          color: Colores.principal, // Puedes cambiar el color
+          child: Center(
+            child: Text(
+              items[index], // Mostrar el texto del elemento
+              style: const TextStyle(color: Colores.fondo, fontSize: 18),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildContenedoresAdicionales() {
+    return Expanded(
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título antes de la lista
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+              child: Text(
+                'Mis Categorías',
+                style: TextStyle(
+                  color: Colores.texto,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+            // Lista de categorías
+            ...categorias.map((item) {
+              return Container(
+                margin: const EdgeInsets.symmetric(
+                  vertical: 8.0,
+                  horizontal: 16.0,
+                ),
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Color(int.parse("0xFF${item.Color}")).withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Color(int.parse("0xFF${item.Color}")),
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      item.Nombre,
+                      style: const TextStyle(
+                        color: Colores.texto,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colores.texto,
+                      size: 16,
+                    ),
+                  ],
+                ),
+              );
+            })
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Lista filtrada de tareas basada en la barra de búsqueda
     List<Tareas> tareasFiltradas = filtroEventos.isEmpty
         ? [] // Si no hay filtro, no se muestran tareas aquí
         : tareasObtenidas
@@ -225,99 +367,120 @@ class AgendaState extends State<Agenda> {
           ),
         ),
       ),
-      body: Column(
-        children: [
-          // Barra de búsqueda
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              onChanged: (value) {
-                setState(() {
-                  filtroEventos = value.toLowerCase(); // Actualizar filtro
-                });
-              },
-              controller:
-                  _searchController, // Controlador para manejar el texto
-              decoration: InputDecoration(
-                hintText: "Buscar eventos...",
-                prefixIcon: const Icon(Icons.search, color: Colores.texto),
-                suffixIcon: filtroEventos.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.highlight_off, color: Colores.texto),
-                        onPressed: () {
-                          _searchController.clear(); // Limpiar texto
-                          setState(() {
-                            filtroEventos = ""; // Reiniciar filtro
-                          });
-                        },
-                      )
-                    : null,
-                filled: true,
-                fillColor: Colores.fondo,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12.0),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
-              ),
-            ),
-          ),
-          // Mostrar resultados de búsqueda o las categorías
-          filtroEventos.isNotEmpty
-              ? Expanded(
-                  child: tareasFiltradas.isNotEmpty
-                      ? ListView.builder(
-                          padding: const EdgeInsets.all(16.0),
-                          itemCount: tareasFiltradas.length,
-                          itemBuilder: (context, index) {
-                            final tarea = tareasFiltradas[index];
-                            return ListTile(
-                              title: Text(
-                                tarea.Nombre,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text("Progreso: ${tarea.Progreso}%"),
-                              trailing: tarea.Prioridad == 3
-                                  ? const Icon(
-                                      Icons.warning,
-                                      color: Colores.eliminar,
-                                    )
-                                  : null,
-                              onTap: () {
-                                // Acción al seleccionar una tarea
-                              },
-                            );
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Barra de búsqueda
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    filtroEventos = value.toLowerCase(); // Actualizar filtro
+                  });
+                },
+                controller:
+                    _searchController, // Controlador para manejar el texto
+                decoration: InputDecoration(
+                  hintText: "Buscar eventos...",
+                  prefixIcon: const Icon(Icons.search, color: Colores.texto),
+                  suffixIcon: filtroEventos.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.highlight_off,
+                              color: Colores.texto),
+                          onPressed: () {
+                            _searchController.clear(); // Limpiar texto
+                            setState(() {
+                              filtroEventos = ""; // Reiniciar filtro
+                            });
                           },
                         )
-                      : const Center(
-                          child: Text(
-                            "No se encontraron tareas",
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colores.texto,
-                            ),
-                          ),
-                        ),
-                )
-              : Expanded(
-                  child: GridView.builder(
+                      : null,
+                  filled: true,
+                  fillColor: Colores.fondo,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                    borderSide: BorderSide.none,
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 12.0),
+                ),
+              ),
+            ),
+            // Mostrar resultados de búsqueda o las categorías
+            if (filtroEventos.isNotEmpty)
+              buildListaTareasFiltradas(tareasFiltradas)
+            else
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(16.0),
                     gridDelegate:
                         const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
                       mainAxisSpacing: 12.0,
                       crossAxisSpacing: 12.0,
-                      childAspectRatio:
-                          2.5, // Incrementar para reducir la altura
+                      childAspectRatio: 2.5,
                     ),
                     itemCount: filtros.length,
                     itemBuilder: (context, index) =>
                         buildFiltroCard(filtros[index]),
                   ),
-                ),
-        ],
+                  const SizedBox(height: 16.0),
+                  // Título y lista de categorías
+                  const Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Text(
+                      'Mis Categorías',
+                      style: TextStyle(
+                        color: Colores.texto,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  ...categorias.map((item) {
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 8.0, horizontal: 16.0),
+                      padding: const EdgeInsets.all(16.0),
+                      decoration: BoxDecoration(
+                        color: Color(int.parse("0xFF${item.Color}"))
+                            .withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Color(int.parse("0xFF${item.Color}")),
+                          width: 2,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            item.Nombre,
+                            style: const TextStyle(
+                              color: Colores.texto,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colores.texto,
+                            size: 16,
+                          ),
+                        ],
+                      ),
+                    );
+                  }),
+                ],
+              ),
+          ],
+        ),
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
