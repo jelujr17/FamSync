@@ -131,8 +131,8 @@ class DetallesProducto extends State<VerProducto> {
                 clipper:
                     CurvedAppBarClipper(), // Asegúrate de que este clipper esté disponible
                 child: Container(
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
+                  decoration: const BoxDecoration(
+                    gradient: LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
@@ -142,10 +142,10 @@ class DetallesProducto extends State<VerProducto> {
                     ),
                   ),
                   padding: const EdgeInsets.symmetric(vertical: 20.0),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'Mis Listas',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.w600,
                         color: Colores.fondo,

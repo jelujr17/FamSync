@@ -2,7 +2,8 @@ import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/View/Modulos/Calendario/Eventos/verDetallesEvento.dart';
-import 'package:famsync/View/Modulos/Tareas/Categorias/tareas.dart';
+import 'package:famsync/View/Modulos/Tareas/nuevaTarea.dart';
+import 'package:famsync/View/Modulos/Tareas/tareas.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -376,28 +377,43 @@ class AgendaState extends State<Agenda> {
           child: AppBar(
             automaticallyImplyLeading: false, // Evitar el retroceso automático
             backgroundColor: Colores.principal,
-            title: const Center(
-              child: Text(
-                'Agenda',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 24),
-              ),
+            title: Stack(
+              children: [
+                Align(
+                  alignment: Alignment.center, // Centra el título
+                  child: const Text(
+                    'Agenda',
+                    style: TextStyle(fontSize: 24),
+                  ),
+                ),
+                Align(
+                  alignment:
+                      Alignment.centerRight, // Coloca el botón a la derecha
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(
+                        horizontal: 8.0), // Margen del botón
+                    decoration: const BoxDecoration(
+                      color: Colores.fondo, // Color de fondo
+                      shape: BoxShape.circle, // Forma circular
+                    ),
+                    child: IconButton(
+                      icon: const Icon(Icons.add,
+                          color: Colores.texto), // Color del ícono
+                      onPressed: () {
+                        // Acción para añadir una nueva tarea
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                NuevaTareaPage(perfil: widget.perfil),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ],
             ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.symmetric(
-                    horizontal: 8.0), // Margen alrededor del botón
-                decoration: const BoxDecoration(
-                  color: Colores.fondo, // Color de fondo
-                  shape: BoxShape.circle, // Forma circular
-                ),
-                child: const IconButton(
-                  icon: Icon(Icons.add,
-                      color: Colores.texto), // Color del ícono
-                  onPressed: null,
-                ),
-              ),
-            ],
           ),
         ),
       ),
@@ -473,7 +489,6 @@ class AgendaState extends State<Agenda> {
                 ),
         ],
       ),
-      
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
