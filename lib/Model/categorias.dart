@@ -49,10 +49,11 @@ class ServiciosCategorias {
     }
   }
 
-  Future<List<Categorias>> getCategoriasByModulo(int IdUsuario,  int IdModulo) async {
-
+  Future<List<Categorias>> getCategoriasByModulo(
+      int IdUsuario, int IdModulo) async {
     http.Response response = await http.get(
-      Uri.parse('http://$_host/categorias/getByModulo?IdUsuario=$IdUsuario&IdModulo=$IdModulo'),
+      Uri.parse(
+          'http://$_host/categorias/getByModulo?IdUsuario=$IdUsuario&IdModulo=$IdModulo'),
       headers: {'Content-type': 'application/json'},
     );
     print(response.statusCode);

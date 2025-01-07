@@ -87,7 +87,7 @@ class ServiciosListas {
     List<int> productos = lista.Productos;
     if (productos.contains(producto.Id)) {
       return (false);
-    }else{
+    } else {
       productos.add(producto.Id);
     }
     final response = await http.put(

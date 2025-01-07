@@ -118,8 +118,7 @@ class ServiciosTiendas {
       final response = await http.delete(
         Uri.parse('http://$_host/tiendas/delete'),
         headers: {'Content-Type': 'application/json'},
-        body:
-            jsonEncode({'Id': IdTienda}), // Enviamos el ID en el cuerpo
+        body: jsonEncode({'Id': IdTienda}), // Enviamos el ID en el cuerpo
       );
 
       if (response.statusCode == 200) {

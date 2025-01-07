@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 
 void main() {
+  
   if (kDebugMode) {
     // Mostrar el error solo en modo debug
     FlutterError.onError = (FlutterErrorDetails details) {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
+      
       title: 'FamSync',
       locale: Locale('es'), // Configura el idioma a español
       localizationsDelegates: [
