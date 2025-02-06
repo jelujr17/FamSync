@@ -10,8 +10,10 @@ import 'package:flutter/material.dart';
 
 class CrearEventoPage extends StatefulWidget {
   final Perfiles perfil;
+  final DateTime fechaSelecionada;
 
-  const CrearEventoPage({super.key, required this.perfil});
+  const CrearEventoPage(
+      {super.key, required this.perfil, required this.fechaSelecionada});
 
   @override
   _CrearEventoPageState createState() => _CrearEventoPageState();
@@ -29,7 +31,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   final TextEditingController _dropdownSearchFieldController =
       TextEditingController();
   final ServicioEventos servicioEventos = ServicioEventos();
-  bool eventoRecurrente = false;
+  bool eventoRecurrente = true;
   List<String> nombresCategorias = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   Map<String, Color> colorNombreCategoria = {};
@@ -47,6 +49,8 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
     obtenerCategorias();
     obtenerParticipantes();
     obtenerNombresCategorias();
+    fechaInicio = widget.fechaSelecionada;
+    fechaFin = widget.fechaSelecionada;
   }
 
   void obtenerParticipantes() async {

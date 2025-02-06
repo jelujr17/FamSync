@@ -335,11 +335,19 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                                       .existsSync()
                               ? Stack(
                                   children: [
-                                    CircleAvatar(
-                                      radius:
-                                          25, // Puedes ajustar el radio según tu necesidad
-                                      backgroundImage: FileImage(File(
-                                          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')),
+                                    Container(
+                                      width: 50, // Ancho del cuadrado
+                                      height: 50, // Alto del cuadrado
+                                      decoration: BoxDecoration(
+                                        image: DecorationImage(
+                                          image: FileImage(File(
+                                              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')),
+                                          fit: BoxFit
+                                              .cover, // Ajusta la imagen al contenedor
+                                        ),
+                                        borderRadius: BorderRadius.circular(
+                                            8), // Opcional: bordes redondeados
+                                      ),
                                     ),
                                   ],
                                 )

@@ -18,6 +18,8 @@ class Calendario extends StatefulWidget {
 }
 
 class CalendarScreenState extends State<Calendario> {
+  DateTime _fechaSeleccionada =
+      DateTime.now(); // Nueva variable para la fecha seleccionada
   bool mostrarEventos = true;
   List<NeatCleanCalendarEvent> _listaDeEventos = [];
   List<String> aux = ["de", "del"];
@@ -112,6 +114,7 @@ class CalendarScreenState extends State<Calendario> {
                 color: Colors.white,
                 child: CrearEventoPage(
                   perfil: widget.perfil,
+                  fechaSelecionada: _fechaSeleccionada,
                 ),
               ),
             );
@@ -128,17 +131,16 @@ class CalendarScreenState extends State<Calendario> {
   void _showPopup(NeatCleanCalendarEvent eventoNeat) async {
     Map<String, dynamic>? datos = eventoNeat.metadata;
     Eventos eventoSeleccionado = Eventos(
-      Id: datos!['Id'],
-      Nombre: datos['Nombre'],
-      Descripcion: datos['Descripcion'],
-      FechaInicio: datos['FechaInicio'],
-      FechaFin: datos['FechaFin'],
-      IdUsuarioCreador: datos['IdUsuarioCreador'],
-      IdPerfilCreador: datos['IdPerfilCreador'],
-      IdCategoria: datos['IdCategoria'],
-      Participantes: datos['Participantes'],
-      IdTarea: datos['IdTarea']
-    );
+        Id: datos!['Id'],
+        Nombre: datos['Nombre'],
+        Descripcion: datos['Descripcion'],
+        FechaInicio: datos['FechaInicio'],
+        FechaFin: datos['FechaFin'],
+        IdUsuarioCreador: datos['IdUsuarioCreador'],
+        IdPerfilCreador: datos['IdPerfilCreador'],
+        IdCategoria: datos['IdCategoria'],
+        Participantes: datos['Participantes'],
+        IdTarea: datos['IdTarea']);
 
     final bool? resultado = await showModalBottomSheet<bool>(
       context: context,
@@ -214,6 +216,7 @@ class CalendarScreenState extends State<Calendario> {
                   },
                   onDateSelected: (value) {
                     print('Fecha seleccionada: $value');
+                    _fechaSeleccionada = value;
                   },
                   showEvents: mostrarEventos,
                 ),
