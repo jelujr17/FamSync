@@ -330,28 +330,48 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                         color: Colores.fondo,
                         child: ListTile(
                           contentPadding: const EdgeInsets.all(8),
-                          leading: producto.Imagenes.isNotEmpty &&
-                                  File('C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')
-                                      .existsSync()
-                              ? Stack(
-                                  children: [
-                                    Container(
-                                      width: 50, // Ancho del cuadrado
-                                      height: 50, // Alto del cuadrado
-                                      decoration: BoxDecoration(
-                                        image: DecorationImage(
-                                          image: FileImage(File(
-                                              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${producto.Imagenes[0]}')),
-                                          fit: BoxFit
-                                              .cover, // Ajusta la imagen al contenedor
-                                        ),
-                                        borderRadius: BorderRadius.circular(
-                                            8), // Opcional: bordes redondeados
-                                      ),
+                          leading: CircleAvatar(
+                            radius: 30,
+                            backgroundImage: producto.Imagenes.isNotEmpty
+                                ? null
+                                : null,
+                            child: producto.Imagenes.isEmpty
+                                ? Text(
+                                    producto.Nombre[0],
+                                    style: const TextStyle(
+                                      color: Colores.texto,
+                                      fontSize: 30,
                                     ),
-                                  ],
-                                )
-                              : const Icon(Icons.image_not_supported),
+                                  )
+                                : FutureBuilder<File>(
+                                    future: ServicioProductos().obtenerImagen(
+                                        producto.Imagenes[0]),
+                                    builder: (BuildContext context,
+                                        AsyncSnapshot<File> snapshot) {
+                                      if (snapshot.connectionState ==
+                                          ConnectionState.waiting) {
+                                        return const CircularProgressIndicator();
+                                      } else if (snapshot.hasError) {
+                                        return const Icon(
+                                          Icons.error,
+                                          color: Colores.texto,
+                                        );
+                                      } else if (snapshot.hasData &&
+                                          snapshot.data != null) {
+                                        return CircleAvatar(
+                                          radius: 50,
+                                          backgroundImage:
+                                              FileImage(snapshot.data!),
+                                        );
+                                      } else {
+                                        return const Icon(
+                                          Icons.person,
+                                          color: Colores.texto,
+                                        );
+                                      }
+                                    },
+                                  ),
+                          ),
                           title: Text(producto.Nombre,
                               style: const TextStyle(color: Colores.texto)),
                           subtitle: Text(
@@ -368,12 +388,9 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                               ),
                               transitionsBuilder: (context, animation,
                                   secondaryAnimation, child) {
-                                const begin = Offset(
-                                    1.0, 0.0); // Comienza desde la derecha
-                                const end =
-                                    Offset.zero; // Termina en la posición final
-                                const curve =
-                                    Curves.easeInOut; // Curva de animación
+                                const begin = Offset(1.0, 0.0);
+                                const end = Offset.zero;
+                                const curve = Curves.easeInOut;
 
                                 var tween = Tween(begin: begin, end: end)
                                     .chain(CurveTween(curve: curve));

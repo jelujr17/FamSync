@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 
 // CLASES DE PERSONAS REALES
 class Productos {
@@ -353,20 +354,21 @@ class ServicioProductos {
       headers: {'Content-type': 'application/json'},
       body: jsonEncode(data),
     );
+
     // Verificar si la solicitud fue exitosa
     if (response.statusCode == 200) {
-      // Guardar el contenido de la respuesta en un archivo temporal
-      const tempDir =
-          'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\';
+      // Obtener el directorio temporal adecuado en el dispositivo
+      final tempDir = await getTemporaryDirectory();
       final filePath =
-          '$tempDir/$nombre'; // Puedes usar un nombre de archivo específico si lo deseas
+          '${tempDir.path}/$nombre'; // Ruta dentro del directorio temporal
       File file = File(filePath);
-      await file.writeAsBytes(response.bodyBytes);
-      print("imagen encontrada");
+      await file.writeAsBytes(
+          response.bodyBytes); // Escribir los bytes de la imagen en el archivo
+
+      print("Imagen encontrada y guardada en: $filePath");
       return file; // Devolver el archivo creado
     } else {
-      print("imagen no encontrada");
-      // Si hay un error en la solicitud, lanzar una excepción
+      print("Imagen no encontrada");
       throw Exception('Error al obtener el archivo: ${response.statusCode}');
     }
   }
