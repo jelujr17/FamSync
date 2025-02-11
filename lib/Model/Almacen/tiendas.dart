@@ -17,7 +17,7 @@ class Tiendas {
 }
 
 class ServiciosTiendas {
-  final String _host = 'localhost:3000';
+  final String _host = '172.20.10.3:3000';
   // BUSCAR USUARIOS //
   Future<List<Tiendas>> getTiendas(int IdUsuario) async {
     http.Response response = await http.get(

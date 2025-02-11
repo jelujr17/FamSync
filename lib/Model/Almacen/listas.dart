@@ -23,7 +23,7 @@ class Listas {
 }
 
 class ServiciosListas {
-  final String _host = 'localhost:3000';
+  final String _host = '172.20.10.3:3000';
   // BUSCAR USUARIOS //
   Future<List<Listas>> getListas(int IdUsuario, int IdPerfil) async {
     http.Response response = await http.get(

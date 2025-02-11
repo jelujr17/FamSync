@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:drop_down_list/model/selected_list_item.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
@@ -22,8 +23,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   final PageController _pageController = PageController();
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _precioController = TextEditingController();
-  final TextEditingController _dropdownSearchFieldController =
-      TextEditingController();
+  final TextEditingController _tiendaController = TextEditingController();
 
   final List<XFile> _imagenesSeleccionadas = [];
   final ImagePicker _picker = ImagePicker();
@@ -32,6 +32,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
   List<File> _imagenesFiles = [];
   List<Tiendas> tiendasDisponibles = [];
   String? tiendaSeleccionada;
+  final List<SelectedListItem<String>> _listaTiendas = [];
 
   List<String> nombresTienda = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
@@ -76,6 +77,9 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
 
   void obtenerNombresTiendas() {
     nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+    for (int i = 0; i < nombresTienda.length; i++) {
+      _listaTiendas.add(SelectedListItem<String>(data: nombresTienda[i]));
+    }
     print(nombresTienda);
   }
 
@@ -84,6 +88,7 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
     _pageController.dispose();
     _nombreController.dispose();
     _precioController.dispose();
+    _tiendaController.dispose();
     super.dispose();
   }
 
@@ -157,48 +162,41 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                           ),
                         ),
                         const SizedBox(height: 16),
-
-                        // DropdownButton para seleccionar la tienda
-                        DropDownSearchFormField(
-                          textFieldConfiguration: TextFieldConfiguration(
-                            decoration: InputDecoration(
-                              labelText: 'Selecciona una tienda',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              prefixIcon: const Icon(Icons
-                                  .store), // Puedes cambiar el ícono si lo deseas
+                        InputDecorator(
+                          decoration: InputDecoration(
+                            labelText: tiendaSeleccionada == null
+                                ? null
+                                : 'Tienda seleccionada',
+                            hintText: 'Seleccionar tienda',
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            controller: _dropdownSearchFieldController,
+                            prefixIcon: const Icon(Icons.store),
+                            contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8, horizontal: 12),
+                            floatingLabelBehavior: FloatingLabelBehavior
+                                .auto, // Para el comportamiento flotante
                           ),
-                          suggestionsCallback: (pattern) {
-                            return getSuggestions(
-                                pattern); // Debe devolver una lista de nombres de tienda
-                          },
-                          itemBuilder: (context, String suggestion) {
-                            return ListTile(
-                              title: Text(suggestion),
-                            );
-                          },
-                          itemSeparatorBuilder: (context, index) {
-                            return const Divider();
-                          },
-                          transitionBuilder:
-                              (context, suggestionsBox, controller) {
-                            return suggestionsBox;
-                          },
-                          onSuggestionSelected: (String suggestion) {
-                            _dropdownSearchFieldController.text = suggestion;
-                            tiendaSeleccionada =
-                                suggestion; // Actualiza la variable de tienda seleccionada
-                          },
-                          suggestionsBoxController: suggestionBoxController,
-                          validator: (value) => value!.isEmpty
-                              ? 'Por favor selecciona una tienda'
-                              : null,
-                          displayAllSuggestionWhenTap: true,
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton<String>(
+                              isExpanded: true,
+                              value: tiendaSeleccionada,
+                              hint: const Text('Seleccionar tienda'),
+                              items: _listaTiendas
+                                  .map((SelectedListItem<String> item) {
+                                return DropdownMenuItem<String>(
+                                  value: item.data,
+                                  child: Text(item.data),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  tiendaSeleccionada = newValue;
+                                });
+                              },
+                            ),
+                          ),
                         ),
-
                         const SizedBox(height: 16),
                         TextField(
                           controller: _precioController,
