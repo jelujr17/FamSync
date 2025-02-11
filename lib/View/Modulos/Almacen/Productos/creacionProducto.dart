@@ -186,7 +186,12 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                                   .map((SelectedListItem<String> item) {
                                 return DropdownMenuItem<String>(
                                   value: item.data,
-                                  child: Text(item.data),
+                                  child: Text(
+                                    item.data,
+                                    style: const TextStyle(
+                                        fontWeight:
+                                            FontWeight.normal), // Estilo normal
+                                  ),
                                 );
                               }).toList(),
                               onChanged: (String? newValue) {
