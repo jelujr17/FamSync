@@ -1,5 +1,4 @@
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/View/Inicio/login.dart';
 import 'package:famsync/View/Inicio/nexoIncio.dart';
 import 'package:famsync/View/Inicio/resumen.dart';
@@ -10,18 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  FlutterNativeSplash.preserve(widgetsBinding: WidgetsFlutterBinding.ensureInitialized());
 
   if (kDebugMode) {
-    // Mostrar el error solo en modo debug
     FlutterError.onError = (FlutterErrorDetails details) {
-      // Esto solo se muestra en debug
       FlutterError.dumpErrorToConsole(details);
     };
   } else {
-    // En producción, ignorar el error visualmente
     FlutterError.onError = (FlutterErrorDetails details) {};
   }
 
@@ -38,15 +36,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'FamSync',
-      locale: const Locale('es'), // Configura el idioma a español
+      locale: const Locale('es'),
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
-        Locale('en', 'US'), // Inglés
-        Locale('es', 'ES'), // Español
+        Locale('en', 'US'),
+        Locale('es', 'ES'),
       ],
       home: FutureBuilder<Widget>(
         future: getInitialPage(),
@@ -56,6 +54,7 @@ class MyApp extends StatelessWidget {
           } else if (snapshot.hasError) {
             return const Center(child: Text('Error al cargar la aplicación'));
           } else {
+            FlutterNativeSplash.remove(); // Oculta el splash después de la carga
             return snapshot.data!;
           }
         },
@@ -72,7 +71,6 @@ class MyApp extends StatelessWidget {
       return const LoginScreen();
     } else {
       if (perfilId == null) {
-        print('Perfil no seleccionado' + userId.toString());
         return SeleccionPerfil(IdUsuario: userId);
       } else {
         final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
@@ -80,13 +78,9 @@ class MyApp extends StatelessWidget {
           return const LoginScreen();
         } else {
           if (aux) {
-            return Resumen(
-              perfil: perfil,
-            );
+            return Resumen(perfil: perfil);
           } else {
-            return Modulos(
-              perfil: perfil,
-            );
+            return Modulos(perfil: perfil);
           }
         }
       }
