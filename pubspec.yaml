@@ -89,7 +89,7 @@ dependencies:
 
 flutter_native_splash:
   color: "#FFFFFF" # Color de fondo del splash screen
-  image: assets/images/main.png # Ruta al logo de FamSync
+  image: assets/images/splash.png # Ruta al logo de FamSync
   android: true # Habilitar en Android
   ios: true # Habilitar en iOS
   web: false # Opcional: Deshabilitar en web
