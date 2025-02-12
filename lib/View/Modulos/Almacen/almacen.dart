@@ -128,47 +128,6 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
     );
   }
 
-  void _confirmarEliminacion(Productos producto) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Confirmar eliminación'),
-          content: Text(
-              '¿Estás seguro de que deseas eliminar el producto "${producto.Nombre}"?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cierra el diálogo
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                bool eliminado =
-                    await ServicioProductos().eliminarProducto(producto.Id);
-
-                if (eliminado) {
-                  setState(() {
-                    _productosFuture = ServicioProductos().getProductos(
-                        widget.perfil.UsuarioId, widget.perfil.Id);
-                  });
-                  Navigator.of(context).pop(); // Cierra el diálogo
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text('Error al eliminar el producto.')),
-                  );
-                }
-              },
-              child: const Text('Eliminar'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void _showPopup() {
     showDialog(
       context: context,
@@ -433,6 +392,7 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
               },
             ),
           ),
+          const SizedBox(height: 70),
         ],
       ),
       extendBody: true,

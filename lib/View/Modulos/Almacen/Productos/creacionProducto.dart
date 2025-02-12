@@ -46,6 +46,16 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
     });
   }
 
+  Future<void> _tomarFoto() async {
+    final XFile? imagen = await _picker.pickImage(source: ImageSource.camera);
+    if (imagen != null) {
+      setState(() {
+        _imagenesSeleccionadas.add(imagen);
+        _imagenesFiles.add(File(imagen.path));
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -333,6 +343,20 @@ class _ProductCreationCarouselState extends State<ProductCreationCarousel> {
                           onPressed: _seleccionarImagenes,
                           icon: const Icon(Icons.image),
                           label: const Text('Seleccionar imágenes'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 30, vertical: 15),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: _tomarFoto,
+                          icon: const Icon(Icons.camera_alt),
+                          label: const Text('Tomar foto'),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.blueAccent,
                             shape: RoundedRectangleBorder(
