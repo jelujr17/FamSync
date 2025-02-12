@@ -1,9 +1,7 @@
-// ignore_for_file: use_build_context_synchronously
-
+import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
 import 'package:famsync/View/Inicio/register.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
@@ -22,6 +20,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -166,11 +169,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     ServicioUsuarios servicioUsuarios = ServicioUsuarios();
     Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
-    final SharedPreferences preferencias =
-        await SharedPreferences.getInstance();
 
     if (usuario != null) {
-      if (preferencias.getInt('IdUsuario') == null) {
+      // Guardar credenciales en SharedPreferences
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setString('emailOrPhone', emailOrPhone);
+      await prefs.setString('password', password);
+
+      if (prefs.getInt('IdUsuario') == null) {
         Navigator.push(
           context,
           PageTransition(
@@ -179,14 +185,12 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        int? preferenciaPerfil = preferencias.getInt('IdUsuario');
-        print("preferenciaPerfil = $preferenciaPerfil");
+        int? preferenciaPerfil = prefs.getInt('IdUsuario');
         Perfiles? perfil;
         if (preferenciaPerfil != null) {
           perfil = await ServicioPerfiles().getPerfilById(preferenciaPerfil);
         }
         if (perfil != null) {
-          print("Perfil encontrado en login: ${perfil.FotoPerfil}");
           Navigator.push(
             context,
             PageTransition(
