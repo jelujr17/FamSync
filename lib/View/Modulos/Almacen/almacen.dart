@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/creacionProducto.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/listas.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/nexoAlmacen.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
@@ -286,123 +287,144 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
                 }
 
                 List<Productos> productos = snapshot.data!;
-                return ListView.builder(
-                  itemCount: productos.length > _productosPorPagina
-                      ? _productosPorPagina
-                      : productos.length,
+                return GridView.builder(
+                  padding: const EdgeInsets.all(10),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2, // Dos columnas
+                    crossAxisSpacing: 10,
+                    mainAxisSpacing: 10,
+                    childAspectRatio: 0.75, // Proporción de la tarjeta
+                  ),
+                  itemCount: productos.length,
                   itemBuilder: (context, index) {
                     final producto = productos[index];
-                    return Dismissible(
-                      key: Key(producto.Id.toString()),
-                      direction: DismissDirection.horizontal,
-                      background: Container(
-                        color: Colores.eliminar,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      secondaryBackground: Container(
-                        color: Colores.botones,
-                        alignment: Alignment.center,
-                        child: const Icon(Icons.edit, color: Colors.white),
-                      ),
-                      confirmDismiss: (direction) async {
-                        if (direction == DismissDirection.endToStart) {
-                          _confirmarEliminacion(producto);
-                          return false; // No se confirma la eliminación aquí
-                        } else if (direction == DismissDirection.startToEnd) {
-                          // Aquí puedes implementar la lógica para editar el producto
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => VerProducto(
-                                  producto: producto,
-                                  perfil: widget
-                                      .perfil), // Navega a la página de detalles
+
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => VerProducto(
+                              producto: producto,
+                              perfil: widget.perfil,
                             ),
-                          );
-                          return false; // No se confirma la acción de deslizar a la derecha
-                        }
-                        return false;
+                          ),
+                        );
                       },
                       child: Card(
-                        margin: const EdgeInsets.symmetric(
-                            vertical: 8, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        elevation: 4,
                         color: Colores.fondo,
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.all(8),
-                          leading: CircleAvatar(
-                            radius: 30,
-                            backgroundImage: producto.Imagenes.isNotEmpty
-                                ? null
-                                : null,
-                            child: producto.Imagenes.isEmpty
-                                ? Text(
-                                    producto.Nombre[0],
-                                    style: const TextStyle(
-                                      color: Colores.texto,
-                                      fontSize: 30,
-                                    ),
-                                  )
-                                : FutureBuilder<File>(
-                                    future: ServicioProductos().obtenerImagen(
-                                        producto.Imagenes[0]),
-                                    builder: (BuildContext context,
-                                        AsyncSnapshot<File> snapshot) {
-                                      if (snapshot.connectionState ==
-                                          ConnectionState.waiting) {
-                                        return const CircularProgressIndicator();
-                                      } else if (snapshot.hasError) {
-                                        return const Icon(
-                                          Icons.error,
-                                          color: Colores.texto,
-                                        );
-                                      } else if (snapshot.hasData &&
-                                          snapshot.data != null) {
-                                        return CircleAvatar(
-                                          radius: 50,
-                                          backgroundImage:
-                                              FileImage(snapshot.data!),
-                                        );
-                                      } else {
-                                        return const Icon(
-                                          Icons.person,
-                                          color: Colores.texto,
-                                        );
-                                      }
-                                    },
-                                  ),
-                          ),
-                          title: Text(producto.Nombre,
-                              style: const TextStyle(color: Colores.texto)),
-                          subtitle: Text(
-                            'Tienda: ${producto.Tienda} \nPrecio: ${producto.Precio.toString()}€',
-                            style: const TextStyle(color: Colores.texto),
-                          ),
-                          onTap: () {
-                            Navigator.of(context).push(PageRouteBuilder(
-                              pageBuilder:
-                                  (context, animation, secondaryAnimation) =>
-                                      VerProducto(
-                                producto: producto,
-                                perfil: widget.perfil,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            // Imagen del producto
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(15),
+                                ),
+                                child: producto.Imagenes.isEmpty
+                                    ? const Icon(Icons.image_not_supported,
+                                        size: 80, color: Colores.texto)
+                                    : FutureBuilder<File>(
+                                        future: ServicioProductos()
+                                            .obtenerImagen(
+                                                producto.Imagenes[0]),
+                                        builder: (context, snapshot) {
+                                          if (snapshot.connectionState ==
+                                              ConnectionState.waiting) {
+                                            return const Center(
+                                                child:
+                                                    CircularProgressIndicator());
+                                          } else if (snapshot.hasError) {
+                                            return const Icon(Icons.error,
+                                                color: Colors.red);
+                                          } else if (snapshot.hasData &&
+                                              snapshot.data != null) {
+                                            return Image.file(
+                                              snapshot.data!,
+                                              fit: BoxFit.cover,
+                                            );
+                                          } else {
+                                            return const Icon(Icons.image,
+                                                size: 80);
+                                          }
+                                        },
+                                      ),
                               ),
-                              transitionsBuilder: (context, animation,
-                                  secondaryAnimation, child) {
-                                const begin = Offset(1.0, 0.0);
-                                const end = Offset.zero;
-                                const curve = Curves.easeInOut;
-
-                                var tween = Tween(begin: begin, end: end)
-                                    .chain(CurveTween(curve: curve));
-                                var offsetAnimation = animation.drive(tween);
-
-                                return SlideTransition(
-                                  position: offsetAnimation,
-                                  child: child,
-                                );
-                              },
-                            ));
-                          },
+                            ),
+                            // Información del producto
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    producto.Nombre,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      color: Colores.texto,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Tienda: ${producto.Tienda}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colores.texto,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  Text(
+                                    'Precio: ${producto.Precio.toString()}€',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colores.hecho,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            // apartado para añadir a una lista
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      NexoAlmacen().seleccionarLista(
+                                          producto,
+                                          widget.perfil.UsuarioId,
+                                          widget.perfil.Id,
+                                          context);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      foregroundColor: Colors.white,
+                                      backgroundColor: Colores
+                                          .botones, // Color del texto del botón
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(
+                                            10), // Bordes redondeados
+                                      ),
+                                    ),
+                                    child: const Text(
+                                      'Añadir a lista',
+                                      style: TextStyle(
+                                          fontSize: 16), // Tamaño del texto
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     );
