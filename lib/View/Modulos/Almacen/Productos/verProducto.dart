@@ -366,40 +366,57 @@ class DetallesProducto extends State<VerProducto> {
                   ? Column(
                       children: [
                         CarouselSlider.builder(
-                          options: CarouselOptions(
-                            height: 280,
-                            enlargeCenterPage: true,
-                            enableInfiniteScroll: true,
-                            autoPlay: true,
-                            autoPlayInterval: const Duration(seconds: 3),
-                            onPageChanged: (index, reason) {
-                              setState(() {
-                                _currentImageIndex = index;
-                              });
-                            },
-                          ),
-                          itemCount: widget.producto.Imagenes.length,
-                          itemBuilder: (context, index, realIndex) {
-                            final imagePath = widget.producto.Imagenes[index];
-                            final imageFile = File(
-                                'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\$imagePath');
+                            options: CarouselOptions(
+                              height: 280,
+                              enlargeCenterPage: true,
+                              enableInfiniteScroll: true,
+                              autoPlay: true,
+                              autoPlayInterval: const Duration(seconds: 3),
+                              onPageChanged: (index, reason) {
+                                setState(() {
+                                  _currentImageIndex = index;
+                                });
+                              },
+                            ),
+                            itemCount: widget.producto.Imagenes.length,
+                            itemBuilder: (context, index, realIndex) {
+                              final imageName = widget.producto.Imagenes[index];
 
-                            if (imageFile.existsSync()) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-                                child: Image.file(
-                                  imageFile,
-                                  fit: BoxFit.cover,
-                                ),
+                              return FutureBuilder<File>(
+                                future: ServicioProductos()
+                                    .obtenerImagen(imageName),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    // Muestra un indicador de carga mientras se obtiene la imagen
+                                    return const Center(
+                                        child: CircularProgressIndicator());
+                                  } else if (snapshot.hasError) {
+                                    // Muestra un ícono de error si hay un problema al cargar la imagen
+                                    return const Center(
+                                      child: Icon(Icons.broken_image,
+                                          size: 100, color: Colors.red),
+                                    );
+                                  } else if (snapshot.hasData &&
+                                      snapshot.data!.existsSync()) {
+                                    // Muestra la imagen si se obtuvo correctamente
+                                    return ClipRRect(
+                                      borderRadius: BorderRadius.circular(10),
+                                      child: Image.file(
+                                        snapshot.data!,
+                                        fit: BoxFit.cover,
+                                      ),
+                                    );
+                                  } else {
+                                    // Muestra un ícono si la imagen no está disponible
+                                    return const Center(
+                                      child: Icon(Icons.image_not_supported,
+                                          size: 100),
+                                    );
+                                  }
+                                },
                               );
-                            } else {
-                              return const Center(
-                                child:
-                                    Icon(Icons.image_not_supported, size: 100),
-                              );
-                            }
-                          },
-                        ),
+                            }),
                         const SizedBox(height: 8),
                         // Indicadores del carrusel
                         Row(
