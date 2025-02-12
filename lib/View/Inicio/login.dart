@@ -1,5 +1,5 @@
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famsync/Model/usuario.dart';
@@ -20,11 +20,6 @@ class _LoginScreenState extends State<LoginScreen> {
   final _emailOrPhoneController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscureText = true;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -169,14 +164,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
     ServicioUsuarios servicioUsuarios = ServicioUsuarios();
     Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
+    final SharedPreferences preferencias =
+        await SharedPreferences.getInstance();
 
     if (usuario != null) {
-      // Guardar credenciales en SharedPreferences
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      await prefs.setString('emailOrPhone', emailOrPhone);
-      await prefs.setString('password', password);
-
-      if (prefs.getInt('IdUsuario') == null) {
+      preferencias.setInt('IdUsuario', usuario.Id);
         Navigator.push(
           context,
           PageTransition(
@@ -184,22 +176,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: SeleccionPerfil(IdUsuario: usuario.Id),
           ),
         );
-      } else {
-        int? preferenciaPerfil = prefs.getInt('IdUsuario');
-        Perfiles? perfil;
-        if (preferenciaPerfil != null) {
-          perfil = await ServicioPerfiles().getPerfilById(preferenciaPerfil);
-        }
-        if (perfil != null) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: Resumen(perfil: perfil),
-            ),
-          );
-        }
-      }
+      
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

@@ -1,11 +1,19 @@
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/View/Inicio/login.dart';
+import 'package:famsync/View/Inicio/nexoIncio.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Modulos/modulos.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
   if (kDebugMode) {
     // Mostrar el error solo en modo debug
     FlutterError.onError = (FlutterErrorDetails details) {
@@ -27,21 +35,61 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      
       title: 'FamSync',
-      locale: Locale('es'), // Configura el idioma a español
-      localizationsDelegates: [
+      locale: const Locale('es'), // Configura el idioma a español
+      localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
-      supportedLocales: [
+      supportedLocales: const [
         Locale('en', 'US'), // Inglés
         Locale('es', 'ES'), // Español
       ],
-      home: LoginScreen(),
+      home: FutureBuilder<Widget>(
+        future: getInitialPage(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text('Error al cargar la aplicación'));
+          } else {
+            return snapshot.data!;
+          }
+        },
+      ),
     );
+  }
+
+  Future<Widget> getInitialPage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('IdUsuario');
+    final int? perfilId = prefs.getInt('IdPerfil');
+    final bool aux = await NexoInicio().primeraVezResumen();
+    if (userId == null) {
+      return const LoginScreen();
+    } else {
+      if (perfilId == null) {
+        print('Perfil no seleccionado' + userId.toString());
+        return SeleccionPerfil(IdUsuario: userId);
+      } else {
+        final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
+        if (perfil == null) {
+          return const LoginScreen();
+        } else {
+          if (aux) {
+            return Resumen(
+              perfil: perfil,
+            );
+          } else {
+            return Modulos(
+              perfil: perfil,
+            );
+          }
+        }
+      }
+    }
   }
 }

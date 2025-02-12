@@ -3,6 +3,8 @@
 import 'dart:io';
 
 import 'package:animated_background/animated_background.dart';
+import 'package:famsync/View/Inicio/nexoIncio.dart';
+import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/View/Modulos/modulos.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
@@ -188,20 +190,35 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                       print("index: $index");
                       final SharedPreferences preferencias =
                           await SharedPreferences.getInstance();
-                      await preferencias.remove('IdUsuario');
+                      await preferencias.remove('IdPerfil');
                       if (!_predeterminado) {
-                        await preferencias.setInt('IdUsuario', perfil.Id);
-                        print(preferencias.getInt('IdUsuario'));
+                        await preferencias.setInt('IdPerfil', perfil.Id);
+                        print(preferencias.getInt('IdPerfil'));
                       }
-                      Navigator.push(
-                        context,
-                        PageTransition(
-                          type: PageTransitionType.fade,
-                          child: Modulos(
-                            perfil: perfil,
+
+                      bool aux = await NexoInicio().primeraVezResumen();
+
+                      if (aux) {
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            type: PageTransitionType.fade,
+                            child: Resumen(
+                              perfil: perfil,
+                            ),
                           ),
-                        ),
-                      );
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          PageTransition(
+                            type: PageTransitionType.fade,
+                            child: Modulos(
+                              perfil: perfil,
+                            ),
+                          ), 
+                        );
+                      }
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Pin incorrecto')),
