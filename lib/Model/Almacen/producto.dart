@@ -347,29 +347,37 @@ class ServicioProductos {
   }
 
   Future<File> obtenerImagen(String nombre) async {
-    Map<String, dynamic> data = {"fileName": nombre};
-    // Realizar la solicitud al servidor
-    final response = await http.post(
-      Uri.parse('http://$_host/productos/receiveFile'),
-      headers: {'Content-type': 'application/json'},
-      body: jsonEncode(data),
-    );
-
-    // Verificar si la solicitud fue exitosa
-    if (response.statusCode == 200) {
-      // Obtener el directorio temporal adecuado en el dispositivo
+    try {
+      // Obtener el directorio temporal del dispositivo
       final tempDir = await getTemporaryDirectory();
-      final filePath =
-          '${tempDir.path}/$nombre'; // Ruta dentro del directorio temporal
-      File file = File(filePath);
-      await file.writeAsBytes(
-          response.bodyBytes); // Escribir los bytes de la imagen en el archivo
+      final filePath = '${tempDir.path}/$nombre';
+      final file = File(filePath);
 
-      print("Imagen encontrada y guardada en: $filePath");
-      return file; // Devolver el archivo creado
-    } else {
-      print("Imagen no encontrada");
-      throw Exception('Error al obtener el archivo: ${response.statusCode}');
+      // Verificar si la imagen ya está guardada en caché
+      if (await file.exists()) {
+        print("Imagen cargada desde caché: $filePath");
+        return file; // Retorna la imagen desde el almacenamiento temporal
+      }
+
+      // Si no existe en caché, hacer la solicitud al servidor
+      Map<String, dynamic> data = {"fileName": nombre};
+      final response = await http.post(
+        Uri.parse('http://$_host/productos/receiveFile'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        await file.writeAsBytes(response.bodyBytes);
+        print("Imagen descargada y guardada en caché: $filePath");
+        return file; // Devuelve el archivo descargado
+      } else {
+        print("Imagen no encontrada en el servidor: ${response.statusCode}");
+        throw Exception('Error al obtener el archivo: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Error al obtener la imagen: $e');
+      throw Exception('No se pudo obtener la imagen.');
     }
   }
 }
