@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
+import 'package:famsync/components/host.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -28,7 +29,7 @@ class Tareas {
 }
 
 class ServicioTareas {
-  final String _host = '172.20.10.3:3000';
+  final String _host = Host.host;
   // BUSCAR USUARIOS //
   Future<List<Tareas>> getTareas(int IdPerfil) async {
     http.Response response = await http.get(
