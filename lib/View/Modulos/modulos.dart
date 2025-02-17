@@ -151,7 +151,7 @@ class ModulosState extends State<Modulos> {
       ),
       backgroundColor: Colores.principal, // Fondo negro
       extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
+      bottomNavigationBar: CustomBottomNavBar(perfil: widget.perfil, pagina: 0, pageController: PageController(),),
     );
   }
 }

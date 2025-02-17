@@ -490,8 +490,11 @@ class AgendaState extends State<Agenda> {
         ],
       ),
       extendBody: true,
-      bottomNavigationBar:
-          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
+      bottomNavigationBar: CustomBottomNavBar(
+        perfil: widget.perfil,
+        pagina: 0,
+        pageController: PageController(),
+      ),
     );
   }
 }
