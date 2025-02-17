@@ -168,11 +168,8 @@ class AjustesState extends State<Ajustes> {
         ],
       ),
       extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 3, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar:
+          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 2),
     );
   }
 

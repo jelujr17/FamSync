@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
           },
         ),
         splashIconSize: double.infinity, // Hace que el icono ocupe todo el espacio disponible
-        duration: 1500,
+        duration: 1000,
         splashTransition: SplashTransition.fadeTransition,
         backgroundColor: Colores.botonesSecundarios,
       ),

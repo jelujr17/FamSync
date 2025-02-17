@@ -29,8 +29,6 @@ class ModulosState extends State<Modulos> {
     {'titulo': 'Categorías', 'icono': Icons.category, 'ruta': 5},
   ];
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +37,8 @@ class ModulosState extends State<Modulos> {
         title: const Text(
           'Módulos',
           style: TextStyle(
-            color: Colores.texto, // Texto blanco para resaltar sobre el fondo negro
+            color: Colores
+                .texto, // Texto blanco para resaltar sobre el fondo negro
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
@@ -78,8 +77,7 @@ class ModulosState extends State<Modulos> {
                       child: Almacen(perfil: widget.perfil),
                     ),
                   );
-                }
-                else if (modulo['ruta'] == 4) {
+                } else if (modulo['ruta'] == 4) {
                   Navigator.push(
                     context,
                     PageTransition(
@@ -87,8 +85,7 @@ class ModulosState extends State<Modulos> {
                       child: Agenda(perfil: widget.perfil),
                     ),
                   );
-                }
-                else if (modulo['ruta'] == 5) {
+                } else if (modulo['ruta'] == 5) {
                   Navigator.push(
                     context,
                     PageTransition(
@@ -100,7 +97,8 @@ class ModulosState extends State<Modulos> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colores.fondoAux, // Fondo gris oscuro para las tarjetas
+                  color:
+                      Colores.fondoAux, // Fondo gris oscuro para las tarjetas
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
@@ -119,8 +117,10 @@ class ModulosState extends State<Modulos> {
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [
-                            Colores.detallesDorados.withOpacity(0.8), // Dorado brillante
-                            Colores.detallesDorados.withOpacity(0.6), // Dorado más tenue
+                            Colores.detallesDorados
+                                .withOpacity(0.8), // Dorado brillante
+                            Colores.detallesDorados
+                                .withOpacity(0.6), // Dorado más tenue
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -138,7 +138,8 @@ class ModulosState extends State<Modulos> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white, // Texto blanco para un buen contraste
+                        color:
+                            Colors.white, // Texto blanco para un buen contraste
                       ),
                     ),
                   ],
@@ -150,11 +151,7 @@ class ModulosState extends State<Modulos> {
       ),
       backgroundColor: Colores.principal, // Fondo negro
       extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 0, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar: CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
     );
   }
 }

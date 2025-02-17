@@ -1,82 +1,97 @@
-import 'dart:developer';
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
+import 'package:flutter/material.dart';
+import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Ajustes/ajustes.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
+import 'package:famsync/View/Asistente%20Virtual/chatVS.dart';
 import 'package:famsync/View/Modulos/modulos.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:flutter/material.dart';
 
-class CustomBottomNavBar extends StatefulWidget {
+class CustomBottomNavBar extends StatelessWidget {
   final Perfiles perfil;
-  final int pagina;
-  final PageController pageController;
+  final int paginaActual;
 
   const CustomBottomNavBar({
     super.key,
     required this.perfil,
-    required this.pagina,
-    required this.pageController,
+    required this.paginaActual,
   });
 
-  @override
-  _CustomBottomNavBarState createState() => _CustomBottomNavBarState();
-}
+  void _cambiarPagina(BuildContext context, int index) {
+    if (index == paginaActual) return; // Evita recargar la misma página
 
-class _CustomBottomNavBarState extends State<CustomBottomNavBar> {
-  final NotchBottomBarController controller = NotchBottomBarController();
+    Widget paginaDestino;
+    switch (index) {
+      case 0:
+        paginaDestino = Modulos(perfil: perfil);
+        break;
+      case 1:
+        paginaDestino = VirtualAssistantPage(perfil: perfil);
+        break;
+      case 2:
+        paginaDestino = Ajustes(perfil: perfil);
+        break;
+      default:
+        return;
+    }
+
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(builder: (_) => paginaDestino),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> bottomBarPages = [
-      Modulos(perfil: widget.perfil),  // Asegúrate de usar la página correspondiente
-      Resumen(perfil: widget.perfil),
-      Ajustes(perfil: widget.perfil),
-    ];
-
-    // Calculando el ancho dinámico de la barra de navegación
-    double screenWidth = MediaQuery.of(context).size.width;
-    double bottomBarWidth = screenWidth * 0.8; // Usar el 80% del ancho de la pantalla
-
-    return Align(
-      alignment: Alignment.bottomCenter, // Alineamos al centro inferior
-      child: AnimatedNotchBottomBar(
-        notchBottomBarController: controller,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 10, left: 20, right: 20),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+      decoration: BoxDecoration(
         color: Colores.texto,
-        showLabel: true,
-        textOverflow: TextOverflow.visible,
-        maxLine: 1,
-        shadowElevation: 5,
-        kBottomRadius: 28.0,
-        notchColor: Colores.botones,
-        removeMargins: false,
-        bottomBarWidth: bottomBarWidth, // Asignamos el ancho calculado
-        showShadow: false,
-        durationInMilliSeconds: 300,
-        itemLabelStyle: const TextStyle(fontSize: 10),
-        elevation: 1,
-        bottomBarItems: const [
-          BottomBarItem(
-            inActiveItem: Icon(Icons.home_filled, color: Colores.fondoAux),
-            activeItem: Icon(Icons.home_filled, color: Colores.fondo),
-            itemLabel: 'Módulos',
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(Icons.data_usage, color: Colores.fondoAux),
-            activeItem: Icon(Icons.data_usage, color: Colores.fondo),
-            itemLabel: 'Asistente',
-          ),
-          BottomBarItem(
-            inActiveItem: Icon(Icons.settings, color: Colores.fondoAux),
-            activeItem: Icon(Icons.settings, color: Colores.fondo),
-            itemLabel: 'Ajustes',
+        borderRadius: BorderRadius.circular(30), // Más curvatura
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.15),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4), // Sombra hacia abajo
           ),
         ],
-        onTap: (index) {
-          log('current selected index $index');
-          widget.pageController.jumpToPage(index);  // Usamos el controlador para cambiar la página
-        },
-        kIconSize: 24.0,
+      ),
+      child: GNav(
+        selectedIndex: paginaActual,
+        onTabChange: (index) => _cambiarPagina(context, index),
+        gap: 10,
+        backgroundColor: Colors.transparent,
+        activeColor: Colores.fondo, // Color del icono activo
+        color: Colores.fondoAux, // Color del icono inactivo
+        iconSize: 26, // Iconos más grandes
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        curve: Curves.easeInOut, // Transición más suave
+        tabs: const [
+          GButton(
+            icon: Icons.home_filled,
+            text: 'Módulos',
+            iconColor: Colores.fondoAux,
+            iconActiveColor: Colores.texto,
+            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
+            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+          ),
+          GButton(
+            icon: Icons.data_usage,
+            text: 'Asistente',
+            iconColor: Colores.fondoAux,
+            iconActiveColor: Colores.texto,
+            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
+            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+          ),
+          GButton(
+            icon: Icons.settings,
+            text: 'Ajustes',
+            iconColor: Colores.fondoAux,
+            iconActiveColor: Colores.texto,
+            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
+            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+          ),
+        ],
       ),
     );
   }

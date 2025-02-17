@@ -10,7 +10,7 @@ import 'package:famsync/components/colores.dart';
 
 class Perfil extends StatefulWidget {
   final Perfiles perfil;
-    final GlobalKey<NavigatorState>? navigatorKey;
+  final GlobalKey<NavigatorState>? navigatorKey;
 
   const Perfil({super.key, required this.perfil, this.navigatorKey});
 
@@ -41,9 +41,7 @@ class PerfilState extends State<Perfil> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Perfil'),
-        
         centerTitle: true,
-        
       ),
       body: Center(
         child: Column(
@@ -124,11 +122,8 @@ class PerfilState extends State<Perfil> {
         ),
       ),
       extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 0, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar:
+          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 2),
     );
   }
 }

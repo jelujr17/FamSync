@@ -140,11 +140,8 @@ class TareasState extends State<TareasPage> {
         ),
       ),
       extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 0, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar:
+          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
     );
   }
 

@@ -10,7 +10,6 @@ import 'package:page_transition/page_transition.dart';
 
 import 'package:famsync/View/Modulos/Almacen/Productos/nexoAlmacen.dart';
 
-
 class CurvedAppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -106,15 +105,13 @@ class DetallesProducto extends State<VerProducto> {
           );
         }
         if (value == "lista") {
-          NexoAlmacen().seleccionarLista(widget.producto, widget.perfil.UsuarioId, widget.perfil.Id, context);
+          NexoAlmacen().seleccionarLista(widget.producto,
+              widget.perfil.UsuarioId, widget.perfil.Id, context);
         }
         print('Seleccionaste: $value');
       }
     });
   }
-
-
-  
 
   void _confirmarEliminacion(Productos producto) {
     showDialog(
@@ -419,11 +416,8 @@ class DetallesProducto extends State<VerProducto> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 0, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar:
+          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
     );
   }
 }

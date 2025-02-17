@@ -233,11 +233,8 @@ class CalendarScreenState extends State<Calendario> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colores.texto, size: 32),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(),
-        pagina: 0, 
-        perfil: widget.perfil,
-      ),
+      bottomNavigationBar:
+          CustomBottomNavBar(perfil: widget.perfil, paginaActual: 0),
     );
   }
 }
