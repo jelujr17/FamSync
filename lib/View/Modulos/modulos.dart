@@ -1,3 +1,4 @@
+import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/View/navegacion.dart';
@@ -10,8 +11,9 @@ import 'package:famsync/components/colores.dart';
 
 class Modulos extends StatefulWidget {
   final Perfiles perfil;
+  final NotchBottomBarController? controller;
 
-  const Modulos({super.key, required this.perfil});
+  const Modulos({super.key, required this.perfil, this.controller});
 
   @override
   ModulosState createState() => ModulosState();
@@ -26,6 +28,8 @@ class ModulosState extends State<Modulos> {
     {'titulo': 'Tareas', 'icono': Icons.task, 'ruta': 4},
     {'titulo': 'Categorías', 'icono': Icons.category, 'ruta': 5},
   ];
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +151,7 @@ class ModulosState extends State<Modulos> {
       backgroundColor: Colores.principal, // Fondo negro
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-        pageController: PageController(), 
+        pageController: PageController(),
         pagina: 0, 
         perfil: widget.perfil,
       ),

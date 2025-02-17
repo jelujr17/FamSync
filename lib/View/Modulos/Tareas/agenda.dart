@@ -379,9 +379,9 @@ class AgendaState extends State<Agenda> {
             backgroundColor: Colores.principal,
             title: Stack(
               children: [
-                Align(
+                const Align(
                   alignment: Alignment.center, // Centra el título
-                  child: const Text(
+                  child: Text(
                     'Agenda',
                     style: TextStyle(fontSize: 24),
                   ),
@@ -492,7 +492,7 @@ class AgendaState extends State<Agenda> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
-        pagina: 0,
+        pagina: 0, 
         perfil: widget.perfil,
       ),
     );

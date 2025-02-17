@@ -170,7 +170,7 @@ class AjustesState extends State<Ajustes> {
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
-        pagina: 2,
+        pagina: 3, 
         perfil: widget.perfil,
       ),
     );

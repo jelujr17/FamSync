@@ -27,8 +27,6 @@ class _NuevaTareaPageState extends State<NuevaTareaPage> {
   List<String> nombresCategorias = [];
   List<Categorias> categorias = [];
   Color colorSeleccionado = Colores.principal;
-  final TextEditingController _dropdownSearchFieldController =
-      TextEditingController();
   int? idCategoriaSeleccionada;
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
 

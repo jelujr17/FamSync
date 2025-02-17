@@ -235,7 +235,7 @@ class CalendarScreenState extends State<Calendario> {
       ),
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
-        pagina: 0,
+        pagina: 0, 
         perfil: widget.perfil,
       ),
     );

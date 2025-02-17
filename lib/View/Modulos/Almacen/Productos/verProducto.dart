@@ -421,7 +421,7 @@ class DetallesProducto extends State<VerProducto> {
       ),
       bottomNavigationBar: CustomBottomNavBar(
         pageController: PageController(),
-        pagina: 0,
+        pagina: 0, 
         perfil: widget.perfil,
       ),
     );

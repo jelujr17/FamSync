@@ -146,9 +146,8 @@ class _VirtualAssistantPageState extends State<VirtualAssistantPage> {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-        pageController:
-            PageController(), // Cambia a PageController() si decides usarlo en el futuro
-        pagina: 1,
+        pageController: PageController(),
+        pagina: 0, 
         perfil: widget.perfil,
       ),
     );

@@ -125,8 +125,8 @@ class PerfilState extends State<Perfil> {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-        pageController: _pageController,
-        pagina: 2,
+        pageController: PageController(),
+        pagina: 0, 
         perfil: widget.perfil,
       ),
     );

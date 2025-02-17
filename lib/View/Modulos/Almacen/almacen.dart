@@ -40,7 +40,6 @@ class Almacen extends StatefulWidget {
 
 class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
   late Future<List<Productos>> _productosFuture;
-  final int _productosPorPagina = 25;
   late AnimationController _animationController;
 
   @override
@@ -397,7 +396,10 @@ class AlmacenState extends State<Almacen> with SingleTickerProviderStateMixin {
       ),
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(), pagina: 0, perfil: widget.perfil),
+        pageController: PageController(),
+        pagina: 0,
+        perfil: widget.perfil,
+      ),
     );
   }
 }
