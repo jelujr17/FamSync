@@ -45,7 +45,7 @@ class CustomBottomNavBar extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 10, left: 20, right: 20),
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
       decoration: BoxDecoration(
-        color: Colores.texto,
+        color: Colores.botonesSecundarios,
         borderRadius: BorderRadius.circular(30), // Más curvatura
         boxShadow: [
           BoxShadow(
@@ -69,27 +69,34 @@ class CustomBottomNavBar extends StatelessWidget {
         tabs: const [
           GButton(
             icon: Icons.home_filled,
-            text: 'Módulos',
-            iconColor: Colores.fondoAux,
+            text: 'Módulos', iconColor: Colores.fondoAux,
             iconActiveColor: Colores.texto,
-            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
-            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+            backgroundColor: Colores.fondoAux, // Fondo del botón seleccionado
+            textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colores.texto),
           ),
           GButton(
             icon: Icons.data_usage,
-            text: 'Asistente',
-            iconColor: Colores.fondoAux,
+            text: 'Asistente', iconColor: Colores.fondoAux,
             iconActiveColor: Colores.texto,
-            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
-            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+            backgroundColor: Colores.fondoAux, // Fondo del botón seleccionado
+            textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colores.texto),
           ),
           GButton(
             icon: Icons.settings,
             text: 'Ajustes',
             iconColor: Colores.fondoAux,
             iconActiveColor: Colores.texto,
-            backgroundColor: Colores.botonesSecundarios, // Fondo del botón seleccionado
-            textStyle:  TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colores.texto),
+            backgroundColor: Colores.fondoAux, // Fondo del botón seleccionado
+            textStyle: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colores.texto),
           ),
         ],
       ),
