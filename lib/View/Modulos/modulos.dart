@@ -35,13 +35,13 @@ class ModulosState extends State<Modulos> {
         title: const Text(
           'Módulos',
           style: TextStyle(
-            color: Colors.black,
+            color: Colores.texto, // Texto blanco para resaltar sobre el fondo negro
             fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colores.principal, // Fondo oscuro (negro)
         elevation: 0,
       ),
       body: Padding(
@@ -96,11 +96,11 @@ class ModulosState extends State<Modulos> {
               },
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Colores.fondoAux, // Fondo gris oscuro para las tarjetas
                   borderRadius: BorderRadius.circular(20),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colores.fondoAux.withOpacity(0.1),
                       spreadRadius: 4,
                       blurRadius: 10,
                     ),
@@ -115,8 +115,8 @@ class ModulosState extends State<Modulos> {
                         shape: BoxShape.circle,
                         gradient: LinearGradient(
                           colors: [
-                            Colores.principal.withOpacity(0.8),
-                            Colores.principal.withOpacity(0.6),
+                            Colores.detallesDorados.withOpacity(0.8), // Dorado brillante
+                            Colores.detallesDorados.withOpacity(0.6), // Dorado más tenue
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -125,7 +125,7 @@ class ModulosState extends State<Modulos> {
                       child: Icon(
                         modulo['icono'],
                         size: 40,
-                        color: Colors.white,
+                        color: Colors.white, // Icono blanco
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -134,7 +134,7 @@ class ModulosState extends State<Modulos> {
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black54,
+                        color: Colors.white, // Texto blanco para un buen contraste
                       ),
                     ),
                   ],
@@ -144,10 +144,13 @@ class ModulosState extends State<Modulos> {
           },
         ),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colores.principal, // Fondo negro
       extendBody: true,
       bottomNavigationBar: CustomBottomNavBar(
-          pageController: PageController(), pagina: 0, perfil: widget.perfil),
+        pageController: PageController(), 
+        pagina: 0, 
+        perfil: widget.perfil,
+      ),
     );
   }
 }
