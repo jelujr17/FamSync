@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:famsync/components/colores.dart';
 
 import 'sign_in_form.dart';
 
@@ -41,7 +42,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                   child: Column(
                     children: [
                       const Text(
-                        "Sign in",
+                        "Iniciar sesión",
                         style: TextStyle(
                           fontSize: 34,
                           fontFamily: "Poppins",
@@ -51,7 +52,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),
                         child: Text(
-                          "Access to 240+ hours of content. Learn design and code, by building real apps with Flutter and Swift.",
+                          "Administra fácilmente tu hogar con FamSync. Organiza eventos, tareas y productos en un solo lugar para una mejor sincronización familiar.",
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -64,7 +65,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16),
                             child: Text(
-                              "OR",
+                              "O",
                               style: TextStyle(
                                 color: Colors.black26,
                                 fontWeight: FontWeight.w500,
@@ -77,7 +78,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                       const Padding(
                         padding: EdgeInsets.symmetric(vertical: 24),
                         child: Text(
-                          "Sign up with Email, Apple or Google",
+                          "Inicia sesión con Facebook, Apple o Google",
                           style: TextStyle(color: Colors.black54),
                         ),
                       ),
@@ -116,17 +117,24 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                     ],
                   ),
                 ),
-                const Positioned(
+                Positioned(
                   left: 0,
                   right: 0,
                   bottom: -48,
-                  child: CircleAvatar(
-                    radius: 16,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.close,
-                      size: 20,
-                      color: Colors.black,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    decoration: const BoxDecoration(
+                      color: Colores.botonesSecundarios,
+                      borderRadius: BorderRadius.all(Radius.circular(16)),
+                    ),
+                    child: const Text(
+                      "Crear cuenta",
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 )

@@ -123,7 +123,7 @@ class _SignInFormState extends State<SignInForm> {
                 ),
               ),
               const Text(
-                "Password",
+                "Contraseña",
                 style: TextStyle(
                   color: Colors.black54,
                 ),
@@ -168,7 +168,7 @@ class _SignInFormState extends State<SignInForm> {
                     CupertinoIcons.arrow_right,
                     color: Color(0xFFFE0037),
                   ),
-                  label: const Text("Sign In"),
+                  label: const Text("Iniciar Sesión"),
                 ),
               ),
             ],
