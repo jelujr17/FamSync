@@ -1,5 +1,4 @@
-import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:famsync/components/colores.dart';
+import 'package:famsync/View/Inicio/inicio.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/login.dart';
@@ -36,28 +35,41 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('es', 'ES'),
       ],
-      home: AnimatedSplashScreen(
-        splash: Image.asset(
-          'assets/images/splash.png',
-          fit: BoxFit.cover, // Asegura que la imagen ocupe toda la pantalla
-        ),
-        nextScreen: FutureBuilder<Widget>(
-          future: getInitialPage(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return const Center(child: Text('Error al cargar la aplicación'));
-            } else {
-              return snapshot.data!;
-            }
-          },
-        ),
-        splashIconSize: double.infinity, // Hace que el icono ocupe todo el espacio disponible
-        duration: 1000,
-        splashTransition: SplashTransition.fadeTransition,
-        backgroundColor: Colores.botonesSecundarios,
+      home: FutureBuilder<Widget>(
+        future: getInitialPage(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return const Center(child: Text('Error al cargar la aplicación'));
+          } else {
+            return snapshot.data!;
+          }
+        },
       ),
+      // Comentado el AnimatedSplashScreen
+      // home: AnimatedSplashScreen(
+      //   splash: Image.asset(
+      //     'assets/images/splash.png',
+      //     fit: BoxFit.cover, // Asegura que la imagen ocupe toda la pantalla
+      //   ),
+      //   nextScreen: FutureBuilder<Widget>(
+      //     future: getInitialPage(),
+      //     builder: (context, snapshot) {
+      //       if (snapshot.connectionState == ConnectionState.waiting) {
+      //         return const Center(child: CircularProgressIndicator());
+      //       } else if (snapshot.hasError) {
+      //         return const Center(child: Text('Error al cargar la aplicación'));
+      //       } else {
+      //         return snapshot.data!;
+      //       }
+      //     },
+      //   ),
+      //   splashIconSize: double.infinity, // Hace que el icono ocupe todo el espacio disponible
+      //   duration: 1000,
+      //   splashTransition: SplashTransition.fadeTransition,
+      //   backgroundColor: Colores.botonesSecundarios,
+      // ),
     );
   }
 
@@ -66,24 +78,25 @@ class MyApp extends StatelessWidget {
     final int? userId = prefs.getInt('IdUsuario');
     final int? perfilId = prefs.getInt('IdPerfil');
     final bool aux = await NexoInicio().primeraVezResumen();
-    
-    if (userId == null) {
-      return const LoginScreen();
+
+    // Comentado el redireccionamiento al login
+     if (userId != null) {
+       return const OnbodingScreen();
+     } else {
+    if (perfilId == null) {
+      return SeleccionPerfil(IdUsuario: userId!);
     } else {
-      if (perfilId == null) {
-        return SeleccionPerfil(IdUsuario: userId);
+      final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
+      if (perfil == null) {
+        return const OnbodingScreen();
       } else {
-        final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
-        if (perfil == null) {
-          return const LoginScreen();
+        if (aux) {
+          return Resumen(perfil: perfil);
         } else {
-          if (aux) {
-            return Resumen(perfil: perfil);
-          } else {
-            return Modulos(perfil: perfil);
-          }
+          return Modulos(perfil: perfil);
         }
       }
     }
+     }
   }
 }
