@@ -5,7 +5,7 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
 import 'package:famsync/components/Inicio/boton_menu_lateral.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
-import 'package:famsync/components/Inicio/side_bar.dart';
+import 'package:famsync/components/Inicio/menu_lateral.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
@@ -71,6 +71,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
+      backgroundColor: Color(0xFF17203A),
       body: Stack(
         children: [
           AnimatedPositioned(
@@ -80,7 +81,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
             curve: Curves.fastOutSlowIn,
             left: isSideBarOpen ? 0 : -288,
             top: 0,
-            child: const SideBar(),
+            child: SideBar(perfil: widget.perfil),
           ),
           Transform(
             alignment: Alignment.center,
@@ -140,7 +141,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           child: Container(
             padding:
                 const EdgeInsets.only(left: 12, top: 12, right: 12, bottom: 12),
-            margin: const EdgeInsets.symmetric(horizontal: 24).copyWith(bottom: 24), // Agrega margen inferior
+            margin: const EdgeInsets.symmetric(horizontal: 24)
+                .copyWith(bottom: 24), // Agrega margen inferior
             decoration: BoxDecoration(
               color: Colores.principal.withOpacity(0.8),
               borderRadius: const BorderRadius.all(Radius.circular(24)),

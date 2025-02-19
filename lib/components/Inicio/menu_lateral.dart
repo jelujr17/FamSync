@@ -1,12 +1,14 @@
 import 'package:famsync/Model/Inicio/menuLateral.dart';
-import 'package:famsync/components/Inicio/info_card.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/components/Inicio/informacion_usuario.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:flutter/material.dart';
 
 import 'side_menu.dart';
 
 class SideBar extends StatefulWidget {
-  const SideBar({super.key});
+  final Perfiles perfil; // Identificador del perfil del usuario
+  const SideBar({super.key, required this.perfil});
 
   @override
   State<SideBar> createState() => _SideBarState();
@@ -31,9 +33,10 @@ class _SideBarState extends State<SideBar> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const InfoCard(
-                name: "Abu Anwar",
-                bio: "YouTuber",
+               InfoCard(
+                nombre: widget.perfil.Nombre,
+                fecha: widget.perfil.FechaNacimiento,
+                perfil: widget.perfil,
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
