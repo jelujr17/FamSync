@@ -1,5 +1,5 @@
-import 'package:famsync/Model/Inicio/menu.dart';
-import 'package:famsync/components/Inicio/animated_bar.dart';
+import 'package:famsync/Model/Inicio/menuLateral.dart';
+import 'package:famsync/components/Inicio/BarraNavegacion/animated_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 

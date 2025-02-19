@@ -3,9 +3,7 @@
 import 'dart:io';
 
 import 'package:animated_background/animated_background.dart';
-import 'package:famsync/View/Inicio/nexoIncio.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
-import 'package:famsync/View/Modulos/modulos.dart';
+import 'package:famsync/View/Inicio/home.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -196,29 +194,16 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                         print(preferencias.getInt('IdPerfil'));
                       }
 
-                      bool aux = await NexoInicio().primeraVezResumen();
-
-                      if (aux) {
                         Navigator.push(
                           context,
                           PageTransition(
                             type: PageTransitionType.fade,
-                            child: Resumen(
+                            child: Home(
                               perfil: perfil,
                             ),
                           ),
                         );
-                      } else {
-                        Navigator.push(
-                          context,
-                          PageTransition(
-                            type: PageTransitionType.fade,
-                            child: Modulos(
-                              perfil: perfil,
-                            ),
-                          ), 
-                        );
-                      }
+                      
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Pin incorrecto')),

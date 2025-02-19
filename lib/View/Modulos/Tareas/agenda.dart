@@ -4,7 +4,6 @@ import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/View/Modulos/Calendario/Eventos/verDetallesEvento.dart';
 import 'package:famsync/View/Modulos/Tareas/nuevaTarea.dart';
 import 'package:famsync/View/Modulos/Tareas/tareas.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
@@ -489,12 +488,7 @@ class AgendaState extends State<Agenda> {
                 ),
         ],
       ),
-      extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        perfil: widget.perfil,
-        pagina: 0,
-        pageController: PageController(),
-      ),
+      
     );
   }
 }

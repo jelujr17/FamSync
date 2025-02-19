@@ -1,4 +1,4 @@
-import 'package:famsync/Model/Inicio/menu.dart';
+import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/components/Inicio/info_card.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:flutter/material.dart';
