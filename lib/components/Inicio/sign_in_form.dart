@@ -1,8 +1,10 @@
-import 'package:famsync/components/Inicio/entry_point.dart';
+import 'package:famsync/Model/usuario.dart';
+import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm({
@@ -15,6 +17,8 @@ class SignInForm extends StatefulWidget {
 
 class _SignInFormState extends State<SignInForm> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool isShowLoading = false;
   bool isShowConfetti = false;
   late SMITrigger error;
@@ -41,51 +45,69 @@ class _SignInFormState extends State<SignInForm> {
     confetti = controller.findInput<bool>("Trigger explosion") as SMITrigger;
   }
 
-  void singIn(BuildContext context) {
-    // confetti.fire();
+  void signIn(BuildContext context) async {
+    // Mostrar animaciones de carga
     setState(() {
       isShowConfetti = true;
       isShowLoading = true;
     });
-    Future.delayed(
-      const Duration(seconds: 1),
-      () {
-        if (_formKey.currentState!.validate()) {
-          success.fire();
-          Future.delayed(
-            const Duration(seconds: 2),
-            () {
-              setState(() {
-                isShowLoading = false;
-              });
-              confetti.fire();
-              // Navigate & hide confetti
-              Future.delayed(const Duration(seconds: 1), () {
-                // Navigator.pop(context);
-                if (!context.mounted) return;
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const EntryPoint(),
-                  ),
-                );
-              });
-            },
+
+    await Future.delayed(const Duration(seconds: 1));
+
+    if (_formKey.currentState!.validate()) {
+      // Obtener los datos del formulario
+      String emailOrPhone = _emailController.text;
+      String password = _passwordController.text;
+
+      // Llamar al servicio de login
+      ServicioUsuarios servicioUsuarios = ServicioUsuarios();
+      Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
+      final SharedPreferences preferencias =
+          await SharedPreferences.getInstance();
+
+      if (usuario != null) {
+        // Inicio de sesión exitoso
+        preferencias.setInt('IdUsuario', usuario.Id);
+        success.fire();
+        await Future.delayed(const Duration(seconds: 2));
+
+        setState(() {
+          isShowLoading = false;
+        });
+
+        confetti.fire();
+
+        Future.delayed(const Duration(seconds: 1), () {
+          if (!context.mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
+            ),
           );
-        } else {
-          error.fire();
-          Future.delayed(
-            const Duration(seconds: 2),
-            () {
-              setState(() {
-                isShowLoading = false;
-              });
-              reset.fire();
-            },
-          );
-        }
-      },
-    );
+        });
+      } else {
+        // Error de login
+        error.fire();
+        await Future.delayed(const Duration(seconds: 2));
+
+        setState(() {
+          isShowLoading = false;
+        });
+
+        reset.fire();
+      }
+    } else {
+      // Validación fallida
+      error.fire();
+      await Future.delayed(const Duration(seconds: 2));
+
+      setState(() {
+        isShowLoading = false;
+      });
+
+      reset.fire();
+    }
   }
 
   @override
@@ -106,9 +128,10 @@ class _SignInFormState extends State<SignInForm> {
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
                 child: TextFormField(
+                  controller: _emailController,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return "";
+                      return "Por favor ingrese su correo electrónico";
                     }
                     return null;
                   },
@@ -131,10 +154,11 @@ class _SignInFormState extends State<SignInForm> {
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
                 child: TextFormField(
+                  controller: _passwordController,
                   obscureText: true,
                   validator: (value) {
                     if (value!.isEmpty) {
-                      return "";
+                      return "Por favor ingrese su contraseña";
                     }
                     return null;
                   },
@@ -150,7 +174,7 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8, bottom: 24),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    singIn(context);
+                    signIn(context);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFFF77D8E),

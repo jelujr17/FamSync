@@ -9,7 +9,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
     context: context,
     barrierLabel: "Barrier",
     barrierDismissible: true,
-    barrierColor: Colors.black.withOpacity(0.5),
+    barrierColor: Colores.fondo.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (_, __, ___) {
       return Center(
@@ -35,6 +35,8 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
           ),
           child: Scaffold(
             // backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: false,
+
             body: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -122,7 +124,8 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                   right: 0,
                   bottom: -48,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                     decoration: const BoxDecoration(
                       color: Colores.botonesSecundarios,
                       borderRadius: BorderRadius.all(Radius.circular(16)),
