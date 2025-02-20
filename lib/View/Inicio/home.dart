@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
 import 'package:famsync/components/Inicio/boton_menu_lateral.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
@@ -93,11 +94,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
               offset: Offset(animation.value * 265, 0),
               child: Transform.scale(
                 scale: scalAnimation.value,
-                child: const ClipRRect(
-                  borderRadius: BorderRadius.all(
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: Placeholder(),
+                  child: Agenda(perfil: widget.perfil),
                 ),
               ),
             ),

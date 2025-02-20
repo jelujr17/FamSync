@@ -1,6 +1,7 @@
 import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
+import 'package:famsync/View/Modulos/Tareas/modelo_Tarea.dart';
 import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
