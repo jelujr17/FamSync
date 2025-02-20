@@ -71,7 +71,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
-      backgroundColor: Color(0xFF17203A),
+      backgroundColor: const Color(0xFF17203A),
       body: Stack(
         children: [
           AnimatedPositioned(

@@ -33,7 +33,7 @@ class _SideBarState extends State<SideBar> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-               InfoCard(
+              InfoCard(
                 nombre: widget.perfil.Nombre,
                 fecha: widget.perfil.FechaNacimiento,
                 perfil: widget.perfil,
@@ -41,7 +41,7 @@ class _SideBarState extends State<SideBar> {
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
                 child: Text(
-                  "Browse".toUpperCase(),
+                  "Perfil y Usuario".toUpperCase(),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -65,7 +65,7 @@ class _SideBarState extends State<SideBar> {
               Padding(
                 padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
                 child: Text(
-                  "History".toUpperCase(),
+                  "Configuracion".toUpperCase(),
                   style: Theme.of(context)
                       .textTheme
                       .titleMedium!
@@ -73,6 +73,30 @@ class _SideBarState extends State<SideBar> {
                 ),
               ),
               ...sidebarMenus2.map((menu) => SideMenu(
+                    menu: menu,
+                    selectedMenu: selectedSideMenu,
+                    press: () {
+                      RiveUtils.chnageSMIBoolState(menu.rive.status!);
+                      setState(() {
+                        selectedSideMenu = menu;
+                      });
+                    },
+                    riveOnInit: (artboard) {
+                      menu.rive.status = RiveUtils.getRiveInput(artboard,
+                          stateMachineName: menu.rive.stateMachineName);
+                    },
+                  )),
+              Padding(
+                padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
+                child: Text(
+                  "Informacion y Ayuda".toUpperCase(),
+                  style: Theme.of(context)
+                      .textTheme
+                      .titleMedium!
+                      .copyWith(color: Colors.white70),
+                ),
+              ),
+              ...sidebarMenus3.map((menu) => SideMenu(
                     menu: menu,
                     selectedMenu: selectedSideMenu,
                     press: () {
