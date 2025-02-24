@@ -1,4 +1,6 @@
+import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
+import 'package:famsync/View/Inicio/home.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,9 +9,7 @@ import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
-  const SignInForm({
-    super.key,
-  });
+  const SignInForm({super.key});
 
   @override
   State<SignInForm> createState() => _SignInFormState();
@@ -24,13 +24,11 @@ class _SignInFormState extends State<SignInForm> {
   late SMITrigger error;
   late SMITrigger success;
   late SMITrigger reset;
-
   late SMITrigger confetti;
 
   void _onCheckRiveInit(Artboard artboard) {
     StateMachineController? controller =
         StateMachineController.fromArtboard(artboard, 'State Machine 1');
-
     artboard.addController(controller!);
     error = controller.findInput<bool>('Error') as SMITrigger;
     success = controller.findInput<bool>('Check') as SMITrigger;
@@ -41,12 +39,10 @@ class _SignInFormState extends State<SignInForm> {
     StateMachineController? controller =
         StateMachineController.fromArtboard(artboard, "State Machine 1");
     artboard.addController(controller!);
-
     confetti = controller.findInput<bool>("Trigger explosion") as SMITrigger;
   }
 
   void signIn(BuildContext context) async {
-    // Mostrar animaciones de carga
     setState(() {
       isShowConfetti = true;
       isShowLoading = true;
@@ -55,18 +51,15 @@ class _SignInFormState extends State<SignInForm> {
     await Future.delayed(const Duration(seconds: 1));
 
     if (_formKey.currentState!.validate()) {
-      // Obtener los datos del formulario
       String emailOrPhone = _emailController.text;
       String password = _passwordController.text;
 
-      // Llamar al servicio de login
       ServicioUsuarios servicioUsuarios = ServicioUsuarios();
       Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
       final SharedPreferences preferencias =
           await SharedPreferences.getInstance();
 
       if (usuario != null) {
-        // Inicio de sesión exitoso
         preferencias.setInt('IdUsuario', usuario.Id);
         success.fire();
         await Future.delayed(const Duration(seconds: 2));
@@ -77,17 +70,37 @@ class _SignInFormState extends State<SignInForm> {
 
         confetti.fire();
 
-        Future.delayed(const Duration(seconds: 1), () {
+        Future.delayed(const Duration(seconds: 1), () async {
           if (!context.mounted) return;
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
-            ),
-          );
+
+          int? idPerfil = preferencias.getInt('IdPerfil');
+          if (idPerfil != null) {
+            Perfiles? perfil = await ServicioPerfiles().getPerfilById(idPerfil);
+            // Si existe IdPerfil, redirigir a Home
+            if (perfil != null) {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => Home(perfil: perfil)),
+              );
+            } else {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
+                ),
+              );
+            }
+          } else {
+            // Si no, redirigir a la selección de perfil
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
+              ),
+            );
+          }
         });
       } else {
-        // Error de login
         error.fire();
         await Future.delayed(const Duration(seconds: 2));
 
@@ -98,7 +111,6 @@ class _SignInFormState extends State<SignInForm> {
         reset.fire();
       }
     } else {
-      // Validación fallida
       error.fire();
       await Future.delayed(const Duration(seconds: 2));
 
@@ -121,9 +133,7 @@ class _SignInFormState extends State<SignInForm> {
             children: [
               const Text(
                 "Email",
-                style: TextStyle(
-                  color: Colors.black54,
-                ),
+                style: TextStyle(color: Colors.black54),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -147,9 +157,7 @@ class _SignInFormState extends State<SignInForm> {
               ),
               const Text(
                 "Contraseña",
-                style: TextStyle(
-                  color: Colors.black54,
-                ),
+                style: TextStyle(color: Colors.black54),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),

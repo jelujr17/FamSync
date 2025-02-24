@@ -193,17 +193,15 @@ class _SeleccionPerfilState extends State<SeleccionPerfil>
                         await preferencias.setInt('IdPerfil', perfil.Id);
                         print(preferencias.getInt('IdPerfil'));
                       }
-
-                        Navigator.push(
-                          context,
-                          PageTransition(
-                            type: PageTransitionType.fade,
-                            child: Home(
-                              perfil: perfil,
-                            ),
+                      Navigator.push(
+                        context,
+                        PageTransition(
+                          type: PageTransitionType.fade,
+                          child: Home(
+                            perfil: perfil,
                           ),
-                        );
-                      
+                        ),
+                      );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(content: Text('Pin incorrecto')),

@@ -1,7 +1,6 @@
 import 'package:famsync/View/Inicio/inicio.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/login.dart';
 import 'package:famsync/View/Inicio/nexoIncio.dart';
 import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';

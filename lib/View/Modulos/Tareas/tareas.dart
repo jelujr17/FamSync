@@ -1,7 +1,6 @@
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
