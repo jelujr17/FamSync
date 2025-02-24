@@ -14,41 +14,30 @@ class Course {
 }
 
 final List<Course> estadosTareas = [
- 
   Course(
     title: "Todas",
     iconSrc: "assets/icons/code.svg",
-    color:  Colores.botones,
-  ),Course(
+    color: Colores.botones,
+  ),
+  Course(
     title: "Programadas",
     iconSrc: "assets/icons/code.svg",
-    color:  Colores.botonesSecundarios,
-  ),Course(
+    color: Colores.botonesSecundarios,
+  ),
+  Course(
     title: "Por hacer",
     iconSrc: "assets/icons/code.svg",
-    color:  Colores.botones,
-  ),Course(
+    color: Colores.botones,
+  ),
+  Course(
     title: "Completadas",
     iconSrc: "assets/icons/code.svg",
-    color:  Colores.botonesSecundarios,
-  ),Course(
+    color: Colores.botonesSecundarios,
+  ),
+  Course(
     title: "Urgentes",
     iconSrc: "assets/icons/code.svg",
-    color:  Colores.botones,
+    color: Colores.botones,
   ),
 ];
 
-final List<Course> categoriasTareas = [
-  Course(title: "State Machine"),
-  Course(
-    title: "Animated Menu",
-    color: const Color(0xFF9CC5FF),
-    iconSrc: "assets/icons/code.svg",
-  ),
-  Course(title: "Flutter with Rive"),
-  Course(
-    title: "Animated Menu",
-    color: const Color(0xFF9CC5FF),
-    iconSrc: "assets/icons/code.svg",
-  ),
-];

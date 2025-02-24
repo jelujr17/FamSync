@@ -6,19 +6,24 @@ class SecondaryCourseCard extends StatelessWidget {
     super.key,
     required this.title,
     this.iconsSrc = "assets/icons/ios.svg",
-    this.colorl = const Color(0xFF7553F6),
+    required this.colorl,
+    required this.textColor,
+    required this.onIconPressed, // Añadir el callback para el icono
   });
 
   final String title, iconsSrc;
   final Color colorl;
+  final Color textColor;
+  final VoidCallback onIconPressed; // Definir el callback para el icono
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
-          color: colorl,
-          borderRadius: const BorderRadius.all(Radius.circular(20))),
+        color: colorl,
+        borderRadius: const BorderRadius.all(Radius.circular(20)),
+      ),
       child: Row(
         children: [
           Expanded(
@@ -28,7 +33,7 @@ class SecondaryCourseCard extends StatelessWidget {
                 Text(
                   title,
                   style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        color: Colors.white,
+                        color: textColor,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -39,7 +44,7 @@ class SecondaryCourseCard extends StatelessWidget {
                     color: Colors.white60,
                     fontSize: 16,
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -51,7 +56,10 @@ class SecondaryCourseCard extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          SvgPicture.asset(iconsSrc)
+          GestureDetector(
+            onTap: onIconPressed, // Definir la acción al presionar el icono
+            child: SvgPicture.asset(iconsSrc),
+          ),
         ],
       ),
     );

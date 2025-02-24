@@ -1,4 +1,3 @@
-import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
@@ -8,8 +7,7 @@ import 'package:flutter/material.dart';
 
 class TareasPage extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
-  final List<Tareas> tareas;
-  const TareasPage({super.key, required this.perfil, required this.tareas});
+  const TareasPage({super.key, required this.perfil});
 
   @override
   State<TareasPage> createState() => TareasState();
@@ -26,10 +24,7 @@ class TareasState extends State<TareasPage> {
 
   Future<void> cargarTareas() async {
     try {
-      List<Categorias> categorias = await ServiciosCategorias()
-          .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
-      print("Número de categorías obtenidas: ${categorias.length}");
-
+      
       List<Tareas> tareasObtenidas =
           await ServicioTareas().getTareas(widget.perfil.Id);
       print("Número de tareas obtenidas: ${tareasObtenidas.length}");
@@ -139,12 +134,7 @@ class TareasState extends State<TareasPage> {
           ],
         ),
       ),
-      extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        perfil: widget.perfil,
-        pagina: 0,
-        pageController: PageController(),
-      ),
+      
     );
   }
 
