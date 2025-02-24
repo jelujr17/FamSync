@@ -1,3 +1,4 @@
+import 'package:famsync/View/Inicio/inicio.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,8 +34,7 @@ List<Menu> sidebarMenus = [
     onTap: (context) async {
       // Acción para la opción "Cambiar de Perfil"
       print("Cambiar de Perfil seleccionado");
-      late SharedPreferences preferencias;
-      preferencias = await SharedPreferences.getInstance();
+      SharedPreferences preferencias = await SharedPreferences.getInstance();
 
       int? usuario = preferencias.getInt('IdUsuario');
       Navigator.push(
@@ -52,9 +52,18 @@ List<Menu> sidebarMenus = [
         src: "assets/RiveAssets/icons.riv",
         artboard: "LIKE/STAR",
         stateMachineName: "STAR_Interactivity"),
-    onTap: (context) {
+    onTap: (context) async {
       // Acción para la opción "Cerrar Sesión"
       print("Cerrar Sesión seleccionado");
+      SharedPreferences preferencias = await SharedPreferences.getInstance();
+      preferencias.clear();
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              const OnbodingScreen(), // Pasa el ID del usuario
+        ),
+      );
     },
   ),
 ];
