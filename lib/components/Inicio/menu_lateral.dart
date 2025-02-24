@@ -56,6 +56,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {
                         selectedSideMenu = menu;
                       });
+                      menu.onTap(context); // Aquí pasamos el contexto
                     },
                     riveOnInit: (artboard) {
                       menu.rive.status = RiveUtils.getRiveInput(artboard,
@@ -80,6 +81,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {
                         selectedSideMenu = menu;
                       });
+                      menu.onTap(context); // Aquí pasamos el contexto
                     },
                     riveOnInit: (artboard) {
                       menu.rive.status = RiveUtils.getRiveInput(artboard,
@@ -104,6 +106,7 @@ class _SideBarState extends State<SideBar> {
                       setState(() {
                         selectedSideMenu = menu;
                       });
+                      menu.onTap(context); // Aquí pasamos el contexto
                     },
                     riveOnInit: (artboard) {
                       menu.rive.status = RiveUtils.getRiveInput(artboard,

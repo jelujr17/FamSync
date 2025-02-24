@@ -2,13 +2,17 @@ import 'dart:math';
 
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/View/Modulos/Calendario/calendario.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
+import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
 import 'package:famsync/components/Inicio/boton_menu_lateral.dart';
-import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/Inicio/menu_lateral.dart';
+import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:rive/rive.dart';
 
 class Home extends StatefulWidget {
@@ -33,6 +37,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     if (selectedBottonNav != menu) {
       setState(() {
         selectedBottonNav = menu;
+        _pageController.jumpToPage(bottomNavItems.indexOf(menu));
       });
     }
   }
@@ -40,6 +45,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> scalAnimation;
   late Animation<double> animation;
+  late PageController _pageController;
 
   @override
   void initState() {
@@ -54,6 +60,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         parent: _animationController, curve: Curves.fastOutSlowIn));
     animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
         parent: _animationController, curve: Curves.fastOutSlowIn));
+    _pageController = PageController();
 
     super.initState();
   }
@@ -61,14 +68,13 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   void dispose() {
     _animationController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
   //-----------------Menu Lateral-----------------------------------------------
 
   @override
   Widget build(BuildContext context) {
-    // Lista filtrada de tareas basada en la barra de búsqueda
-
     return Scaffold(
       extendBody: true,
       resizeToAvoidBottomInset: false,
@@ -98,7 +104,23 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: Agenda(perfil: widget.perfil),
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        selectedBottonNav = bottomNavItems[index];
+                      });
+                    },
+                    children: [
+                      // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
+                      Agenda(perfil: widget.perfil), // Página 1
+                      Almacen(perfil: widget.perfil), // Página 2
+                      Calendario(perfil: widget.perfil), // Página 3
+                      CategoriaPage(perfil: widget.perfil),
+                      const Placeholder()
+                      // Agrega más páginas según sea necesario
+                    ],
+                  ),
                 ),
               ),
             ),
