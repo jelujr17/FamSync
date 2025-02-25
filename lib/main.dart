@@ -3,9 +3,7 @@ import 'package:famsync/View/Inicio/inicio.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/nexoIncio.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
-import 'package:famsync/View/Modulos/modulos.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
@@ -71,11 +69,9 @@ class MyApp extends StatelessWidget {
           if (perfil == null) {
             return const OnbodingScreen();
           } else {
-            if (aux) {
-              return Resumen(perfil: perfil);
-            } else {
+            
               return Home(perfil: perfil);
-            }
+            
           }
         }
       }

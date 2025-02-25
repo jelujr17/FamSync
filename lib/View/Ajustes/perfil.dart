@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/EditProfile.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/components/colores.dart';
 
 class Perfil extends StatefulWidget {
@@ -121,12 +120,7 @@ class PerfilState extends State<Perfil> {
           ],
         ),
       ),
-      extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        perfil: widget.perfil,
-        pagina: 2,
-        pageController: PageController(),
-      ),
+      
     );
   }
 }

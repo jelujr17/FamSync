@@ -16,6 +16,7 @@ class SideBar extends StatefulWidget {
 
 class _SideBarState extends State<SideBar> {
   Menu selectedSideMenu = sidebarMenus.first;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -38,81 +39,96 @@ class _SideBarState extends State<SideBar> {
                 fecha: widget.perfil.FechaNacimiento,
                 perfil: widget.perfil,
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, top: 32, bottom: 16),
-                child: Text(
-                  "Perfil y Usuario".toUpperCase(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(color: Colors.white70),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 24, top: 32, bottom: 16),
+                        child: Text(
+                          "Perfil y Usuario".toUpperCase(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Colors.white70),
+                        ),
+                      ),
+                      ...sidebarMenus.map((menu) => SideMenu(
+                            menu: menu,
+                            selectedMenu: selectedSideMenu,
+                            press: () {
+                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
+                              setState(() {
+                                selectedSideMenu = menu;
+                              });
+                              menu.onTap(context);
+                            },
+                            riveOnInit: (artboard) {
+                              menu.rive.status = RiveUtils.getRiveInput(
+                                  artboard,
+                                  stateMachineName: menu.rive.stateMachineName);
+                            },
+                          )),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 24, top: 40, bottom: 16),
+                        child: Text(
+                          "Configuracion".toUpperCase(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Colors.white70),
+                        ),
+                      ),
+                      ...sidebarMenus2.map((menu) => SideMenu(
+                            menu: menu,
+                            selectedMenu: selectedSideMenu,
+                            press: () {
+                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
+                              setState(() {
+                                selectedSideMenu = menu;
+                              });
+                              menu.onTap(context);
+                            },
+                            riveOnInit: (artboard) {
+                              menu.rive.status = RiveUtils.getRiveInput(
+                                  artboard,
+                                  stateMachineName: menu.rive.stateMachineName);
+                            },
+                          )),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 24, top: 40, bottom: 16),
+                        child: Text(
+                          "Informacion y Ayuda".toUpperCase(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium!
+                              .copyWith(color: Colors.white70),
+                        ),
+                      ),
+                      ...sidebarMenus3.map((menu) => SideMenu(
+                            menu: menu,
+                            selectedMenu: selectedSideMenu,
+                            press: () {
+                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
+                              setState(() {
+                                selectedSideMenu = menu;
+                              });
+                              menu.onTap(context);
+                            },
+                            riveOnInit: (artboard) {
+                              menu.rive.status = RiveUtils.getRiveInput(
+                                  artboard,
+                                  stateMachineName: menu.rive.stateMachineName);
+                            },
+                          )),
+                    ],
+                  ),
                 ),
               ),
-              ...sidebarMenus.map((menu) => SideMenu(
-                    menu: menu,
-                    selectedMenu: selectedSideMenu,
-                    press: () {
-                      RiveUtils.chnageSMIBoolState(menu.rive.status!);
-                      setState(() {
-                        selectedSideMenu = menu;
-                      });
-                      menu.onTap(context); // Aquí pasamos el contexto
-                    },
-                    riveOnInit: (artboard) {
-                      menu.rive.status = RiveUtils.getRiveInput(artboard,
-                          stateMachineName: menu.rive.stateMachineName);
-                    },
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
-                child: Text(
-                  "Configuracion".toUpperCase(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(color: Colors.white70),
-                ),
-              ),
-              ...sidebarMenus2.map((menu) => SideMenu(
-                    menu: menu,
-                    selectedMenu: selectedSideMenu,
-                    press: () {
-                      RiveUtils.chnageSMIBoolState(menu.rive.status!);
-                      setState(() {
-                        selectedSideMenu = menu;
-                      });
-                      menu.onTap(context); // Aquí pasamos el contexto
-                    },
-                    riveOnInit: (artboard) {
-                      menu.rive.status = RiveUtils.getRiveInput(artboard,
-                          stateMachineName: menu.rive.stateMachineName);
-                    },
-                  )),
-              Padding(
-                padding: const EdgeInsets.only(left: 24, top: 40, bottom: 16),
-                child: Text(
-                  "Informacion y Ayuda".toUpperCase(),
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleMedium!
-                      .copyWith(color: Colors.white70),
-                ),
-              ),
-              ...sidebarMenus3.map((menu) => SideMenu(
-                    menu: menu,
-                    selectedMenu: selectedSideMenu,
-                    press: () {
-                      RiveUtils.chnageSMIBoolState(menu.rive.status!);
-                      setState(() {
-                        selectedSideMenu = menu;
-                      });
-                      menu.onTap(context); // Aquí pasamos el contexto
-                    },
-                    riveOnInit: (artboard) {
-                      menu.rive.status = RiveUtils.getRiveInput(artboard,
-                          stateMachineName: menu.rive.stateMachineName);
-                    },
-                  )),
             ],
           ),
         ),

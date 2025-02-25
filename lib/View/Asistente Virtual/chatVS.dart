@@ -1,5 +1,4 @@
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 
 class VirtualAssistantPage extends StatefulWidget {
@@ -144,8 +143,6 @@ class _VirtualAssistantPageState extends State<VirtualAssistantPage> {
           ],
         ),
       ),
-      extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(perfil: widget.perfil, pagina: 1, pageController: PageController(),),
     );
   }
 

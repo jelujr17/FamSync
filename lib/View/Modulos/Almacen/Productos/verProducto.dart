@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/editarProducto.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -416,11 +415,7 @@ class DetallesProducto extends State<VerProducto> {
           ),
         ),
       ),
-      bottomNavigationBar: CustomBottomNavBar(
-        perfil: widget.perfil,
-        pagina: 0,
-        pageController: PageController(),
-      ),
+      
     );
   }
 }

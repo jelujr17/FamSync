@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:famsync/View/Ajustes/Preferencias/preferencias.dart';
-import 'package:famsync/View/Inicio/resumen.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
-import 'package:famsync/View/navegacion.dart';
 import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/components/colores.dart';
 
@@ -167,12 +165,7 @@ class AjustesState extends State<Ajustes> {
           const SizedBox(height: 20),
         ],
       ),
-      extendBody: true,
-      bottomNavigationBar: CustomBottomNavBar(
-        perfil: widget.perfil,
-        pagina: 2,
-        pageController: PageController(),
-      ),
+      
     );
   }
 
@@ -207,15 +200,7 @@ class AjustesState extends State<Ajustes> {
       onTap: () {
         // Acción al presionar
         switch (index) {
-          case 0:
-            Navigator.push(
-              context,
-              PageTransition(
-                type: PageTransitionType.rightToLeft,
-                child: Resumen(perfil: widget.perfil),
-              ),
-            );
-            break;
+         
           case 5:
             Navigator.push(
               context,
