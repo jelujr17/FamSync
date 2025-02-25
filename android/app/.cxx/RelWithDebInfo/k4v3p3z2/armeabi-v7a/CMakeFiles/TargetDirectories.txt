@@ -1,0 +1,2 @@
+C:/Users/Mario/Documents/FamSync/android/app/.cxx/RelWithDebInfo/k4v3p3z2/armeabi-v7a/CMakeFiles/edit_cache.dir
+C:/Users/Mario/Documents/FamSync/android/app/.cxx/RelWithDebInfo/k4v3p3z2/armeabi-v7a/CMakeFiles/rebuild_cache.dir
