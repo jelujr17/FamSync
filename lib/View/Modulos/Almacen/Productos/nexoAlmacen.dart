@@ -1,7 +1,6 @@
 // funciones_auxiliares.dart
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 

@@ -13,7 +13,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'es_ES';
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge	);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
 
   runApp(const MyApp());
 }
@@ -42,7 +42,8 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            return const Center(child: Text('Error al cargar la aplicación'));
+            // Mostrar el error específico
+            return Center(child: Text('Error al cargar la aplicación: ${snapshot.error}'));
           } else {
             return snapshot.data!;
           }
@@ -52,30 +53,35 @@ class MyApp extends StatelessWidget {
   }
 
   Future<Widget> getInitialPage() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int? userId = prefs.getInt('IdUsuario');
-    final int? perfilId = prefs.getInt('IdPerfil');
-    final bool aux = await NexoInicio().primeraVezResumen();
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final int? userId = prefs.getInt('IdUsuario');
+      final int? perfilId = prefs.getInt('IdPerfil');
+      final bool aux = await NexoInicio().primeraVezResumen();
 
-    // Comentado el redireccionamiento al login
-    if (userId != null) {
-      return const OnbodingScreen();
-    } else {
-      if (perfilId == null) {
-        return SeleccionPerfil(IdUsuario: userId!);
+      // Comentado el redireccionamiento al login
+      if (userId == null) {
+        return const OnbodingScreen();
       } else {
-        final Perfiles? perfil =
-            await ServicioPerfiles().getPerfilById(perfilId);
-        if (perfil == null) {
-          return const OnbodingScreen();
+        if (perfilId == null) {
+          return SeleccionPerfil(IdUsuario: userId);
         } else {
-          if (aux) {
-            return Resumen(perfil: perfil);
+          final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
+          if (perfil == null) {
+            return const OnbodingScreen();
           } else {
-            return Modulos(perfil: perfil);
+            if (aux) {
+              return Resumen(perfil: perfil);
+            } else {
+              return Modulos(perfil: perfil);
+            }
           }
         }
       }
+    } catch (e) {
+      // Manejar cualquier error que ocurra durante la ejecución del Future
+      print('Error en getInitialPage: $e');
+      throw e;
     }
   }
 }

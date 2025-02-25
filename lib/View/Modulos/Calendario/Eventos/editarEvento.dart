@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/categorias.dart';

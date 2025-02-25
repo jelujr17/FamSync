@@ -12,7 +12,6 @@ import 'package:famsync/components/Inicio/menu_lateral.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';
 import 'package:rive/rive.dart';
 
 class Home extends StatefulWidget {
