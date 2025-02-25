@@ -1,7 +1,7 @@
 import 'package:famsync/Model/Almacen/listas.dart';
+import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:flutter/material.dart';
-import 'package:famsync/Model/categorias.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Almacen extends StatefulWidget {
@@ -14,6 +14,7 @@ class Almacen extends StatefulWidget {
 
 class AlmacenState extends State<Almacen> {
   List<Listas> listas = [];
+  List<Tiendas> tiendas = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -21,11 +22,15 @@ class AlmacenState extends State<Almacen> {
   void initState() {
     super.initState();
     obtenerListas();
+    isLoading = true;
+    errorMessage = '';
+    obtenerTiendas();
   }
 
   void obtenerListas() async {
     try {
-      listas = await ServiciosListas().getListas(widget.perfil.UsuarioId, widget.perfil.Id);
+      listas = await ServiciosListas()
+          .getListas(widget.perfil.UsuarioId, widget.perfil.Id);
       setState(() {
         isLoading = false;
       });
@@ -33,6 +38,20 @@ class AlmacenState extends State<Almacen> {
       setState(() {
         isLoading = false;
         errorMessage = 'Error al obtener las listas: $e';
+      });
+    }
+  }
+
+  void obtenerTiendas() async {
+    try {
+      tiendas = await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error al obtener las tiendas: $e';
       });
     }
   }
@@ -55,11 +74,13 @@ class AlmacenState extends State<Almacen> {
                       color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),
-              _AlmacenState(),
-              ListasBanner(listas:listas),
-              const PopularProducts(),
+              BarraAlmacen(),
+              ListasBanner(listas: listas),
+              const ProductosRecientes(),
               const SizedBox(height: 20),
-              const RecentlyAddedProducts(),
+              ProductosPorTienda(tiendas: tiendas),
+              const SizedBox(height: 20),
+              const ProductosTotales(),
             ],
           ),
         ),
@@ -68,8 +89,8 @@ class AlmacenState extends State<Almacen> {
   }
 }
 
-class _AlmacenState extends StatelessWidget {
-  final List<Categorias> categoriasTareasAux = [];
+class BarraAlmacen extends StatelessWidget {
+  const BarraAlmacen({super.key});
 
   Color getContrastingTextColor(Color backgroundColor) {
     // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
@@ -91,7 +112,7 @@ class _AlmacenState extends StatelessWidget {
         children: [
           const Expanded(child: BarraBusqueda()),
           const SizedBox(width: 16),
-          IconBtnWithCounter(
+          IconoContador(
             // numOfitem: 3,
             svgSrc: filtroIcono,
             numOfitem: 2,
@@ -99,7 +120,7 @@ class _AlmacenState extends StatelessWidget {
             press: () {},
           ),
           const SizedBox(width: 8),
-          IconBtnWithCounter(
+          IconoContador(
             svgSrc: masIcono,
             press: () {},
           ),
@@ -109,8 +130,8 @@ class _AlmacenState extends StatelessWidget {
   }
 }
 
-class IconBtnWithCounter extends StatelessWidget {
-  const IconBtnWithCounter({
+class IconoContador extends StatelessWidget {
+  const IconoContador({
     super.key,
     required this.svgSrc,
     this.numOfitem = 0,
@@ -215,8 +236,9 @@ class ListasBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     String titulo = listas.isNotEmpty ? "Tus listas:" : "No tienes listas aún";
-    String contenido =
-        listas.isNotEmpty ?  listas.map((e) => e.Nombre).join(", ") : "¡Crea una nueva!";
+    String contenido = listas.isNotEmpty
+        ? listas.map((e) => e.Nombre).join(", ")
+        : "¡Crea una nueva!";
 
     return Container(
       width: double.infinity,
@@ -281,8 +303,8 @@ class SectionTitle extends StatelessWidget {
   }
 }
 
-class PopularProducts extends StatelessWidget {
-  const PopularProducts({super.key});
+class ProductosRecientes extends StatelessWidget {
+  const ProductosRecientes({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -291,7 +313,7 @@ class PopularProducts extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-            titulo: "Popular Products",
+            titulo: "Recien añadidos",
             accion: () {},
           ),
         ),
@@ -320,8 +342,57 @@ class PopularProducts extends StatelessWidget {
   }
 }
 
-class RecentlyAddedProducts extends StatelessWidget {
-  const RecentlyAddedProducts({super.key});
+class ProductosPorTienda extends StatelessWidget {
+  final List<Tiendas> tiendas;
+  const ProductosPorTienda({super.key, required this.tiendas});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        // Recorremos la lista de tiendas y mostramos un widget para cada una
+        for (var tienda in tiendas)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SectionTitle(
+                  titulo: tienda
+                      .Nombre, // Asumo que 'nombre' es un campo de Tiendas
+                  accion: () {},
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: tienda.Id, // Lista de productos de esta tienda
+                    gridDelegate:
+                        const SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                      crossAxisSpacing: 16,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 0.7,
+                    ),
+                    itemBuilder: (context, index) {
+                      return ProductCard(
+                        product: demoProducts[index],
+                        onPress: () {},
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class ProductosTotales extends StatelessWidget {
+  const ProductosTotales({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -330,7 +401,7 @@ class RecentlyAddedProducts extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-            titulo: "Recently Added",
+            titulo: "Todos los Productos",
             accion: () {},
           ),
         ),
