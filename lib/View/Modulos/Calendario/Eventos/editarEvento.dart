@@ -272,7 +272,6 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: ClipPath(
-          clipper: CurvedAppBarClipper(),
           child: AppBar(
             automaticallyImplyLeading: false,
             title: const Text(

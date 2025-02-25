@@ -237,7 +237,6 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: ClipPath(
-          clipper: CurvedAppBarClipper(), // Usa tu clipper aquí
           child: AppBar(
             automaticallyImplyLeading: false,
             backgroundColor: Colores.botonesSecundarios,

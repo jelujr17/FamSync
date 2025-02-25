@@ -1,6 +1,5 @@
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
-import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
@@ -43,7 +42,6 @@ class TareasState extends State<TareasPage> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: ClipPath(
-          clipper: CurvedAppBarClipper(),
           child: AppBar(
             backgroundColor: Colores.botonesSecundarios,
             title: const Center(

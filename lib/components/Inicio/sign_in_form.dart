@@ -21,6 +21,7 @@ class _SignInFormState extends State<SignInForm> {
   final TextEditingController _passwordController = TextEditingController();
   bool isShowLoading = false;
   bool isShowConfetti = false;
+  bool _isPasswordVisible = false; // Variable para controlar la visibilidad de la contraseña
   late SMITrigger error;
   late SMITrigger success;
   late SMITrigger reset;
@@ -163,7 +164,7 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
                 child: TextFormField(
                   controller: _passwordController,
-                  obscureText: true,
+                  obscureText: !_isPasswordVisible, // Controla la visibilidad de la contraseña
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Por favor ingrese su contraseña";
@@ -174,6 +175,18 @@ class _SignInFormState extends State<SignInForm> {
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: SvgPicture.asset("assets/icons/password.svg"),
+                    ),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _isPasswordVisible
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _isPasswordVisible = !_isPasswordVisible;
+                        });
+                      },
                     ),
                   ),
                 ),

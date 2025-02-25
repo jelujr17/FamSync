@@ -7,7 +7,8 @@ import 'package:flutter/material.dart';
 
 class NexoAlmacen {
   // Función para añadir producto a una lista
-  void seleccionarLista(Productos producto, int usuarioId, int perfilId, BuildContext context) {
+  void seleccionarLista(
+      Productos producto, int usuarioId, int perfilId, BuildContext context) {
     Future<List<Listas>> listasFuture =
         ServiciosListas().getListas(usuarioId, perfilId);
     showDialog(
@@ -23,8 +24,6 @@ class NexoAlmacen {
             children: [
               // AppBar personalizada
               ClipPath(
-                clipper:
-                    CurvedAppBarClipper(), // Asegúrate de que este clipper esté disponible
                 child: Container(
                   decoration: const BoxDecoration(
                     gradient: LinearGradient(
@@ -60,7 +59,7 @@ class NexoAlmacen {
               SizedBox(
                 width: double.maxFinite,
                 height: 400, // Ajusta la altura según sea necesario
-                child: buildListDialogContent(listasFuture , producto),
+                child: buildListDialogContent(listasFuture, producto),
               ),
               // Botón de cerrar
               Padding(
@@ -82,9 +81,9 @@ class NexoAlmacen {
     );
   }
 
-
   // Función para construir el contenido del diálogo
-  Widget buildListDialogContent(Future<List<Listas>> listasFuture, Productos producto) {
+  Widget buildListDialogContent(
+      Future<List<Listas>> listasFuture, Productos producto) {
     return FutureBuilder<List<Listas>>(
       future: listasFuture,
       builder: (context, snapshot) {
@@ -142,7 +141,4 @@ class NexoAlmacen {
       },
     );
   }
-
-
-
 }
