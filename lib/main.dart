@@ -1,3 +1,4 @@
+import 'package:famsync/View/Inicio/home.dart';
 import 'package:famsync/View/Inicio/inicio.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -13,7 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'es_ES';
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
   runApp(const MyApp());
 }
@@ -73,7 +74,7 @@ class MyApp extends StatelessWidget {
             if (aux) {
               return Resumen(perfil: perfil);
             } else {
-              return Modulos(perfil: perfil);
+              return Home(perfil: perfil);
             }
           }
         }

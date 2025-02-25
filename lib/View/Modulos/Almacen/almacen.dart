@@ -78,7 +78,8 @@ class AlmacenState extends State<Almacen> {
               ListasBanner(listas: listas),
               const ProductosRecientes(),
               const SizedBox(height: 20),
-              ProductosPorTienda(tiendas: tiendas),
+              for (var tienda in tiendas)
+              ProductosPorTienda(tienda: tienda),
               const SizedBox(height: 20),
               const ProductosTotales(),
             ],
@@ -343,49 +344,41 @@ class ProductosRecientes extends StatelessWidget {
 }
 
 class ProductosPorTienda extends StatelessWidget {
-  final List<Tiendas> tiendas;
-  const ProductosPorTienda({super.key, required this.tiendas});
+  final Tiendas tienda;
+  const ProductosPorTienda({super.key, required this.tienda});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         // Recorremos la lista de tiendas y mostramos un widget para cada una
-        for (var tienda in tiendas)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionTitle(
-                  titulo: tienda
-                      .Nombre, // Asumo que 'nombre' es un campo de Tiendas
-                  accion: () {},
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: GridView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: tienda.Id, // Lista de productos de esta tienda
-                    gridDelegate:
-                        const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 16,
-                      mainAxisSpacing: 20,
-                      childAspectRatio: 0.7,
-                    ),
-                    itemBuilder: (context, index) {
-                      return ProductCard(
-                        product: demoProducts[index],
-                        onPress: () {},
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SectionTitle(
+            titulo: tienda.Nombre,
+            accion: () {},
           ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: demoProducts.length,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.7,
+            ),
+            itemBuilder: (context, index) {
+              return ProductCard(
+                product: demoProducts[index],
+                onPress: () {},
+              );
+            },
+          ),
+        ),
       ],
     );
   }
