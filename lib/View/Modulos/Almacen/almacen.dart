@@ -1,4 +1,5 @@
 import 'package:famsync/Model/Almacen/listas.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,7 @@ class Almacen extends StatefulWidget {
 class AlmacenState extends State<Almacen> {
   List<Listas> listas = [];
   List<Tiendas> tiendas = [];
+  List<Productos> productos = [];
   bool isLoading = true;
   String errorMessage = '';
 
@@ -25,6 +27,9 @@ class AlmacenState extends State<Almacen> {
     isLoading = true;
     errorMessage = '';
     obtenerTiendas();
+    isLoading = true;
+    errorMessage = '';
+    obtenerProductos();
   }
 
   void obtenerListas() async {
@@ -56,6 +61,21 @@ class AlmacenState extends State<Almacen> {
     }
   }
 
+  void obtenerProductos() async {
+    try {
+      productos = await ServicioProductos()
+          .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
+      setState(() {
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+        errorMessage = 'Error al obtener los productos: $e';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -76,12 +96,12 @@ class AlmacenState extends State<Almacen> {
               ),
               BarraAlmacen(),
               ListasBanner(listas: listas),
-              const ProductosRecientes(),
+              ProductosRecientes(productos: productos),
               const SizedBox(height: 20),
               for (var tienda in tiendas)
-              ProductosPorTienda(tienda: tienda),
+                ProductosPorTienda(tienda: tienda, productos: productos),
               const SizedBox(height: 20),
-              const ProductosTotales(),
+              ProductosTotales(productos: productos),
             ],
           ),
         ),
@@ -305,7 +325,8 @@ class SectionTitle extends StatelessWidget {
 }
 
 class ProductosRecientes extends StatelessWidget {
-  const ProductosRecientes({super.key});
+  final List<Productos> productos;
+  const ProductosRecientes({super.key, required this.productos});
 
   @override
   Widget build(BuildContext context) {
@@ -323,7 +344,7 @@ class ProductosRecientes extends StatelessWidget {
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: demoProducts.length,
+            itemCount: productos.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -331,8 +352,8 @@ class ProductosRecientes extends StatelessWidget {
               childAspectRatio: 0.7,
             ),
             itemBuilder: (context, index) {
-              return ProductCard(
-                product: demoProducts[index],
+              return ProductoCard(
+                producto: productos[index],
                 onPress: () {},
               );
             },
@@ -345,7 +366,9 @@ class ProductosRecientes extends StatelessWidget {
 
 class ProductosPorTienda extends StatelessWidget {
   final Tiendas tienda;
-  const ProductosPorTienda({super.key, required this.tienda});
+  final List<Productos> productos;
+  const ProductosPorTienda(
+      {super.key, required this.tienda, required this.productos});
 
   @override
   Widget build(BuildContext context) {
@@ -364,7 +387,7 @@ class ProductosPorTienda extends StatelessWidget {
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: demoProducts.length,
+            itemCount: productos.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -372,8 +395,8 @@ class ProductosPorTienda extends StatelessWidget {
               childAspectRatio: 0.7,
             ),
             itemBuilder: (context, index) {
-              return ProductCard(
-                product: demoProducts[index],
+              return ProductoCard(
+                producto: productos[index],
                 onPress: () {},
               );
             },
@@ -385,7 +408,8 @@ class ProductosPorTienda extends StatelessWidget {
 }
 
 class ProductosTotales extends StatelessWidget {
-  const ProductosTotales({super.key});
+  final List<Productos> productos;
+  const ProductosTotales({super.key, required this.productos});
 
   @override
   Widget build(BuildContext context) {
@@ -403,7 +427,7 @@ class ProductosTotales extends StatelessWidget {
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: demoProducts.length,
+            itemCount: productos.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -411,8 +435,8 @@ class ProductosTotales extends StatelessWidget {
               childAspectRatio: 0.7,
             ),
             itemBuilder: (context, index) {
-              return ProductCard(
-                product: demoProducts[index],
+              return ProductoCard(
+                producto: productos[index],
                 onPress: () {},
               );
             },
@@ -423,182 +447,85 @@ class ProductosTotales extends StatelessWidget {
   }
 }
 
-class ProductCard extends StatelessWidget {
-  const ProductCard({
-    Key? key,
-    this.width = 140,
+class ProductoCard extends StatefulWidget {
+  const ProductoCard({
+    super.key,
+    this.width = 0,
     this.aspectRetio = 1.02,
-    required this.product,
+    required this.producto,
     required this.onPress,
-  }) : super(key: key);
+  });
 
   final double width, aspectRetio;
-  final Product product;
+  final Productos producto;
   final VoidCallback onPress;
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: width,
-      child: GestureDetector(
-        onTap: onPress,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AspectRatio(
-              aspectRatio: 1.02,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF979797).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Image.network(product.images[0]),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              product.title,
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 2,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "\$${product.price}",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFF7643),
-                  ),
-                ),
-                InkWell(
-                  borderRadius: BorderRadius.circular(50),
-                  onTap: () {},
-                  child: Container(
-                    padding: const EdgeInsets.all(6),
-                    height: 24,
-                    width: 24,
-                    decoration: BoxDecoration(
-                      color: product.isFavourite
-                          ? const Color(0xFFFF7643).withOpacity(0.15)
-                          : const Color(0xFF979797).withOpacity(0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: SvgPicture.string(
-                      heartIcon,
-                      colorFilter: ColorFilter.mode(
-                          product.isFavourite
-                              ? const Color(0xFFFF4848)
-                              : const Color(0xFFDBDEE4),
-                          BlendMode.srcIn),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
+    @override
+    _ProductoCardState createState() => _ProductoCardState();
   }
+  
+  class _ProductoCardState extends State<ProductoCard> {
+    Widget? imageWidget;
+  
+    @override
+    void initState() {
+      super.initState();
+      loadImage();
+    }
+  
+    void loadImage() async {
+      final imageFile = await ServicioProductos().obtenerImagen(widget.producto.Imagenes[0]);
+      setState(() {
+        imageWidget = Image.file(imageFile);
+      });
+    }
+  
+    @override
+    Widget build(BuildContext context) {
+      return SizedBox(
+        width: widget.width,
+        child: GestureDetector(
+          onTap: widget.onPress,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              AspectRatio(
+                aspectRatio: 1.02,
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF979797).withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: imageWidget ?? CircularProgressIndicator(),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                widget.producto.Nombre,
+                style: Theme.of(context).textTheme.bodyMedium,
+                maxLines: 2,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "\$${widget.producto.Precio}",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFF7643),
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+      );
+    }
 }
 
-class Product {
-  final int id;
-  final String title, description;
-  final List<String> images;
-  final List<Color> colors;
-  final double rating, price;
-  final bool isFavourite, isPopular;
-
-  Product({
-    required this.id,
-    required this.images,
-    required this.colors,
-    this.rating = 0.0,
-    this.isFavourite = false,
-    this.isPopular = false,
-    required this.title,
-    required this.price,
-    required this.description,
-  });
-}
-
-// Our demo Products
-
-List<Product> demoProducts = [
-  Product(
-    id: 1,
-    images: ["https://i.postimg.cc/c19zpJ6f/Image-Popular-Product-1.png"],
-    colors: [
-      const Color(0xFFF6625E),
-      const Color(0xFF836DB8),
-      const Color(0xFFDECB9C),
-      Colors.white,
-    ],
-    title: "Wireless Controller for PS4™",
-    price: 64.99,
-    description: description,
-    rating: 4.8,
-    isFavourite: true,
-    isPopular: true,
-  ),
-  Product(
-    id: 2,
-    images: [
-      "https://i.postimg.cc/CxD6nH74/Image-Popular-Product-2.png",
-    ],
-    colors: [
-      const Color(0xFFF6625E),
-      const Color(0xFF836DB8),
-      const Color(0xFFDECB9C),
-      Colors.white,
-    ],
-    title: "Nike Sport White - Man Pant",
-    price: 50.5,
-    description: description,
-    rating: 4.1,
-    isPopular: true,
-  ),
-  Product(
-    id: 3,
-    images: [
-      "https://i.postimg.cc/1XjYwvbv/glap.png",
-    ],
-    colors: [
-      const Color(0xFFF6625E),
-      const Color(0xFF836DB8),
-      const Color(0xFFDECB9C),
-      Colors.white,
-    ],
-    title: "Gloves XC Omega - Polygon",
-    price: 36.55,
-    description: description,
-    rating: 4.1,
-    isFavourite: true,
-    isPopular: true,
-  ),
-  Product(
-    id: 4,
-    images: [
-      "https://i.postimg.cc/d1QWXMYW/Image-Popular-Product-3.png",
-    ],
-    colors: [
-      const Color(0xFFF6625E),
-      const Color(0xFF836DB8),
-      const Color(0xFFDECB9C),
-      Colors.white,
-    ],
-    title: "Gloves XC Omega - Polygon",
-    price: 36.55,
-    description: description,
-    rating: 4.1,
-    isFavourite: false,
-    isPopular: true,
-  ),
-];
 
 const heartIcon =
     '''<svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">

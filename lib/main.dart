@@ -41,8 +41,8 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
-            // Mostrar el error específico
-            return Center(child: Text('Error al cargar la aplicación: ${snapshot.error}'));
+            // Mostrar un mensaje de error genérico sin detalles
+            return const Center(child: Text('Error al cargar la aplicación'));
           } else {
             return snapshot.data!;
           }
@@ -69,16 +69,14 @@ class MyApp extends StatelessWidget {
           if (perfil == null) {
             return const OnbodingScreen();
           } else {
-            
-              return Home(perfil: perfil);
-            
+            return Home(perfil: perfil);
           }
         }
       }
     } catch (e) {
       // Manejar cualquier error que ocurra durante la ejecución del Future
-      print('Error en getInitialPage: $e');
-      throw e;
+      // print('Error en getInitialPage: $e'); // Comentado para evitar imprimir en la consola
+      throw e; // Sigue lanzando el error para que el FutureBuilder lo maneje
     }
   }
 }
