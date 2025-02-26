@@ -354,8 +354,17 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
   @override
   void initState() {
     super.initState();
-    cantidad = min(
-        4, widget.productos.length); // Se calcula antes de construir el widget
+    cantidad = min(4, widget.productos.length); // Se calcula antes de construir el widget
+  }
+
+  @override
+  void didUpdateWidget(ProductosRecientes oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.productos != widget.productos) {
+      setState(() {
+        cantidad = min(4, widget.productos.length);
+      });
+    }
   }
 
   @override
@@ -428,6 +437,16 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
     cantidad = min(
         4, widget.productos.length); // Se calcula antes de construir el widget
   }
+  
+  @override
+  void didUpdateWidget(ProductosPorTienda oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.productos != widget.productos) {
+      setState(() {
+        cantidad = min(4, widget.productos.length);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -492,6 +511,16 @@ class _ProductosTotalesState extends State<ProductosTotales> {
     super.initState();
     cantidad = min(
         4, widget.productos.length); // Se calcula antes de construir el widget
+  }
+
+  @override
+  void didUpdateWidget(ProductosTotales oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.productos != widget.productos) {
+      setState(() {
+        cantidad = min(4, widget.productos.length);
+      });
+    }
   }
 
   @override
