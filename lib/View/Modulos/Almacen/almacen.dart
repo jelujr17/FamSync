@@ -276,7 +276,7 @@ class BarraBusqueda extends StatelessWidget {
   }
 }
 
-class ListasBanner extends StatelessWidget {
+class ListasBanner extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
 
@@ -287,10 +287,20 @@ class ListasBanner extends StatelessWidget {
   });
 
   @override
+  _ListasBannerState createState() => _ListasBannerState();
+}
+
+class _ListasBannerState extends State<ListasBanner> {
+  void actualizarBanner() {
+    setState(() {});
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String titulo = listas.isNotEmpty ? "Tus listas:" : "No tienes listas aún";
-    String contenido = listas.isNotEmpty
-        ? listas.map((e) => e.Nombre).join(", ")
+    String titulo =
+        widget.listas.isNotEmpty ? "Tus listas:" : "No tienes listas aún";
+    String contenido = widget.listas.isNotEmpty
+        ? widget.listas.map((e) => e.Nombre).join(", ")
         : "¡Crea una nueva!";
 
     return GestureDetector(
@@ -298,7 +308,11 @@ class ListasBanner extends StatelessWidget {
         showDialog(
           context: context,
           builder: (BuildContext context) {
-            return VentanaListas(listas: listas, productos: productos);
+            return VentanaListas(
+              listas: widget.listas,
+              productos: widget.productos,
+              actualizarBanner: actualizarBanner,
+            );
           },
         );
       },
@@ -320,10 +334,8 @@ class ListasBanner extends StatelessWidget {
               TextSpan(text: "$titulo\n"),
               TextSpan(
                 text: contenido,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ],
           ),
@@ -336,11 +348,13 @@ class ListasBanner extends StatelessWidget {
 class VentanaListas extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
+  final VoidCallback actualizarBanner;
 
   const VentanaListas({
     super.key,
     required this.listas,
     required this.productos,
+    required this.actualizarBanner,
   });
 
   @override
@@ -348,50 +362,75 @@ class VentanaListas extends StatefulWidget {
 }
 
 class _VentanaListasState extends State<VentanaListas> {
-  // Un mapa que almacenará las imágenes cargadas de los productos
-  Map<int, Widget> imagenesCache = {};
+  void editarLista(Listas lista) async {
+    TextEditingController nombreController =
+        TextEditingController(text: lista.Nombre);
 
-  // Función para cargar la imagen de un producto
-  void loadImage(Productos producto) async {
-    if (imagenesCache.containsKey(producto.Id)) {
-      return; // Ya se cargó la imagen
-    }
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Editar Lista'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre de la lista',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo sin guardar
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // Crear una nueva instancia de Listas con el nombre actualizado
+                  Listas listaActualizada = Listas(
+                    Id: lista.Id,
+                    Nombre: nombreController.text,
+                    Visible: lista.Visible,
+                    Productos: lista.Productos,
+                    IdPerfil: lista.IdPerfil,
+                    IdUsuario: lista.IdUsuario,
+                  );
 
-    try {
-      final imageFile =
-          await ServicioProductos().obtenerImagen(producto.Imagenes[0]);
+                  // Reemplazar la instancia antigua en la lista
+                  int index = widget.listas.indexWhere((l) => l.Id == lista.Id);
+                  if (index != -1) {
+                    widget.listas[index] = listaActualizada;
+                  }
 
-      // Verifica si el archivo es una imagen válida
-      if (imageFile.existsSync()) {
-        setState(() {
-          imagenesCache[producto.Id] = Image.file(
-            imageFile,
-            width: 50,
-            height: 50,
-            fit: BoxFit.cover,
-          );
-        });
-      } else {
-        throw Exception("El archivo de imagen no existe o no es válido.");
-      }
-    } catch (e) {
-      // Manejo de errores al cargar la imagen
-      setState(() {
-        imagenesCache[producto.Id] = const Icon(Icons.error,
-            color: Colors
-                .red); // Muestra un ícono de error si no se puede cargar la imagen
-      });
-      print('Error al cargar la imagen: $e');
-    }
-  }
+                  // Guarda los cambios en la base de datos o backend
+                  ServiciosListas().actualizarLista(
+                    listaActualizada.Id,
+                    listaActualizada.Nombre,
+                    listaActualizada.Visible,
+                    listaActualizada.Productos,
+                  );
 
-  void eliminarProducto(Productos producto, Listas lista) async {
-    setState(() {
-      lista.Productos.remove(
-          producto.Id); // Eliminar el ID del producto de la lista
-    });
-    ServiciosListas().actualizarLista(
-        lista.Id, lista.Nombre, lista.Visible, lista.Productos);
+                  // Actualizar el estado del widget Almacen
+                  setState(() {});
+                });
+                widget.actualizarBanner();
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -412,11 +451,10 @@ class _VentanaListasState extends State<VentanaListas> {
       content: widget.listas.isNotEmpty
           ? SizedBox(
               width: double.maxFinite,
-              height: 300, // Altura máxima antes de hacer scroll
+              height: 300,
               child: SingleChildScrollView(
                 child: Column(
                   children: widget.listas.map((lista) {
-                    // Filtrar los productos cuyo ID esté en lista.productos
                     List<Productos> productosFiltrados = widget.productos
                         .where(
                             (producto) => lista.Productos.contains(producto.Id))
@@ -439,22 +477,27 @@ class _VentanaListasState extends State<VentanaListas> {
                         ),
                         leading:
                             const Icon(Icons.list, color: Color(0xFF4A3298)),
+                        trailing: IconButton(
+                          icon:
+                              const Icon(Icons.edit, color: Color(0xFF4A3298)),
+                          onPressed: () {
+                            editarLista(lista); // Abre el formulario de edición
+                          },
+                        ),
                         children: productosFiltrados.isNotEmpty
                             ? productosFiltrados.map((producto) {
-                                // Cargar la imagen del producto
-                                loadImage(producto);
-
                                 return ListTile(
-                                  leading: imagenesCache
-                                          .containsKey(producto.Id)
-                                      ? imagenesCache[producto.Id]!
-                                      : CircularProgressIndicator(), // Muestra un indicador mientras se carga la imagen
                                   title: Text(producto.Nombre),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      eliminarProducto(producto, lista);
+                                  leading: Image.network(
+                                    producto.Imagenes[0],
+                                    width: 50,
+                                    height: 50,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return const Icon(
+                                        Icons.error,
+                                        color: Colors.red,
+                                      );
                                     },
                                   ),
                                 );
@@ -879,8 +922,8 @@ const heartIcon =
 </svg>
 ''';
 
-const masIcono = '''
-<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
+const masIcono =
+    '''<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path fill-rule="evenodd" clip-rule="evenodd" d="M12 10V2C12 1.44772 11.5523 1 11 1C10.4477 1 10 1.44772 10 2V10H2C1.44772 10 1 10.4477 1 11C1 11.5523 1.44772 12 2 12H10V20C10 20.5523 10.4477 21 11 21C11.5523 21 12 20.5523 12 20V12H20C20.5523 12 21 11.5523 21 11C21 10.4477 20.5523 10 20 10H12Z" fill="#7C7C7C"/>
 </svg>
 ''';
