@@ -108,7 +108,7 @@ class AlmacenState extends State<Almacen> {
                 ),
               ),
               BarraAlmacen(searchController: _searchController),
-              ListasBanner(listas: listas),
+              ListasBanner(listas: listas, productos: productos),
               ProductosRecientes(
                 productos: (productosFiltrados.length > 10
                         ? productosFiltrados
@@ -278,10 +278,12 @@ class BarraBusqueda extends StatelessWidget {
 
 class ListasBanner extends StatelessWidget {
   final List<Listas> listas;
+  final List<Productos> productos;
 
   const ListasBanner({
     super.key,
     required this.listas,
+    required this.productos,
   });
 
   @override
@@ -291,32 +293,236 @@ class ListasBanner extends StatelessWidget {
         ? listas.map((e) => e.Nombre).join(", ")
         : "¡Crea una nueva!";
 
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.all(20),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 16,
-      ),
-      decoration: BoxDecoration(
-        color: const Color(0xFF4A3298),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text.rich(
-        TextSpan(
-          style: const TextStyle(color: Colors.white),
-          children: [
-            TextSpan(text: "$titulo\n"),
-            TextSpan(
-              text: contenido,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return VentanaListas(listas: listas, productos: productos);
+          },
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 16,
+        ),
+        decoration: BoxDecoration(
+          color: const Color(0xFF4A3298),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text.rich(
+          TextSpan(
+            style: const TextStyle(color: Colors.white),
+            children: [
+              TextSpan(text: "$titulo\n"),
+              TextSpan(
+                text: contenido,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class VentanaListas extends StatefulWidget {
+  final List<Listas> listas;
+  final List<Productos> productos;
+
+  const VentanaListas({
+    super.key,
+    required this.listas,
+    required this.productos,
+  });
+
+  @override
+  _VentanaListasState createState() => _VentanaListasState();
+}
+
+class _VentanaListasState extends State<VentanaListas> {
+  // Un mapa que almacenará las imágenes cargadas de los productos
+  Map<int, Widget> imagenesCache = {};
+
+  // Función para cargar la imagen de un producto
+  void loadImage(Productos producto) async {
+    if (imagenesCache.containsKey(producto.Id)) {
+      return; // Ya se cargó la imagen
+    }
+
+    try {
+      final imageFile =
+          await ServicioProductos().obtenerImagen(producto.Imagenes[0]);
+
+      // Verifica si el archivo es una imagen válida
+      if (imageFile.existsSync()) {
+        setState(() {
+          imagenesCache[producto.Id] = Image.file(
+            imageFile,
+            width: 50,
+            height: 50,
+            fit: BoxFit.cover,
+          );
+        });
+      } else {
+        throw Exception("El archivo de imagen no existe o no es válido.");
+      }
+    } catch (e) {
+      // Manejo de errores al cargar la imagen
+      setState(() {
+        imagenesCache[producto.Id] = const Icon(Icons.error,
+            color: Colors
+                .red); // Muestra un ícono de error si no se puede cargar la imagen
+      });
+      print('Error al cargar la imagen: $e');
+    }
+  }
+
+  void eliminarProducto(Productos producto, Listas lista) async {
+    setState(() {
+      lista.Productos.remove(
+          producto.Id); // Eliminar el ID del producto de la lista
+    });
+    ServiciosListas().actualizarLista(
+        lista.Id, lista.Nombre, lista.Visible, lista.Productos);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      backgroundColor: Colors.white,
+      title: const Text(
+        'Tus Listas',
+        style: TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
+          color: Color(0xFF4A3298),
+        ),
+      ),
+      content: widget.listas.isNotEmpty
+          ? SizedBox(
+              width: double.maxFinite,
+              height: 300, // Altura máxima antes de hacer scroll
+              child: SingleChildScrollView(
+                child: Column(
+                  children: widget.listas.map((lista) {
+                    // Filtrar los productos cuyo ID esté en lista.productos
+                    List<Productos> productosFiltrados = widget.productos
+                        .where(
+                            (producto) => lista.Productos.contains(producto.Id))
+                        .toList();
+
+                    return Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 5),
+                      child: ExpansionTile(
+                        title: Text(
+                          lista.Nombre,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                        leading:
+                            const Icon(Icons.list, color: Color(0xFF4A3298)),
+                        children: productosFiltrados.isNotEmpty
+                            ? productosFiltrados.map((producto) {
+                                // Cargar la imagen del producto
+                                loadImage(producto);
+
+                                return ListTile(
+                                  leading: imagenesCache
+                                          .containsKey(producto.Id)
+                                      ? imagenesCache[producto.Id]!
+                                      : CircularProgressIndicator(), // Muestra un indicador mientras se carga la imagen
+                                  title: Text(producto.Nombre),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      eliminarProducto(producto, lista);
+                                    },
+                                  ),
+                                );
+                              }).toList()
+                            : [
+                                const Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: Text(
+                                    "No hay productos en esta lista",
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontStyle: FontStyle.italic,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            )
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text(
+                    'No tienes listas aún. ¡Crea una nueva!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    // Acción para crear una nueva lista
+                  },
+                  icon: const Icon(Icons.add, color: Colors.white),
+                  label: const Text('Crear Lista'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4A3298),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text(
+            'Cerrar',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF4A3298),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
@@ -690,6 +896,6 @@ const corritoIcono =
 
 const filtroIcono = '''
 <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M2 4C2 3.44772 2.44772 3 3 3H19C19.5523 3 20 3.44772 20 4C20 4.55228 19.5523 5 19 5H3C2.44772 5 2 4.55228 2 4ZM5 10C5 9.44772 5.44772 9 6 9H16C16.5523 9 17 9.44772 17 10C17 10.5523 16.5523 11 16 11H6C5.44772 11 5 10.5523 5 10ZM9 16C9 15.4477 9.44772 15 10 15H12C12.5523 15 13 15.4477 13 16C13 16.5523 12.5523 17 12 17H10C9.44772 17 9 16.5523 9 16Z" fill="#7C7C7C"/>
+<path fill-rule="evenodd" clip-rule="evenodd" d="M2 4C2 3.44772 2.44772 3 3 3H19C19.5523 3 20 3.44772 20 4C20 4.55228 19.5523 5 19 5H3C2.44772 5 2 4.55228 2 4ZM5 10C5 9.44772 5.44772 9 6 9H16C16.5523 9 17 9.4477 17 10C17 10.5523 16.5523 11 16 11H6C5.44772 11 5 10.5523 5 10ZM9 16C9 15.4477 9.44772 15 10 15H12C12.5523 15 13 15.4477 13 16C13 16.5523 12.5523 17 12 17H10C9.44772 17 9 16.5523 9 16Z" fill="#7C7C7C"/>
 </svg>
 ''';

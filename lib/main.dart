@@ -42,6 +42,7 @@ class MyApp extends StatelessWidget {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             // Mostrar un mensaje de error genérico sin detalles
+            print('Error en FutureBuilder: ${snapshot.error}');
             return const Center(child: Text('Error al cargar la aplicación'));
           } else {
             return snapshot.data!;
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
       }
     } catch (e) {
       // Manejar cualquier error que ocurra durante la ejecución del Future
-      // print('Error en getInitialPage: $e'); // Comentado para evitar imprimir en la consola
+      print('Error en getInitialPage: $e'); // Imprimir el error en la consola
       throw e; // Sigue lanzando el error para que el FutureBuilder lo maneje
     }
   }
