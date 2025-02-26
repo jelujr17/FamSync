@@ -19,19 +19,28 @@ class AlmacenState extends State<Almacen> {
   List<Listas> listas = [];
   List<Tiendas> tiendas = [];
   List<Productos> productos = [];
+  List<Productos> productosFiltrados = [];
+
   bool isLoading = true;
   String errorMessage = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     obtenerListas();
-    isLoading = true;
-    errorMessage = '';
     obtenerTiendas();
-    isLoading = true;
-    errorMessage = '';
     obtenerProductos();
+    _searchController.addListener(_filterProductos);
+  }
+
+  void _filterProductos() {
+    final query = _searchController.text.toLowerCase();
+    setState(() {
+      productosFiltrados = productos
+          .where((producto) => producto.Nombre.toLowerCase().contains(query))
+          .toList();
+    });
   }
 
   void obtenerListas() async {
@@ -67,6 +76,8 @@ class AlmacenState extends State<Almacen> {
     try {
       productos = await ServicioProductos()
           .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
+      productosFiltrados =
+          productos; // Inicialmente, mostrar todos los productos
       setState(() {
         isLoading = false;
       });
@@ -96,12 +107,13 @@ class AlmacenState extends State<Almacen> {
                       color: Colors.black, fontWeight: FontWeight.bold),
                 ),
               ),
-              BarraAlmacen(),
+              BarraAlmacen(searchController: _searchController),
               ListasBanner(listas: listas),
               ProductosRecientes(
-                productos: (productos.length > 10
-                        ? productos.sublist(productos.length - 10)
-                        : productos)
+                productos: (productosFiltrados.length > 10
+                        ? productosFiltrados
+                            .sublist(productosFiltrados.length - 10)
+                        : productosFiltrados)
                     .reversed
                     .toList(),
               ),
@@ -109,11 +121,11 @@ class AlmacenState extends State<Almacen> {
               for (var tienda in tiendas)
                 ProductosPorTienda(
                     tienda: tienda,
-                    productos: productos
+                    productos: productosFiltrados
                         .where((p) => p.Tienda == tienda.Nombre)
                         .toList()),
               const SizedBox(height: 20),
-              ProductosTotales(productos: productos),
+              ProductosTotales(productos: productosFiltrados),
             ],
           ),
         ),
@@ -123,7 +135,8 @@ class AlmacenState extends State<Almacen> {
 }
 
 class BarraAlmacen extends StatelessWidget {
-  const BarraAlmacen({super.key});
+  const BarraAlmacen({super.key, required this.searchController});
+  final TextEditingController searchController;
 
   Color getContrastingTextColor(Color backgroundColor) {
     // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
@@ -143,7 +156,10 @@ class BarraAlmacen extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(child: BarraBusqueda()),
+          Expanded(
+              child: BarraBusqueda(
+            searchController: searchController,
+          )),
           const SizedBox(width: 16),
           IconoContador(
             // numOfitem: 3,
@@ -225,13 +241,15 @@ class IconoContador extends StatelessWidget {
 }
 
 class BarraBusqueda extends StatelessWidget {
-  const BarraBusqueda({super.key});
+  const BarraBusqueda({super.key, required this.searchController});
+
+  final TextEditingController searchController;
 
   @override
   Widget build(BuildContext context) {
     return Form(
       child: TextFormField(
-        onChanged: (value) {},
+        controller: searchController,
         decoration: InputDecoration(
           filled: true,
           hintStyle: const TextStyle(color: Color(0xFF757575)),
@@ -354,7 +372,8 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
   @override
   void initState() {
     super.initState();
-    cantidad = min(4, widget.productos.length); // Se calcula antes de construir el widget
+    cantidad = min(
+        4, widget.productos.length); // Se calcula antes de construir el widget
   }
 
   @override
@@ -437,7 +456,7 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
     cantidad = min(
         4, widget.productos.length); // Se calcula antes de construir el widget
   }
-  
+
   @override
   void didUpdateWidget(ProductosPorTienda oldWidget) {
     super.didUpdateWidget(oldWidget);
