@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
@@ -96,10 +98,20 @@ class AlmacenState extends State<Almacen> {
               ),
               BarraAlmacen(),
               ListasBanner(listas: listas),
-              ProductosRecientes(productos: productos),
+              ProductosRecientes(
+                productos: (productos.length > 10
+                        ? productos.sublist(productos.length - 10)
+                        : productos)
+                    .reversed
+                    .toList(),
+              ),
               const SizedBox(height: 20),
               for (var tienda in tiendas)
-                ProductosPorTienda(tienda: tienda, productos: productos),
+                ProductosPorTienda(
+                    tienda: tienda,
+                    productos: productos
+                        .where((p) => p.Tienda == tienda.Nombre)
+                        .toList()),
               const SizedBox(height: 20),
               ProductosTotales(productos: productos),
             ],
@@ -296,10 +308,12 @@ class SectionTitle extends StatelessWidget {
     super.key,
     required this.titulo,
     required this.accion,
+    required this.pulsado,
   });
 
   final String titulo;
   final GestureTapCallback accion;
+  final bool pulsado;
 
   @override
   Widget build(BuildContext context) {
@@ -317,77 +331,60 @@ class SectionTitle extends StatelessWidget {
         TextButton(
           onPressed: accion,
           style: TextButton.styleFrom(foregroundColor: Colors.grey),
-          child: const Text("Ver más"),
+          child: pulsado ? Text("Ver más") : Text("Ver menos"),
         ),
       ],
     );
   }
 }
 
-class ProductosRecientes extends StatelessWidget {
+class ProductosRecientes extends StatefulWidget {
   final List<Productos> productos;
+
   const ProductosRecientes({super.key, required this.productos});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SectionTitle(
-            titulo: "Recien añadidos",
-            accion: () {},
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: productos.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 20,
-              childAspectRatio: 0.7,
-            ),
-            itemBuilder: (context, index) {
-              return ProductoCard(
-                producto: productos[index],
-                onPress: () {},
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  State<ProductosRecientes> createState() => _ProductosRecientesState();
 }
 
-class ProductosPorTienda extends StatelessWidget {
-  final Tiendas tienda;
-  final List<Productos> productos;
-  const ProductosPorTienda(
-      {super.key, required this.tienda, required this.productos});
+class _ProductosRecientesState extends State<ProductosRecientes> {
+  late int cantidad;
+  bool pulsado = true;
+
+  @override
+  void initState() {
+    super.initState();
+    cantidad = min(
+        4, widget.productos.length); // Se calcula antes de construir el widget
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // Recorremos la lista de tiendas y mostramos un widget para cada una
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-            titulo: tienda.Nombre,
-            accion: () {},
-          ),
+              titulo: "Recien añadidos",
+              accion: () {
+                print("Se ha pulsado recien añadidos.");
+                setState(() {
+                  if (pulsado) {
+                    cantidad = widget.productos.length;
+                  } else {
+                    cantidad = min(4, widget.productos.length);
+                  }
+                  pulsado = !pulsado;
+                });
+              },
+              pulsado: pulsado),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: productos.length,
+            itemCount: cantidad,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -396,7 +393,7 @@ class ProductosPorTienda extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               return ProductoCard(
-                producto: productos[index],
+                producto: widget.productos[index],
                 onPress: () {},
               );
             },
@@ -407,27 +404,122 @@ class ProductosPorTienda extends StatelessWidget {
   }
 }
 
-class ProductosTotales extends StatelessWidget {
+class ProductosPorTienda extends StatefulWidget {
+  final Tiendas tienda;
   final List<Productos> productos;
+
+  const ProductosPorTienda({
+    super.key,
+    required this.tienda,
+    required this.productos,
+  });
+
+  @override
+  State<ProductosPorTienda> createState() => _ProductosPorTiendaState();
+}
+
+class _ProductosPorTiendaState extends State<ProductosPorTienda> {
+  late int cantidad;
+  bool pulsado = true;
+
+  @override
+  void initState() {
+    super.initState();
+    cantidad = min(
+        4, widget.productos.length); // Se calcula antes de construir el widget
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: SectionTitle(
+              titulo: widget.tienda.Nombre,
+              accion: () {
+                setState(() {
+                  if (pulsado) {
+                    cantidad = widget.productos.length;
+                  } else {
+                    cantidad = min(4, widget.productos.length);
+                  }
+                  pulsado = !pulsado;
+                });
+              },
+              pulsado: pulsado),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: GridView.builder(
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: cantidad,
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 20,
+              childAspectRatio: 0.7,
+            ),
+            itemBuilder: (context, index) {
+              return ProductoCard(
+                producto: widget.productos[index],
+                onPress: () {},
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class ProductosTotales extends StatefulWidget {
+  final List<Productos> productos;
+
   const ProductosTotales({super.key, required this.productos});
 
   @override
+  State<ProductosTotales> createState() => _ProductosTotalesState();
+}
+
+class _ProductosTotalesState extends State<ProductosTotales> {
+  late int cantidad;
+  bool pulsado = true;
+
+  @override
+  void initState() {
+    super.initState();
+    cantidad = min(
+        4, widget.productos.length); // Se calcula antes de construir el widget
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-            titulo: "Todos los Productos",
-            accion: () {},
-          ),
+              titulo: "Todos los Productos",
+              accion: () {
+                setState(() {
+                  if (pulsado) {
+                    cantidad = widget.productos.length;
+                  } else {
+                    cantidad = min(4, widget.productos.length);
+                  }
+                  pulsado = !pulsado;
+                });
+              },
+              pulsado: pulsado),
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
-            itemCount: productos.length,
+            itemCount: cantidad,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 16,
@@ -436,7 +528,7 @@ class ProductosTotales extends StatelessWidget {
             ),
             itemBuilder: (context, index) {
               return ProductoCard(
-                producto: productos[index],
+                producto: widget.productos[index],
                 onPress: () {},
               );
             },
@@ -460,72 +552,72 @@ class ProductoCard extends StatefulWidget {
   final Productos producto;
   final VoidCallback onPress;
 
-    @override
-    _ProductoCardState createState() => _ProductoCardState();
-  }
-  
-  class _ProductoCardState extends State<ProductoCard> {
-    Widget? imageWidget;
-  
-    @override
-    void initState() {
-      super.initState();
-      loadImage();
-    }
-  
-    void loadImage() async {
-      final imageFile = await ServicioProductos().obtenerImagen(widget.producto.Imagenes[0]);
-      setState(() {
-        imageWidget = Image.file(imageFile);
-      });
-    }
-  
-    @override
-    Widget build(BuildContext context) {
-      return SizedBox(
-        width: widget.width,
-        child: GestureDetector(
-          onTap: widget.onPress,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AspectRatio(
-                aspectRatio: 1.02,
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF979797).withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: imageWidget ?? CircularProgressIndicator(),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                widget.producto.Nombre,
-                style: Theme.of(context).textTheme.bodyMedium,
-                maxLines: 2,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    "\$${widget.producto.Precio}",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFFFF7643),
-                    ),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
-      );
-    }
+  @override
+  _ProductoCardState createState() => _ProductoCardState();
 }
 
+class _ProductoCardState extends State<ProductoCard> {
+  Widget? imageWidget;
+
+  @override
+  void initState() {
+    super.initState();
+    loadImage();
+  }
+
+  void loadImage() async {
+    final imageFile =
+        await ServicioProductos().obtenerImagen(widget.producto.Imagenes[0]);
+    setState(() {
+      imageWidget = Image.file(imageFile);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: widget.width,
+      child: GestureDetector(
+        onTap: widget.onPress,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1.02,
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF979797).withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: imageWidget ?? CircularProgressIndicator(),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              widget.producto.Nombre,
+              style: Theme.of(context).textTheme.bodyMedium,
+              maxLines: 2,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  "${widget.producto.Precio}€",
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFFFF7643),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 const heartIcon =
     '''<svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
