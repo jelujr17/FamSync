@@ -362,6 +362,35 @@ class VentanaListas extends StatefulWidget {
 }
 
 class _VentanaListasState extends State<VentanaListas> {
+  Map<int, Widget> imageWidgets = {};
+
+  @override
+  void initState() {
+    super.initState();
+    loadImages();
+  }
+
+  void loadImages() {
+    for (var lista in widget.listas) {
+      for (var productoId in lista.Productos) {
+        var producto = widget.productos.firstWhere((p) => p.Id == productoId);
+        ServicioProductos()
+            .obtenerImagen(producto.Imagenes[0])
+            .then((imageFile) {
+          setState(() {
+            imageWidgets[productoId] =
+                Image.file(imageFile, width: 50, height: 50, fit: BoxFit.cover);
+          });
+        }).catchError((error) {
+          setState(() {
+            imageWidgets[productoId] =
+                const Icon(Icons.error, color: Colors.red);
+          });
+        });
+      }
+    }
+  }
+
   void editarLista(Listas lista) async {
     TextEditingController nombreController =
         TextEditingController(text: lista.Nombre);
@@ -488,18 +517,8 @@ class _VentanaListasState extends State<VentanaListas> {
                             ? productosFiltrados.map((producto) {
                                 return ListTile(
                                   title: Text(producto.Nombre),
-                                  leading: Image.network(
-                                    producto.Imagenes[0],
-                                    width: 50,
-                                    height: 50,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return const Icon(
-                                        Icons.error,
-                                        color: Colors.red,
-                                      );
-                                    },
-                                  ),
+                                  leading: imageWidgets[producto.Id] ??
+                                      const CircularProgressIndicator(),
                                 );
                               }).toList()
                             : [
