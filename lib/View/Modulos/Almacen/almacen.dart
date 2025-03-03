@@ -462,6 +462,19 @@ class _VentanaListasState extends State<VentanaListas> {
     );
   }
 
+  void eliminarProductoDeLista(Listas lista, int productoId) {
+    setState(() {
+      lista.Productos.remove(productoId);
+      ServiciosListas().actualizarLista(
+        lista.Id,
+        lista.Nombre,
+        lista.Visible,
+        lista.Productos,
+      );
+    });
+    widget.actualizarBanner();
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -519,6 +532,14 @@ class _VentanaListasState extends State<VentanaListas> {
                                   title: Text(producto.Nombre),
                                   leading: imageWidgets[producto.Id] ??
                                       const CircularProgressIndicator(),
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.red),
+                                    onPressed: () {
+                                      eliminarProductoDeLista(
+                                          lista, producto.Id);
+                                    },
+                                  ),
                                 );
                               }).toList()
                             : [
