@@ -16,8 +16,9 @@ import 'package:rive/rive.dart';
 
 class Home extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
+  final Widget? child; // Página opcional para reemplazar PageView
 
-  const Home({super.key, required this.perfil});
+  const Home({super.key, required this.perfil, this.child});
 
   @override
   State<Home> createState() => HomeState();
@@ -103,7 +104,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: PageView(
+                  child: widget.child ?? PageView(
                     controller: _pageController,
                     onPageChanged: (index) {
                       setState(() {

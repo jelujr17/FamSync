@@ -4,8 +4,30 @@ import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Inicio/home.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:page_transition/page_transition.dart';
+
+class PerfilProvider extends InheritedWidget {
+  final Perfiles perfil;
+
+  const PerfilProvider({
+    super.key,
+    required this.perfil,
+    required Widget child,
+  }) : super(child: child);
+
+  static PerfilProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PerfilProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(PerfilProvider oldWidget) {
+    return perfil != oldWidget.perfil;
+  }
+}
 
 class Almacen extends StatefulWidget {
   const Almacen({super.key, required this.perfil});
@@ -33,6 +55,8 @@ class AlmacenState extends State<Almacen> {
     obtenerProductos();
     _searchController.addListener(_filterProductos);
   }
+
+  Perfiles get perfil => widget.perfil;
 
   void _filterProductos() {
     final query = _searchController.text.toLowerCase();
@@ -91,42 +115,45 @@ class AlmacenState extends State<Almacen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  "Almacén",
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colors.black, fontWeight: FontWeight.bold),
+    return PerfilProvider(
+      perfil: widget.perfil,
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    "Almacén",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              BarraAlmacen(searchController: _searchController),
-              ListasBanner(listas: listas, productos: productos),
-              ProductosRecientes(
-                productos: (productosFiltrados.length > 10
-                        ? productosFiltrados
-                            .sublist(productosFiltrados.length - 10)
-                        : productosFiltrados)
-                    .reversed
-                    .toList(),
-              ),
-              const SizedBox(height: 20),
-              for (var tienda in tiendas)
-                ProductosPorTienda(
-                    tienda: tienda,
-                    productos: productosFiltrados
-                        .where((p) => p.Tienda == tienda.Nombre)
-                        .toList()),
-              const SizedBox(height: 20),
-              ProductosTotales(productos: productosFiltrados),
-            ],
+                BarraAlmacen(searchController: _searchController),
+                ListasBanner(listas: listas, productos: productos),
+                ProductosRecientes(
+                  productos: (productosFiltrados.length > 10
+                          ? productosFiltrados
+                              .sublist(productosFiltrados.length - 10)
+                          : productosFiltrados)
+                      .reversed
+                      .toList(),
+                ),
+                const SizedBox(height: 20),
+                for (var tienda in tiendas)
+                  ProductosPorTienda(
+                      tienda: tienda,
+                      productos: productosFiltrados
+                          .where((p) => p.Tienda == tienda.Nombre)
+                          .toList()),
+                const SizedBox(height: 20),
+                ProductosTotales(productos: productosFiltrados),
+              ],
+            ),
           ),
         ),
       ),
@@ -711,7 +738,6 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
-                onPress: () {},
               );
             },
           ),
@@ -791,7 +817,6 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
-                onPress: () {},
               );
             },
           ),
@@ -866,7 +891,6 @@ class _ProductosTotalesState extends State<ProductosTotales> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
-                onPress: () {},
               );
             },
           ),
@@ -882,12 +906,10 @@ class ProductoCard extends StatefulWidget {
     this.width = 0,
     this.aspectRetio = 1.02,
     required this.producto,
-    required this.onPress,
   });
 
   final double width, aspectRetio;
   final Productos producto;
-  final VoidCallback onPress;
 
   @override
   _ProductoCardState createState() => _ProductoCardState();
@@ -912,10 +934,24 @@ class _ProductoCardState extends State<ProductoCard> {
 
   @override
   Widget build(BuildContext context) {
+    final perfil = PerfilProvider.of(context)!.perfil;
+
     return SizedBox(
       width: widget.width,
       child: GestureDetector(
-        onTap: widget.onPress,
+        onTap: () async {
+          await Navigator.push(
+            context,
+            PageTransition(
+              type: PageTransitionType.fade,
+              child: Home(
+                perfil: perfil,
+                child:
+                    DetallesProducto(), // Página de detalles dentro de la estructura
+              ),
+            ),
+          );
+        },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -927,7 +963,7 @@ class _ProductoCardState extends State<ProductoCard> {
                   color: const Color(0xFF979797).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: imageWidget ?? CircularProgressIndicator(),
+                child: imageWidget ?? const CircularProgressIndicator(),
               ),
             ),
             const SizedBox(height: 8),

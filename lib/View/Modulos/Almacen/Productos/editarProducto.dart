@@ -145,9 +145,8 @@ class _EditarProductoState extends State<EditarProducto> {
             await ServicioProductos().getProductoById(widget.producto.Id);
 
         Navigator.of(context).push(PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) => VerProducto(
-            producto: producto!,
-            perfil: widget.perfil,
+          pageBuilder: (context, animation, secondaryAnimation) => DetallesProducto(
+            
           ),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0); // Comienza desde la derecha
