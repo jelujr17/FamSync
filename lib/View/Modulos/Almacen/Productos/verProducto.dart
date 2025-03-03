@@ -1,8 +1,17 @@
+import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/Model/perfiles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class DetallesProducto extends StatelessWidget {
-  const DetallesProducto({super.key});
+  const DetallesProducto({
+    super.key,
+    required this.producto,
+    required this.perfil,
+  });
+
+  final Productos producto;
+  final Perfiles perfil;
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +28,7 @@ class DetallesProducto extends StatelessWidget {
           automaticallyImplyLeading: false, // Desactiva el botón por defecto
           flexibleSpace: Padding(
             padding:
-                const EdgeInsets.only(left: 0, top: 100), // Ajusta la posición
+                const EdgeInsets.only(left: 0, top: 120), // Ajusta la posición
             child: Align(
               alignment: Alignment.centerLeft,
               child: ElevatedButton(
@@ -43,7 +52,7 @@ class DetallesProducto extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          ProductImages(product: product),
+          ImagenesProducto(producto: producto),
           TopRoundedContainer(
             color: Colors.white,
             child: Column(
@@ -118,74 +127,104 @@ class TopRoundedContainer extends StatelessWidget {
   }
 }
 
-class ProductImages extends StatefulWidget {
-  const ProductImages({
-    Key? key,
-    required this.product,
-  }) : super(key: key);
+class ImagenesProducto extends StatefulWidget {
+  const ImagenesProducto({
+    super.key,
+    required this.producto,
+  });
 
-  final Product product;
+  final Productos producto;
 
   @override
-  _ProductImagesState createState() => _ProductImagesState();
+  _ImagenesProductoState createState() => _ImagenesProductoState();
 }
 
-class _ProductImagesState extends State<ProductImages> {
+class _ImagenesProductoState extends State<ImagenesProducto> {
+  late Future<List<Widget>> _imagenesFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _imagenesFuture = loadImages();
+  }
+
+  Future<List<Widget>> loadImages() async {
+    List<Widget> imagenes = [];
+    for (String urlImagen in widget.producto.Imagenes) {
+      final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+      imagenes.add(Image.file(imageFile));
+    }
+    return imagenes;
+  }
+
   int selectedImage = 0;
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          width: 238,
-          child: AspectRatio(
-            aspectRatio: 1,
-            child: Image.network(widget.product.images[selectedImage]),
-          ),
-        ),
-        // SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ...List.generate(
-              widget.product.images.length,
-              (index) => SmallProductImage(
-                isSelected: index == selectedImage,
-                press: () {
-                  setState(() {
-                    selectedImage = index;
-                  });
-                },
-                image: widget.product.images[index],
+    return FutureBuilder<List<Widget>>(
+      future: _imagenesFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return const Text('Error al cargar las imágenes');
+        } else {
+          final imagenes = snapshot.data!;
+          return Column(
+            children: [
+              SizedBox(
+                width: 238,
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: imagenes[selectedImage],
+                ),
               ),
-            ),
-          ],
-        )
-      ],
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ...List.generate(
+                    imagenes.length,
+                    (index) => ImagenPequena(
+                      esSeleccionada: index == selectedImage,
+                      funcion: () {
+                        setState(() {
+                          selectedImage = index;
+                        });
+                      },
+                      urlImagen: widget.producto.Imagenes[index],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }
 
-class SmallProductImage extends StatefulWidget {
-  const SmallProductImage(
-      {super.key,
-      required this.isSelected,
-      required this.press,
-      required this.image});
+class ImagenPequena extends StatelessWidget {
+  const ImagenPequena({
+    super.key,
+    required this.esSeleccionada,
+    required this.funcion,
+    required this.urlImagen,
+  });
 
-  final bool isSelected;
-  final VoidCallback press;
-  final String image;
+  final bool esSeleccionada;
+  final VoidCallback funcion;
+  final String urlImagen;
 
-  @override
-  State<SmallProductImage> createState() => _SmallProductImageState();
-}
+  Future<Widget> loadImage() async {
+    final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+    return Image.file(imageFile);
+  }
 
-class _SmallProductImageState extends State<SmallProductImage> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: widget.press,
+      onTap: funcion,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 250),
         margin: const EdgeInsets.only(right: 16),
@@ -196,10 +235,21 @@ class _SmallProductImageState extends State<SmallProductImage> {
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-              color: const Color(0xFFFF7643)
-                  .withOpacity(widget.isSelected ? 1 : 0)),
+            color: const Color(0xFFFF7643).withOpacity(esSeleccionada ? 1 : 0),
+          ),
         ),
-        child: Image.network(widget.image),
+        child: FutureBuilder<Widget>(
+          future: loadImage(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const CircularProgressIndicator();
+            } else if (snapshot.hasError) {
+              return const Icon(Icons.error, color: Colors.red);
+            } else {
+              return snapshot.data!;
+            }
+          },
+        ),
       ),
     );
   }

@@ -8,7 +8,6 @@ import 'package:famsync/View/Inicio/home.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:page_transition/page_transition.dart';
 
 class PerfilProvider extends InheritedWidget {
   final Perfiles perfil;
@@ -16,8 +15,8 @@ class PerfilProvider extends InheritedWidget {
   const PerfilProvider({
     super.key,
     required this.perfil,
-    required Widget child,
-  }) : super(child: child);
+    required super.child,
+  });
 
   static PerfilProvider? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<PerfilProvider>();
@@ -942,12 +941,14 @@ class _ProductoCardState extends State<ProductoCard> {
         onTap: () async {
           await Navigator.push(
             context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: Home(
+            MaterialPageRoute(
+              builder: (context) => Home(
                 perfil: perfil,
-                child:
-                    DetallesProducto(), // Página de detalles dentro de la estructura
+                initialPage: 1, // Índice de la página de Almacen
+                child: DetallesProducto(
+                  producto: widget.producto,
+                  perfil: perfil,
+                ),
               ),
             ),
           );

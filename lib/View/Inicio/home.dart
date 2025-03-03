@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
@@ -17,8 +16,10 @@ import 'package:rive/rive.dart';
 class Home extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
   final Widget? child; // Página opcional para reemplazar PageView
+  final int initialPage; // Índice de la página inicial
 
-  const Home({super.key, required this.perfil, this.child});
+  const Home(
+      {super.key, required this.perfil, this.child, this.initialPage = 0});
 
   @override
   State<Home> createState() => HomeState();
@@ -28,7 +29,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   //-----------------Menu Lateral-----------------------------------------------
   bool isSideBarOpen = false;
 
-  Menu selectedBottonNav = bottomNavItems.first;
+  late Menu selectedBottonNav;
   Menu selectedSideMenu = sidebarMenus.first;
 
   late SMIBool isMenuOpenInput;
@@ -46,9 +47,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late Animation<double> scalAnimation;
   late Animation<double> animation;
   late PageController _pageController;
+  bool isSubPage = false;
 
   @override
   void initState() {
+    selectedBottonNav = bottomNavItems[widget.initialPage];
     _animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200))
       ..addListener(
@@ -60,7 +63,17 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         parent: _animationController, curve: Curves.fastOutSlowIn));
     animation = Tween<double>(begin: 0, end: 1).animate(CurvedAnimation(
         parent: _animationController, curve: Curves.fastOutSlowIn));
-    _pageController = PageController();
+    _pageController = PageController(initialPage: widget.initialPage);
+    _pageController.addListener(() {
+      int currentPage = _pageController.page?.round() ?? 0;
+      setState(() {
+        if (currentPage == 1) {
+          isSubPage = false;
+        } else {
+          isSubPage = true;
+        }
+      });
+    });
 
     super.initState();
   }
@@ -104,23 +117,24 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: widget.child ?? PageView(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        selectedBottonNav = bottomNavItems[index];
-                      });
-                    },
-                    children: [
-                      // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
-                      Agenda(perfil: widget.perfil), // Página 1
-                      Almacen(perfil: widget.perfil), // Página 2
-                      Calendario(perfil: widget.perfil), // Página 3
-                      CategoriaPage(perfil: widget.perfil),
-                      const Placeholder()
-                      // Agrega más páginas según sea necesario
-                    ],
-                  ),
+                  child: widget.child ??
+                      PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            selectedBottonNav = bottomNavItems[index];
+                          });
+                        },
+                        children: [
+                          // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
+                          Agenda(perfil: widget.perfil), // Página 1
+                          Almacen(perfil: widget.perfil), // Página 2
+                          Calendario(perfil: widget.perfil), // Página 3
+                          CategoriaPage(perfil: widget.perfil),
+                          const Placeholder()
+                          // Agrega más páginas según sea necesario
+                        ],
+                      ),
                 ),
               ),
             ),
