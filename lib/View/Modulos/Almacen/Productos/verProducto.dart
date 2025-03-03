@@ -1,5 +1,6 @@
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/editarProducto.dart';
 import 'package:flutter/material.dart';
 
 class DetallesProducto extends StatelessWidget {
@@ -20,33 +21,68 @@ class DetallesProducto extends StatelessWidget {
       backgroundColor: const Color(0xFFF5F6F9),
       appBar: PreferredSize(
         preferredSize:
-            const Size.fromHeight(120), 
-            // Aumenta la altura del AppBar
+            const Size.fromHeight(100), // Aumenta la altura del AppBar
         child: AppBar(
-          
           backgroundColor: Colors.transparent,
-          automaticallyImplyLeading: false,
-           // Desactiva el botón por defecto
+          automaticallyImplyLeading: false, // Desactiva el botón por defecto
           flexibleSpace: Padding(
             padding:
                 const EdgeInsets.only(left: 0, top: 100), // Ajusta la posición
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: const CircleBorder(),
-                  padding: EdgeInsets.zero,
-                  backgroundColor: Colors.white,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context,
+                          false); // No se realizó ninguna actualización
+                    },
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: EdgeInsets.zero,
+                      backgroundColor: Colors.white,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back_ios_new,
+                      color: Colors.black,
+                      size: 20,
+                    ),
+                  ),
                 ),
-                child: const Icon(
-                  Icons.arrow_back_ios_new,
-                  color: Colors.black,
-                  size: 20,
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: PopupMenuButton<String>(
+                    onSelected: (String result) {
+                      if (result == 'Editar') {
+                        _editarProducto(context);
+                      } else if (result == 'Eliminar') {
+                        _eliminarProducto(context);
+                      }
+                    },
+                    itemBuilder: (BuildContext context) =>
+                        <PopupMenuEntry<String>>[
+                      const PopupMenuItem<String>(
+                        value: 'Editar',
+                        child: Text('Editar'),
+                      ),
+                      const PopupMenuItem<String>(
+                        value: 'Eliminar',
+                        child: Text('Eliminar'),
+                      ),
+                    ],
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: EdgeInsets.zero,
+                      backgroundColor: Colors.white,
+                    ),
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
         ),
@@ -96,6 +132,55 @@ class DetallesProducto extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  void _editarProducto(BuildContext context) async {
+    // Implementa la lógica para editar el producto
+    // Por ejemplo, puedes navegar a una página de edición de producto
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            EditarProducto(producto: producto, perfil: perfil),
+      ),
+    );
+
+    if (result == true) {
+      Navigator.pop(context, true); // Se realizó una actualización
+    }
+  }
+
+  void _eliminarProducto(BuildContext context) {
+    // Implementa la lógica para eliminar el producto
+    // Por ejemplo, puedes mostrar un cuadro de diálogo de confirmación
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Eliminar Producto'),
+          content:
+              const Text('¿Estás seguro de que deseas eliminar este producto?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                // Lógica para eliminar el producto
+                // Por ejemplo, puedes llamar a un servicio para eliminar el producto
+                ServicioProductos().eliminarProducto(producto.Id);
+                Navigator.of(context).pop();
+                Navigator.pop(context, true); // Se realizó una actualización
+              },
+              child: const Text('Eliminar'),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -335,7 +420,8 @@ class InformacionProducto extends StatelessWidget {
                 producto.Visible.length,
                 (index) => IconoPerfil(
                   idPerfil: producto.Visible[index],
-                  esCreador : producto.IdPerfilCreador == producto.Visible[index],
+                  esCreador:
+                      producto.IdPerfilCreador == producto.Visible[index],
                 ),
               ),
               const Spacer(),
@@ -383,9 +469,8 @@ class IconoPerfil extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(
-                  color: esCreador
-                      ? const Color(0xFFFF7643)
-                      : Colors.transparent),
+                  color:
+                      esCreador ? const Color(0xFFFF7643) : Colors.transparent),
               shape: BoxShape.circle,
             ),
             child: ClipOval(

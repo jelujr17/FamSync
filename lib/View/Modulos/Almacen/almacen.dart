@@ -112,6 +112,26 @@ class AlmacenState extends State<Almacen> {
     }
   }
 
+  void _navigateToDetallesProducto(Productos producto) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Home(
+          perfil: perfil,
+          initialPage: 1, // Índice de la página de Almacen
+          child: DetallesProducto(
+            producto: producto,
+            perfil: perfil,
+          ),
+        ),
+      ),
+    );
+
+    if (result == true) {
+      obtenerProductos(); // Actualiza la lista de productos
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return PerfilProvider(
@@ -141,16 +161,22 @@ class AlmacenState extends State<Almacen> {
                           : productosFiltrados)
                       .reversed
                       .toList(),
+                  onTap: _navigateToDetallesProducto,
                 ),
                 const SizedBox(height: 20),
                 for (var tienda in tiendas)
                   ProductosPorTienda(
-                      tienda: tienda,
-                      productos: productosFiltrados
-                          .where((p) => p.Tienda == tienda.Nombre)
-                          .toList()),
+                    tienda: tienda,
+                    productos: productosFiltrados
+                        .where((p) => p.Tienda == tienda.Nombre)
+                        .toList(),
+                    onTap: _navigateToDetallesProducto,
+                  ),
                 const SizedBox(height: 20),
-                ProductosTotales(productos: productosFiltrados),
+                ProductosTotales(
+                  productos: productosFiltrados,
+                  onTap: _navigateToDetallesProducto,
+                ),
               ],
             ),
           ),
@@ -673,8 +699,13 @@ class SectionTitle extends StatelessWidget {
 
 class ProductosRecientes extends StatefulWidget {
   final List<Productos> productos;
+  final Function(Productos) onTap;
 
-  const ProductosRecientes({super.key, required this.productos});
+  const ProductosRecientes({
+    super.key,
+    required this.productos,
+    required this.onTap,
+  });
 
   @override
   State<ProductosRecientes> createState() => _ProductosRecientesState();
@@ -710,7 +741,6 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
           child: SectionTitle(
               titulo: "Recien añadidos",
               accion: () {
-                print("Se ha pulsado recien añadidos.");
                 setState(() {
                   if (pulsado) {
                     cantidad = widget.productos.length;
@@ -737,6 +767,7 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
+                onTap: () => widget.onTap(widget.productos[index]),
               );
             },
           ),
@@ -749,11 +780,13 @@ class _ProductosRecientesState extends State<ProductosRecientes> {
 class ProductosPorTienda extends StatefulWidget {
   final Tiendas tienda;
   final List<Productos> productos;
+  final Function(Productos) onTap;
 
   const ProductosPorTienda({
     super.key,
     required this.tienda,
     required this.productos,
+    required this.onTap,
   });
 
   @override
@@ -816,6 +849,7 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
+                onTap: () => widget.onTap(widget.productos[index]),
               );
             },
           ),
@@ -827,8 +861,13 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
 
 class ProductosTotales extends StatefulWidget {
   final List<Productos> productos;
+  final Function(Productos) onTap;
 
-  const ProductosTotales({super.key, required this.productos});
+  const ProductosTotales({
+    super.key,
+    required this.productos,
+    required this.onTap,
+  });
 
   @override
   State<ProductosTotales> createState() => _ProductosTotalesState();
@@ -890,6 +929,7 @@ class _ProductosTotalesState extends State<ProductosTotales> {
             itemBuilder: (context, index) {
               return ProductoCard(
                 producto: widget.productos[index],
+                onTap: () => widget.onTap(widget.productos[index]),
               );
             },
           ),
@@ -905,10 +945,12 @@ class ProductoCard extends StatefulWidget {
     this.width = 0,
     this.aspectRetio = 1.02,
     required this.producto,
+    required this.onTap,
   });
 
   final double width, aspectRetio;
   final Productos producto;
+  final VoidCallback onTap;
 
   @override
   _ProductoCardState createState() => _ProductoCardState();
@@ -933,26 +975,10 @@ class _ProductoCardState extends State<ProductoCard> {
 
   @override
   Widget build(BuildContext context) {
-    final perfil = PerfilProvider.of(context)!.perfil;
-
     return SizedBox(
       width: widget.width,
       child: GestureDetector(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => Home(
-                perfil: perfil,
-                initialPage: 1, // Índice de la página de Almacen
-                child: DetallesProducto(
-                  producto: widget.producto,
-                  perfil: perfil,
-                ),
-              ),
-            ),
-          );
-        },
+        onTap: widget.onTap,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
