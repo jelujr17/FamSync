@@ -71,11 +71,6 @@ class DetallesProducto extends StatelessWidget {
                         child: Text('Eliminar'),
                       ),
                     ],
-                    style: ElevatedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      padding: EdgeInsets.zero,
-                      backgroundColor: Colors.white,
-                    ),
                     icon: const Icon(
                       Icons.more_vert,
                       color: Colors.black,

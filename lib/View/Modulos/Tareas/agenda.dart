@@ -34,10 +34,21 @@ class _AgendaState extends State<Agenda> {
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
-  void cargarCategorias() async {
+  Future<void> cargarCategorias() async {
+    // Simulación de una llamada asíncrona
+
     categoriasTareasAux = await ServiciosCategorias()
         .getCategoriasByModulo(widget.perfil.UsuarioId, 5);
-    setState(() {}); // Actualiza la UI con las categorías cargadas
+    if (mounted) {
+      setState(() {
+        // Actualiza el estado aquí
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 
   @override
@@ -100,8 +111,9 @@ class _AgendaState extends State<Agenda> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  TareasPage(perfil: widget.perfil,), // Página de destino
+                              builder: (context) => TareasPage(
+                                perfil: widget.perfil,
+                              ), // Página de destino
                             ),
                           );
                         },

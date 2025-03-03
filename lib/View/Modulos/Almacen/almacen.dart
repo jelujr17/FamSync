@@ -4,7 +4,6 @@ import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/home.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -113,23 +112,14 @@ class AlmacenState extends State<Almacen> {
   }
 
   void _navigateToDetallesProducto(Productos producto) async {
-    final result = await Navigator.push(
-      context,
+    Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => Home(
-          perfil: perfil,
-          initialPage: 1, // Índice de la página de Almacen
-          child: DetallesProducto(
-            producto: producto,
-            perfil: perfil,
-          ),
+        builder: (context) => DetallesProducto(
+          perfil: widget.perfil,
+          producto: producto,
         ),
       ),
     );
-
-    if (result == true) {
-      obtenerProductos(); // Actualiza la lista de productos
-    }
   }
 
   @override
@@ -161,7 +151,7 @@ class AlmacenState extends State<Almacen> {
                           : productosFiltrados)
                       .reversed
                       .toList(),
-                  onTap: _navigateToDetallesProducto,
+                  onTap: (producto) => _navigateToDetallesProducto(producto),
                 ),
                 const SizedBox(height: 20),
                 for (var tienda in tiendas)
@@ -170,12 +160,12 @@ class AlmacenState extends State<Almacen> {
                     productos: productosFiltrados
                         .where((p) => p.Tienda == tienda.Nombre)
                         .toList(),
-                    onTap: _navigateToDetallesProducto,
+                    onTap: (producto) => _navigateToDetallesProducto(producto),
                   ),
                 const SizedBox(height: 20),
                 ProductosTotales(
                   productos: productosFiltrados,
-                  onTap: _navigateToDetallesProducto,
+                  onTap: (producto) => _navigateToDetallesProducto(producto),
                 ),
               ],
             ),

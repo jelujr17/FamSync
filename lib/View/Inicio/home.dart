@@ -13,13 +13,13 @@ import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
+final GlobalKey<HomeState> homeKey = GlobalKey<HomeState>();
+
 class Home extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
-  final Widget? child; // Página opcional para reemplazar PageView
   final int initialPage; // Índice de la página inicial
 
-  const Home(
-      {super.key, required this.perfil, this.child, this.initialPage = 0});
+  const Home({super.key, required this.perfil, this.initialPage = 0});
 
   @override
   State<Home> createState() => HomeState();
@@ -35,11 +35,17 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late SMIBool isMenuOpenInput;
 
   void updateSelectedBtmNav(Menu menu) {
-    if (selectedBottonNav != menu) {
-      setState(() {
-        selectedBottonNav = menu;
-        _pageController.jumpToPage(bottomNavItems.indexOf(menu));
-      });
+    int pageIndex = bottomNavItems.indexOf(menu);
+    if (pageIndex != -1) {
+      if (mounted && _pageController.hasClients) {
+        // Verifica que _pageController es válido
+        setState(() {
+          selectedBottonNav = menu;
+          _pageController.jumpToPage(pageIndex);
+        });
+      }
+    } else {
+      print("Navegación fuera de las cinco páginas principales");
     }
   }
 
@@ -47,7 +53,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late Animation<double> scalAnimation;
   late Animation<double> animation;
   late PageController _pageController;
-  bool isSubPage = false;
 
   @override
   void initState() {
@@ -66,13 +71,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _pageController = PageController(initialPage: widget.initialPage);
     _pageController.addListener(() {
       int currentPage = _pageController.page?.round() ?? 0;
-      setState(() {
-        if (currentPage == 1) {
-          isSubPage = false;
-        } else {
-          isSubPage = true;
-        }
-      });
+      if (currentPage < bottomNavItems.length) {
+        setState(() {
+          selectedBottonNav = bottomNavItems[currentPage];
+        });
+      }
     });
 
     super.initState();
@@ -84,11 +87,22 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _pageController.dispose();
     super.dispose();
   }
+
+  void navigateToPage(int pageIndex) {
+    if (mounted && _pageController.hasClients) {
+      setState(() {
+        selectedBottonNav = bottomNavItems[pageIndex];
+        _pageController.jumpToPage(pageIndex);
+      });
+    }
+  }
+
   //-----------------Menu Lateral-----------------------------------------------
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: homeKey,
       extendBody: true,
       resizeToAvoidBottomInset: false,
       backgroundColor: const Color(0xFF17203A),
@@ -117,7 +131,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: widget.child ??
+                  child: Stack(
+                    children: [
                       PageView(
                         controller: _pageController,
                         onPageChanged: (index) {
@@ -131,10 +146,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           Almacen(perfil: widget.perfil), // Página 2
                           Calendario(perfil: widget.perfil), // Página 3
                           CategoriaPage(perfil: widget.perfil),
-                          const Placeholder()
-                          // Agrega más páginas según sea necesario
+                          const Placeholder(),
                         ],
                       ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -202,6 +218,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       navBar: navBar,
                       press: () {
                         RiveUtils.chnageSMIBoolState(navBar.rive.status!);
+
                         updateSelectedBtmNav(navBar);
                       },
                       riveOnInit: (artboard) {
