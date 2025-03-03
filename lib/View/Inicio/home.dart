@@ -44,9 +44,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           _pageController.jumpToPage(pageIndex);
         });
       }
-    } else {
-      print("Navegación fuera de las cinco páginas principales");
-    }
+    } 
   }
 
   late AnimationController _animationController;
@@ -87,16 +85,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _pageController.dispose();
     super.dispose();
   }
-
-  void navigateToPage(int pageIndex) {
-    if (mounted && _pageController.hasClients) {
-      setState(() {
-        selectedBottonNav = bottomNavItems[pageIndex];
-        _pageController.jumpToPage(pageIndex);
-      });
-    }
-  }
-
   //-----------------Menu Lateral-----------------------------------------------
 
   @override
@@ -142,10 +130,60 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                         },
                         children: [
                           // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
-                          Agenda(perfil: widget.perfil), // Página 1
-                          Almacen(perfil: widget.perfil), // Página 2
-                          Calendario(perfil: widget.perfil), // Página 3
-                          CategoriaPage(perfil: widget.perfil),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Agenda(perfil: widget.perfil));
+                                case '/page2':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                                case '/page3':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Agenda(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
+                              }
+                            },
+                          ),
                           const Placeholder(),
                         ],
                       ),
@@ -218,7 +256,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                       navBar: navBar,
                       press: () {
                         RiveUtils.chnageSMIBoolState(navBar.rive.status!);
-
                         updateSelectedBtmNav(navBar);
                       },
                       riveOnInit: (artboard) {
