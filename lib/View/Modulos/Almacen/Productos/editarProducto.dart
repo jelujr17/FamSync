@@ -28,7 +28,7 @@ class _EditarProductoState extends State<EditarProducto> {
   final TextEditingController _dropdownSearchFieldController =
       TextEditingController();
 
-  final List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
+  List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
   List<String> _imagenesExistentes =
       []; // Lista para almacenar imágenes existentes
   List<int> _perfilSeleccionado = [];
@@ -65,7 +65,7 @@ class _EditarProductoState extends State<EditarProducto> {
         await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
     obtenerNombresTiendas();
     setState(() {
-      tiendaSeleccionada = widget.producto.Tienda;
+      tiendaSeleccionada ??= widget.producto.Tienda;
     });
   }
 
@@ -152,12 +152,14 @@ class _EditarProductoState extends State<EditarProducto> {
   }
 
   void _eliminarImagenExistente(String imagen) {
+    print("Eliminar imagen existente: $imagen");
     setState(() {
       _imagenesExistentes.remove(imagen);
     });
   }
 
   void _eliminarImagenNueva(File imagen) {
+    print("Eliminar imagen nueva: ${imagen.path}");
     setState(() {
       _nuevasImagenes.remove(imagen);
     });
@@ -240,6 +242,27 @@ class _EditarProductoState extends State<EditarProducto> {
             ),
           ),
         ),
+        bottomNavigationBar: TopRoundedContainer(
+          color: Colors.white,
+          child: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: const Color.fromARGB(255, 255, 195, 67),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
+                ),
+                onPressed: _editarProducto,
+                child: const Text("Guardar cambios"),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -248,12 +271,12 @@ class _EditarProductoState extends State<EditarProducto> {
 class ImagenesProductoEditar extends StatefulWidget {
   const ImagenesProductoEditar({
     super.key,
-    required this.producto,
+    required this.imagenesTotales,
     required this.onEliminarImagenExistente,
     required this.onEliminarImagenNueva,
   });
 
-  final Productos producto;
+  final List<String> imagenesTotales;
   final Function(String) onEliminarImagenExistente;
   final Function(File) onEliminarImagenNueva;
 
@@ -262,29 +285,49 @@ class ImagenesProductoEditar extends StatefulWidget {
 }
 
 class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
-  late Future<List<Widget>> _imagenesFuture;
   List<File> _nuevasImagenes = [];
 
   @override
   void initState() {
     super.initState();
-    _imagenesFuture = loadImages();
   }
 
   Future<List<Widget>> loadImages() async {
     List<Widget> imagenes = [];
-    for (String urlImagen in widget.producto.Imagenes) {
+    for (String urlImagen in widget.imagenesTotales) {
       final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
       imagenes.add(
         Stack(
           children: [
-            Image.file(imageFile, width: 100, height: 100, fit: BoxFit.cover),
+            Container(
+              width: 150,
+              height: 150,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                image: DecorationImage(
+                  image: FileImage(imageFile),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
             Positioned(
-              right: 0,
-              top: 0,
+              left: 110, // Se ajusta la posición del icono
+              top: 10,
               child: GestureDetector(
-                onTap: () => widget.onEliminarImagenExistente(urlImagen),
-                child: const Icon(Icons.delete, color: Colors.red),
+                onTap: () {
+                  widget.onEliminarImagenExistente(urlImagen);
+                  setState(() {
+                    widget.imagenesTotales.remove(urlImagen);
+                  });
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.delete, color: Colors.red, size: 24),
+                ),
               ),
             ),
           ],
@@ -302,35 +345,64 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
     });
   }
 
+  Future<List<File>> _loadExistingImages() async {
+    List<File> imagenesCargadas = [];
+    for (String urlImagen in widget.imagenesTotales) {
+      final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+      imagenesCargadas.add(imageFile);
+    }
+    return imagenesCargadas;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<Widget>>(
-      future: _imagenesFuture,
+    return FutureBuilder<List<File>>(
+      future: _loadExistingImages(), // Cargamos las imágenes antes de construir
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
           return const Text('Error al cargar las imágenes');
         } else {
-          final imagenes = snapshot.data!;
+          final imagenesCargadas = snapshot.data ?? [];
+
           return Column(
             children: [
-              GridView.count(
-                crossAxisCount: 3,
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
                 children: [
-                  ...imagenes,
+                  // Mostrar imágenes existentes ya cargadas
+                  ...imagenesCargadas.map(
+                    (imageFile) => Stack(
+                      children: [
+                        Image.file(imageFile, width: 175, height: 175),
+                        Positioned(
+                          right: 10, // Ajusta la posición del icono de eliminar
+                          top: 10,
+                          child: GestureDetector(
+                            onTap: () {
+                              String urlImagen = widget.imagenesTotales[
+                                  imagenesCargadas.indexOf(imageFile)];
+                              widget.onEliminarImagenExistente(urlImagen);
+                            },
+                            child: const Icon(Icons.delete, color: Colors.red),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Mostrar nuevas imágenes seleccionadas
                   ..._nuevasImagenes.map(
                     (imagen) => Stack(
                       children: [
-                        Image.file(imagen,
-                            width: 100, height: 100, fit: BoxFit.cover),
+                        Image.file(imagen, width: 175, height: 175),
                         Positioned(
-                          right: 0,
-                          top: 0,
+                          right: 10,
+                          top: 10,
                           child: GestureDetector(
-                            onTap: () => widget.onEliminarImagenNueva(imagen),
+                            onTap: () =>
+                                widget.onEliminarImagenExistente(imagen.path),
                             child: const Icon(Icons.delete, color: Colors.red),
                           ),
                         ),
@@ -340,9 +412,27 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
                 ],
               ),
               const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: _pickImage,
-                child: const Text('Añadir Imágenes'),
+              TopRoundedContainer(
+                color: Colors.white,
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        elevation: 0,
+                        backgroundColor: const Color.fromARGB(195, 32, 69, 235),
+                        foregroundColor: Colors.white,
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(16)),
+                        ),
+                      ),
+                      onPressed: _pickImage,
+                      child: const Text("Añadir imágenes"),
+                    ),
+                  ),
+                ),
               ),
             ],
           );
@@ -360,8 +450,8 @@ class FormularioEditarProducto extends StatefulWidget {
   final TextEditingController nombreController;
   final TextEditingController precioController;
   final TextEditingController dropdownSearchFieldController;
-  final List<File> nuevasImagenes;
   final List<String> imagenesExistentes;
+  final List<File> nuevasImagenes;
   final List<int> perfilSeleccionado;
   final List<Tiendas> tiendasDisponibles;
   String? tiendaSeleccionada;
@@ -379,8 +469,8 @@ class FormularioEditarProducto extends StatefulWidget {
     required this.nombreController,
     required this.precioController,
     required this.dropdownSearchFieldController,
-    required this.nuevasImagenes,
     required this.imagenesExistentes,
+    required this.nuevasImagenes,
     required this.perfilSeleccionado,
     required this.tiendasDisponibles,
     required this.tiendaSeleccionada,
@@ -409,153 +499,198 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
     return Form(
       key: widget.formKey,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ImagenesProductoEditar(
-            producto: widget.producto,
-            onEliminarImagenExistente: widget.onEliminarImagenExistente,
-            onEliminarImagenNueva: widget.onEliminarImagenNueva,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: ImagenesProductoEditar(
+              imagenesTotales: widget.imagenesExistentes,
+              onEliminarImagenExistente: widget.onEliminarImagenExistente,
+              onEliminarImagenNueva: widget.onEliminarImagenNueva,
+            ),
           ),
           const SizedBox(height: 16),
-          TextFormField(
-            controller: widget.nombreController,
-            decoration: const InputDecoration(labelText: 'Nombre'),
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingresa un nombre.';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20),
-          TextFormField(
-            controller: widget.precioController,
-            decoration: const InputDecoration(labelText: 'Precio'),
-            keyboardType: TextInputType.number,
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Por favor ingresa un precio.';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20),
-          DropDownSearchFormField(
-            textFieldConfiguration: TextFieldConfiguration(
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextFormField(
+              controller: widget.nombreController,
               decoration: InputDecoration(
-                labelText: widget.tiendaSeleccionada ?? 'Selecciona una tienda',
+                labelText: 'Nombre',
+                labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                hintText: 'Ingresa un nombre para el producto',
+                hintStyle: const TextStyle(color: Colors.grey),
+                prefixIcon: const Icon(Icons.shopping_bag     , color: Colors.blueAccent),
+                filled: true,
+                fillColor: Colors.grey.shade100,
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none, // Sin borde inicial
                 ),
-                prefixIcon: const Icon(Icons.store),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide:
+                      const BorderSide(color: Colors.blueAccent, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: const BorderSide(color: Colors.red),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
               ),
-              controller: widget.dropdownSearchFieldController,
+              validator: (value) {
+                if (value == null || value.trim().isEmpty) {
+                  return 'Por favor, ingresa un nombre válido.';
+                }
+                return null;
+              },
             ),
-            suggestionsCallback: (pattern) {
-              return getSuggestions(pattern);
-            },
-            itemBuilder: (context, String suggestion) {
-              return ListTile(
-                title: Text(suggestion),
-              );
-            },
-            itemSeparatorBuilder: (context, index) {
-              return const Divider();
-            },
-            transitionBuilder: (context, suggestionsBox, controller) {
-              return suggestionsBox;
-            },
-            onSuggestionSelected: (String suggestion) {
-              widget.dropdownSearchFieldController.text = suggestion;
-              setState(() {
-                widget.tiendaSeleccionada = suggestion;
-              });
-            },
-            suggestionsBoxController: widget.suggestionBoxController,
-            validator: (value) =>
-                value!.isEmpty ? 'Por favor selecciona una tienda' : null,
-            displayAllSuggestionWhenTap: true,
           ),
           const SizedBox(height: 20),
-          FutureBuilder<List<Perfiles>>(
-            future: ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: CircularProgressIndicator());
-              } else if (snapshot.hasError) {
-                return Center(child: Text('Error: ${snapshot.error}'));
-              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text('No hay perfiles disponibles.'));
-              }
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: TextFormField(
+              controller: widget.precioController,
+              decoration: const InputDecoration(
+                labelText: 'Precio',
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.number,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Por favor ingresa un precio.';
+                }
+                return null;
+              },
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: DropDownSearchFormField(
+              textFieldConfiguration: TextFieldConfiguration(
+                decoration: InputDecoration(
+                  labelText:
+                      widget.tiendaSeleccionada ?? 'Selecciona una tienda',
+                  border: OutlineInputBorder(),
+                  prefixIcon: const Icon(Icons.store),
+                ),
+                controller: widget.dropdownSearchFieldController,
+              ),
+              suggestionsCallback: (pattern) {
+                return getSuggestions(pattern);
+              },
+              itemBuilder: (context, String suggestion) {
+                return ListTile(
+                  title: Text(suggestion),
+                );
+              },
+              itemSeparatorBuilder: (context, index) {
+                return const Divider();
+              },
+              transitionBuilder: (context, suggestionsBox, controller) {
+                return suggestionsBox;
+              },
+              onSuggestionSelected: (String suggestion) {
+                widget.dropdownSearchFieldController.text = suggestion;
+                setState(() {
+                  widget.tiendaSeleccionada = suggestion;
+                });
+              },
+              suggestionsBoxController: widget.suggestionBoxController,
+              validator: (value) =>
+                  value!.isEmpty ? 'Por favor selecciona una tienda' : null,
+              displayAllSuggestionWhenTap: true,
+            ),
+          ),
+          const SizedBox(height: 20),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: FutureBuilder<List<Perfiles>>(
+              future: ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                  return const Center(
+                      child: Text('No hay perfiles disponibles.'));
+                }
 
-              List<Perfiles> perfiles = snapshot.data!;
+                List<Perfiles> perfiles = snapshot.data!;
 
-              return ListView.builder(
-                shrinkWrap: true,
-                itemCount: perfiles.length > 1
-                    ? perfiles.length - 1
-                    : 0, // Restamos 1 si hay más de un perfil
-                itemBuilder: (context, index) {
-                  final perfil = perfiles[index + 1];
-                
-                  return ListTile(
-                    title: Text(
-                      perfil.Nombre,
-                      style: const TextStyle(
-                        color: Colores.texto,
-                        fontWeight: FontWeight.normal,
+                return ListView.builder(
+                  shrinkWrap: true,
+                  itemCount: perfiles.length > 1
+                      ? perfiles.length - 1
+                      : 0, // Restamos 1 si hay más de un perfil
+                  itemBuilder: (context, index) {
+                    final perfil = perfiles[index + 1];
+
+                    return ListTile(
+                      title: Text(
+                        perfil.Nombre,
+                        style: const TextStyle(
+                          color: Colores.texto,
+                          fontWeight: FontWeight.normal,
+                        ),
                       ),
-                    ),
-                    leading: perfil.FotoPerfil.isNotEmpty
-                        ? FutureBuilder<File>(
-                            future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return const CircularProgressIndicator();
-                              } else if (snapshot.hasError) {
-                                return const Icon(Icons.error);
-                              } else if (!snapshot.hasData) {
-                                return const Icon(Icons.image_not_supported);
-                              } else {
-                                return Stack(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 25,
-                                      backgroundImage: FileImage(snapshot.data!),
-                                    ),
-                                    if (widget.perfilSeleccionado.contains(perfil.Id))
-                                      const Positioned(
-                                        right: 0,
-                                        bottom: 0,
-                                        child: Icon(Icons.check_circle, color: Colors.green),
+                      leading: perfil.FotoPerfil.isNotEmpty
+                          ? FutureBuilder<File>(
+                              future: ServicioPerfiles()
+                                  .obtenerImagen(perfil.FotoPerfil),
+                              builder: (context, snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const CircularProgressIndicator();
+                                } else if (snapshot.hasError) {
+                                  return const Icon(Icons.error);
+                                } else if (!snapshot.hasData) {
+                                  return const Icon(Icons.image_not_supported);
+                                } else {
+                                  return Stack(
+                                    children: [
+                                      CircleAvatar(
+                                        radius: 25,
+                                        backgroundImage:
+                                            FileImage(snapshot.data!),
                                       ),
-                                  ],
-                                );
-                              }
-                            },
-                          )
-                        : const Icon(Icons.image_not_supported),
-                    tileColor: widget.perfilSeleccionado.contains(perfil.Id)
-                        ? Colores.principal.withOpacity(0.2)
-                        : null,
-                    onTap: () {
-                      setState(() {
-                        if (widget.perfilSeleccionado.contains(perfil.Id)) {
-                          widget.perfilSeleccionado.remove(perfil.Id);
-                        } else {
-                          widget.perfilSeleccionado.add(perfil.Id);
-                        }
-                      });
-                    },
-                  );
-                },
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: widget.onGuardar,
-            child: const Text('Guardar Cambios'),
+                                      if (widget.perfilSeleccionado
+                                          .contains(perfil.Id))
+                                        const Positioned(
+                                          right: 0,
+                                          bottom: 0,
+                                          child: Icon(Icons.check_circle,
+                                              color: Colors.green),
+                                        ),
+                                    ],
+                                  );
+                                }
+                              },
+                            )
+                          : const Icon(Icons.image_not_supported),
+                      tileColor: widget.perfilSeleccionado.contains(perfil.Id)
+                          ? Colores.principal.withOpacity(0.2)
+                          : null,
+                      onTap: () {
+                        setState(() {
+                          if (widget.perfilSeleccionado.contains(perfil.Id)) {
+                            widget.perfilSeleccionado.remove(perfil.Id);
+                          } else {
+                            widget.perfilSeleccionado.add(perfil.Id);
+                          }
+                        });
+                      },
+                    );
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
