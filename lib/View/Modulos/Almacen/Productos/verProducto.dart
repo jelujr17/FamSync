@@ -62,18 +62,38 @@ class DetallesProducto extends StatelessWidget {
                     },
                     itemBuilder: (BuildContext context) =>
                         <PopupMenuEntry<String>>[
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'Editar',
-                        child: Text('Editar'),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.edit, color: Colors.black),
+                            SizedBox(width: 8),
+                            Text('Editar'),
+                          ],
+                        ),
                       ),
-                      const PopupMenuItem<String>(
+                      PopupMenuItem<String>(
                         value: 'Eliminar',
-                        child: Text('Eliminar'),
+                        child: Row(
+                          children: const [
+                            Icon(Icons.delete, color: Colors.red),
+                            SizedBox(width: 8),
+                            Text('Eliminar'),
+                          ],
+                        ),
                       ),
                     ],
+                    style: ElevatedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      padding: EdgeInsets.zero,
+                      backgroundColor: Colors.white,
+                    ),
                     icon: const Icon(
                       Icons.more_vert,
                       color: Colors.black,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
                     ),
                   ),
                 ),
