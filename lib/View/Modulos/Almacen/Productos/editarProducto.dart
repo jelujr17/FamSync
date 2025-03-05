@@ -286,161 +286,121 @@ class ImagenesProductoEditar extends StatefulWidget {
 
 class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
   List<File> _nuevasImagenes = [];
+  List<File> _imagenesCargadas = [];
 
   @override
   void initState() {
     super.initState();
+    _cargarImagenes();
   }
 
-  Future<List<Widget>> loadImages() async {
-    List<Widget> imagenes = [];
+  Future<void> _cargarImagenes() async {
+    List<File> imagenes = [];
     for (String urlImagen in widget.imagenesTotales) {
       final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
-      imagenes.add(
-        Stack(
-          children: [
-            Container(
-              width: 150,
-              height: 150,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                image: DecorationImage(
-                  image: FileImage(imageFile),
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            Positioned(
-              left: 110, // Se ajusta la posición del icono
-              top: 10,
-              child: GestureDetector(
-                onTap: () {
-                  widget.onEliminarImagenExistente(urlImagen);
-                  setState(() {
-                    widget.imagenesTotales.remove(urlImagen);
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(Icons.delete, color: Colors.red, size: 24),
-                ),
-              ),
-            ),
-          ],
-        ),
-      );
+      imagenes.add(imageFile);
     }
-    return imagenes;
+    setState(() {
+      _imagenesCargadas = imagenes;
+    });
   }
 
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
     final List<XFile> images = await picker.pickMultiImage();
     setState(() {
-      _nuevasImagenes = images.map((image) => File(image.path)).toList();
+      _nuevasImagenes.addAll(images.map((image) => File(image.path)));
     });
   }
 
-  Future<List<File>> _loadExistingImages() async {
-    List<File> imagenesCargadas = [];
-    for (String urlImagen in widget.imagenesTotales) {
-      final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
-      imagenesCargadas.add(imageFile);
-    }
-    return imagenesCargadas;
+  void _eliminarImagenExistente(int index) {
+    String urlImagen = widget.imagenesTotales[index];
+
+    // Notificamos al padre para eliminar la imagen del backend si es necesario
+    widget.onEliminarImagenExistente(urlImagen);
+
+    setState(() {
+      widget.imagenesTotales.removeAt(index);
+      _imagenesCargadas.removeAt(index);
+    });
+  }
+
+  void _eliminarImagenNueva(int index) {
+    setState(() {
+      _nuevasImagenes.removeAt(index);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<File>>(
-      future: _loadExistingImages(), // Cargamos las imágenes antes de construir
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const CircularProgressIndicator();
-        } else if (snapshot.hasError) {
-          return const Text('Error al cargar las imágenes');
-        } else {
-          final imagenesCargadas = snapshot.data ?? [];
-
-          return Column(
-            children: [
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
+    return Column(
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            // Imágenes existentes
+            ...List.generate(widget.imagenesTotales.length, (index) {
+              return Stack(
                 children: [
-                  // Mostrar imágenes existentes ya cargadas
-                  ...imagenesCargadas.map(
-                    (imageFile) => Stack(
-                      children: [
-                        Image.file(imageFile, width: 175, height: 175),
-                        Positioned(
-                          right: 10, // Ajusta la posición del icono de eliminar
-                          top: 10,
-                          child: GestureDetector(
-                            onTap: () {
-                              String urlImagen = widget.imagenesTotales[
-                                  imagenesCargadas.indexOf(imageFile)];
-                              widget.onEliminarImagenExistente(urlImagen);
-                            },
-                            child: const Icon(Icons.delete, color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  // Mostrar nuevas imágenes seleccionadas
-                  ..._nuevasImagenes.map(
-                    (imagen) => Stack(
-                      children: [
-                        Image.file(imagen, width: 175, height: 175),
-                        Positioned(
-                          right: 10,
-                          top: 10,
-                          child: GestureDetector(
-                            onTap: () =>
-                                widget.onEliminarImagenExistente(imagen.path),
-                            child: const Icon(Icons.delete, color: Colors.red),
-                          ),
-                        ),
-                      ],
+                  Image.file(_imagenesCargadas[index], width: 175, height: 175),
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: GestureDetector(
+                      onTap: () => _eliminarImagenExistente(index),
+                      child: const Icon(Icons.delete, color: Colors.red),
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 16),
-              TopRoundedContainer(
-                color: Colors.white,
-                child: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 20, vertical: 12),
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        elevation: 0,
-                        backgroundColor: const Color.fromARGB(195, 32, 69, 235),
-                        foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 48),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(16)),
-                        ),
-                      ),
-                      onPressed: _pickImage,
-                      child: const Text("Añadir imágenes"),
+              );
+            }),
+            // Nuevas imágenes seleccionadas
+            ...List.generate(_nuevasImagenes.length, (index) {
+              return Stack(
+                children: [
+                  Image.file(_nuevasImagenes[index], width: 175, height: 175),
+                  Positioned(
+                    right: 10,
+                    top: 10,
+                    child: GestureDetector(
+                      onTap: () => _eliminarImagenNueva(index),
+                      child: const Icon(Icons.delete, color: Colors.red),
                     ),
                   ),
+                ],
+              );
+            }),
+          ],
+        ),
+        const SizedBox(height: 16),
+        TopRoundedContainer(
+          color: Colors.white,
+          child: SafeArea(
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  elevation: 0,
+                  backgroundColor: const Color.fromARGB(195, 32, 69, 235),
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 48),
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(16)),
+                  ),
                 ),
+                onPressed: _pickImage,
+                child: const Text("Añadir imágenes"),
               ),
-            ],
-          );
-        }
-      },
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
+
 
 // ignore: must_be_immutable
 class FormularioEditarProducto extends StatefulWidget {
@@ -519,7 +479,8 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
                 labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
                 hintText: 'Ingresa un nombre para el producto',
                 hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: const Icon(Icons.shopping_bag     , color: Colors.blueAccent),
+                prefixIcon:
+                    const Icon(Icons.shopping_bag, color: Colors.blueAccent),
                 filled: true,
                 fillColor: Colors.grey.shade100,
                 border: OutlineInputBorder(
@@ -550,19 +511,47 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
               },
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: TextFormField(
               controller: widget.precioController,
-              decoration: const InputDecoration(
+              keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true), // Permite decimales
+              decoration: InputDecoration(
                 labelText: 'Precio',
-                border: OutlineInputBorder(),
+                labelStyle:
+                    const TextStyle(fontSize: 16, color: Colors.black87),
+                hintText: 'Ingresa un precio para el producto',
+                hintStyle: const TextStyle(color: Colors.grey),
+                prefixIcon: Icon(Icons.euro,
+                    color: Colors.green.shade700), // Ícono verde más oscuro
+                filled: true,
+                fillColor: Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius:
+                      BorderRadius.circular(16), // Bordes más redondeados
+                  borderSide: BorderSide.none, // Sin borde inicial
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide:
+                      BorderSide(color: Colors.grey.shade300, width: 1.5),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Colors.green, width: 2),
+                ),
+                errorBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  borderSide: const BorderSide(color: Colors.red, width: 2),
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
               ),
-              keyboardType: TextInputType.number,
               validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Por favor ingresa un precio.';
+                if (value == null || double.parse(value) < 0) {
+                  return 'Por favor, ingresa un precio válido.';
                 }
                 return null;
               },
@@ -574,10 +563,31 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
             child: DropDownSearchFormField(
               textFieldConfiguration: TextFieldConfiguration(
                 decoration: InputDecoration(
-                  labelText:
-                      widget.tiendaSeleccionada ?? 'Selecciona una tienda',
-                  border: OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.store),
+                  labelText: 'Selecciona una tienda',
+                  labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+                  hintText: 'Busca o selecciona una tienda',
+                  hintStyle: const TextStyle(color: Colors.grey),
+                  prefixIcon: const Icon(Icons.store, color: Colors.brown),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide.none, // Sin borde inicial
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.brown, width: 2),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Colors.red),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
                 ),
                 controller: widget.dropdownSearchFieldController,
               ),
