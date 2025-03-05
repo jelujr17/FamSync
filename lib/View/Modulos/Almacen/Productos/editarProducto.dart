@@ -28,7 +28,7 @@ class _EditarProductoState extends State<EditarProducto> {
   final TextEditingController _dropdownSearchFieldController =
       TextEditingController();
 
-  List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
+  final List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
   List<String> _imagenesExistentes =
       []; // Lista para almacenar imágenes existentes
   List<int> _perfilSeleccionado = [];
@@ -285,7 +285,7 @@ class ImagenesProductoEditar extends StatefulWidget {
 }
 
 class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
-  List<File> _nuevasImagenes = [];
+  final List<File> _nuevasImagenes = [];
   List<File> _imagenesCargadas = [];
 
   @override
@@ -297,20 +297,26 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
   Future<void> _cargarImagenes() async {
     List<File> imagenes = [];
     for (String urlImagen in widget.imagenesTotales) {
+      print(urlImagen); // Para verificar que la URL sea correcta
       final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
       imagenes.add(imageFile);
     }
+
     setState(() {
       _imagenesCargadas = imagenes;
     });
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final List<XFile> images = await picker.pickMultiImage();
-    setState(() {
-      _nuevasImagenes.addAll(images.map((image) => File(image.path)));
-    });
+    try {
+      final ImagePicker picker = ImagePicker();
+      final List<XFile> images = await picker.pickMultiImage();
+      setState(() {
+        _nuevasImagenes.addAll(images.map((image) => File(image.path)));
+      });
+    } catch (e) {
+      print("Error al seleccionar imágenes: $e");
+    }
   }
 
   void _eliminarImagenExistente(int index) {
@@ -378,8 +384,7 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
           color: Colors.white,
           child: SafeArea(
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
@@ -400,7 +405,6 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
     );
   }
 }
-
 
 // ignore: must_be_immutable
 class FormularioEditarProducto extends StatefulWidget {
@@ -447,11 +451,12 @@ class FormularioEditarProducto extends StatefulWidget {
 }
 
 class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
-  List<String> getSuggestions(String query) {
-    List<String> matches = <String>[];
-    matches.addAll(widget.nombresTienda);
-    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
-    return matches;
+  late Future<List<Perfiles>> futurePerfiles;
+
+  @override
+  void initState() {
+    super.initState();
+    futurePerfiles = ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
   }
 
   @override
@@ -470,239 +475,335 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
             ),
           ),
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              controller: widget.nombreController,
-              decoration: InputDecoration(
-                labelText: 'Nombre',
-                labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-                hintText: 'Ingresa un nombre para el producto',
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon:
-                    const Icon(Icons.shopping_bag, color: Colors.blueAccent),
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none, // Sin borde inicial
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: Colors.grey.shade300),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide:
-                      const BorderSide(color: Colors.blueAccent, width: 2),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: const BorderSide(color: Colors.red),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-              ),
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Por favor, ingresa un nombre válido.';
-                }
-                return null;
-              },
-            ),
+          CampoNombre(
+            nombreController: widget.nombreController,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return 'Por favor, ingresa un nombre válido.';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: TextFormField(
-              controller: widget.precioController,
-              keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true), // Permite decimales
-              decoration: InputDecoration(
-                labelText: 'Precio',
-                labelStyle:
-                    const TextStyle(fontSize: 16, color: Colors.black87),
-                hintText: 'Ingresa un precio para el producto',
-                hintStyle: const TextStyle(color: Colors.grey),
-                prefixIcon: Icon(Icons.euro,
-                    color: Colors.green.shade700), // Ícono verde más oscuro
-                filled: true,
-                fillColor: Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius:
-                      BorderRadius.circular(16), // Bordes más redondeados
-                  borderSide: BorderSide.none, // Sin borde inicial
-                ),
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide:
-                      BorderSide(color: Colors.grey.shade300, width: 1.5),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.green, width: 2),
-                ),
-                errorBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  borderSide: const BorderSide(color: Colors.red, width: 2),
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
-              ),
-              validator: (value) {
-                if (value == null || double.parse(value) < 0) {
-                  return 'Por favor, ingresa un precio válido.';
-                }
-                return null;
-              },
-            ),
+          CampoPrecio(
+            precioController: widget.precioController,
+            validator: (value) {
+              if (value == null || double.parse(value) < 0) {
+                return 'Por favor, ingresa un precio válido.';
+              }
+              return null;
+            },
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: DropDownSearchFormField(
-              textFieldConfiguration: TextFieldConfiguration(
-                decoration: InputDecoration(
-                  labelText: 'Selecciona una tienda',
-                  labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
-                  hintText: 'Busca o selecciona una tienda',
-                  hintStyle: const TextStyle(color: Colors.grey),
-                  prefixIcon: const Icon(Icons.store, color: Colors.brown),
-                  filled: true,
-                  fillColor: Colors.grey.shade100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none, // Sin borde inicial
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.brown, width: 2),
-                  ),
-                  errorBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: Colors.red),
-                  ),
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
-                ),
-                controller: widget.dropdownSearchFieldController,
-              ),
-              suggestionsCallback: (pattern) {
-                return getSuggestions(pattern);
-              },
-              itemBuilder: (context, String suggestion) {
-                return ListTile(
-                  title: Text(suggestion),
-                );
-              },
-              itemSeparatorBuilder: (context, index) {
-                return const Divider();
-              },
-              transitionBuilder: (context, suggestionsBox, controller) {
-                return suggestionsBox;
-              },
-              onSuggestionSelected: (String suggestion) {
-                widget.dropdownSearchFieldController.text = suggestion;
-                setState(() {
-                  widget.tiendaSeleccionada = suggestion;
-                });
-              },
-              suggestionsBoxController: widget.suggestionBoxController,
-              validator: (value) =>
-                  value!.isEmpty ? 'Por favor selecciona una tienda' : null,
-              displayAllSuggestionWhenTap: true,
-            ),
+          CampoTienda(
+            dropdownSearchFieldController: widget.dropdownSearchFieldController,
+            onSuggestionSelected: (String suggestion) {
+              widget.dropdownSearchFieldController.text = suggestion;
+              setState(() {
+                widget.tiendaSeleccionada = suggestion;
+              });
+            },
+            suggestionBoxController: widget.suggestionBoxController,
+            validator: (value) =>
+                value!.isEmpty ? 'Por favor selecciona una tienda' : null,
+            nombresTienda: widget.nombresTienda,
+            onTiendaSeleccionada: (tienda) {
+              setState(() {
+                widget.tiendaSeleccionada = tienda;
+              });
+            },
           ),
           const SizedBox(height: 20),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: FutureBuilder<List<Perfiles>>(
-              future: ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return const Center(
-                      child: Text('No hay perfiles disponibles.'));
-                }
+          FutureBuilder<List<Perfiles>>(
+            future: futurePerfiles,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                return const Center(
+                    child: Text('No hay perfiles disponibles.'));
+              }
 
-                List<Perfiles> perfiles = snapshot.data!;
+              List<Perfiles> perfiles = snapshot.data!;
 
-                return ListView.builder(
-                  shrinkWrap: true,
-                  itemCount: perfiles.length > 1
-                      ? perfiles.length - 1
-                      : 0, // Restamos 1 si hay más de un perfil
-                  itemBuilder: (context, index) {
-                    final perfil = perfiles[index + 1];
-
-                    return ListTile(
-                      title: Text(
-                        perfil.Nombre,
-                        style: const TextStyle(
-                          color: Colores.texto,
-                          fontWeight: FontWeight.normal,
-                        ),
-                      ),
-                      leading: perfil.FotoPerfil.isNotEmpty
-                          ? FutureBuilder<File>(
-                              future: ServicioPerfiles()
-                                  .obtenerImagen(perfil.FotoPerfil),
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const CircularProgressIndicator();
-                                } else if (snapshot.hasError) {
-                                  return const Icon(Icons.error);
-                                } else if (!snapshot.hasData) {
-                                  return const Icon(Icons.image_not_supported);
-                                } else {
-                                  return Stack(
-                                    children: [
-                                      CircleAvatar(
-                                        radius: 25,
-                                        backgroundImage:
-                                            FileImage(snapshot.data!),
-                                      ),
-                                      if (widget.perfilSeleccionado
-                                          .contains(perfil.Id))
-                                        const Positioned(
-                                          right: 0,
-                                          bottom: 0,
-                                          child: Icon(Icons.check_circle,
-                                              color: Colors.green),
-                                        ),
-                                    ],
-                                  );
-                                }
-                              },
-                            )
-                          : const Icon(Icons.image_not_supported),
-                      tileColor: widget.perfilSeleccionado.contains(perfil.Id)
-                          ? Colores.principal.withOpacity(0.2)
-                          : null,
-                      onTap: () {
-                        setState(() {
-                          if (widget.perfilSeleccionado.contains(perfil.Id)) {
-                            widget.perfilSeleccionado.remove(perfil.Id);
-                          } else {
-                            widget.perfilSeleccionado.add(perfil.Id);
-                          }
-                        });
-                      },
-                    );
-                  },
-                );
-              },
-            ),
+              return CampoPerfiles(
+                perfiles: perfiles,
+                perfilSeleccionado: widget.perfilSeleccionado,
+                onPerfilSeleccionado: (perfilId) {
+                  setState(() {
+                    if (widget.perfilSeleccionado.contains(perfilId)) {
+                      widget.perfilSeleccionado.remove(perfilId);
+                    } else {
+                      widget.perfilSeleccionado.add(perfilId);
+                    }
+                  });
+                },
+              );
+            },
           ),
         ],
+      ),
+    );
+  }
+}
+
+class CampoNombre extends StatelessWidget {
+  final TextEditingController nombreController;
+  final String? Function(String?)? validator;
+
+  const CampoNombre({
+    super.key,
+    required this.nombreController,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextFormField(
+        controller: nombreController,
+        decoration: InputDecoration(
+          labelText: 'Nombre del producto',
+          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          hintText: 'Ingresa un nombre para el producto',
+          hintStyle: const TextStyle(color: Colors.grey),
+          prefixIcon:
+              const Icon(Icons.shopping_bag, color: Colors.blue),
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none, // Sin borde inicial
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+}
+
+class CampoPrecio extends StatelessWidget {
+  final TextEditingController precioController;
+  final String? Function(String?)? validator;
+
+  const CampoPrecio({
+    super.key,
+    required this.precioController,
+    this.validator,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: TextFormField(
+        controller: precioController,
+        keyboardType: const TextInputType.numberWithOptions(
+            decimal: true), // Permite decimales
+        decoration: InputDecoration(
+          labelText: 'Precio',
+          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          hintText: 'Ingresa un precio para el producto',
+          hintStyle: const TextStyle(color: Colors.grey),
+          prefixIcon: Icon(Icons.euro,
+              color: Colors.green.shade700), // Ícono verde más oscuro
+          filled: true,
+          fillColor: Colors.grey.shade100,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none, // Sin borde inicial
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.green, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(color: Colors.red, width: 2),
+          ),
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
+        ),
+        validator: validator,
+      ),
+    );
+  }
+}
+
+class CampoTienda extends StatelessWidget {
+  final TextEditingController dropdownSearchFieldController;
+  final Function(String) onSuggestionSelected;
+  final SuggestionsBoxController suggestionBoxController;
+  final String? Function(String?)? validator;
+  final List<String> nombresTienda;
+  final Function(String) onTiendaSeleccionada;
+
+  const CampoTienda({
+    super.key,
+    required this.dropdownSearchFieldController,
+    required this.onSuggestionSelected,
+    required this.suggestionBoxController,
+    required this.validator,
+    required this.nombresTienda,
+    required this.onTiendaSeleccionada,
+  });
+
+  List<String> getSuggestions(String query) {
+    List<String> matches = <String>[];
+    matches.addAll(nombresTienda);
+    matches.retainWhere((s) => s.toLowerCase().contains(query.toLowerCase()));
+    return matches;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: DropDownSearchFormField(
+        textFieldConfiguration: TextFieldConfiguration(
+          decoration: InputDecoration(
+            labelText: 'Selecciona una tienda',
+            labelStyle: const TextStyle(fontSize: 16, color: Colors.grey),
+            hintText: 'Busca o selecciona una tienda',
+            hintStyle: const TextStyle(color: Colors.grey),
+            prefixIcon: const Icon(Icons.store, color: Colors.brown),
+            filled: true,
+            fillColor: Colors.grey.shade100,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide.none, // Sin borde inicial
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: BorderSide(color: Colors.grey.shade300),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.brown, width: 2),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red),
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+          ),
+          controller: dropdownSearchFieldController,
+        ),
+        suggestionsCallback: (pattern) {
+          return getSuggestions(pattern);
+        },
+        itemBuilder: (context, String suggestion) {
+          return ListTile(
+            title: Text(suggestion),
+          );
+        },
+        itemSeparatorBuilder: (context, index) {
+          return const Divider();
+        },
+        transitionBuilder: (context, suggestionsBox, controller) {
+          return suggestionsBox;
+        },
+        onSuggestionSelected: onSuggestionSelected,
+        suggestionsBoxController: suggestionBoxController,
+        validator: validator,
+        displayAllSuggestionWhenTap: true,
+      ),
+    );
+  }
+}
+
+class CampoPerfiles extends StatelessWidget {
+  final List<Perfiles> perfiles;
+  final List<int> perfilSeleccionado;
+  final Function(int) onPerfilSeleccionado;
+
+  const CampoPerfiles({
+    super.key,
+    required this.perfiles,
+    required this.perfilSeleccionado,
+    required this.onPerfilSeleccionado,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: ListView.builder(
+        shrinkWrap: true,
+        itemCount: perfiles.length > 1
+            ? perfiles.length - 1
+            : 0, // Restamos 1 si hay más de un perfil
+        itemBuilder: (context, index) {
+          final perfil = perfiles[index + 1];
+
+          return ListTile(
+            title: Text(
+              perfil.Nombre,
+              style: const TextStyle(
+                color: Colores.texto,
+                fontWeight: FontWeight.normal,
+              ),
+            ),
+            leading: perfil.FotoPerfil.isNotEmpty
+                ? FutureBuilder<File>(
+                    future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return const CircularProgressIndicator();
+                      } else if (snapshot.hasError) {
+                        return const Icon(Icons.error);
+                      } else if (!snapshot.hasData) {
+                        return const Icon(Icons.image_not_supported);
+                      } else {
+                        return Stack(
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundImage: FileImage(snapshot.data!),
+                            ),
+                            if (perfilSeleccionado.contains(perfil.Id))
+                              const Positioned(
+                                right: 0,
+                                bottom: 0,
+                                child: Icon(Icons.check_circle,
+                                    color: Colors.green),
+                              ),
+                          ],
+                        );
+                      }
+                    },
+                  )
+                : const Icon(Icons.image_not_supported),
+            tileColor: perfilSeleccionado.contains(perfil.Id)
+                ? Colores.principal.withOpacity(0.2)
+                : null,
+            onTap: () {
+              onPerfilSeleccionado(perfil.Id);
+            },
+          );
+        },
       ),
     );
   }
