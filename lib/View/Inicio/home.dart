@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Calendario/calendario.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
@@ -12,6 +13,8 @@ import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
+import 'package:provider/provider.dart';
+
 
 final GlobalKey<HomeState> homeKey = GlobalKey<HomeState>();
 
@@ -44,7 +47,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           _pageController.jumpToPage(pageIndex);
         });
       }
-    } 
+    }
   }
 
   late AnimationController _animationController;
@@ -54,6 +57,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
+    super.initState();
     selectedBottonNav = bottomNavItems[widget.initialPage];
     _animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200))
@@ -75,8 +79,10 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
       }
     });
-
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<ProductosProvider>(context, listen: false)
+          .cargarProductos(widget.perfil.UsuarioId, widget.perfil.Id);
+    });
   }
 
   @override
@@ -119,74 +125,19 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: Stack(
+                  child: PageView(
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        selectedBottonNav = bottomNavItems[index];
+                      });
+                    },
                     children: [
-                      PageView(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          setState(() {
-                            selectedBottonNav = bottomNavItems[index];
-                          });
-                        },
-                        children: [
-                          // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Agenda(perfil: widget.perfil));
-                                case '/page2':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                                case '/page3':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Agenda(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          const Placeholder(),
-                        ],
-                      ),
+                      Agenda(perfil: widget.perfil),
+                      Almacen(perfil: widget.perfil),
+                      Calendario(perfil: widget.perfil),
+                      CategoriaPage(perfil: widget.perfil),
+                      const Placeholder(),
                     ],
                   ),
                 ),

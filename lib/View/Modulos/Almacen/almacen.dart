@@ -4,7 +4,7 @@ import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/verProducto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
