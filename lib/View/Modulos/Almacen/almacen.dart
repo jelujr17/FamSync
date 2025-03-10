@@ -8,8 +8,10 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Recientes_Productos.d
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Tienda_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Totales_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 
 class PerfilProvider extends InheritedWidget {
   final Perfiles perfil;
@@ -41,7 +43,6 @@ class Almacen extends StatefulWidget {
 class AlmacenState extends State<Almacen> {
   List<Listas> listas = [];
   List<Tiendas> tiendas = [];
-  List<Productos> productos = [];
   List<Productos> productosFiltrados = [];
 
   bool isLoading = true;
@@ -53,16 +54,33 @@ class AlmacenState extends State<Almacen> {
     super.initState();
     obtenerListas();
     obtenerTiendas();
-    obtenerProductos();
+
+    // Inicializar la carga de productos
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final productoProvider =
+          Provider.of<ProductosProvider>(context, listen: false);
+      productoProvider.cargarProductos(
+          widget.perfil.UsuarioId, widget.perfil.Id);
+    });
+
     _searchController.addListener(_filterProductos);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   Perfiles get perfil => widget.perfil;
 
   void _filterProductos() {
     final query = _searchController.text.toLowerCase();
+    final productoProvider =
+        Provider.of<ProductosProvider>(context, listen: false);
+
     setState(() {
-      productosFiltrados = productos
+      productosFiltrados = productoProvider.productos
           .where((producto) => producto.Nombre.toLowerCase().contains(query))
           .toList();
     });
@@ -72,45 +90,36 @@ class AlmacenState extends State<Almacen> {
     try {
       listas = await ServiciosListas()
           .getListas(widget.perfil.UsuarioId, widget.perfil.Id);
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error al obtener las listas: $e';
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Error al obtener las listas: $e';
+        });
+      }
     }
   }
 
   void obtenerTiendas() async {
     try {
       tiendas = await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error al obtener las tiendas: $e';
-      });
-    }
-  }
-
-  void obtenerProductos() async {
-    try {
-      productos = await ServicioProductos()
-          .getProductos(widget.perfil.UsuarioId, widget.perfil.Id);
-      productosFiltrados =
-          productos; // Inicialmente, mostrar todos los productos
-      setState(() {
-        isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-        errorMessage = 'Error al obtener los productos: $e';
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+          errorMessage = 'Error al obtener las tiendas: $e';
+        });
+      }
     }
   }
 
@@ -127,52 +136,82 @@ class AlmacenState extends State<Almacen> {
 
   @override
   Widget build(BuildContext context) {
+    final productoProvider = Provider.of<ProductosProvider>(context);
+    final productos = productoProvider.productos;
+
+    // Actualizar productos filtrados cuando cambian los productos
+    if (_searchController.text.isEmpty) {
+      productosFiltrados = productos;
+    } else {
+      _filterProductos();
+    }
+
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    "Almacén",
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+          child: isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 40),
+                      Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Text(
+                          "Almacén",
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium!
+                              .copyWith(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      BarraAlmacen(searchController: _searchController),
+                      ListasBanner(listas: listas, productos: productos),
+                      productos.isEmpty
+                          ? const Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: Center(
+                                  child: Text("No hay productos disponibles")),
+                            )
+                          : Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ProductosRecientes(
+                                  productos: (productosFiltrados.length > 10
+                                          ? productosFiltrados.sublist(
+                                              productosFiltrados.length - 10)
+                                          : productosFiltrados)
+                                      .reversed
+                                      .toList(),
+                                  onTap: (producto) =>
+                                      _navigateToDetallesProducto(producto),
+                                ),
+                                const SizedBox(height: 20),
+                                for (var tienda in tiendas)
+                                  ProductosPorTienda(
+                                    tienda: tienda,
+                                    productos: productosFiltrados
+                                        .where((p) => p.Tienda == tienda.Nombre)
+                                        .toList(),
+                                    onTap: (producto) =>
+                                        _navigateToDetallesProducto(producto),
+                                  ),
+                                const SizedBox(height: 20),
+                                ProductosTotales(
+                                  productos: productosFiltrados,
+                                  onTap: (producto) =>
+                                      _navigateToDetallesProducto(producto),
+                                ),
+                              ],
+                            ),
+                    ],
                   ),
                 ),
-                BarraAlmacen(searchController: _searchController),
-                ListasBanner(listas: listas, productos: productos),
-                ProductosRecientes(
-                  productos: (productosFiltrados.length > 10
-                          ? productosFiltrados
-                              .sublist(productosFiltrados.length - 10)
-                          : productosFiltrados)
-                      .reversed
-                      .toList(),
-                  onTap: (producto) => _navigateToDetallesProducto(producto),
-                ),
-                const SizedBox(height: 20),
-                for (var tienda in tiendas)
-                  ProductosPorTienda(
-                    tienda: tienda,
-                    productos: productosFiltrados
-                        .where((p) => p.Tienda == tienda.Nombre)
-                        .toList(),
-                    onTap: (producto) => _navigateToDetallesProducto(producto),
-                  ),
-                const SizedBox(height: 20),
-                ProductosTotales(
-                  productos: productosFiltrados,
-                  onTap: (producto) => _navigateToDetallesProducto(producto),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -285,10 +324,6 @@ class IconoContador extends StatelessWidget {
   }
 }
 
-
-
-
-
 class SectionTitle extends StatelessWidget {
   const SectionTitle({
     super.key,
@@ -323,9 +358,6 @@ class SectionTitle extends StatelessWidget {
     );
   }
 }
-
-
-
 
 class ProductoCard extends StatefulWidget {
   const ProductoCard({

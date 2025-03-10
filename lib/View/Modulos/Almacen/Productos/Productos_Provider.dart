@@ -1,24 +1,38 @@
-import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:flutter/material.dart';
+import 'package:famsync/Model/Almacen/producto.dart';
 
-class ProductosProvider extends ChangeNotifier {
-  List<Productos> _productos = []; // Lista para almacenar productos
+class ProductosProvider with ChangeNotifier {
+  List<Productos> _productos = [];
+
   List<Productos> get productos => _productos;
 
-  // Cargar productos con los dos parámetros
-  Future<void> cargarProductos(int idUsuarioCreador, int idPerfil) async {
+  Future<void> cargarProductos(int usuarioId, int perfilId) async {
     try {
-      // Aquí llamas al servicio de API con los parámetros correspondientes
-      final List<Productos> productosObtenidos =
-          await ServicioProductos().getProductos(idUsuarioCreador, idPerfil);
-
-      _productos = productosObtenidos; // Guardamos los productos en memoria
-      notifyListeners(); // Notificamos a todos los widgets escuchando este Provider
-    } catch (error) {
-      // Manejo de errores si ocurre algún problema en la carga de productos
-      print("Error al cargar productos: $error");
+      _productos = await ServicioProductos().getProductos(usuarioId, perfilId);
+      print("Productos cargados: ${_productos.length}");
+      notifyListeners();
+    } catch (e) {
+      print("Error al cargar productos: $e");
+      _productos = [];
+      notifyListeners();
     }
   }
 
-  // Métodos para actualizar productos pueden ir aquí más adelante
+  void agregarProducto(Productos producto) {
+    _productos.add(producto);
+    notifyListeners();
+  }
+
+  void eliminarProducto(int id) {
+    _productos.removeWhere((producto) => producto.Id == id);
+    notifyListeners();
+  }
+
+  void actualizarProducto(Productos producto) {
+    final index = _productos.indexWhere((p) => p.Id == producto.Id);
+    if (index != -1) {
+      _productos[index] = producto;
+      notifyListeners();
+    }
+  }
 }

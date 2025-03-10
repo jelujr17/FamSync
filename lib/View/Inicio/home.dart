@@ -13,7 +13,6 @@ import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
-
 final GlobalKey<HomeState> homeKey = GlobalKey<HomeState>();
 
 class Home extends StatefulWidget {
@@ -45,7 +44,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           _pageController.jumpToPage(pageIndex);
         });
       }
-    }
+    } 
   }
 
   late AnimationController _animationController;
@@ -55,7 +54,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
   @override
   void initState() {
-    super.initState();
     selectedBottonNav = bottomNavItems[widget.initialPage];
     _animationController = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 200))
@@ -77,6 +75,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
         });
       }
     });
+
+    super.initState();
   }
 
   @override
@@ -119,19 +119,74 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: PageView(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        selectedBottonNav = bottomNavItems[index];
-                      });
-                    },
+                  child: Stack(
                     children: [
-                      Agenda(perfil: widget.perfil),
-                      Almacen(perfil: widget.perfil),
-                      Calendario(perfil: widget.perfil),
-                      CategoriaPage(perfil: widget.perfil),
-                      const Placeholder(),
+                      PageView(
+                        controller: _pageController,
+                        onPageChanged: (index) {
+                          setState(() {
+                            selectedBottonNav = bottomNavItems[index];
+                          });
+                        },
+                        children: [
+                          // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Agenda(perfil: widget.perfil));
+                                case '/page2':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                                case '/page3':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Agenda(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Almacen(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => Calendario(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          Navigator(
+                            onGenerateRoute: (RouteSettings settings) {
+                              switch (settings.name) {
+                                case '/':
+                                  return MaterialPageRoute(
+                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
+                                default:
+                                  return MaterialPageRoute(
+                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
+                              }
+                            },
+                          ),
+                          const Placeholder(),
+                        ],
+                      ),
                     ],
                   ),
                 ),

@@ -16,7 +16,7 @@ void main() async {
   Intl.defaultLocale = 'es_ES';
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-runApp(
+  runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProductosProvider()),
@@ -24,7 +24,8 @@ runApp(
       ],
       child: MyApp(),
     ),
-  );}
+  );
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -75,7 +76,8 @@ class MyApp extends StatelessWidget {
         if (perfilId == null) {
           return SeleccionPerfil(IdUsuario: userId);
         } else {
-          final Perfiles? perfil = await ServicioPerfiles().getPerfilById(perfilId);
+          final Perfiles? perfil =
+              await ServicioPerfiles().getPerfilById(perfilId);
           if (perfil == null) {
             return const OnbodingScreen();
           } else {
@@ -86,7 +88,7 @@ class MyApp extends StatelessWidget {
     } catch (e) {
       // Manejar cualquier error que ocurra durante la ejecución del Future
       print('Error en getInitialPage: $e'); // Imprimir el error en la consola
-      throw e; // Sigue lanzando el error para que el FutureBuilder lo maneje
+      rethrow; // Sigue lanzando el error para que el FutureBuilder lo maneje
     }
   }
 }
