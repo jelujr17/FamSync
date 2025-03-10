@@ -11,11 +11,13 @@ class ImagenesProductoEditar extends StatefulWidget {
     required this.imagenesTotales,
     required this.onEliminarImagenExistente,
     required this.onEliminarImagenNueva,
+    required this.onNuevasImagenesSeleccionadas,
   });
 
   final List<String> imagenesTotales;
   final Function(String) onEliminarImagenExistente;
   final Function(File) onEliminarImagenNueva;
+  final Function(List<File>) onNuevasImagenesSeleccionadas;
 
   @override
   _ImagenesProductoStateEditar createState() => _ImagenesProductoStateEditar();
@@ -54,6 +56,7 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
         setState(() {
           _nuevasImagenes.addAll(images.map((image) => File(image.path)));
         });
+        widget.onNuevasImagenesSeleccionadas(_nuevasImagenes);
       }
     } catch (e) {
       print("Error al seleccionar imágenes: $e");
@@ -73,9 +76,11 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
   }
 
   void _eliminarImagenNueva(int index) {
+    File imagen = _nuevasImagenes[index];
     setState(() {
       _nuevasImagenes.removeAt(index);
     });
+    widget.onEliminarImagenNueva(imagen);
   }
 
   @override

@@ -89,6 +89,19 @@ class _EditarProductoState extends State<EditarProducto> {
         return;
       }
 
+      // Imprimir las listas de imágenes para depuración
+      print("Imágenes existentes: $_imagenesExistentes");
+      print("Nuevas imágenes: ${_nuevasImagenes.map((e) => e.path).toList()}");
+
+      // Combinar las imágenes existentes y nuevas en una lista de archivos
+      final List<File> imagenesCompletas = [
+        ..._imagenesExistentes.map((e) => File(e)), // Convertir a File
+        ..._nuevasImagenes,
+      ];
+
+      print(
+          "Imágenes completas: ${imagenesCompletas.map((e) => e.path).toList()}");
+
       final nuevoProducto = Productos(
         Id: widget.producto.Id,
         Nombre: nombre,
@@ -96,30 +109,17 @@ class _EditarProductoState extends State<EditarProducto> {
         Precio: precio,
         IdPerfilCreador: widget.producto.IdPerfilCreador,
         IdUsuarioCreador: widget.producto.IdUsuarioCreador,
-        Imagenes: [
-          ..._imagenesExistentes, // Imágenes existentes (actualizadas)
-          ..._nuevasImagenes.map((e) => e.path), // Nuevas imágenes
-        ],
+        Imagenes:
+            imagenesCompletas.map((e) => e.path).toList(), // Convertir a String
         Visible: widget.producto.Visible,
       );
 
-      List<File> fotosNuevas = [];
-      if (_imagenesExistentes.isNotEmpty) {
-        for (int i = 0; i < _imagenesExistentes.length; i++) {
-          fotosNuevas.add(File(
-              'C:\\Users\\mario\\Documents\\Imagenes_FamSync\\Productos\\${_imagenesExistentes[i]}'));
-        }
-      }
-      if (_nuevasImagenes.isNotEmpty) {
-        for (int i = 0; i < _nuevasImagenes.length; i++) {
-          fotosNuevas.add(_nuevasImagenes[i]);
-        }
-      }
+      print("Nuevo producto imágenes: ${nuevoProducto.Imagenes}");
 
       final exito = await ServicioProductos().actualizarProducto(
           widget.producto.Id,
           nombre,
-          fotosNuevas,
+          imagenesCompletas, // Enviar lista de archivos
           tienda,
           precio,
           nuevoProducto.Visible);
@@ -163,6 +163,12 @@ class _EditarProductoState extends State<EditarProducto> {
   void _eliminarImagenNueva(File imagen) {
     setState(() {
       _nuevasImagenes.remove(imagen);
+    });
+  }
+
+  void _nuevasImagenesSeleccionadas(List<File> nuevasImagenes) {
+    setState(() {
+      _nuevasImagenes.addAll(nuevasImagenes);
     });
   }
 
@@ -237,6 +243,7 @@ class _EditarProductoState extends State<EditarProducto> {
                   suggestionBoxController: suggestionBoxController,
                   onEliminarImagenExistente: _eliminarImagenExistente,
                   onEliminarImagenNueva: _eliminarImagenNueva,
+                  onNuevasImagenesSeleccionadas: _nuevasImagenesSeleccionadas,
                   onGuardar: _editarProducto,
                 ),
               ],
@@ -286,6 +293,7 @@ class FormularioEditarProducto extends StatefulWidget {
   final SuggestionsBoxController suggestionBoxController;
   final Function(String) onEliminarImagenExistente;
   final Function(File) onEliminarImagenNueva;
+  final Function(List<File>) onNuevasImagenesSeleccionadas;
   final Function() onGuardar;
 
   FormularioEditarProducto({
@@ -305,6 +313,7 @@ class FormularioEditarProducto extends StatefulWidget {
     required this.suggestionBoxController,
     required this.onEliminarImagenExistente,
     required this.onEliminarImagenNueva,
+    required this.onNuevasImagenesSeleccionadas,
     required this.onGuardar,
   });
 
@@ -341,6 +350,8 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
               imagenesTotales: widget.imagenesExistentes,
               onEliminarImagenExistente: widget.onEliminarImagenExistente,
               onEliminarImagenNueva: widget.onEliminarImagenNueva,
+              onNuevasImagenesSeleccionadas:
+                  widget.onNuevasImagenesSeleccionadas,
             ),
           ),
           const SizedBox(height: 16),
@@ -374,7 +385,6 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
             producto: widget.producto,
           ),
           const SizedBox(height: 20),
-          
           FutureBuilder<List<Perfiles>>(
             future: futurePerfiles,
             builder: (context, snapshot) {
@@ -388,7 +398,7 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
               }
 
               List<Perfiles> perfiles = snapshot.data!;
-              
+
               return CampoPerfiles(
                 perfiles: perfiles,
                 perfilSeleccionado: widget.perfilSeleccionado,
@@ -409,5 +419,3 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
     );
   }
 }
-
-

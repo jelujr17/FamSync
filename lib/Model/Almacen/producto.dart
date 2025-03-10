@@ -17,19 +17,21 @@ class Productos {
   final int IdUsuarioCreador;
   final List<int> Visible;
 
-  Productos(
-      {required this.Id,
-      required this.Nombre,
-      required this.Imagenes,
-      required this.Tienda,
-      required this.Precio,
-      required this.IdPerfilCreador,
-      required this.IdUsuarioCreador,
-      required this.Visible});
+  Productos({
+    required this.Id,
+    required this.Nombre,
+    required this.Imagenes,
+    required this.Tienda,
+    required this.Precio,
+    required this.IdPerfilCreador,
+    required this.IdUsuarioCreador,
+    required this.Visible,
+  });
 }
 
 class ServicioProductos {
   final String _host = Host.host;
+
   // BUSCAR USUARIOS //
   Future<List<Productos>> getProductos(
       int IdUsuarioCreador, int IdPerfil) async {
@@ -84,7 +86,6 @@ class ServicioProductos {
         Nombre: productoData['Nombre'],
         Imagenes: List<String>.from(jsonDecode(
             productoData['Imagenes'])), // Desanidar y convertir a List<String>
-
         Tienda: productoData['Tienda'],
         Precio: double.parse(productoData['Precio'].toString()),
         IdPerfilCreador: productoData['IdPerfilCreador'],
@@ -172,77 +173,11 @@ class ServicioProductos {
     }
   }
 
-  Future<bool> actualizarProducto(int Id, String Nombre, List<File>? Imagenes,
+  Future<bool> actualizarProducto(int Id, String Nombre, List<File> Imagenes,
       String Tienda, double Precio, List<int> Visible) async {
-    List<String> NombresImagnes = [];
-    if (Imagenes != null) {
-      for (int i = 0; i < Imagenes.length; i++) {
-        var request = http.MultipartRequest(
-          'POST',
-          Uri.parse('http://$_host/productos/uploadImagen'),
-        );
-        // Paso 2: Adjuntar el archivo a la solicitud
-        request.files.add(
-          await http.MultipartFile.fromPath(
-            'imagen',
-            Imagenes[i].path,
-          ),
-        );
-        // Envía la solicitud y maneja la respuesta
-        String nombre = "error";
-        try {
-          final response = await request.send();
-          final responseBody = await response.stream.bytesToString();
+    List<String> NombresImagenes = [];
 
-          if (response.statusCode == 200) {
-            // La solicitud se completó con éxito
-            print('Solicitud completada con éxito');
-
-            // Lee el cuerpo de la respuesta como una cadena
-            print('Cuerpo de la respuesta: $responseBody');
-            nombre = responseBody;
-          } else {
-            // Error en la solicitud
-            print('Error en la solicitud: ${responseBody.toString()}');
-          }
-        } catch (e) {
-          // Error al enviar la solicitud
-          print('Error al enviar la solicitud: $e');
-        }
-
-        Map<String, dynamic> jsonMap = json.decode(nombre);
-        String imageUrl = jsonMap['imageUrl'];
-        NombresImagnes.add(imageUrl);
-      }
-    }
-
-    final response = await http.put(
-      Uri.parse('http://$_host/productos/update'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'Id': Id,
-        'Nombre': Nombre.toString(),
-        'Tienda': Tienda.toString(),
-        'Precio': Precio.toString(),
-        'Imagenes': jsonEncode(NombresImagnes),
-        'Visible': jsonEncode(Visible),
-      }),
-    );
-
-    if (response.statusCode == 200) {
-      return true; // La actualización fue exitosa
-    } else {
-      // Manejo de errores
-      print('Error al actualizar el producto: ${response.statusCode}');
-      return false; // La actualización falló
-    }
-  }
-
-  Future<bool> editarProducto(int Id, String Nombre, List<File> Imagenes,
-      String Tienda, double Precio, List<int> Visible) async {
-    List<String> NombresImagnes = [];
+    // Subir imágenes nuevas y obtener sus URLs
     for (int i = 0; i < Imagenes.length; i++) {
       var request = http.MultipartRequest(
         'POST',
@@ -280,20 +215,21 @@ class ServicioProductos {
 
       Map<String, dynamic> jsonMap = json.decode(nombre);
       String imageUrl = jsonMap['imageUrl'];
-      NombresImagnes.add(imageUrl);
+      NombresImagenes.add(imageUrl);
     }
 
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ProductoData = {
       'Id': Id,
       'Nombre': Nombre.toString(),
-      'Imagenes': NombresImagnes,
+      'Imagenes': jsonEncode(NombresImagenes),
       'Tienda': Tienda.toString(),
       'Precio': Precio,
-      'Visible': Visible,
+      'Visible': jsonEncode(Visible),
     };
+
     try {
-      http.Response response1 = await http.post(
+      http.Response response1 = await http.put(
         Uri.parse('http://$_host/productos/update'),
         headers: {'Content-type': 'application/json'},
         body: json.encode(ProductoData),
@@ -306,7 +242,7 @@ class ServicioProductos {
     }
   }
 
-// Función para eliminar la foto anterior
+  // Función para eliminar la foto anterior
   Future<void> eliminarFotoAnterior(String fotoUrl) async {
     // Aquí haces la lógica para eliminar la imagen del servidor o sistema de archivos
     try {
