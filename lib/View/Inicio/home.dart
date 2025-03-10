@@ -1,7 +1,6 @@
 import 'dart:math';
 import 'package:famsync/Model/Inicio/menuLateral.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Calendario/calendario.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
@@ -13,7 +12,6 @@ import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
-import 'package:provider/provider.dart';
 
 
 final GlobalKey<HomeState> homeKey = GlobalKey<HomeState>();
@@ -78,10 +76,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           selectedBottonNav = bottomNavItems[currentPage];
         });
       }
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProductosProvider>(context, listen: false)
-          .cargarProductos(widget.perfil.UsuarioId, widget.perfil.Id);
     });
   }
 

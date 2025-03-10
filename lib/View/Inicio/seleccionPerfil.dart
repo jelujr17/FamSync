@@ -3,7 +3,7 @@
 import 'dart:io';
 
 import 'package:animated_background/animated_background.dart';
-import 'package:famsync/View/Inicio/home.dart';
+import 'package:famsync/View/Inicio/Home.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';

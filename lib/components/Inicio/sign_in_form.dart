@@ -1,6 +1,6 @@
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
-import 'package:famsync/View/Inicio/home.dart';
+import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

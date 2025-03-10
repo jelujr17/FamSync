@@ -1,7 +1,7 @@
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Editar_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Imagen_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.dart';
 import 'package:flutter/material.dart';
 
 class DetallesProducto extends StatelessWidget {

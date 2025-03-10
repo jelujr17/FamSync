@@ -1,5 +1,6 @@
-import 'package:famsync/View/Inicio/home.dart';
+import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/inicio.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/nexoIncio.dart';
@@ -7,6 +8,7 @@ import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
@@ -14,8 +16,15 @@ void main() async {
   Intl.defaultLocale = 'es_ES';
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
 
-  runApp(const MyApp());
-}
+runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProductosProvider()),
+        // Agrega otros proveedores si es necesario
+      ],
+      child: MyApp(),
+    ),
+  );}
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});

@@ -1,6 +1,6 @@
 
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Imagenes_Pequena_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagenes_Pequena_Producto.dart';
 import 'package:flutter/material.dart';
 
 class ImagenesProducto extends StatefulWidget {
