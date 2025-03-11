@@ -2,7 +2,10 @@ import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Editar_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
+import 'package:provider/provider.dart';
 
 class DetallesProducto extends StatelessWidget {
   const DetallesProducto({
@@ -151,10 +154,10 @@ class DetallesProducto extends StatelessWidget {
     );
   }
 
-  void _editarProducto(BuildContext context) async {
+  void _editarProducto(BuildContext context) {
     // Implementa la lógica para editar el producto
     // Por ejemplo, puedes navegar a una página de edición de producto
-    final result = await Navigator.push(
+    final result =  Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) =>
@@ -185,12 +188,48 @@ class DetallesProducto extends StatelessWidget {
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 // Lógica para eliminar el producto
                 // Por ejemplo, puedes llamar a un servicio para eliminar el producto
-                ServicioProductos().eliminarProducto(producto.Id);
-                Navigator.of(context).pop();
-                Navigator.pop(context, true); // Se realizó una actualización
+                final exito =
+                    await ServicioProductos().eliminarProducto(producto.Id);
+                if (exito) {
+                  // Inicializar la carga de productos
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    final productoProvider =
+                        Provider.of<ProductosProvider>(context, listen: false);
+                    productoProvider.cargarProductos(
+                        perfil.UsuarioId, perfil.Id);
+                  });
+                  Navigator.of(context)
+                      .pop(); // Cerrar el diálogo de confirmación
+                  Navigator.of(context).push(PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        Almacen(
+                             perfil: perfil),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      const begin =
+                          Offset(1.0, 0.0); // Comienza desde la derecha
+                      const end = Offset.zero; // Termina en la posición final
+                      const curve = Curves.easeInOut; // Curva de animación
+
+                      var tween = Tween(begin: begin, end: end)
+                          .chain(CurveTween(curve: curve));
+                      var offsetAnimation = animation.drive(tween);
+
+                      return SlideTransition(
+                        position: offsetAnimation,
+                        child: child,
+                      );
+                    },
+                  ));
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                        content: Text('Error al eliminar el producto.')),
+                  );
+                }
               },
               child: const Text('Eliminar'),
             ),
@@ -228,8 +267,6 @@ class TopRoundedContainer extends StatelessWidget {
     );
   }
 }
-
-
 
 class ProductoCard extends StatelessWidget {
   const ProductoCard({

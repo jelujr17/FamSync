@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 
-class CampoPrecio extends StatelessWidget {
+class CampoPrecioEditar extends StatelessWidget {
   final TextEditingController precioController;
   final String? Function(String?)? validator;
 
-  const CampoPrecio({
+  const CampoPrecioEditar({
     super.key,
     required this.precioController,
     this.validator,

@@ -3,6 +3,7 @@ import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Banner_Listas_Productos.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Barra_Busqueda_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Recientes_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Tienda_Productos.dart';
@@ -124,7 +125,7 @@ class AlmacenState extends State<Almacen> {
   }
 
   void _navigateToDetallesProducto(Productos producto) async {
-    Navigator.of(context).push(
+    final result = await Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => DetallesProducto(
           perfil: widget.perfil,
@@ -132,6 +133,29 @@ class AlmacenState extends State<Almacen> {
         ),
       ),
     );
+
+    if (result == true) {
+      // Recargar la lista de productos si se realizó una actualización
+      final productoProvider =
+          Provider.of<ProductosProvider>(context, listen: false);
+      productoProvider.cargarProductos(
+          widget.perfil.UsuarioId, widget.perfil.Id);
+    }
+  }
+
+  void _crearProducto(BuildContext context) async {
+    // Implementa la lógica para editar el producto
+    // Por ejemplo, puedes navegar a una página de edición de producto
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CrearProducto(perfil: perfil),
+      ),
+    );
+
+    if (result == true) {
+      Navigator.pop(context, true); // Se realizó una actualización
+    }
   }
 
   @override
@@ -170,7 +194,7 @@ class AlmacenState extends State<Almacen> {
                                   fontWeight: FontWeight.bold),
                         ),
                       ),
-                      BarraAlmacen(searchController: _searchController),
+                      BarraAlmacen(searchController: _searchController, crearProducto: _crearProducto),
                       ListasBanner(listas: listas, productos: productos),
                       productos.isEmpty
                           ? const Padding(
@@ -219,8 +243,9 @@ class AlmacenState extends State<Almacen> {
 }
 
 class BarraAlmacen extends StatelessWidget {
-  const BarraAlmacen({super.key, required this.searchController});
+  const BarraAlmacen({super.key, required this.searchController, required this.crearProducto});
   final TextEditingController searchController;
+  final Function(BuildContext) crearProducto;
 
   Color getContrastingTextColor(Color backgroundColor) {
     // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
@@ -255,7 +280,9 @@ class BarraAlmacen extends StatelessWidget {
           const SizedBox(width: 8),
           IconoContador(
             svgSrc: masIcono,
-            press: () {},
+            press: () {
+              crearProducto(context);
+            },
           ),
         ],
       ),

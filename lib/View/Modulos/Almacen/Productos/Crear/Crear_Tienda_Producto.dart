@@ -1,34 +1,29 @@
 
-import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:flutter/material.dart';
 
-class CampoTiendaEditar extends StatefulWidget {
+class CampoTiendaCrear extends StatefulWidget {
   final String? Function(String?)? validator;
   final List<String> nombresTienda;
   final Function(String) onTiendaSeleccionada;
-  final Productos producto;
 
-  const CampoTiendaEditar({
+  const CampoTiendaCrear({
     super.key,
     required this.validator,
     required this.nombresTienda,
     required this.onTiendaSeleccionada,
-    required this.producto,
   });
 
   @override
-  CampoTiendaEditarState createState() => CampoTiendaEditarState();
+  CampoTiendaCrearState createState() => CampoTiendaCrearState();
 }
 
-class CampoTiendaEditarState extends State<CampoTiendaEditar> {
+class CampoTiendaCrearState extends State<CampoTiendaCrear> {
   late TextEditingController _tiendaController;
   String? tiendaSeleccionada;
 
   @override
   void initState() {
     super.initState();
-    _tiendaController = TextEditingController(text: widget.producto.Tienda);
-    tiendaSeleccionada = widget.producto.Tienda;
   }
 
   @override

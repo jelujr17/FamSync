@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
 
-class CampoNombreEditar extends StatelessWidget {
+class CampoNombreCrear extends StatelessWidget {
   final TextEditingController nombreController;
   final String? Function(String?)? validator;
 
-  const CampoNombreEditar({
+  const CampoNombreCrear({
     super.key,
     required this.nombreController,
     this.validator,

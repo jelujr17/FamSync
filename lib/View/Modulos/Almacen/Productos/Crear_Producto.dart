@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:drop_down_search_field/drop_down_search_field.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Imagenes_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Nombre_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Perfiles_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Precio_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Tienda_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Imagenes_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Nombre_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Perfiles_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Precio_Producto.dart';
+import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Tienda_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
@@ -12,29 +12,25 @@ import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 
-class EditarProducto extends StatefulWidget {
-  final Productos producto;
+class CrearProducto extends StatefulWidget {
   final Perfiles perfil;
 
-  const EditarProducto(
-      {super.key, required this.producto, required this.perfil});
+  const CrearProducto({super.key, required this.perfil});
 
   @override
-  _EditarProductoState createState() => _EditarProductoState();
+  _CrearProductoState createState() => _CrearProductoState();
 }
 
-class _EditarProductoState extends State<EditarProducto> {
+class _CrearProductoState extends State<CrearProducto> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nombreController;
-  late TextEditingController _tiendaController;
-  late TextEditingController _precioController;
+  final TextEditingController _nombreController = TextEditingController();
+  final TextEditingController _tiendaController = TextEditingController();
+  final TextEditingController _precioController = TextEditingController();
   final TextEditingController _dropdownSearchFieldController =
       TextEditingController();
 
-  final List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
-  List<String> _imagenesExistentes =
-      []; // Lista para almacenar imágenes existentes
-  List<int> _perfilSeleccionado = [];
+  final List<File> _nuevasImagenes = [];
+  final List<int> _perfilSeleccionado = [];
   List<Tiendas> tiendasDisponibles = [];
   String? tiendaSeleccionada;
   List<String> nombresTienda = [];
@@ -43,15 +39,6 @@ class _EditarProductoState extends State<EditarProducto> {
   @override
   void initState() {
     super.initState();
-
-    _nombreController = TextEditingController(text: widget.producto.Nombre);
-    _tiendaController = TextEditingController(text: widget.producto.Tienda);
-    _precioController =
-        TextEditingController(text: widget.producto.Precio.toString());
-    _perfilSeleccionado = widget.producto.Visible;
-    _imagenesExistentes = List.from(widget.producto.Imagenes);
-    tiendaSeleccionada = widget.producto.Tienda;
-
     obtenerTiendas();
   }
 
@@ -67,20 +54,26 @@ class _EditarProductoState extends State<EditarProducto> {
     tiendasDisponibles =
         await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
     obtenerNombresTiendas();
-    setState(() {
-      tiendaSeleccionada ??= widget.producto.Tienda;
-    });
+    print("Tiendas disponibles: $tiendasDisponibles");
   }
 
   void obtenerNombresTiendas() {
     nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+    print("Nombres de tiendas: $nombresTienda");
   }
 
-  Future<void> _editarProducto() async {
+  Future<void> _crearProducto() async {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text;
       final tienda = tiendaSeleccionada;
-      final precio = double.tryParse(_precioController.text);
+      final precioTexto = _precioController.text.replaceAll(',', '.');
+      final precio = double.tryParse(precioTexto);
+
+      // Agregar prints para depuración
+      print("Nombre del producto: $nombre");
+      print("Tienda seleccionada: $tienda");
+      print("Precio del producto: $precio");
+      print("Perfiles seleccionados: $_perfilSeleccionado");
 
       if (precio == null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -89,48 +82,45 @@ class _EditarProductoState extends State<EditarProducto> {
         return;
       }
 
+      if (tienda == null || tienda.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Por favor, selecciona una tienda.')),
+        );
+        return;
+      }
+
       // Imprimir las listas de imágenes para depuración
-      print("Imágenes existentes: $_imagenesExistentes");
       print("Nuevas imágenes: ${_nuevasImagenes.map((e) => e.path).toList()}");
 
-      // Combinar las imágenes existentes y nuevas en una lista de archivos
-      final List<File> imagenesCompletas = [
-        ..._imagenesExistentes.map((e) => File(e)), // Convertir a File
-        ..._nuevasImagenes,
-      ];
-
-      print(
-          "Imágenes completas: ${imagenesCompletas.map((e) => e.path).toList()}");
-
       final nuevoProducto = Productos(
-        Id: widget.producto.Id,
+        Id: 0,
         Nombre: nombre,
-        Tienda: tienda!,
+        Tienda: tienda,
         Precio: precio,
-        IdPerfilCreador: widget.producto.IdPerfilCreador,
-        IdUsuarioCreador: widget.producto.IdUsuarioCreador,
+        IdPerfilCreador: widget.perfil.Id,
+        IdUsuarioCreador: widget.perfil.UsuarioId,
         Imagenes:
-            imagenesCompletas.map((e) => e.path).toList(), // Convertir a String
-        Visible: widget.producto.Visible,
+            _nuevasImagenes.map((e) => e.path).toList(), // Convertir a String
+        Visible: [],
       );
 
-      print("Nuevo producto imágenes: ${nuevoProducto.Imagenes}");
+      print("Nuevo producto: $nuevoProducto");
 
-      final exito = await ServicioProductos().actualizarProducto(
-          widget.producto.Id,
-          nombre,
-          imagenesCompletas, // Enviar lista de archivos
-          tienda,
-          precio,
-          nuevoProducto.Visible);
+      final exito = await ServicioProductos().registrarProducto(
+        nombre,
+        _nuevasImagenes, // Enviar lista de archivos
+        tienda,
+        precio,
+        widget.perfil.Id,
+        widget.perfil.UsuarioId,
+        _perfilSeleccionado,
+      );
 
       if (exito) {
-        Productos? producto =
-            await ServicioProductos().getProductoById(widget.producto.Id);
-
+        print("Producto creado con éxito");
         Navigator.of(context).push(PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              DetallesProducto(producto: producto!, perfil: widget.perfil),
+              Almacen(perfil: widget.perfil),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0); // Comienza desde la derecha
             const end = Offset.zero; // Termina en la posición final
@@ -147,29 +137,27 @@ class _EditarProductoState extends State<EditarProducto> {
           },
         )); // Regresa a la página anterior
       } else {
+        print("Error al crear el producto");
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al actualizar el producto.')),
+          const SnackBar(content: Text('Error al crear el producto.')),
         );
       }
     }
-  }
-
-  void _eliminarImagenExistente(String imagen) {
-    setState(() {
-      _imagenesExistentes.remove(imagen);
-    });
   }
 
   void _eliminarImagenNueva(File imagen) {
     setState(() {
       _nuevasImagenes.remove(imagen);
     });
+    print("Imagen eliminada: ${imagen.path}");
   }
 
   void _nuevasImagenesSeleccionadas(List<File> nuevasImagenes) {
     setState(() {
       _nuevasImagenes.addAll(nuevasImagenes);
     });
+    print(
+        "Nuevas imágenes seleccionadas: ${nuevasImagenes.map((e) => e.path).toList()}");
   }
 
   @override
@@ -222,29 +210,26 @@ class _EditarProductoState extends State<EditarProducto> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Text(
-                    "Editar Producto",
+                    "Crear Producto",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colors.black, fontWeight: FontWeight.bold),
                   ),
                 ),
-                FormularioEditarProducto(
-                  producto: widget.producto,
+                FormularioCrearProducto(
                   perfil: widget.perfil,
                   formKey: _formKey,
                   nombreController: _nombreController,
                   precioController: _precioController,
                   dropdownSearchFieldController: _dropdownSearchFieldController,
                   nuevasImagenes: _nuevasImagenes,
-                  imagenesExistentes: _imagenesExistentes,
                   perfilSeleccionado: _perfilSeleccionado,
                   tiendasDisponibles: tiendasDisponibles,
                   tiendaSeleccionada: tiendaSeleccionada,
                   nombresTienda: nombresTienda,
                   suggestionBoxController: suggestionBoxController,
-                  onEliminarImagenExistente: _eliminarImagenExistente,
                   onEliminarImagenNueva: _eliminarImagenNueva,
                   onNuevasImagenesSeleccionadas: _nuevasImagenesSeleccionadas,
-                  onGuardar: _editarProducto,
+                  onGuardar: _crearProducto,
                 ),
               ],
             ),
@@ -265,8 +250,8 @@ class _EditarProductoState extends State<EditarProducto> {
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
-                onPressed: _editarProducto,
-                child: const Text("Guardar cambios"),
+                onPressed: _crearProducto,
+                child: const Text("Registrar Producto"),
               ),
             ),
           ),
@@ -277,52 +262,46 @@ class _EditarProductoState extends State<EditarProducto> {
 }
 
 // ignore: must_be_immutable
-class FormularioEditarProducto extends StatefulWidget {
-  final Productos producto;
+class FormularioCrearProducto extends StatefulWidget {
   final Perfiles perfil;
   final GlobalKey<FormState> formKey;
   final TextEditingController nombreController;
   final TextEditingController precioController;
   final TextEditingController dropdownSearchFieldController;
-  final List<String> imagenesExistentes;
   final List<File> nuevasImagenes;
   final List<int> perfilSeleccionado;
   final List<Tiendas> tiendasDisponibles;
   String? tiendaSeleccionada;
   final List<String> nombresTienda;
   final SuggestionsBoxController suggestionBoxController;
-  final Function(String) onEliminarImagenExistente;
   final Function(File) onEliminarImagenNueva;
   final Function(List<File>) onNuevasImagenesSeleccionadas;
   final Function() onGuardar;
 
-  FormularioEditarProducto({
+  FormularioCrearProducto({
     super.key,
-    required this.producto,
     required this.perfil,
     required this.formKey,
     required this.nombreController,
     required this.precioController,
     required this.dropdownSearchFieldController,
-    required this.imagenesExistentes,
     required this.nuevasImagenes,
     required this.perfilSeleccionado,
     required this.tiendasDisponibles,
     required this.tiendaSeleccionada,
     required this.nombresTienda,
     required this.suggestionBoxController,
-    required this.onEliminarImagenExistente,
     required this.onEliminarImagenNueva,
     required this.onNuevasImagenesSeleccionadas,
     required this.onGuardar,
   });
 
   @override
-  _FormularioEditarProductoState createState() =>
-      _FormularioEditarProductoState();
+  _FormularioCrearProductoState createState() =>
+      _FormularioCrearProductoState();
 }
 
-class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
+class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
   late Future<List<Perfiles>> futurePerfiles;
   List<Perfiles> perfiles = [];
 
@@ -346,16 +325,14 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: ImagenesProductoEditar(
-              imagenesTotales: widget.imagenesExistentes,
-              onEliminarImagenExistente: widget.onEliminarImagenExistente,
+            child: ImagenesProductoCrear(
               onEliminarImagenNueva: widget.onEliminarImagenNueva,
               onNuevasImagenesSeleccionadas:
                   widget.onNuevasImagenesSeleccionadas,
             ),
           ),
           const SizedBox(height: 16),
-          CampoNombreEditar(
+          CampoNombreCrear(
             nombreController: widget.nombreController,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
@@ -365,7 +342,7 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
             },
           ),
           const SizedBox(height: 16),
-          CampoPrecioEditar(
+          CampoPrecioCrear(
             precioController: widget.precioController,
             validator: (value) {
               if (value == null || double.parse(value) < 0) {
@@ -375,14 +352,13 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
             },
           ),
           const SizedBox(height: 20),
-          CampoTiendaEditar(
+          CampoTiendaCrear(
             validator: (value) =>
                 value!.isEmpty ? 'Por favor selecciona una tienda' : null,
             nombresTienda: widget.nombresTienda,
             onTiendaSeleccionada: (tienda) {
               widget.tiendaSeleccionada = tienda;
             },
-            producto: widget.producto,
           ),
           const SizedBox(height: 20),
           FutureBuilder<List<Perfiles>>(
@@ -399,7 +375,7 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
 
               List<Perfiles> perfiles = snapshot.data!;
 
-              return CampoPerfilesEditar(
+              return CampoPerfilesCrear(
                 perfiles: perfiles,
                 perfilSeleccionado: widget.perfilSeleccionado,
                 onPerfilSeleccionado: (perfilId) {
