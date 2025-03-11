@@ -2,6 +2,7 @@ import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Banner_Listas_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Crear_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Barra_Busqueda_Productos.dart';
@@ -9,7 +10,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Recientes_Productos.d
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Tienda_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Totales_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
+import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -62,8 +63,11 @@ class AlmacenState extends State<Almacen> {
           Provider.of<ProductosProvider>(context, listen: false);
       productoProvider.cargarProductos(
           widget.perfil.UsuarioId, widget.perfil.Id);
-    });
 
+      final perfilesProvider =
+          Provider.of<PerfilesProvider>(context, listen: false);
+      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+    });
     _searchController.addListener(_filterProductos);
   }
 
@@ -169,7 +173,6 @@ class AlmacenState extends State<Almacen> {
     } else {
       _filterProductos();
     }
-
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
@@ -194,8 +197,10 @@ class AlmacenState extends State<Almacen> {
                                   fontWeight: FontWeight.bold),
                         ),
                       ),
-                      BarraAlmacen(searchController: _searchController, crearProducto: _crearProducto),
-                      ListasBanner(listas: listas, productos: productos, usuarioId: widget.perfil.UsuarioId),
+                      BarraAlmacen(
+                          searchController: _searchController,
+                          crearProducto: _crearProducto),
+                      ListasBanner(listas: listas, productos: productos, perfil: perfil),
                       productos.isEmpty
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),
@@ -243,7 +248,8 @@ class AlmacenState extends State<Almacen> {
 }
 
 class BarraAlmacen extends StatelessWidget {
-  const BarraAlmacen({super.key, required this.searchController, required this.crearProducto});
+  const BarraAlmacen(
+      {super.key, required this.searchController, required this.crearProducto});
   final TextEditingController searchController;
   final Function(BuildContext) crearProducto;
 

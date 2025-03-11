@@ -1,19 +1,25 @@
+import 'dart:io';
+
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class VentanaListas extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
   final VoidCallback actualizarBanner;
-  final int usuarioId;
+  final Perfiles perfil;
 
   const VentanaListas({
     super.key,
     required this.listas,
     required this.productos,
     required this.actualizarBanner,
-    required this.usuarioId,
+    required this.perfil,
   });
 
   @override
@@ -142,27 +148,91 @@ class _VentanaListasState extends State<VentanaListas> {
     showDialog(
       context: context,
       builder: (context) {
+        final perfilesProvider =
+            Provider.of<PerfilesProvider>(context, listen: false);
+        final perfiles = perfilesProvider.perfiles;
+
         return AlertDialog(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
           title: const Text('Crear Nueva Lista'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de la lista',
+          content: SizedBox(
+            height: 400, // Ajustar la altura según sea necesario
+            child: Column(
+              children: [
+                TextField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(
+                    labelText: 'Nombre de la lista',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Selecciona los perfiles:',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-            ],
+                const SizedBox(height: 20),
+                const Text(
+                  'Selecciona los perfiles:',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: perfiles.length,
+                    itemBuilder: (context, index) {
+                      final perfil = perfiles[index];
+                      return ListTile(
+                        title: Text(perfil.Nombre),
+                        leading: perfil.FotoPerfil.isNotEmpty
+                            ? FutureBuilder<File>(
+                                future: ServicioPerfiles()
+                                    .obtenerImagen(perfil.FotoPerfil),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const CircularProgressIndicator();
+                                  } else if (snapshot.hasError) {
+                                    return const Icon(Icons.error);
+                                  } else if (!snapshot.hasData) {
+                                    return const Icon(
+                                        Icons.image_not_supported);
+                                  } else {
+                                    return Stack(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 25,
+                                          backgroundImage:
+                                              FileImage(snapshot.data!),
+                                        ),
+                                        if (perfilesSeleccionados
+                                            .contains(perfil.Id))
+                                          const Positioned(
+                                            right: 0,
+                                            bottom: 0,
+                                            child: Icon(Icons.check_circle,
+                                                color: Colors.green),
+                                          ),
+                                      ],
+                                    );
+                                  }
+                                },
+                              )
+                            : const Icon(Icons.image_not_supported),
+                        tileColor: perfilesSeleccionados.contains(perfil.Id)
+                            ? Colores.principal.withOpacity(0.2)
+                            : null,
+                        onTap: () {
+                          setState(() {
+                            if (perfilesSeleccionados.contains(perfil.Id)) {
+                              perfilesSeleccionados.remove(perfil.Id);
+                            } else {
+                              perfilesSeleccionados.add(perfil.Id);
+                            }
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -187,6 +257,14 @@ class _VentanaListasState extends State<VentanaListas> {
 
                   // Agregar la nueva lista a la lista existente
                   widget.listas.add(nuevaLista);
+
+                  // Guarda la nueva lista en la base de datos o backend
+                  ServiciosListas().registrarLista(
+                    nuevaLista.Nombre,
+                    widget.perfil.Id,
+                    widget.perfil.UsuarioId,
+                    nuevaLista.Visible
+                  );
 
                   // Actualizar el estado del widget Almacen
                   setState(() {});

@@ -1,6 +1,7 @@
+import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/inicio.dart';
-import 'package:famsync/View/Modulos/Almacen/Productos/Productos_Provider.dart';
+import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/nexoIncio.dart';
@@ -20,6 +21,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => ProductosProvider()),
+        ChangeNotifierProvider(create: (_) => PerfilesProvider()),
         // Agrega otros proveedores si es necesario
       ],
       child: MyApp(),

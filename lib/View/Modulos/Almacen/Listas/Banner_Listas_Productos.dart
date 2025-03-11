@@ -1,19 +1,19 @@
-
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:flutter/material.dart';
 
 class ListasBanner extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
-  final int usuarioId;
+  final Perfiles perfil;
 
   const ListasBanner({
     super.key,
     required this.listas,
     required this.productos,
-    required this.usuarioId,
+    required this.perfil,
   });
 
   @override
@@ -42,7 +42,7 @@ class _ListasBannerState extends State<ListasBanner> {
               listas: widget.listas,
               productos: widget.productos,
               actualizarBanner: actualizarBanner,
-              usuarioId: widget.usuarioId,
+              perfil: widget.perfil,
             );
           },
         );
