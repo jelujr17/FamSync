@@ -195,7 +195,7 @@ class AlmacenState extends State<Almacen> {
                         ),
                       ),
                       BarraAlmacen(searchController: _searchController, crearProducto: _crearProducto),
-                      ListasBanner(listas: listas, productos: productos),
+                      ListasBanner(listas: listas, productos: productos, usuarioId: widget.perfil.UsuarioId),
                       productos.isEmpty
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),

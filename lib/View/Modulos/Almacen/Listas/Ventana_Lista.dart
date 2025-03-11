@@ -1,4 +1,3 @@
-
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:flutter/material.dart';
@@ -7,12 +6,14 @@ class VentanaListas extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
   final VoidCallback actualizarBanner;
+  final int usuarioId;
 
   const VentanaListas({
     super.key,
     required this.listas,
     required this.productos,
     required this.actualizarBanner,
+    required this.usuarioId,
   });
 
   @override
@@ -21,6 +22,7 @@ class VentanaListas extends StatefulWidget {
 
 class _VentanaListasState extends State<VentanaListas> {
   Map<int, Widget> imageWidgets = {};
+  List<int> perfilesSeleccionados = [];
 
   @override
   void initState() {
@@ -133,6 +135,73 @@ class _VentanaListasState extends State<VentanaListas> {
     widget.actualizarBanner();
   }
 
+  void crearNuevaLista() {
+    TextEditingController nombreController = TextEditingController();
+    List<int> perfilesSeleccionados = [];
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Text('Crear Nueva Lista'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nombreController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre de la lista',
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Text(
+                'Selecciona los perfiles:',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 10),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Cerrar el diálogo sin guardar
+              },
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  // Crear una nueva instancia de Listas
+                  Listas nuevaLista = Listas(
+                    Id: DateTime.now()
+                        .millisecondsSinceEpoch, // Generar un ID único
+                    Nombre: nombreController.text,
+                    Visible: perfilesSeleccionados,
+                    Productos: [],
+                    IdPerfil: 0, // Ajustar según sea necesario
+                    IdUsuario: 0, // Ajustar según sea necesario
+                  );
+
+                  // Agregar la nueva lista a la lista existente
+                  widget.listas.add(nuevaLista);
+
+                  // Actualizar el estado del widget Almacen
+                  setState(() {});
+                });
+                widget.actualizarBanner();
+                Navigator.of(context).pop(); // Cerrar el diálogo
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -235,11 +304,10 @@ class _VentanaListasState extends State<VentanaListas> {
                   ),
                 ),
                 ElevatedButton.icon(
-                  onPressed: () {
-                    // Acción para crear una nueva lista
-                  },
+                  onPressed: crearNuevaLista,
                   icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Crear Lista'),
+                  label: const Text('Crear Lista',
+                      style: TextStyle(color: Colors.white)),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color(0xFF4A3298),
                     shape: RoundedRectangleBorder(
@@ -296,7 +364,7 @@ class SectionTitle extends StatelessWidget {
         TextButton(
           onPressed: accion,
           style: TextButton.styleFrom(foregroundColor: Colors.grey),
-          child: pulsado ? Text("Ver más") : Text("Ver menos"),
+          child: pulsado ? const Text("Ver más") : const Text("Ver menos"),
         ),
       ],
     );

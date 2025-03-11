@@ -7,11 +7,13 @@ import 'package:flutter/material.dart';
 class ListasBanner extends StatefulWidget {
   final List<Listas> listas;
   final List<Productos> productos;
+  final int usuarioId;
 
   const ListasBanner({
     super.key,
     required this.listas,
     required this.productos,
+    required this.usuarioId,
   });
 
   @override
@@ -40,6 +42,7 @@ class _ListasBannerState extends State<ListasBanner> {
               listas: widget.listas,
               productos: widget.productos,
               actualizarBanner: actualizarBanner,
+              usuarioId: widget.usuarioId,
             );
           },
         );
