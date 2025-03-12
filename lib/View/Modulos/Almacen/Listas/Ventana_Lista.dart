@@ -34,6 +34,11 @@ class _VentanaListasState extends State<VentanaListas> {
   void initState() {
     super.initState();
     loadImages();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final perfilesProvider =
+          Provider.of<PerfilesProvider>(context, listen: false);
+      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+    });
   }
 
   void loadImages() {
@@ -145,12 +150,14 @@ class _VentanaListasState extends State<VentanaListas> {
     TextEditingController nombreController = TextEditingController();
     List<int> perfilesSeleccionados = [];
 
-    showDialog(
+    showModalBottomSheet(
       context: context,
       builder: (context) {
         final perfilesProvider =
             Provider.of<PerfilesProvider>(context, listen: false);
-        final perfiles = perfilesProvider.perfiles;
+        final perfiles = perfilesProvider.perfiles
+            .where((perfil) => perfil.Id != widget.perfil.Id)
+            .toList(); // Filtrar el perfil del usuario actual
 
         return AlertDialog(
           shape: RoundedRectangleBorder(
@@ -159,27 +166,32 @@ class _VentanaListasState extends State<VentanaListas> {
           title: const Text('Crear Nueva Lista'),
           content: SizedBox(
             height: 400, // Ajustar la altura según sea necesario
-            child: Column(
-              children: [
-                TextField(
-                  controller: nombreController,
-                  decoration: const InputDecoration(
-                    labelText: 'Nombre de la lista',
+            child: SingleChildScrollView(
+              // Usar SingleChildScrollView en lugar de ListView
+              child: Column(
+                children: [
+                  TextField(
+                    controller: nombreController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nombre de la lista',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Selecciona los perfiles:',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 10),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: perfiles.length,
-                    itemBuilder: (context, index) {
-                      final perfil = perfiles[index];
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Selecciona los perfiles:',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 10),
+                  Column(
+                    children: perfiles.map((perfil) {
                       return ListTile(
-                        title: Text(perfil.Nombre),
+                        title: Text(
+                          perfil.Nombre,
+                          style: const TextStyle(
+                            color: Colores.texto,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
                         leading: perfil.FotoPerfil.isNotEmpty
                             ? FutureBuilder<File>(
                                 future: ServicioPerfiles()
@@ -203,7 +215,7 @@ class _VentanaListasState extends State<VentanaListas> {
                                         ),
                                         if (perfilesSeleccionados
                                             .contains(perfil.Id))
-                                          const Positioned(
+                                          Positioned(
                                             right: 0,
                                             bottom: 0,
                                             child: Icon(Icons.check_circle,
@@ -228,10 +240,10 @@ class _VentanaListasState extends State<VentanaListas> {
                           });
                         },
                       );
-                    },
+                    }).toList(),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           actions: [
@@ -251,8 +263,9 @@ class _VentanaListasState extends State<VentanaListas> {
                     Nombre: nombreController.text,
                     Visible: perfilesSeleccionados,
                     Productos: [],
-                    IdPerfil: 0, // Ajustar según sea necesario
-                    IdUsuario: 0, // Ajustar según sea necesario
+                    IdPerfil: widget.perfil.Id, // Ajustar según sea necesario
+                    IdUsuario:
+                        widget.perfil.UsuarioId, // Ajustar según sea necesario
                   );
 
                   // Agregar la nueva lista a la lista existente
@@ -263,7 +276,7 @@ class _VentanaListasState extends State<VentanaListas> {
                     nuevaLista.Nombre,
                     widget.perfil.Id,
                     widget.perfil.UsuarioId,
-                    nuevaLista.Visible
+                    nuevaLista.Visible,
                   );
 
                   // Actualizar el estado del widget Almacen
@@ -282,6 +295,11 @@ class _VentanaListasState extends State<VentanaListas> {
 
   @override
   Widget build(BuildContext context) {
+    final perfilesProvider = Provider.of<PerfilesProvider>(context);
+    final perfiles = perfilesProvider.perfiles
+        .where((perfil) => perfil.Id != widget.perfil.Id)
+        .toList(); // Filtrar el perfil del usuario actual
+
     return AlertDialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
