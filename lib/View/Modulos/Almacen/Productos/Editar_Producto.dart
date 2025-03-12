@@ -88,19 +88,13 @@ class _EditarProductoState extends State<EditarProducto> {
         );
         return;
       }
-
-      // Imprimir las listas de imágenes para depuración
-      print("Imágenes existentes: $_imagenesExistentes");
-      print("Nuevas imágenes: ${_nuevasImagenes.map((e) => e.path).toList()}");
+      print("Tienda: $tienda");
 
       // Combinar las imágenes existentes y nuevas en una lista de archivos
       final List<File> imagenesCompletas = [
         ..._imagenesExistentes.map((e) => File(e)), // Convertir a File
         ..._nuevasImagenes,
       ];
-
-      print(
-          "Imágenes completas: ${imagenesCompletas.map((e) => e.path).toList()}");
 
       final nuevoProducto = Productos(
         Id: widget.producto.Id,
@@ -114,12 +108,11 @@ class _EditarProductoState extends State<EditarProducto> {
         Visible: widget.producto.Visible,
       );
 
-      print("Nuevo producto imágenes: ${nuevoProducto.Imagenes}");
-
       final exito = await ServicioProductos().actualizarProducto(
           widget.producto.Id,
           nombre,
-          imagenesCompletas, // Enviar lista de archivos
+          _imagenesExistentes,
+          _nuevasImagenes, // Enviar lista de archivos
           tienda,
           precio,
           nuevoProducto.Visible);
@@ -245,6 +238,11 @@ class _EditarProductoState extends State<EditarProducto> {
                   onEliminarImagenNueva: _eliminarImagenNueva,
                   onNuevasImagenesSeleccionadas: _nuevasImagenesSeleccionadas,
                   onGuardar: _editarProducto,
+                  onTiendaSeleccionada: (String? tienda) {
+                    setState(() {
+                      tiendaSeleccionada = tienda;
+                    });
+                  },
                 ),
               ],
             ),
@@ -295,6 +293,7 @@ class FormularioEditarProducto extends StatefulWidget {
   final Function(File) onEliminarImagenNueva;
   final Function(List<File>) onNuevasImagenesSeleccionadas;
   final Function() onGuardar;
+  final Function(String) onTiendaSeleccionada;
 
   FormularioEditarProducto({
     super.key,
@@ -315,6 +314,7 @@ class FormularioEditarProducto extends StatefulWidget {
     required this.onEliminarImagenNueva,
     required this.onNuevasImagenesSeleccionadas,
     required this.onGuardar,
+    required this.onTiendaSeleccionada,
   });
 
   @override
@@ -380,7 +380,7 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
                 value!.isEmpty ? 'Por favor selecciona una tienda' : null,
             nombresTienda: widget.nombresTienda,
             onTiendaSeleccionada: (tienda) {
-              widget.tiendaSeleccionada = tienda;
+              widget.onTiendaSeleccionada(tienda);
             },
             producto: widget.producto,
           ),

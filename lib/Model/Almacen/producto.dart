@@ -173,9 +173,9 @@ class ServicioProductos {
     }
   }
 
-  Future<bool> actualizarProducto(int Id, String Nombre, List<File> Imagenes,
+  Future<bool> actualizarProducto(int Id, String Nombre, List<String> imagnesExistentes,  List<File> Imagenes,
       String Tienda, double Precio, List<int> Visible) async {
-    List<String> NombresImagenes = [];
+        print("Mensaje en actualizarProducto, Imagenes $Imagenes");
 
     // Subir imágenes nuevas y obtener sus URLs
     for (int i = 0; i < Imagenes.length; i++) {
@@ -215,14 +215,14 @@ class ServicioProductos {
 
       Map<String, dynamic> jsonMap = json.decode(nombre);
       String imageUrl = jsonMap['imageUrl'];
-      NombresImagenes.add(imageUrl);
+      imagnesExistentes.add(imageUrl);
     }
 
     // Paso 3: Guardar el producto en la base de datos con la URL de la imagen
     Map<String, dynamic> ProductoData = {
       'Id': Id,
       'Nombre': Nombre.toString(),
-      'Imagenes': jsonEncode(NombresImagenes),
+      'Imagenes': jsonEncode(imagnesExistentes),
       'Tienda': Tienda.toString(),
       'Precio': Precio,
       'Visible': jsonEncode(Visible),

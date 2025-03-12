@@ -1,4 +1,3 @@
-
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:flutter/material.dart';
 
@@ -51,7 +50,7 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          prefixIcon: Icon(Icons.store, color: Colors.yellow),
+          prefixIcon: const Icon(Icons.store, color: Colors.yellow),
           filled: true,
           fillColor: Colors.grey.shade100,
           focusedBorder: OutlineInputBorder(
@@ -76,6 +75,7 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
             });
             widget.onTiendaSeleccionada(newValue);
           }
+          print("Tienda seleccionada: $tiendaSeleccionada");
         },
         validator: widget.validator,
       ),
