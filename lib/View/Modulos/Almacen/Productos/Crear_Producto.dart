@@ -15,7 +15,8 @@ import 'package:famsync/Model/Almacen/tiendas.dart';
 class CrearProducto extends StatefulWidget {
   final Perfiles perfil;
 
-  const CrearProducto({super.key, required this.perfil});
+  const CrearProducto(
+      {super.key, required this.perfil});
 
   @override
   _CrearProductoState createState() => _CrearProductoState();
@@ -58,8 +59,10 @@ class _CrearProductoState extends State<CrearProducto> {
   }
 
   void obtenerNombresTiendas() {
-    nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
-    print("Nombres de tiendas: $nombresTienda");
+    setState(() {
+      nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+      print("Nombres de tiendas: $nombresTienda");
+    });
   }
 
   Future<void> _crearProducto() async {
@@ -230,6 +233,11 @@ class _CrearProductoState extends State<CrearProducto> {
                   onEliminarImagenNueva: _eliminarImagenNueva,
                   onNuevasImagenesSeleccionadas: _nuevasImagenesSeleccionadas,
                   onGuardar: _crearProducto,
+                  onTiendaSeleccionada: (String? tienda) {
+                    setState(() {
+                      tiendaSeleccionada = tienda;
+                    });
+                  },
                 ),
               ],
             ),
@@ -277,6 +285,7 @@ class FormularioCrearProducto extends StatefulWidget {
   final Function(File) onEliminarImagenNueva;
   final Function(List<File>) onNuevasImagenesSeleccionadas;
   final Function() onGuardar;
+  final Function(String?) onTiendaSeleccionada;
 
   FormularioCrearProducto({
     super.key,
@@ -294,6 +303,7 @@ class FormularioCrearProducto extends StatefulWidget {
     required this.onEliminarImagenNueva,
     required this.onNuevasImagenesSeleccionadas,
     required this.onGuardar,
+    required this.onTiendaSeleccionada,
   });
 
   @override
@@ -357,7 +367,7 @@ class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
                 value!.isEmpty ? 'Por favor selecciona una tienda' : null,
             nombresTienda: widget.nombresTienda,
             onTiendaSeleccionada: (tienda) {
-              widget.tiendaSeleccionada = tienda;
+              widget.onTiendaSeleccionada(tienda);
             },
           ),
           const SizedBox(height: 20),

@@ -147,6 +147,19 @@ class AlmacenState extends State<Almacen> {
     }
   }
 
+  List<Tiendas> ObtenerTiendasConProductos(){
+    List<Tiendas> tiendasConProductos = [];
+    for (var tienda in tiendas){
+      for (var producto in productosFiltrados){
+        if (producto.Tienda == tienda.Nombre){
+          tiendasConProductos.add(tienda);
+          break;
+        }
+      }
+    }
+    return tiendasConProductos;
+  }
+
   void _crearProducto(BuildContext context) async {
     // Implementa la lógica para editar el producto
     // Por ejemplo, puedes navegar a una página de edición de producto
@@ -221,7 +234,7 @@ class AlmacenState extends State<Almacen> {
                                       _navigateToDetallesProducto(producto),
                                 ),
                                 const SizedBox(height: 20),
-                                for (var tienda in tiendas)
+                                for (var tienda in ObtenerTiendasConProductos())
                                   ProductosPorTienda(
                                     tienda: tienda,
                                     productos: productosFiltrados
