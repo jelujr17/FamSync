@@ -5,6 +5,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.da
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
+import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:provider/provider.dart';
 
 class DetallesProducto extends StatelessWidget {
@@ -19,6 +20,16 @@ class DetallesProducto extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final productoProvider =
+          Provider.of<ProductosProvider>(context, listen: false);
+      productoProvider.cargarProductos(perfil.UsuarioId, perfil.Id);
+
+      final perfilesProvider =
+          Provider.of<PerfilesProvider>(context, listen: false);
+      perfilesProvider.cargarPerfiles(perfil.UsuarioId);
+    });
+
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
@@ -157,7 +168,7 @@ class DetallesProducto extends StatelessWidget {
   void _editarProducto(BuildContext context) {
     // Implementa la lógica para editar el producto
     // Por ejemplo, puedes navegar a una página de edición de producto
-    final result =  Navigator.push(
+    final result = Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) =>
@@ -205,8 +216,7 @@ class DetallesProducto extends StatelessWidget {
                       .pop(); // Cerrar el diálogo de confirmación
                   Navigator.of(context).push(PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        Almacen(
-                             perfil: perfil),
+                        Almacen(perfil: perfil),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       const begin =
@@ -345,10 +355,16 @@ class InformacionProducto extends StatelessWidget {
             children: [
               ...List.generate(
                 producto.Visible.length,
-                (index) => IconoPerfil(
-                  idPerfil: producto.Visible[index],
-                  esCreador:
-                      producto.IdPerfilCreador == producto.Visible[index],
+                (index) => Column(
+                  children: [
+                    IconoPerfil(
+                      idPerfil: producto.Visible[index],
+                      esCreador:
+                          producto.IdPerfilCreador == producto.Visible[index],
+                    ),
+                    const SizedBox(height: 4),
+                    NombrePerfil(idPerfil: producto.Visible[index]),
+                  ],
                 ),
               ),
               const Spacer(),
@@ -370,17 +386,20 @@ class IconoPerfil extends StatelessWidget {
   final int idPerfil;
   final bool esCreador;
 
-  Future<Widget> loadProfileIcon() async {
-    Perfiles? perfilAux = await ServicioPerfiles().getPerfilById(idPerfil);
+  Future<Widget> loadProfileIcon(BuildContext context) async {
+    final perfilesProvider =
+        Provider.of<PerfilesProvider>(context, listen: false);
+    Perfiles? perfilAux = perfilesProvider.perfiles
+        .firstWhere((element) => element.Id == idPerfil);
     final imageFile =
-        await ServicioPerfiles().obtenerImagen(perfilAux!.FotoPerfil);
+        await ServicioPerfiles().obtenerImagen(perfilAux.FotoPerfil);
     return Image.file(imageFile);
   }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<Widget>(
-      future: loadProfileIcon(),
+      future: loadProfileIcon(context),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
@@ -404,6 +423,42 @@ class IconoPerfil extends StatelessWidget {
               child: snapshot.data!,
             ),
           );
+        }
+      },
+    );
+  }
+}
+
+class NombrePerfil extends StatelessWidget {
+  const NombrePerfil({
+    super.key,
+    required this.idPerfil,
+  });
+
+  final int idPerfil;
+
+  Future<String> loadProfileName(BuildContext context) async {
+    final perfilesProvider =
+        Provider.of<PerfilesProvider>(context, listen: false);
+    Perfiles? perfilAux = perfilesProvider.perfiles
+        .firstWhere((element) => element.Id == idPerfil);
+    return perfilAux.Nombre;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<String>(
+      future: loadProfileName(context),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator();
+        } else if (snapshot.hasError) {
+          return const Text(
+            'Error',
+            style: TextStyle(color: Colors.red),
+          );
+        } else {
+          return Text(snapshot.data!);
         }
       },
     );
