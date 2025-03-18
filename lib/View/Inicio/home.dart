@@ -1,5 +1,5 @@
 import 'dart:math';
-import 'package:famsync/Model/Inicio/menuLateral.dart';
+import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Calendario/calendario.dart';
@@ -8,7 +8,6 @@ import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
 import 'package:famsync/components/Inicio/boton_menu_lateral.dart';
 import 'package:famsync/components/Inicio/menu_lateral.dart';
-import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
@@ -29,12 +28,12 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   //-----------------Menu Lateral-----------------------------------------------
   bool isSideBarOpen = false;
 
-  late Menu selectedBottonNav;
+  late Menu_Aux selectedBottonNav;
   Menu selectedSideMenu = sidebarMenus.first;
 
   late SMIBool isMenuOpenInput;
 
-  void updateSelectedBtmNav(Menu menu) {
+  void updateSelectedBtmNav(Menu_Aux menu) {
     int pageIndex = bottomNavItems.indexOf(menu);
     if (pageIndex != -1) {
       if (mounted && _pageController.hasClients) {
@@ -136,7 +135,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                                 case '/':
                                   return MaterialPageRoute(
                                       builder: (context) => Agenda(perfil: widget.perfil));
-                                case '/page2':
+                                case '/Modulo_Tareas':
                                   return MaterialPageRoute(
                                       builder: (context) => Almacen(perfil: widget.perfil));
                                 case '/page3':
@@ -251,16 +250,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 ...List.generate(
                   bottomNavItems.length,
                   (index) {
-                    Menu navBar = bottomNavItems[index];
+                    Menu_Aux navBar = bottomNavItems[index];
                     return BtmNavItem(
                       navBar: navBar,
                       press: () {
-                        RiveUtils.chnageSMIBoolState(navBar.rive.status!);
                         updateSelectedBtmNav(navBar);
-                      },
-                      riveOnInit: (artboard) {
-                        navBar.rive.status = RiveUtils.getRiveInput(artboard,
-                            stateMachineName: navBar.rive.stateMachineName);
                       },
                       selectedNav: selectedBottonNav,
                     );

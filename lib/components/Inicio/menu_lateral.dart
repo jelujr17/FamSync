@@ -1,4 +1,4 @@
-import 'package:famsync/Model/Inicio/menuLateral.dart';
+import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/Inicio/informacion_usuario.dart';
 import 'package:famsync/components/Inicio/rive_utils.dart';

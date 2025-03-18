@@ -13,6 +13,20 @@ class Menu {
   Menu({required this.title, required this.rive, required this.onTap});
 }
 
+class Menu_Aux {
+  final String title;
+  final LottieModel lottie;
+  final void Function(BuildContext context) onTap; // Recibe BuildContext
+
+  Menu_Aux({required this.title, required this.lottie, required this.onTap});
+}
+
+class LottieModel {
+  final String src; // Ruta del archivo .json de Lottie
+
+  LottieModel({required this.src});
+}
+
 List<Menu> sidebarMenus = [
   Menu(
     title: "Perfil",
@@ -151,60 +165,56 @@ List<Menu> sidebarMenus3 = [
   ),
 ];
 
-List<Menu> bottomNavItems = [
-  Menu(
-    title: "Chat",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "CHAT",
-        stateMachineName: "CHAT_Interactivity"),
-    onTap: (context) {
-      // Acción para la opción "Chat"
-      print("Chat seleccionado");
-    },
-  ),
-  Menu(
-    title: "Search",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "SEARCH",
-        stateMachineName: "SEARCH_Interactivity"),
+List<Menu_Aux> bottomNavItems = [
+  Menu_Aux(
+    title: "Modulo_Tareas",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/To_Do.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
       // Acción para la opción "Search"
-      print("Search seleccionado");
+      print("Modulo Tareas Seleccionado");
     },
   ),
-  Menu(
-    title: "Timer",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "TIMER",
-        stateMachineName: "TIMER_Interactivity"),
+  Menu_Aux(
+    title: "Modulo_Almacen",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/Product.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Timer"
-      print("Timer seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Almacen Seleccionado");
     },
   ),
-  Menu(
-    title: "Notification",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+  Menu_Aux(
+    title: "Modulo_Calendario",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Calendario.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Notification"
-      print("Notification seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Calendario Seleccionado");
     },
   ),
-  Menu(
-    title: "Profile",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "USER",
-        stateMachineName: "USER_Interactivity"),
+  Menu_Aux(
+    title: "Modulo_Medicina",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/Icono_Medicina.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Profile"
-      print("Profile seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Medicina Seleccionado");
+    },
+  ),
+  Menu_Aux(
+    title: "Modulo_Tareas",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/To_Do.json", // Ruta del archivo Lottie
+    ),
+    onTap: (context) {
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
   ),
 ];
