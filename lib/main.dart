@@ -1,10 +1,9 @@
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Inicio/Home.dart';
-import 'package:famsync/View/Inicio/inicio.dart';
+import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/nexoIncio.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -69,7 +68,6 @@ class MyApp extends StatelessWidget {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final int? userId = prefs.getInt('IdUsuario');
       final int? perfilId = prefs.getInt('IdPerfil');
-      final bool aux = await NexoInicio().primeraVezResumen();
 
       // Comentado el redireccionamiento al login
       if (userId == null) {

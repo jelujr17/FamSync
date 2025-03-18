@@ -169,40 +169,43 @@ class ServicioUsuarios {
     }
   }
 
-  Future<bool> registrarUsuario(
-      int telefono, String correo, String nombre, String password) async {
-    if (await isCorreoRegistered(correo)) {
-      print('El correo ya está registrado');
-      return false;
-    }
-
-    if (await isTelefonoRegistered(telefono)) {
-      print('El teléfono ya está registrado');
-      return false;
-    }
-
-    try {
-      final response = await http.post(
-        Uri.parse('http://$_host/usuarios/create'),
-        headers: {'Content-type': 'application/json'},
-        body: jsonEncode({
-          'Telefono': telefono,
-          'Correo': correo,
-          'Nombre': nombre,
-          'Password': password,
-        }),
-      );
-
-      if (response.statusCode == 201) {
-        print('Usuario registrado exitosamente');
-        return true;
-      } else {
-        print('Error en el registro: ${response.body}');
-        return false;
-      }
-    } catch (e) {
-      print('Error al registrar usuario: $e');
-      return false;
-    }
+  Future<int?> registrarUsuario(
+    int telefono, String correo, String nombre, String password) async {
+  if (await isCorreoRegistered(correo)) {
+    print('El correo ya está registrado');
+    return null;
   }
+
+  if (await isTelefonoRegistered(telefono)) {
+    print('El teléfono ya está registrado');
+    return null;
+  }
+
+  try {
+    final response = await http.post(
+      Uri.parse('http://$_host/usuarios/create'),
+      headers: {'Content-type': 'application/json'},
+      body: jsonEncode({
+        'Telefono': telefono,
+        'Correo': correo,
+        'Nombre': nombre,
+        'Password': password,
+      }),
+    );
+
+    if (response.statusCode == 201) {
+      final data = jsonDecode(response.body);
+      int userId = data["userId"]; // Obtener el ID del usuario creado
+      print('Usuario registrado exitosamente con ID: $userId');
+      return userId; // Devuelve el ID en lugar de solo true
+    } else {
+      print('Error en el registro: ${response.body}');
+      return null;
+    }
+  } catch (e) {
+    print('Error al registrar usuario: $e');
+    return null;
+  }
+}
+
 }

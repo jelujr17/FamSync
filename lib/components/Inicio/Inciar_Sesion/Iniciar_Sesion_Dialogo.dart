@@ -1,10 +1,20 @@
+import 'package:famsync/components/Inicio/Crear_Cuenta/Crear_Cuenta_Dialogo.dart';
+import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:rive/rive.dart';
 
-import 'sign_in_form.dart';
+import 'Iniciar_sesion_Formulario.dart';
 
-void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
+void iniciar_sesion_dialogo(BuildContext context,
+    {required ValueChanged onValue}) {
+  // Inicializar el controlador de animación fuera del diálogo
+  final RiveAnimationController btnAnimationController = OneShotAnimation(
+    "active",
+    autoplay: false,
+  );
+
   showGeneralDialog(
     context: context,
     barrierLabel: "Barrier",
@@ -14,7 +24,7 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
     pageBuilder: (_, __, ___) {
       return Center(
         child: Container(
-          height: 670,
+          height: 770, // Aumenté la altura para dar más espacio al botón
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
           decoration: BoxDecoration(
@@ -34,9 +44,8 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
             ],
           ),
           child: Scaffold(
-            // backgroundColor: Colors.transparent,
+            backgroundColor: Colors.transparent,
             resizeToAvoidBottomInset: false,
-
             body: Stack(
               clipBehavior: Clip.none,
               children: [
@@ -116,31 +125,43 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 24),
+                      Text(
+                        "¿No tienes una cuenta?",
+                        style: TextStyle(color: Colors.black54),
+                      ),
+                      const SizedBox(
+                          height:
+                              170), // Incrementamos el espacio para dar cabida a los botones más abajo
                     ],
                   ),
                 ),
+                // Botón "Iniciar Sesión" (otro botón principal si quieres añadirlo)
+
+                // Botón "Crear Cuenta"
                 Positioned(
                   left: 0,
                   right: 0,
-                  bottom: -48,
-                  child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                    decoration: const BoxDecoration(
-                      color: Colores.botonesSecundarios,
-                      borderRadius: BorderRadius.all(Radius.circular(16)),
-                    ),
-                    child: const Text(
-                      "Crear cuenta",
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                  bottom: 20, // Posicionado más abajo
+                  child: AnimatedBtn(
+                    textoBoton: "Crear Cuenta",
+                    btnAnimationController: btnAnimationController,
+                    press: () {
+                      btnAnimationController.isActive = true;
+                      print("Botón presionado");
+                      Future.delayed(
+                        const Duration(milliseconds: 800),
+                        () {
+                          Navigator.of(context).pop(); // Cerrar el diálogo
+                          crear_cuenta_dialogo(
+                            context,
+                            onValue: (_) {},
+                          );
+                        },
+                      );
+                    },
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -148,23 +169,11 @@ void showCustomDialog(BuildContext context, {required ValueChanged onValue}) {
       );
     },
     transitionBuilder: (_, anim, __, child) {
-      Tween<Offset> tween;
-      // if (anim.status == AnimationStatus.reverse) {
-      //   tween = Tween(begin: const Offset(0, 1), end: Offset.zero);
-      // } else {
-      //   tween = Tween(begin: const Offset(0, -1), end: Offset.zero);
-      // }
-
-      tween = Tween(begin: const Offset(0, -1), end: Offset.zero);
-
+      Tween<Offset> tween = Tween(begin: const Offset(0, -1), end: Offset.zero);
       return SlideTransition(
         position: tween.animate(
           CurvedAnimation(parent: anim, curve: Curves.easeInOut),
         ),
-        // child: FadeTransition(
-        //   opacity: anim,
-        //   child: child,
-        // ),
         child: child,
       );
     },

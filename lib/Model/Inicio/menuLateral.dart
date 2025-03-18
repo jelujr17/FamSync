@@ -1,4 +1,4 @@
-import 'package:famsync/View/Inicio/inicio.dart';
+import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

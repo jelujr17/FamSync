@@ -5,12 +5,14 @@ import 'package:rive/rive.dart';
 class AnimatedBtn extends StatelessWidget {
   const AnimatedBtn({
     super.key,
+    required this.textoBoton,
     required RiveAnimationController btnAnimationController,
     required this.press,
   }) : _btnAnimationController = btnAnimationController;
 
   final RiveAnimationController _btnAnimationController;
   final VoidCallback press;
+  final String textoBoton;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +36,7 @@ class AnimatedBtn extends StatelessWidget {
                   const Icon(CupertinoIcons.arrow_right),
                   const SizedBox(width: 8),
                   Text(
-                    "Empezar con FamSync",
+                    textoBoton,
                     style: Theme.of(context).textTheme.labelLarge,
                   )
                 ],

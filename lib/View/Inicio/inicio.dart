@@ -1,7 +1,7 @@
 import 'dart:ui';
 
 import 'package:famsync/components/Inicio/animated_btn.dart';
-import 'package:famsync/components/Inicio/sign_in_dialog.dart';
+import 'package:famsync/components/Inicio/Inciar_Sesion/Iniciar_Sesion_Dialogo.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart' hide Image;
 
@@ -87,6 +87,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                     ),
                     const Spacer(flex: 2),
                     AnimatedBtn(
+                      textoBoton: "Empezar con FamSync",
                       btnAnimationController: _btnAnimationController,
                       press: () {
                         _btnAnimationController.isActive = true;
@@ -98,7 +99,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                               isShowSignInDialog = true;
                             });
                             if (!context.mounted) return;
-                            showCustomDialog(
+                            iniciar_sesion_dialogo(
                               context,
                               onValue: (_) {},
                             );
