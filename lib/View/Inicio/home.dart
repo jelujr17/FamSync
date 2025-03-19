@@ -29,7 +29,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
   bool isSideBarOpen = false;
 
   late Menu_Aux selectedBottonNav;
-  Menu selectedSideMenu = sidebarMenus.first;
+  Menu_Aux selectedSideMenu = sidebarMenus.first;
 
   late SMIBool isMenuOpenInput;
 

@@ -1,7 +1,6 @@
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/Inicio/informacion_usuario.dart';
-import 'package:famsync/components/Inicio/rive_utils.dart';
 import 'package:flutter/material.dart';
 
 import 'side_menu.dart';
@@ -15,7 +14,7 @@ class SideBar extends StatefulWidget {
 }
 
 class _SideBarState extends State<SideBar> {
-  Menu selectedSideMenu = sidebarMenus.first;
+  Menu_Aux selectedSideMenu = sidebarMenus.first;
 
   @override
   Widget build(BuildContext context) {
@@ -59,16 +58,10 @@ class _SideBarState extends State<SideBar> {
                             menu: menu,
                             selectedMenu: selectedSideMenu,
                             press: () {
-                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
                               setState(() {
                                 selectedSideMenu = menu;
                               });
                               menu.onTap(context);
-                            },
-                            riveOnInit: (artboard) {
-                              menu.rive.status = RiveUtils.getRiveInput(
-                                  artboard,
-                                  stateMachineName: menu.rive.stateMachineName);
                             },
                           )),
                       Padding(
@@ -86,16 +79,10 @@ class _SideBarState extends State<SideBar> {
                             menu: menu,
                             selectedMenu: selectedSideMenu,
                             press: () {
-                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
                               setState(() {
                                 selectedSideMenu = menu;
                               });
                               menu.onTap(context);
-                            },
-                            riveOnInit: (artboard) {
-                              menu.rive.status = RiveUtils.getRiveInput(
-                                  artboard,
-                                  stateMachineName: menu.rive.stateMachineName);
                             },
                           )),
                       Padding(
@@ -113,16 +100,10 @@ class _SideBarState extends State<SideBar> {
                             menu: menu,
                             selectedMenu: selectedSideMenu,
                             press: () {
-                              RiveUtils.chnageSMIBoolState(menu.rive.status!);
                               setState(() {
                                 selectedSideMenu = menu;
                               });
                               menu.onTap(context);
-                            },
-                            riveOnInit: (artboard) {
-                              menu.rive.status = RiveUtils.getRiveInput(
-                                  artboard,
-                                  stateMachineName: menu.rive.stateMachineName);
                             },
                           )),
                     ],

@@ -2,16 +2,7 @@ import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/View/Inicio/seleccionPerfil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'rive_model.dart';
 import 'package:flutter/material.dart';
-
-class Menu {
-  final String title;
-  final RiveModel rive;
-  final void Function(BuildContext context) onTap; // Recibe BuildContext
-
-  Menu({required this.title, required this.rive, required this.onTap});
-}
 
 class Menu_Aux {
   final String title;
@@ -27,24 +18,23 @@ class LottieModel {
   LottieModel({required this.src});
 }
 
-List<Menu> sidebarMenus = [
-  Menu(
+List<Menu_Aux> sidebarMenus = [
+  Menu_Aux(
     title: "Perfil",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "HOME",
-        stateMachineName: "HOME_interactivity"),
+    lottie: LottieModel(
+      src: "assets/LottieIcons/Icono_Perfil.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Perfil"
-      print("Perfil seleccionado");
+      // Acción para la opción "Search"
+      print("Perfil Seleccionado");
     },
   ),
-  Menu(
-    title: "Cambiar de Perfil",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "SEARCH",
-        stateMachineName: "SEARCH_Interactivity"),
+  Menu_Aux(
+    title: "Cambiar_Perfil",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Cambiar_Perfil.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) async {
       // Acción para la opción "Cambiar de Perfil"
       print("Cambiar de Perfil seleccionado");
@@ -60,12 +50,12 @@ List<Menu> sidebarMenus = [
       );
     },
   ),
-  Menu(
-    title: "Cerrar Sesión",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "LIKE/STAR",
-        stateMachineName: "STAR_Interactivity"),
+  Menu_Aux(
+    title: "Cerrar_Sesion",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Cerrar_Sesion.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) async {
       // Acción para la opción "Cerrar Sesión"
       print("Cerrar Sesión seleccionado");
@@ -82,85 +72,82 @@ List<Menu> sidebarMenus = [
   ),
 ];
 
-List<Menu> sidebarMenus2 = [
-  Menu(
-    title: "Preferencias de la aplicación",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "TIMER",
-        stateMachineName: "TIMER_Interactivity"),
+List<Menu_Aux> sidebarMenus2 = [
+  Menu_Aux(
+    title: "Preferencias_Aplicacion",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Preferencias_Aplicacion.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Preferencias de la aplicación"
-      print("Preferencias de la aplicación seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
   ),
-  Menu(
-    title: "Gestión de Notificaciones",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+  Menu_Aux(
+    title: "Gestion_Notificaciones",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Gestion_Notificaciones.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Gestión de Notificaciones"
-      print("Gestión de Notificaciones seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
   ),
-  Menu(
-    title: "Gestión de Credenciales",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+  Menu_Aux(
+    title: "Gestion_Credeciales",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Gestion_Credenciales.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Gestión de Credenciales"
-      print("Gestión de Credenciales seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
   ),
 ];
 
-List<Menu> sidebarMenus3 = [
-  Menu(
+List<Menu_Aux> sidebarMenus3 = [
+  Menu_Aux(
     title: "Asistente",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "TIMER",
-        stateMachineName: "TIMER_Interactivity"),
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Asistente.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Asistente"
-      print("Asistente seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
-  ),
-  Menu(
-    title: "Guía de Uso",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+  ),Menu_Aux(
+    title: "Guia_Uso",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Guia_Uso.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Guía de Uso"
-      print("Guía de Uso seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
-  ),
-  Menu(
+  ),Menu_Aux(
     title: "Soporte",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Soporte.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Soporte"
-      print("Soporte seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
-  ),
-  Menu(
-    title: "Terminos y Condiciones",
-    rive: RiveModel(
-        src: "assets/RiveAssets/icons.riv",
-        artboard: "BELL",
-        stateMachineName: "BELL_Interactivity"),
+  ),Menu_Aux(
+    title: "Asistente",
+    lottie: LottieModel(
+      src:
+          "assets/LottieIcons/Icono_Asistente.json", // Ruta del archivo Lottie
+    ),
     onTap: (context) {
-      // Acción para la opción "Terminos y Condiciones"
-      print("Terminos y Condiciones seleccionado");
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
     },
   ),
 ];
@@ -169,7 +156,7 @@ List<Menu_Aux> bottomNavItems = [
   Menu_Aux(
     title: "Modulo_Tareas",
     lottie: LottieModel(
-      src: "assets/LottieIcons/To_Do.json", // Ruta del archivo Lottie
+      src: "assets/LottieIcons/Icono_Tareas.json", // Ruta del archivo Lottie
     ),
     onTap: (context) {
       // Acción para la opción "Search"
@@ -179,7 +166,7 @@ List<Menu_Aux> bottomNavItems = [
   Menu_Aux(
     title: "Modulo_Almacen",
     lottie: LottieModel(
-      src: "assets/LottieIcons/Product.json", // Ruta del archivo Lottie
+      src: "assets/LottieIcons/Icono_Almacen.json", // Ruta del archivo Lottie
     ),
     onTap: (context) {
       // Acción para la opción "Search"
@@ -210,7 +197,7 @@ List<Menu_Aux> bottomNavItems = [
   Menu_Aux(
     title: "Modulo_Tareas",
     lottie: LottieModel(
-      src: "assets/LottieIcons/To_Do.json", // Ruta del archivo Lottie
+      src: "assets/LottieIcons/Icono_Tareas.json", // Ruta del archivo Lottie
     ),
     onTap: (context) {
       // Acción para la opción "Search"

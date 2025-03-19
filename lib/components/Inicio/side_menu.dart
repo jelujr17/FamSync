@@ -1,20 +1,51 @@
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:flutter/material.dart';
-import 'package:rive/rive.dart';
+import 'package:lottie/lottie.dart';
 
+class SideMenu extends StatefulWidget {
+  const SideMenu({
+    super.key,
+    required this.menu,
+    required this.press,
+    required this.selectedMenu,
+  });
 
-class SideMenu extends StatelessWidget {
-  const SideMenu(
-      {super.key,
-      required this.menu,
-      required this.press,
-      required this.riveOnInit,
-      required this.selectedMenu});
-
-  final Menu menu;
+  final Menu_Aux menu;
   final VoidCallback press;
-  final ValueChanged<Artboard> riveOnInit;
-  final Menu selectedMenu;
+  final Menu_Aux selectedMenu;
+
+  @override
+  State<SideMenu> createState() => _SideMenuState();
+}
+
+class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializa el controlador de animación
+    _animationController = AnimationController(vsync: this);
+  }
+
+  @override
+  void didUpdateWidget(covariant SideMenu oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Reproduce la animación solo si el menú está seleccionado
+    if (widget.selectedMenu == widget.menu) {
+      _animationController.reset();
+      _animationController.forward();
+    } else {
+      _animationController.stop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +60,7 @@ class SideMenu extends StatelessWidget {
             AnimatedPositioned(
               duration: const Duration(milliseconds: 300),
               curve: Curves.fastOutSlowIn,
-              width: selectedMenu == menu ? 288 : 0,
+              width: widget.selectedMenu == widget.menu ? 288 : 0,
               height: 56,
               left: 0,
               child: Container(
@@ -40,18 +71,23 @@ class SideMenu extends StatelessWidget {
               ),
             ),
             ListTile(
-              onTap: press,
+              onTap: widget.press,
               leading: SizedBox(
                 height: 36,
                 width: 36,
-                child: RiveAnimation.asset(
-                  menu.rive.src,
-                  artboard: menu.rive.artboard,
-                  onInit: riveOnInit,
+                child: Lottie.asset(
+                  widget.menu.lottie.src,
+                  controller: _animationController, // Controlador de animación
+                  onLoaded: (composition) {
+                    _animationController.duration = composition.duration;
+                    if (widget.selectedMenu == widget.menu) {
+                      _animationController.forward();
+                    }
+                  },
                 ),
               ),
               title: Text(
-                menu.title,
+                widget.menu.title,
                 style: const TextStyle(color: Colors.white),
               ),
             ),
