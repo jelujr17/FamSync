@@ -89,6 +89,7 @@ dependencies:
   rive: ^0.13.20
   provider: ^6.1.2
   lottie: ^3.3.1
+  video_player: ^2.9.3
 
 flutter_native_splash:
   color: "#FFFFFF" # Color de fondo del splash screen

@@ -45,8 +45,11 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
               child: const SizedBox(),
             ),
           ),
-          const RiveAnimation.asset(
-            "assets/RiveAssets/shapes.riv",
+          Positioned.fill(
+            child: Image.asset(
+              "assets/Backgrounds/Animacion_Fondo.gif", // Ruta del archivo GIF
+              fit: BoxFit.cover, // Ajusta el GIF para cubrir toda la pantalla
+            ),
           ),
           Positioned.fill(
             child: BackdropFilter(
