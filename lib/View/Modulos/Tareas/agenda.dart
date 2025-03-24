@@ -6,7 +6,7 @@ import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Mis_Categorias.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
-import 'package:famsync/View/Modulos/Tareas/tareas.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Tareas_Filtradas.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -145,13 +145,19 @@ class _AgendaState extends State<Agenda> {
                           (estado) => Padding(
                             padding: const EdgeInsets.only(left: 20),
                             child: BannerCategoriasDefinidas(
+                              perfil: widget.perfil,
                               titulo: estado.titulo,
                               iconSrc: estado.iconSrc,
                               color: estado.color,
                               colorTexto: estado.colorTexto,
                               descripcion: estado.descripcion,
+                              cantidadTareas:
+                                  tareasProvider.contarTareasPorEstado(
+                                      estado.titulo, tareasAux),
                             ),
+                            
                           ),
+                          
                         )
                         .toList(),
                   ),
@@ -181,8 +187,9 @@ class _AgendaState extends State<Agenda> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => TareasPage(
+                                builder: (context) => TareasFiltradas(
                                   perfil: widget.perfil,
+                                  filtro: categoria.Nombre,
                                 ), // Página de destino
                               ),
                             );

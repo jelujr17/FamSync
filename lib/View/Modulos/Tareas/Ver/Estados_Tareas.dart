@@ -50,4 +50,12 @@ final List<Estados> estadosTareas = [
     color: Color(0xFFFFDB89),
     colorTexto: Color(0xFF2C2C2E),
   ),
+  Estados(
+    titulo: "En proceso",
+    descripcion:
+        "Tareas empezasas que no se han completado.",
+    iconSrc: Iconos_SVG.urgenteTareas,
+    color: Color(0xFF2C2C2E),
+    colorTexto: Color(0xFFFFDB89),
+  )
 ];

@@ -18,6 +18,8 @@ class TareasProvider with ChangeNotifier {
     }
   }
 
+  
+
   void agragarTarea(Tareas tarea) {
     _tareas.add(tarea);
     notifyListeners();
@@ -33,6 +35,27 @@ class TareasProvider with ChangeNotifier {
     if (index != -1) {
       _tareas[index] = tarea;
       notifyListeners();
+    }
+  }
+
+  int contarTareasPorEstado(String estado, List<Tareas> tareas) {
+    switch (estado) {
+      case "Todas":
+        return tareas.length;
+      case "Programadas":
+        return tareas.where((tarea) => tarea.IdEvento != null).length;
+      case "Por hacer":
+        return tareas.where((tarea) => tarea.Progreso == 0).length;
+      case "Completadas":
+        return tareas.where((tarea) => tarea.Progreso == 100).length;
+      case "Urgentes":
+        return tareas.where((tarea) => tarea.Prioridad == 3).length;
+      case "En proceso":
+        return tareas
+            .where((tarea) => tarea.Progreso < 0 && tarea.Progreso > 100)
+            .length;
+      default:
+        return 0;
     }
   }
 }
