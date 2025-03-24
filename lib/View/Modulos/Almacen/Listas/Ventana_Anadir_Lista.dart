@@ -1,3 +1,4 @@
+import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
@@ -137,7 +138,8 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
         lista.Productos.add(widget.producto.Id);
       }
     });
-
+    ServiciosListas().actualizarLista(
+        lista.Id, lista.Nombre, lista.Visible, lista.Productos);
     listasProvider.actualizarLista(lista);
     widget.actualizarBanner();
   }

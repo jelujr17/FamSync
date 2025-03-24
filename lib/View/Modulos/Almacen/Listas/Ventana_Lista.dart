@@ -149,6 +149,44 @@ class _VentanaListasState extends State<VentanaListas> {
     );
   }
 
+  void eliminarLista(Listas lista) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Eliminar Lista'),
+        content: Text(
+            '¿Estás seguro de que quieres eliminar la lista ${lista.Nombre}?'),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              await ServiciosListas().eliminarLista(lista.Id);
+
+              final listasProvider =
+                  Provider.of<ListasProvider>(context, listen: false);
+
+              // Recargar las listas desde el backend
+              await listasProvider.cargarListas(
+                widget.perfil.UsuarioId,
+                widget.perfil.Id,
+              );
+              setState(() {});
+
+              widget.actualizarBanner();
+              Navigator.of(context).pop(); // Cerrar el diálogo
+            },
+            child: const Text('Eliminar'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void eliminarProductoDeLista(Listas lista, int productoId) {
     setState(() {
       lista.Productos.remove(productoId);
@@ -159,6 +197,8 @@ class _VentanaListasState extends State<VentanaListas> {
         lista.Productos,
       );
     });
+    final listasProvider = Provider.of<ListasProvider>(context, listen: false);
+    listasProvider.actualizarLista(lista);
     widget.actualizarBanner();
   }
 
@@ -183,7 +223,6 @@ class _VentanaListasState extends State<VentanaListas> {
           content: SizedBox(
             height: 400, // Ajustar la altura según sea necesario
             child: SingleChildScrollView(
-              // Usar SingleChildScrollView en lugar de ListView
               child: Column(
                 children: [
                   TextField(
@@ -270,37 +309,35 @@ class _VentanaListasState extends State<VentanaListas> {
               child: const Text('Cancelar'),
             ),
             TextButton(
-              onPressed: () {
-                setState(() {
-                  // Crear una nueva instancia de Listas
-                  Listas nuevaLista = Listas(
-                    Id: DateTime.now()
-                        .millisecondsSinceEpoch, // Generar un ID único
-                    Nombre: nombreController.text,
-                    Visible: perfilesSeleccionados,
-                    Productos: [],
-                    IdPerfil: widget.perfil.Id, // Ajustar según sea necesario
-                    IdUsuario:
-                        widget.perfil.UsuarioId, // Ajustar según sea necesario
-                  );
-                  final listasProvider =
-                      Provider.of<ListasProvider>(context, listen: false);
+              onPressed: () async {
+                // Crear una nueva lista en el backend
+                final nuevaLista = Listas(
+                  Id: DateTime.now()
+                      .millisecondsSinceEpoch, // Generar un ID único
+                  Nombre: nombreController.text,
+                  Visible: perfilesSeleccionados,
+                  Productos: [],
+                  IdPerfil: widget.perfil.Id,
+                  IdUsuario: widget.perfil.UsuarioId,
+                );
 
-                  // Agregar la nueva lista a la lista existente
-                  listasProvider.agregarLista(nuevaLista);
-                  listasProvider.listas.add(nuevaLista);
+                final listasProvider =
+                    Provider.of<ListasProvider>(context, listen: false);
 
-                  // Guarda la nueva lista en la base de datos o backend
-                  ServiciosListas().registrarLista(
-                    nuevaLista.Nombre,
-                    widget.perfil.Id,
-                    widget.perfil.UsuarioId,
-                    nuevaLista.Visible,
-                  );
+                await ServiciosListas().registrarLista(
+                  nuevaLista.Nombre,
+                  widget.perfil.Id,
+                  widget.perfil.UsuarioId,
+                  nuevaLista.Visible,
+                );
 
-                  // Actualizar el estado del widget Almacen
-                  setState(() {});
-                });
+                // Recargar las listas desde el backend
+                await listasProvider.cargarListas(
+                  widget.perfil.UsuarioId,
+                  widget.perfil.Id,
+                );
+                setState(() {});
+
                 widget.actualizarBanner();
                 Navigator.of(context).pop(); // Cerrar el diálogo
               },
@@ -335,82 +372,96 @@ class _VentanaListasState extends State<VentanaListas> {
           color: Color(0xFF4A3298),
         ),
       ),
-      content: listasProvider.listas.isNotEmpty
-          ? SizedBox(
-              width: double.maxFinite,
-              height: 300,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: listasProvider.listas.map((lista) {
-                    List<Productos> productosFiltrados = productoProvider
-                        .productos
-                        .where(
-                            (producto) => lista.Productos.contains(producto.Id))
-                        .toList();
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          listasProvider.listas.isNotEmpty
+              ? SizedBox(
+                  width: double.maxFinite,
+                  height: 300,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: listasProvider.listas.map((lista) {
+                        List<Productos> productosFiltrados = productoProvider
+                            .productos
+                            .where((producto) =>
+                                lista.Productos.contains(producto.Id))
+                            .toList();
 
-                    return Card(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 3,
-                      margin: const EdgeInsets.symmetric(vertical: 5),
-                      child: ExpansionTile(
-                        title: Text(
-                          lista.Nombre,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
                           ),
-                        ),
-                        leading:
-                            const Icon(Icons.list, color: Color(0xFF4A3298)),
-                        trailing: IconButton(
-                          icon:
-                              const Icon(Icons.edit, color: Color(0xFF4A3298)),
-                          onPressed: () {
-                            editarLista(lista); // Abre el formulario de edición
-                          },
-                        ),
-                        children: productosFiltrados.isNotEmpty
-                            ? productosFiltrados.map((producto) {
-                                return ListTile(
-                                  title: Text(producto.Nombre),
-                                  leading: imageWidgets[producto.Id] ??
-                                      const CircularProgressIndicator(),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.red),
-                                    onPressed: () {
-                                      eliminarProductoDeLista(
-                                          lista, producto.Id);
-                                    },
-                                  ),
-                                );
-                              }).toList()
-                            : [
-                                const Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: Text(
-                                    "No hay productos en esta lista",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontStyle: FontStyle.italic,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
+                          elevation: 3,
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          child: ExpansionTile(
+                            title: Text(
+                              lista.Nombre,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.black,
+                              ),
+                            ),
+                            leading: const Icon(Icons.list,
+                                color: Color(0xFF4A3298)),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit,
+                                      color: Color(0xFF4A3298)),
+                                  onPressed: () {
+                                    editarLista(lista);
+                                  },
+                                ),
+                                const SizedBox(
+                                    width: 8), // Espaciado entre los íconos
+                                IconButton(
+                                  icon: const Icon(Icons.delete,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    eliminarLista(lista);
+                                  },
                                 ),
                               ],
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            )
-          : Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Padding(
+                            ),
+                            children: productosFiltrados.isNotEmpty
+                                ? productosFiltrados.map((producto) {
+                                    return ListTile(
+                                      title: Text(producto.Nombre),
+                                      leading: imageWidgets[producto.Id] ??
+                                          const CircularProgressIndicator(),
+                                      trailing: IconButton(
+                                        icon: const Icon(Icons.delete,
+                                            color: Colors.red),
+                                        onPressed: () {
+                                          eliminarProductoDeLista(
+                                              lista, producto.Id);
+                                        },
+                                      ),
+                                    );
+                                  }).toList()
+                                : [
+                                    const Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                        "No hay productos en esta lista",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontStyle: FontStyle.italic,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                )
+              : const Padding(
                   padding: EdgeInsets.all(10.0),
                   child: Text(
                     'No tienes listas aún. ¡Crea una nueva!',
@@ -422,20 +473,22 @@ class _VentanaListasState extends State<VentanaListas> {
                     ),
                   ),
                 ),
-                ElevatedButton.icon(
-                  onPressed: crearNuevaLista,
-                  icon: const Icon(Icons.add, color: Colors.white),
-                  label: const Text('Crear Lista',
-                      style: TextStyle(color: Colors.white)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF4A3298),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                ),
-              ],
+          const SizedBox(height: 10),
+          // Botón para crear una nueva lista
+          ElevatedButton.icon(
+            onPressed: crearNuevaLista,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Crear Lista',
+                style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF4A3298),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
+          ),
+        ],
+      ),
       actions: [
         TextButton(
           onPressed: () {

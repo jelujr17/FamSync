@@ -201,10 +201,6 @@ class _DetallesProductoState extends State<DetallesProducto> {
                                 horizontal: 20,
                                 vertical: 16,
                               ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF4A3298),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
                               child: VentanaListas(
                                 actualizarBanner: actualizarBanner,
                                 perfil: widget.perfil,
@@ -221,17 +217,17 @@ class _DetallesProductoState extends State<DetallesProducto> {
                               borderRadius: BorderRadius.circular(
                                   16), // Bordes redondeados opcionales
                             ),
-                            child: Container(
-                              width: double.infinity,
-                              margin: const EdgeInsets.all(20),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 16,
-                              ),
-                              
-                              child: VentanaAnadirListas(
-                                actualizarBanner: actualizarBanner,
-                                producto: widget.producto,
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width *
+                                  0.8, // 80% del ancho de la pantalla
+                              height: MediaQuery.of(context).size.height *
+                                  0.4, // 40% del alto de la pantalla
+                              child: Container(
+                                padding: const EdgeInsets.all(20),
+                                child: VentanaAnadirListas(
+                                  actualizarBanner: actualizarBanner,
+                                  producto: widget.producto,
+                                ),
                               ),
                             ),
                           );
