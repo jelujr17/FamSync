@@ -1,16 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-class CourseCard extends StatelessWidget {
-  const CourseCard({
+class BannerCategoriasDefinidas extends StatelessWidget {
+  const BannerCategoriasDefinidas({
     super.key,
-    required this.title,
-    this.color = const Color(0xFF7553F6),
-    this.iconSrc = "assets/icons/ios.svg",
+    required this.titulo,
+    required this.color,
+    required this.iconSrc,
+    required this.colorTexto,
+    required this.descripcion,
   });
 
-  final String title, iconSrc;
-  final Color color;
+  final String titulo, iconSrc, descripcion;
+  final Color color, colorTexto;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +33,16 @@ class CourseCard extends StatelessWidget {
               child: Column(
                 children: [
                   Text(
-                    title,
+                    titulo,
                     style: Theme.of(context).textTheme.titleLarge!.copyWith(
-                        color: Colors.white, fontWeight: FontWeight.w600),
+                        color: colorTexto, fontWeight: FontWeight.w600),
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(top: 12, bottom: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 12, bottom: 8),
                     child: Text(
-                      "Build and animate an iOS app from scratch",
+                      descripcion,
                       style: TextStyle(
-                        color: Colors.white38,
+                        color: colorTexto,
                       ),
                     ),
                   ),
@@ -69,7 +71,7 @@ class CourseCard extends StatelessWidget {
               ),
             ),
           ),
-          SvgPicture.asset(iconSrc),
+          SvgPicture.string(iconSrc),
         ],
       ),
     );

@@ -1,5 +1,8 @@
+import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/Provider/Tareas_Provider.dart';
+import 'package:famsync/Provider/Tienda_Provider.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
@@ -23,6 +26,9 @@ void main() async {
         ChangeNotifierProvider(create: (_) => ProductosProvider()),
         ChangeNotifierProvider(create: (_) => PerfilesProvider()),
         ChangeNotifierProvider(create: (_) => ListasProvider()),
+        ChangeNotifierProvider(create: (_) => TareasProvider()),
+        ChangeNotifierProvider(create: (_) => CategoriasProvider()),
+        ChangeNotifierProvider(create: (_) => TiendasProvider()),
         // Agrega otros proveedores si es necesario
       ],
       child: MyApp(),

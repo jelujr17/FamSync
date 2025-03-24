@@ -1,10 +1,35 @@
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/Tareas/card_tarea.dart';
-import 'package:famsync/View/Modulos/Tareas/categorias_tareas.dart';
-import 'package:famsync/View/Modulos/Tareas/modelo_tarea.dart';
+import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Provider/Categorias_Provider.dart';
+import 'package:famsync/Provider/Tareas_Provider.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Mis_Categorias.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/tareas.dart';
+import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
-import 'package:famsync/Model/categorias.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
+
+class PerfilProvider extends InheritedWidget {
+  final Perfiles perfil;
+
+  const PerfilProvider({
+    super.key,
+    required this.perfil,
+    required super.child,
+  });
+
+  static PerfilProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PerfilProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(PerfilProvider oldWidget) {
+    return perfil != oldWidget.perfil;
+  }
+}
 
 class Agenda extends StatefulWidget {
   const Agenda({super.key, required this.perfil});
@@ -15,12 +40,23 @@ class Agenda extends StatefulWidget {
 }
 
 class _AgendaState extends State<Agenda> {
-  List<Categorias> categoriasTareasAux = [];
+  List<Tareas> tareas = [];
+  bool isLoading = true;
+  String errorMessage = '';
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    cargarCategorias();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final tareasProvider =
+          Provider.of<TareasProvider>(context, listen: false);
+      tareasProvider.cargarTareas(widget.perfil.UsuarioId, widget.perfil.Id);
+
+      final categoriasProvider =
+          Provider.of<CategoriasProvider>(context, listen: false);
+      categoriasProvider.cargarCategorias(widget.perfil.UsuarioId, 5);
+    });
   }
 
   Color getContrastingTextColor(Color backgroundColor) {
@@ -34,95 +70,240 @@ class _AgendaState extends State<Agenda> {
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
-  Future<void> cargarCategorias() async {
-    // Simulación de una llamada asíncrona
+  Perfiles get perfil => widget.perfil;
 
-    categoriasTareasAux = await ServiciosCategorias()
-        .getCategoriasByModulo(widget.perfil.UsuarioId, 5);
-    if (mounted) {
-      setState(() {
-        // Actualiza el estado aquí
-      });
+  void _filterTareas() {
+    final query = _searchController.text.toLowerCase();
+    final tareasProvider = Provider.of<TareasProvider>(context, listen: true);
+
+    setState(() {
+      tareas = tareasProvider.tareas
+          .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
+          .toList();
+    });
+  }
+
+  void _crearTarea(BuildContext context) async {
+    // Implementa la lógica para editar el producto
+    // Por ejemplo, puedes navegar a una página de edición de producto
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Placeholder(),
+      ),
+    );
+
+    if (result == true) {
+      Navigator.pop(context, true); // Se realizó una actualización
     }
   }
 
   @override
   void dispose() {
+    _searchController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 40),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  "Agenda",
-                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colors.black, fontWeight: FontWeight.bold),
+    final categoriasProvider =
+        Provider.of<CategoriasProvider>(context, listen: true);
+    final tareasProvider = Provider.of<TareasProvider>(context, listen: true);
+    final tareasAux = tareasProvider.tareas;
+    if (_searchController.text.isEmpty) {
+      tareas = tareasAux;
+    } else {
+      _filterTareas();
+    }
+    return PerfilProvider(
+      perfil: widget.perfil,
+      child: Scaffold(
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 40),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    "Agenda",
+                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
                 ),
-              ),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: estadosTareas
-                      .map(
-                        (course) => Padding(
-                          padding: const EdgeInsets.only(left: 20),
-                          child: CourseCard(
-                            title: course.title,
-                            iconSrc: course.iconSrc,
-                            color: course.color,
-                          ),
-                        ),
-                      )
-                      .toList(),
-                ),
-              ),
-              const SizedBox(height: 100),
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: Text(
-                  "Mis categorías",
-                  style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      color: Colors.black, fontWeight: FontWeight.bold),
-                ),
-              ),
-              if (categoriasTareasAux.isEmpty)
-                const Center(child: CircularProgressIndicator())
-              else
-                ...categoriasTareasAux.map((categoria) => Padding(
-                      padding: const EdgeInsets.only(
-                          left: 20, right: 20, bottom: 20),
-                      child: SecondaryCourseCard(
-                        title: categoria.Nombre,
-                        iconsSrc: "assets/icons/code.svg",
-                        colorl: Color(int.parse("0xFF${categoria.Color}")),
-                        textColor: getContrastingTextColor(Color(int.parse(
-                            "0xFF${categoria.Color}"))), // Color del texto dinámico
-                        onIconPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => TareasPage(
-                                perfil: widget.perfil,
-                              ), // Página de destino
+                BarraAgenda(
+                    searchController: _searchController,
+                    crearTarea: _crearTarea),
+                const SizedBox(height: 20),
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: estadosTareas
+                        .map(
+                          (estado) => Padding(
+                            padding: const EdgeInsets.only(left: 20),
+                            child: BannerCategoriasDefinidas(
+                              titulo: estado.titulo,
+                              iconSrc: estado.iconSrc,
+                              color: estado.color,
+                              colorTexto: estado.colorTexto,
+                              descripcion: estado.descripcion,
                             ),
-                          );
-                        },
-                      ),
-                    )),
-              const SizedBox(height: 100),
-            ],
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
+                const SizedBox(height: 40),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Text(
+                    "Mis categorías",
+                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
+                        color: Colors.black, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                if (categoriasProvider.categorias.isEmpty)
+                  const Center(child: CircularProgressIndicator())
+                else
+                  ...categoriasProvider.categorias.map((categoria) => Padding(
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, bottom: 20),
+                        child: SecondaryCourseCard(
+                          title: categoria.Nombre,
+                          iconsSrc: "assets/icons/code.svg",
+                          colorl: Color(int.parse("0xFF${categoria.Color}")),
+                          textColor: getContrastingTextColor(Color(int.parse(
+                              "0xFF${categoria.Color}"))), // Color del texto dinámico
+                          onIconPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => TareasPage(
+                                  perfil: widget.perfil,
+                                ), // Página de destino
+                              ),
+                            );
+                          },
+                        ),
+                      )),
+                const SizedBox(height: 100),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class BarraAgenda extends StatelessWidget {
+  const BarraAgenda(
+      {super.key, required this.searchController, required this.crearTarea});
+  final TextEditingController searchController;
+  final Function(BuildContext) crearTarea;
+
+  Color getContrastingTextColor(Color backgroundColor) {
+    // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
+    double luminance = (0.299 * backgroundColor.red +
+            0.587 * backgroundColor.green +
+            0.114 * backgroundColor.blue) /
+        255;
+
+    // Si el color es oscuro, usar texto blanco; si es claro, usar texto negro
+    return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+              child: BarraBusquedaTareas(
+            searchController: searchController,
+          )),
+          const SizedBox(width: 16),
+          IconoContador(
+            // numOfitem: 3,
+            svgSrc: Iconos_SVG.filtroIcono,
+            numOfitem: 2,
+
+            press: () {},
+          ),
+          const SizedBox(width: 8),
+          IconoContador(
+            svgSrc: Iconos_SVG.masIcono,
+            press: () {
+              crearTarea(context);
+            },
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class IconoContador extends StatelessWidget {
+  const IconoContador({
+    super.key,
+    required this.svgSrc,
+    this.numOfitem = 0,
+    required this.press,
+  });
+
+  final String svgSrc;
+  final int numOfitem;
+  final GestureTapCallback press;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(100),
+      onTap: press,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            height: 46,
+            width: 46,
+            decoration: BoxDecoration(
+              color: const Color(0xFF979797).withOpacity(0.1),
+              shape: BoxShape.circle,
+            ),
+            child: SvgPicture.string(svgSrc),
+          ),
+          if (numOfitem != 0)
+            Positioned(
+              top: -3,
+              right: 0,
+              child: Container(
+                height: 20,
+                width: 20,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFF4848),
+                  shape: BoxShape.circle,
+                  border: Border.all(width: 1.5, color: Colors.white),
+                ),
+                child: Center(
+                  child: Text(
+                    "$numOfitem",
+                    style: const TextStyle(
+                      fontSize: 12,
+                      height: 1,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            )
+        ],
       ),
     );
   }

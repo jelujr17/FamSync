@@ -11,6 +11,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Tienda_Productos.dart
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Totales_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
+import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -291,14 +292,14 @@ class BarraAlmacen extends StatelessWidget {
           const SizedBox(width: 16),
           IconoContador(
             // numOfitem: 3,
-            svgSrc: filtroIcono,
+            svgSrc: Iconos_SVG.filtroIcono,
             numOfitem: 2,
 
             press: () {},
           ),
           const SizedBox(width: 8),
           IconoContador(
-            svgSrc: masIcono,
+            svgSrc: Iconos_SVG.masIcono,
             press: () {
               crearProducto(context);
             },
@@ -485,29 +486,3 @@ class _ProductoCardState extends State<ProductoCard> {
   }
 }
 
-const heartIcon =
-    '''<svg width="18" height="16" viewBox="0 0 18 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M16.5266 8.61383L9.27142 15.8877C9.12207 16.0374 8.87889 16.0374 8.72858 15.8877L1.47343 8.61383C0.523696 7.66069 0 6.39366 0 5.04505C0 3.69644 0.523696 2.42942 1.47343 1.47627C2.45572 0.492411 3.74438 0 5.03399 0C6.3236 0 7.61225 0.492411 8.59454 1.47627C8.81857 1.70088 9.18143 1.70088 9.40641 1.47627C11.3691 -0.491451 14.5629 -0.491451 16.5266 1.47627C17.4763 2.42846 18 3.69548 18 5.04505C18 6.39366 17.4763 7.66165 16.5266 8.61383Z" fill="#DBDEE4"/>
-</svg>
-''';
-
-const masIcono =
-    '''<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12 10V2C12 1.44772 11.5523 1 11 1C10.4477 1 10 1.44772 10 2V10H2C1.44772 10 1 10.4477 1 11C1 11.5523 1.44772 12 2 12H10V20C10 20.5523 10.4477 21 11 21C11.5523 21 12 20.5523 12 20V12H20C20.5523 12 21 11.5523 21 11C21 10.4477 20.5523 10 20 10H12Z" fill="#7C7C7C"/>
-</svg>
-''';
-
-const String description =
-    "Wireless Controller for PS4™ gives you what you want in your gaming from over precision control your games to sharing …";
-
-const corritoIcono =
-    '''<svg width="22" height="18" viewBox="0 0 22 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M18.4524 16.6669C18.4524 17.403 17.8608 18 17.1302 18C16.3985 18 15.807 17.403 15.807 16.6669C15.807 15.9308 16.3985 15.3337 17.1302 15.3337C17.8608 15.3337 18.4524 15.9308 18.4524 16.6669ZM11.9556 16.6669C11.9556 17.403 11.3631 18 10.6324 18C9.90181 18 9.30921 17.403 9.30921 16.6669C9.30921 15.9308 9.90181 15.3337 10.6324 15.3337C11.3631 15.3337 11.9556 15.9308 11.9556 16.6669ZM20.7325 5.7508L18.9547 11.0865C18.6413 12.0275 17.7685 12.6591 16.7846 12.6591H10.512C9.53753 12.6591 8.66784 12.0369 8.34923 11.1095L6.30162 5.17154H20.3194C20.4616 5.17154 20.5903 5.23741 20.6733 5.35347C20.7563 5.47058 20.7771 5.61487 20.7325 5.7508ZM21.6831 4.62051C21.3697 4.18031 20.858 3.91682 20.3194 3.91682H5.86885L5.0002 1.40529C4.70961 0.564624 3.92087 0 3.03769 0H0.621652C0.278135 0 0 0.281266 0 0.62736C0 0.974499 0.278135 1.25472 0.621652 1.25472H3.03769C3.39158 1.25472 3.70812 1.48161 3.82435 1.8183L4.83311 4.73657C4.83622 4.74598 4.83934 4.75434 4.84245 4.76375L7.17339 11.5215C7.66531 12.9518 9.00721 13.9138 10.512 13.9138H16.7846C18.304 13.9138 19.6511 12.9383 20.1347 11.4859L21.9135 6.14917C22.0847 5.63369 21.9986 5.06175 21.6831 4.62051Z" fill="#7C7C7C"/>
-</svg>
-''';
-
-const filtroIcono = '''
-<svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M2 4C2 3.44772 2.44772 3 3 3H19C19.5523 3 20 3.44772 20 4C20 4.55228 19.5523 5 19 5H3C2.44772 5 2 4.55228 2 4ZM5 10C5 9.44772 5.44772 9 6 9H16C16.5523 9 17 9.4477 17 10C17 10.5523 16.5523 11 16 11H6C5.44772 11 5 10.5523 5 10ZM9 16C9 15.4477 9.44772 15 10 15H12C12.5523 15 13 15.4477 13 16C13 16.5523 12.5523 17 12 17H10C9.44772 17 9 16.5523 9 16Z" fill="#7C7C7C"/>
-</svg>
-''';
