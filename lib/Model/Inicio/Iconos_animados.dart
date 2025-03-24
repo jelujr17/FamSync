@@ -30,7 +30,7 @@ List<Menu_Aux> sidebarMenus = [
     },
   ),
   Menu_Aux(
-    title: "Cambiar_Perfil",
+    title: "Cambiar Perfil",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Cambiar_Perfil.json", // Ruta del archivo Lottie
@@ -39,8 +39,8 @@ List<Menu_Aux> sidebarMenus = [
       // Acción para la opción "Cambiar de Perfil"
       print("Cambiar de Perfil seleccionado");
       SharedPreferences preferencias = await SharedPreferences.getInstance();
-
       int? usuario = preferencias.getInt('IdUsuario');
+      preferencias.remove('IdPerfil');
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -51,7 +51,7 @@ List<Menu_Aux> sidebarMenus = [
     },
   ),
   Menu_Aux(
-    title: "Cerrar_Sesion",
+    title: "Cerrar Sesion",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Cerrar_Sesion.json", // Ruta del archivo Lottie
@@ -74,7 +74,7 @@ List<Menu_Aux> sidebarMenus = [
 
 List<Menu_Aux> sidebarMenus2 = [
   Menu_Aux(
-    title: "Preferencias_Aplicacion",
+    title: "Preferencias de la Aplicación",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Preferencias_Aplicacion.json", // Ruta del archivo Lottie
@@ -85,7 +85,7 @@ List<Menu_Aux> sidebarMenus2 = [
     },
   ),
   Menu_Aux(
-    title: "Gestion_Notificaciones",
+    title: "Gestión de Notificaciones",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Gestion_Notificaciones.json", // Ruta del archivo Lottie
@@ -96,7 +96,7 @@ List<Menu_Aux> sidebarMenus2 = [
     },
   ),
   Menu_Aux(
-    title: "Gestion_Credeciales",
+    title: "Gestión de Credeciales",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Gestion_Credenciales.json", // Ruta del archivo Lottie
@@ -120,7 +120,7 @@ List<Menu_Aux> sidebarMenus3 = [
       print("Modulo Tareas Seleccionado");
     },
   ),Menu_Aux(
-    title: "Guia_Uso",
+    title: "Guia de Uso",
     lottie: LottieModel(
       src:
           "assets/LottieIcons/Icono_Guia_Uso.json", // Ruta del archivo Lottie
