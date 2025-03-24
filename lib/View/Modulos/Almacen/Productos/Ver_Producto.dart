@@ -1,5 +1,8 @@
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Listas_Provider.dart';
+import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Anadir_Lista.dart';
+import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Editar_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
@@ -8,7 +11,7 @@ import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:provider/provider.dart';
 
-class DetallesProducto extends StatelessWidget {
+class DetallesProducto extends StatefulWidget {
   const DetallesProducto({
     super.key,
     required this.producto,
@@ -19,16 +22,29 @@ class DetallesProducto extends StatelessWidget {
   final Perfiles perfil;
 
   @override
+  State<DetallesProducto> createState() => _DetallesProductoState();
+}
+
+class _DetallesProductoState extends State<DetallesProducto> {
+  @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(perfil.UsuarioId, perfil.Id);
+      productoProvider.cargarProductos(
+          widget.perfil.UsuarioId, widget.perfil.Id);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+
+      final listasProvider =
+          Provider.of<ListasProvider>(context, listen: false);
+      listasProvider.cargarListas(widget.perfil.UsuarioId, widget.perfil.Id);
     });
+    void actualizarBanner() {
+      setState(() {});
+    }
 
     return Scaffold(
       extendBody: true,
@@ -50,8 +66,18 @@ class DetallesProducto extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context,
-                          false); // No se realizó ninguna actualización
+                      if (Navigator.canPop(context)) {
+                        Navigator.pop(
+                            context); // Navega hacia atrás si hay una página en la pila
+                      } else {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                Almacen(perfil: widget.perfil),
+                          ),
+                        );
+                      }
                     },
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
@@ -119,20 +145,20 @@ class DetallesProducto extends StatelessWidget {
       ),
       body: ListView(
         children: [
-          ImagenesProducto(producto: producto),
+          ImagenesProducto(producto: widget.producto),
           TopRoundedContainer(
             color: Colors.white,
             child: Column(
               children: [
                 ProductoCard(
-                  producto: producto,
+                  producto: widget.producto,
                   pressOnSeeMore: () {},
                 ),
                 TopRoundedContainer(
                   color: const Color(0xFFF6F7F9),
                   child: Column(
                     children: [
-                      InformacionProducto(producto: producto),
+                      InformacionProducto(producto: widget.producto),
                     ],
                   ),
                 ),
@@ -156,7 +182,62 @@ class DetallesProducto extends StatelessWidget {
                   borderRadius: BorderRadius.all(Radius.circular(16)),
                 ),
               ),
-              onPressed: () {},
+              onPressed: () {
+                final listasProvider =
+                    Provider.of<ListasProvider>(context, listen: false);
+                listasProvider.listas.isEmpty
+                    ? showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  16), // Bordes redondeados opcionales
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF4A3298),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: VentanaListas(
+                                actualizarBanner: actualizarBanner,
+                                perfil: widget.perfil,
+                              ),
+                            ),
+                          );
+                        },
+                      )
+                    : showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(
+                                  16), // Bordes redondeados opcionales
+                            ),
+                            child: Container(
+                              width: double.infinity,
+                              margin: const EdgeInsets.all(20),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 16,
+                              ),
+                              
+                              child: VentanaAnadirListas(
+                                actualizarBanner: actualizarBanner,
+                                producto: widget.producto,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+              },
               child: const Text("Añadir a una lista"),
             ),
           ),
@@ -172,7 +253,7 @@ class DetallesProducto extends StatelessWidget {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            EditarProducto(producto: producto, perfil: perfil),
+            EditarProducto(producto: widget.producto, perfil: widget.perfil),
       ),
     );
 
@@ -202,21 +283,21 @@ class DetallesProducto extends StatelessWidget {
               onPressed: () async {
                 // Lógica para eliminar el producto
                 // Por ejemplo, puedes llamar a un servicio para eliminar el producto
-                final exito =
-                    await ServicioProductos().eliminarProducto(producto.Id);
+                final exito = await ServicioProductos()
+                    .eliminarProducto(widget.producto.Id);
                 if (exito) {
                   // Inicializar la carga de productos
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     final productoProvider =
                         Provider.of<ProductosProvider>(context, listen: false);
                     productoProvider.cargarProductos(
-                        perfil.UsuarioId, perfil.Id);
+                        widget.perfil.UsuarioId, widget.perfil.Id);
                   });
                   Navigator.of(context)
                       .pop(); // Cerrar el diálogo de confirmación
                   Navigator.of(context).push(PageRouteBuilder(
                     pageBuilder: (context, animation, secondaryAnimation) =>
-                        Almacen(perfil: perfil),
+                        Almacen(perfil: widget.perfil),
                     transitionsBuilder:
                         (context, animation, secondaryAnimation, child) {
                       const begin =

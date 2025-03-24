@@ -1,5 +1,5 @@
 import 'package:famsync/Model/usuario.dart';
-import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';

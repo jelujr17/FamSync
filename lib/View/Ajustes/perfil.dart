@@ -4,7 +4,7 @@ import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_not
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/EditProfile.dart';
+import 'package:famsync/View/Inicio/Editar_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
 class Perfil extends StatefulWidget {

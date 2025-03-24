@@ -1,18 +1,15 @@
-import 'package:famsync/Model/Almacen/listas.dart';
-import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Listas_Provider.dart';
+import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ListasBanner extends StatefulWidget {
-  final List<Listas> listas;
-  final List<Productos> productos;
   final Perfiles perfil;
 
   const ListasBanner({
     super.key,
-    required this.listas,
-    required this.productos,
     required this.perfil,
   });
 
@@ -26,11 +23,30 @@ class _ListasBannerState extends State<ListasBanner> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      
+      final productoProvider =
+          Provider.of<ProductosProvider>(context, listen: false);
+      productoProvider.cargarProductos(
+          widget.perfil.UsuarioId, widget.perfil.Id);
+
+      final listasProvider =
+          Provider.of<ListasProvider>(context, listen: false);
+      listasProvider.cargarListas(widget.perfil.UsuarioId, widget.perfil.Id);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final listasProvider = Provider.of<ListasProvider>(context, listen: false);
+    final productoProvider =
+        Provider.of<ProductosProvider>(context, listen: false);
     String titulo =
-        widget.listas.isNotEmpty ? "Tus listas:" : "No tienes listas aún";
-    String contenido = widget.listas.isNotEmpty
-        ? widget.listas.map((e) => e.Nombre).join(", ")
+        listasProvider.listas.isNotEmpty ? "Tus listas:" : "No tienes listas aún";
+    String contenido = listasProvider.listas.isNotEmpty
+        ? listasProvider.listas.map((e) => e.Nombre).join(", ")
         : "¡Crea una nueva!";
 
     return GestureDetector(
@@ -39,8 +55,6 @@ class _ListasBannerState extends State<ListasBanner> {
           context: context,
           builder: (BuildContext context) {
             return VentanaListas(
-              listas: widget.listas,
-              productos: widget.productos,
               actualizarBanner: actualizarBanner,
               perfil: widget.perfil,
             );

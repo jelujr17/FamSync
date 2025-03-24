@@ -1,10 +1,11 @@
+import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
@@ -21,6 +22,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => ProductosProvider()),
         ChangeNotifierProvider(create: (_) => PerfilesProvider()),
+        ChangeNotifierProvider(create: (_) => ListasProvider()),
         // Agrega otros proveedores si es necesario
       ],
       child: MyApp(),

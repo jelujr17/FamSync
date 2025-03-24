@@ -213,7 +213,7 @@ class AlmacenState extends State<Almacen> {
                       BarraAlmacen(
                           searchController: _searchController,
                           crearProducto: _crearProducto),
-                      ListasBanner(listas: listas, productos: productos, perfil: perfil),
+                      ListasBanner(perfil: perfil),
                       productos.isEmpty
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),

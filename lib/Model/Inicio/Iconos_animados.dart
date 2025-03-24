@@ -1,5 +1,5 @@
 import 'package:famsync/View/Inicio/Inicio.dart';
-import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:flutter/material.dart';

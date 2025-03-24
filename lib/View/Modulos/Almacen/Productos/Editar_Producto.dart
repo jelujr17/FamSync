@@ -121,7 +121,7 @@ class _EditarProductoState extends State<EditarProducto> {
         Productos? producto =
             await ServicioProductos().getProductoById(widget.producto.Id);
 
-        Navigator.of(context).push(PageRouteBuilder(
+        Navigator.of(context).pushReplacement(PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
               DetallesProducto(producto: producto!, perfil: widget.perfil),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {

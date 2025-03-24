@@ -3,21 +3,19 @@ import 'dart:io';
 import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class VentanaListas extends StatefulWidget {
-  final List<Listas> listas;
-  final List<Productos> productos;
   final VoidCallback actualizarBanner;
   final Perfiles perfil;
 
   const VentanaListas({
     super.key,
-    required this.listas,
-    required this.productos,
     required this.actualizarBanner,
     required this.perfil,
   });
@@ -38,13 +36,27 @@ class _VentanaListasState extends State<VentanaListas> {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
       perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+
+      final productoProvider =
+          Provider.of<ProductosProvider>(context, listen: false);
+      productoProvider.cargarProductos(
+          widget.perfil.UsuarioId, widget.perfil.Id);
+
+      final listasProvider =
+          Provider.of<ListasProvider>(context, listen: false);
+      listasProvider.cargarListas(widget.perfil.UsuarioId, widget.perfil.Id);
     });
   }
 
   void loadImages() {
-    for (var lista in widget.listas) {
+    final listasProvider = Provider.of<ListasProvider>(context, listen: false);
+    final productoProvider =
+        Provider.of<ProductosProvider>(context, listen: false);
+
+    for (var lista in listasProvider.listas) {
       for (var productoId in lista.Productos) {
-        var producto = widget.productos.firstWhere((p) => p.Id == productoId);
+        var producto =
+            productoProvider.productos.firstWhere((p) => p.Id == productoId);
         ServicioProductos()
             .obtenerImagen(producto.Imagenes[0])
             .then((imageFile) {
@@ -104,11 +116,14 @@ class _VentanaListasState extends State<VentanaListas> {
                     IdPerfil: lista.IdPerfil,
                     IdUsuario: lista.IdUsuario,
                   );
+                  final listasProvider =
+                      Provider.of<ListasProvider>(context, listen: false);
 
                   // Reemplazar la instancia antigua en la lista
-                  int index = widget.listas.indexWhere((l) => l.Id == lista.Id);
+                  int index =
+                      listasProvider.listas.indexWhere((l) => l.Id == lista.Id);
                   if (index != -1) {
-                    widget.listas[index] = listaActualizada;
+                    listasProvider.listas[index] = listaActualizada;
                   }
 
                   // Guarda los cambios en la base de datos o backend
@@ -118,6 +133,7 @@ class _VentanaListasState extends State<VentanaListas> {
                     listaActualizada.Visible,
                     listaActualizada.Productos,
                   );
+                  listasProvider.actualizarLista(listaActualizada);
 
                   // Actualizar el estado del widget Almacen
                   setState(() {});
@@ -267,9 +283,12 @@ class _VentanaListasState extends State<VentanaListas> {
                     IdUsuario:
                         widget.perfil.UsuarioId, // Ajustar según sea necesario
                   );
+                  final listasProvider =
+                      Provider.of<ListasProvider>(context, listen: false);
 
                   // Agregar la nueva lista a la lista existente
-                  widget.listas.add(nuevaLista);
+                  listasProvider.agregarLista(nuevaLista);
+                  listasProvider.listas.add(nuevaLista);
 
                   // Guarda la nueva lista en la base de datos o backend
                   ServiciosListas().registrarLista(
@@ -299,6 +318,9 @@ class _VentanaListasState extends State<VentanaListas> {
     final perfiles = perfilesProvider.perfiles
         .where((perfil) => perfil.Id != widget.perfil.Id)
         .toList(); // Filtrar el perfil del usuario actual
+    final listasProvider = Provider.of<ListasProvider>(context, listen: false);
+    final productoProvider =
+        Provider.of<ProductosProvider>(context, listen: false);
 
     return AlertDialog(
       shape: RoundedRectangleBorder(
@@ -313,14 +335,15 @@ class _VentanaListasState extends State<VentanaListas> {
           color: Color(0xFF4A3298),
         ),
       ),
-      content: widget.listas.isNotEmpty
+      content: listasProvider.listas.isNotEmpty
           ? SizedBox(
               width: double.maxFinite,
               height: 300,
               child: SingleChildScrollView(
                 child: Column(
-                  children: widget.listas.map((lista) {
-                    List<Productos> productosFiltrados = widget.productos
+                  children: listasProvider.listas.map((lista) {
+                    List<Productos> productosFiltrados = productoProvider
+                        .productos
                         .where(
                             (producto) => lista.Productos.contains(producto.Id))
                         .toList();

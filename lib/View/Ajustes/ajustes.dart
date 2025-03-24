@@ -3,7 +3,7 @@ import 'package:famsync/View/Ajustes/Preferencias/preferencias.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/components/colores.dart';
 

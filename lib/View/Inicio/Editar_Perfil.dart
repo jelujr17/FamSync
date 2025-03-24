@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar im√
 import 'dart:io'; // Para manejar archivos
 import 'package:intl/intl.dart'; // Paquete para formatear fechas
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/seleccionPerfil.dart';
+import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
 class EditarPerfilScreen extends StatefulWidget {
