@@ -143,7 +143,8 @@ class _AgendaState extends State<Agenda> {
                     children: estadosTareas
                         .map(
                           (estado) => Padding(
-                            padding: const EdgeInsets.only(left: 20),
+                            padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
+
                             child: BannerCategoriasDefinidas(
                               perfil: widget.perfil,
                               titulo: estado.titulo,

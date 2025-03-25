@@ -35,11 +35,19 @@ class BannerCategoriasDefinidas extends StatelessWidget {
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-        height: 280,
+        height: 260,
         width: 260,
         decoration: BoxDecoration(
           color: color,
           borderRadius: const BorderRadius.all(Radius.circular(30)),
+          boxShadow: [
+            BoxShadow(
+              color:
+                  colorTexto, // Asegúrate de que sea visible
+              blurRadius: 12, // Aumenta el desenfoque para una sombra más suave
+              offset: const Offset(0, 0), // Sombra uniforme en todos los lados
+            ),
+          ],
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
