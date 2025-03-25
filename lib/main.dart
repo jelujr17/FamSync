@@ -6,6 +6,7 @@ import 'package:famsync/Provider/Tienda_Provider.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
@@ -54,6 +55,25 @@ class MyApp extends StatelessWidget {
         Locale('en', 'US'),
         Locale('es', 'ES'),
       ],
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colores.grisOscuro, // Fondo principal
+        primaryColor: Colores.amarillo, // Color primario
+        textTheme: const TextTheme(
+          headlineMedium: TextStyle(
+            color: Colores.amarillo,
+            fontWeight: FontWeight.bold,
+          ),
+          bodyMedium: TextStyle(
+            color: Colores.negro,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colores.amarillo, // Botones
+            foregroundColor: Colores.grisOscuro, // Texto de los botones
+          ),
+        ),
+      ),
       home: FutureBuilder<Widget>(
         future: getInitialPage(),
         builder: (context, snapshot) {

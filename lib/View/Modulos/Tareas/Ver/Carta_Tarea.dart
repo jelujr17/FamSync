@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -90,14 +91,15 @@ class CartaTareaState extends State<CartaTarea> {
   @override
   Widget build(BuildContext context) {
     return Container(
-        margin: const EdgeInsets.symmetric(vertical: 8), // Espaciado externo
-
+      margin: const EdgeInsets.symmetric(vertical: 8), // Espaciado externo
       decoration: BoxDecoration(
-        color: widget.orden.isEven ? Color(0xFF2C2C2E) : Color(0xFFFFDB89),
+        color: widget.orden.isEven ? Colores.negro : Colores.amarillo,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: widget.orden.isEven ? Color(0xFFFFDB89) : Color(0xFF2C2C2E),
+            color: widget.orden.isEven
+                ? Colores.amarillo.withOpacity(0.5)
+                : Colores.negro.withOpacity(0.5),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -107,42 +109,53 @@ class CartaTareaState extends State<CartaTarea> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Título e ícono de opciones
           Row(
             children: [
               Expanded(
                 child: Text(
                   widget.titulo,
-                  style:  TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: widget.orden.isEven
-                        ? Color(0xFFFFDB89)
-                        : Color(0xFF2C2C2E)
+                        ? Colores.amarillo
+                        : Colores.grisOscuro,
                   ),
                 ),
               ),
-              const Icon(Icons.more_vert),
+              Icon(
+                Icons.more_vert,
+                color:
+                    widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
+              ),
             ],
           ),
           const SizedBox(height: 8),
+
+          // Prioridad
           Row(
             children: [
               Icon(
                 Icons.calendar_today,
                 size: 16,
                 color:
-                    widget.orden.isEven ? Color(0xFFFFDB89) : Color(0xFF2C2C2E),
+                    widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
               ),
               const SizedBox(width: 4),
-              Text(widget.prioridad.toString(),
-                  style: TextStyle(
-                    color: widget.orden.isEven
-                        ? Color(0xFFFFDB89)
-                        : Color(0xFF2C2C2E),
-                  )),
+              Text(
+                widget.prioridad.toString(),
+                style: TextStyle(
+                  color: widget.orden.isEven
+                      ? Colores.amarillo
+                      : Colores.grisOscuro,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 16),
+
+          // Avatares
           Row(
             children: avatares.isNotEmpty
                 ? avatares.map((avatar) {
@@ -160,20 +173,24 @@ class CartaTareaState extends State<CartaTarea> {
                 : List.generate(
                     widget.destinatarios.length,
                     (index) => Padding(
-                      padding: EdgeInsets.only(right: 8.0),
+                      padding: const EdgeInsets.only(right: 8.0),
                       child: CircleAvatar(
                         radius: 16,
-                        backgroundColor: Colors.grey,
-                        child: Icon(Icons.person,
-                            color: widget.orden.isEven
-                                ? Color(0xFFFFDB89)
-                                : Color(0xFF2C2C2E),
-                            size: 16),
+                        backgroundColor: Colores.grisOscuro,
+                        child: Icon(
+                          Icons.person,
+                          color: widget.orden.isEven
+                              ? Colores.amarillo
+                              : Colores.grisOscuro,
+                          size: 16,
+                        ),
                       ),
                     ),
                   ),
           ),
           const SizedBox(height: 16),
+
+          // Barra de progreso
           Row(
             children: [
               Expanded(
@@ -181,22 +198,32 @@ class CartaTareaState extends State<CartaTarea> {
                   value: widget.progreso / 100,
                   backgroundColor: Colors.grey.shade300,
                   color: widget.orden.isEven
-                      ? Color(0xFFFFDB89)
-                      : Color(0xFF2C2C2E),
+                      ? Colores.amarillo
+                      : Colores.grisOscuro,
                 ),
               ),
               const SizedBox(width: 8),
-              Text("${widget.progreso}%", style:  TextStyle(fontSize: 14, color: widget.orden.isEven ? Color(0xFFFFDB89) : Color(0xFF2C2C2E))),
+              Text(
+                "${widget.progreso}%",
+                style: TextStyle(
+                  fontSize: 14,
+                  color: widget.orden.isEven
+                      ? Colores.amarillo
+                      : Colores.grisOscuro,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
+
+          // Descripción
           Text(
             widget.descripcion,
             style: TextStyle(
-                fontSize: 14,
-                color: widget.orden.isEven
-                    ? Color(0xFFFFDB89)
-                    : Color(0xFF2C2C2E)),
+              fontSize: 14,
+              color:
+                  widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
+            ),
           ),
         ],
       ),

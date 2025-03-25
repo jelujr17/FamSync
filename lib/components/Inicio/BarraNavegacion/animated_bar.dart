@@ -1,3 +1,4 @@
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class AnimatedBar extends StatelessWidget {
@@ -16,7 +17,7 @@ class AnimatedBar extends StatelessWidget {
       height: 4,
       width: isActive ? 20 : 0,
       decoration: const BoxDecoration(
-          color: Color(0xFF81B4FF),
+          color: Colores.amarillo,
           borderRadius: BorderRadius.all(
             Radius.circular(12),
           )),

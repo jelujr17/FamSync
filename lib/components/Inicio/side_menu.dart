@@ -1,4 +1,5 @@
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 
@@ -53,7 +54,7 @@ class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 24),
-          child: Divider(color: Colors.white24, height: 1),
+          child: Divider(color: Colores.grisOscuro, height: 1),
         ),
         Stack(
           children: [
@@ -65,7 +66,7 @@ class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin
               left: 0,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Color(0xFF6792FF),
+                  color: Colores.amarillo,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
               ),

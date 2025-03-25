@@ -1,6 +1,7 @@
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/Inicio/informacion_usuario.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 import 'side_menu.dart';
@@ -22,14 +23,14 @@ class _SideBarState extends State<SideBar> {
       child: Container(
         width: 288,
         height: double.infinity,
-        decoration: const BoxDecoration(
-          color: Color(0xFF17203A),
+        decoration:  BoxDecoration(
+          color: Colores.negro,
           borderRadius: BorderRadius.all(
             Radius.circular(30),
           ),
         ),
         child: DefaultTextStyle(
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colores.fondoAux),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -51,7 +52,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colors.white70),
+                              .copyWith(color: Colores.amarillo),
                         ),
                       ),
                       ...sidebarMenus.map((menu) => SideMenu(
@@ -72,7 +73,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colors.white70),
+                              .copyWith(color: Colores.amarillo),
                         ),
                       ),
                       ...sidebarMenus2.map((menu) => SideMenu(
@@ -93,7 +94,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colors.white70),
+                              .copyWith(color: Colores.amarillo),
                         ),
                       ),
                       ...sidebarMenus3.map((menu) => SideMenu(

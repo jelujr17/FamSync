@@ -112,44 +112,33 @@ List<Menu_Aux> sidebarMenus3 = [
   Menu_Aux(
     title: "Asistente",
     lottie: LottieModel(
-      src:
-          "assets/LottieIcons/Icono_Asistente.json", // Ruta del archivo Lottie
-    ),
-    onTap: (context) {
-      // Acción para la opción "Search"
-      print("Modulo Tareas Seleccionado");
-    },
-  ),Menu_Aux(
-    title: "Guia de Uso",
-    lottie: LottieModel(
-      src:
-          "assets/LottieIcons/Icono_Guia_Uso.json", // Ruta del archivo Lottie
-    ),
-    onTap: (context) {
-      // Acción para la opción "Search"
-      print("Modulo Tareas Seleccionado");
-    },
-  ),Menu_Aux(
-    title: "Soporte",
-    lottie: LottieModel(
-      src:
-          "assets/LottieIcons/Icono_Soporte.json", // Ruta del archivo Lottie
-    ),
-    onTap: (context) {
-      // Acción para la opción "Search"
-      print("Modulo Tareas Seleccionado");
-    },
-  ),Menu_Aux(
-    title: "Asistente",
-    lottie: LottieModel(
-      src:
-          "assets/LottieIcons/Icono_Asistente.json", // Ruta del archivo Lottie
+      src: "assets/LottieIcons/Icono_Asistente.json", // Ruta del archivo Lottie
     ),
     onTap: (context) {
       // Acción para la opción "Search"
       print("Modulo Tareas Seleccionado");
     },
   ),
+  Menu_Aux(
+    title: "Guia de Uso",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/Icono_Guia_Uso.json", // Ruta del archivo Lottie
+    ),
+    onTap: (context) {
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
+    },
+  ),
+  Menu_Aux(
+    title: "Soporte",
+    lottie: LottieModel(
+      src: "assets/LottieIcons/Icono_Soporte.json", // Ruta del archivo Lottie
+    ),
+    onTap: (context) {
+      // Acción para la opción "Search"
+      print("Modulo Tareas Seleccionado");
+    },
+  )
 ];
 
 List<Menu_Aux> bottomNavItems = [

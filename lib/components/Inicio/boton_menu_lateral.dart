@@ -1,3 +1,4 @@
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart';
 
@@ -17,11 +18,11 @@ class MenuBtn extends StatelessWidget {
           height: 40,
           width: 40,
           decoration: const BoxDecoration(
-            color: Colors.white,
+            color: Colores.negro,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colors.black12,
+                color: Colores.amarillo,
                 offset: Offset(0, 3),
                 blurRadius: 8,
               ),

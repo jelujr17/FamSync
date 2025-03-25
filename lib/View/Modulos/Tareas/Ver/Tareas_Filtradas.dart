@@ -5,6 +5,7 @@ import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -142,8 +143,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                         child: ElevatedButton(
                           onPressed: () {
                             if (Navigator.canPop(context)) {
-                              Navigator.pop(
-                                  context); // Navega hacia atrás si hay una página en la pila
+                              Navigator.pop(context);
                             } else {
                               Navigator.pushReplacement(
                                 context,
@@ -157,11 +157,11 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                           style: ElevatedButton.styleFrom(
                             shape: const CircleBorder(),
                             padding: EdgeInsets.zero,
-                            backgroundColor: Colors.white,
+                            backgroundColor: Colores.negro,
                           ),
                           child: const Icon(
                             Icons.arrow_back_ios_new,
-                            color: Colors.black,
+                            color: Colores.amarillo,
                             size: 20,
                           ),
                         ),
@@ -173,9 +173,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                           style: Theme.of(context)
                               .textTheme
                               .headlineMedium!
-                              .copyWith(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold),
+                              .copyWith(color: Colores.amarillo),
                         ),
                       ),
                       BarraAgenda(
@@ -188,10 +186,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                         child: Text(
                           "Usted tiene ${tareas.length} tareas",
                           style: const TextStyle(
-                              fontSize: 16, color: Colors.black54),
+                            fontSize: 16,
+                            color: Colores.amarillo,
+                          ),
                         ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.only(
                             left: 20, right: 20, top: 20, bottom: 20),
@@ -206,14 +206,15 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),
                                     child: CartaTarea(
-                                        titulo: tarea.Nombre,
-                                        prioridad: tarea.Prioridad,
-                                        progreso: tarea.Progreso,
-                                        descripcion:
-                                            "Estado: ${tarea.Descripcion}",
-                                        destinatarios: tarea.Destinatario,
-                                        perfil: widget.perfil,
-                                        orden: index + 1),
+                                      titulo: tarea.Nombre,
+                                      prioridad: tarea.Prioridad,
+                                      progreso: tarea.Progreso,
+                                      descripcion:
+                                          "Estado: ${tarea.Descripcion}",
+                                      destinatarios: tarea.Destinatario,
+                                      perfil: widget.perfil,
+                                      orden: index + 1,
+                                    ),
                                   );
                                 },
                               )
@@ -223,18 +224,20 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Icon(Icons.task_alt,
-                                        size: 60, color: Colors.grey),
+                                        size: 60, color: Colores.amarillo),
                                     SizedBox(height: 16),
                                     Text(
                                       "¡No tienes tareas pendientes!",
                                       style: TextStyle(
-                                          fontSize: 18, color: Colors.black54),
+                                          fontSize: 18,
+                                          color: Colores.amarillo),
                                     ),
                                     SizedBox(height: 8),
                                     Text(
                                       "Crea tu primera tarea ahora.",
                                       style: TextStyle(
-                                          fontSize: 14, color: Colors.black38),
+                                          fontSize: 14,
+                                          color: Colores.amarillo),
                                     ),
                                   ],
                                 ),
@@ -269,17 +272,6 @@ class BarraAgenda extends StatelessWidget {
   final TextEditingController searchController;
   final Function(BuildContext) crearTarea;
 
-  Color getContrastingTextColor(Color backgroundColor) {
-    // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
-    double luminance = (0.299 * backgroundColor.red +
-            0.587 * backgroundColor.green +
-            0.114 * backgroundColor.blue) /
-        255;
-
-    // Si el color es oscuro, usar texto blanco; si es claro, usar texto negro
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -309,12 +301,10 @@ class IconoContador extends StatelessWidget {
   const IconoContador({
     super.key,
     required this.svgSrc,
-    this.numOfitem = 0,
     required this.press,
   });
 
   final String svgSrc;
-  final int numOfitem;
   final GestureTapCallback press;
 
   @override
@@ -327,13 +317,17 @@ class IconoContador extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            height: 46,
-            width: 92,
+            height: 46, // Altura del contenedor
+            width: 92, // Anchura del contenedor (más largo horizontalmente)
             decoration: BoxDecoration(
-              color: const Color(0xFF979797).withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Colores.negro,
+              borderRadius: BorderRadius.circular(
+                  23), // Bordes redondeados para forma ovalada
             ),
-            child: SvgPicture.string(svgSrc),
+            child: SvgPicture.string(
+              svgSrc,
+              color: Colores.amarillo,
+            ),
           ),
         ],
       ),

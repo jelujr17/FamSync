@@ -7,6 +7,7 @@ import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Mis_Categorias.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Tareas_Filtradas.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -130,7 +131,7 @@ class _AgendaState extends State<Agenda> {
                   child: Text(
                     "Agenda",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+                        color: Colores.amarillo, fontWeight: FontWeight.bold),
                   ),
                 ),
                 BarraAgenda(
@@ -143,8 +144,8 @@ class _AgendaState extends State<Agenda> {
                     children: estadosTareas
                         .map(
                           (estado) => Padding(
-                            padding: const EdgeInsets.only(left: 20, right: 20, top: 20, bottom: 20),
-
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, top: 20, bottom: 20),
                             child: BannerCategoriasDefinidas(
                               perfil: widget.perfil,
                               titulo: estado.titulo,
@@ -156,9 +157,7 @@ class _AgendaState extends State<Agenda> {
                                   tareasProvider.contarTareasPorEstado(
                                       estado.titulo, tareasAux),
                             ),
-                            
                           ),
-                          
                         )
                         .toList(),
                   ),
@@ -169,7 +168,7 @@ class _AgendaState extends State<Agenda> {
                   child: Text(
                     "Mis categorías",
                     style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+                        color: Colores.amarillo, fontWeight: FontWeight.bold),
                   ),
                 ),
                 if (categoriasProvider.categorias.isEmpty)
@@ -213,17 +212,6 @@ class BarraAgenda extends StatelessWidget {
   final TextEditingController searchController;
   final Function(BuildContext) crearTarea;
 
-  Color getContrastingTextColor(Color backgroundColor) {
-    // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
-    double luminance = (0.299 * backgroundColor.red +
-            0.587 * backgroundColor.green +
-            0.114 * backgroundColor.blue) /
-        255;
-
-    // Si el color es oscuro, usar texto blanco; si es claro, usar texto negro
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -236,13 +224,6 @@ class BarraAgenda extends StatelessWidget {
             searchController: searchController,
           )),
           const SizedBox(width: 16),
-          IconoContador(
-            // numOfitem: 3,
-            svgSrc: Iconos_SVG.filtroIcono,
-            numOfitem: 2,
-
-            press: () {},
-          ),
           const SizedBox(width: 8),
           IconoContador(
             svgSrc: Iconos_SVG.masIcono,
@@ -260,12 +241,10 @@ class IconoContador extends StatelessWidget {
   const IconoContador({
     super.key,
     required this.svgSrc,
-    this.numOfitem = 0,
     required this.press,
   });
 
   final String svgSrc;
-  final int numOfitem;
   final GestureTapCallback press;
 
   @override
@@ -278,39 +257,18 @@ class IconoContador extends StatelessWidget {
         children: [
           Container(
             padding: const EdgeInsets.all(12),
-            height: 46,
-            width: 46,
+            height: 46, // Altura del contenedor
+            width: 92, // Anchura del contenedor (más largo horizontalmente)
             decoration: BoxDecoration(
-              color: const Color(0xFF979797).withOpacity(0.1),
-              shape: BoxShape.circle,
+              color: Colores.negro,
+              borderRadius: BorderRadius.circular(
+                  23), // Bordes redondeados para forma ovalada
             ),
-            child: SvgPicture.string(svgSrc),
+            child: SvgPicture.string(
+              svgSrc,
+              color: Colores.amarillo,
+            ),
           ),
-          if (numOfitem != 0)
-            Positioned(
-              top: -3,
-              right: 0,
-              child: Container(
-                height: 20,
-                width: 20,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFF4848),
-                  shape: BoxShape.circle,
-                  border: Border.all(width: 1.5, color: Colors.white),
-                ),
-                child: Center(
-                  child: Text(
-                    "$numOfitem",
-                    style: const TextStyle(
-                      fontSize: 12,
-                      height: 1,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
-            )
         ],
       ),
     );

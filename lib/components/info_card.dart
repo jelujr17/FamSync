@@ -1,3 +1,4 @@
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -14,19 +15,19 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: const CircleAvatar(
-        backgroundColor: Colors.white24,
+        backgroundColor: Colores.negro,
         child: Icon(
           CupertinoIcons.person,
-          color: Colors.white,
+          color: Colores.fondoAux,
         ),
       ),
       title: Text(
         name,
-        style: const TextStyle(color: Colors.white),
+        style: const TextStyle(color: Colores.fondoAux),
       ),
       subtitle: Text(
         bio,
-        style: const TextStyle(color: Colors.white70),
+        style: const TextStyle(color: Colores.fondoAux),
       ),
     );
   }

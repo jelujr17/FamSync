@@ -10,4 +10,7 @@ class Colores {
   static const Color fondo = Color(0xFFFFFFFF);
   static const Color eliminar = Color(0xFFE74C3C);
   static const Color hecho = Color(0xFF64E73C);
+  static const Color amarillo = Color(0xFFFFDB89); // Amarillo
+  static const Color negro = Color(0xFF030303); // Negro
+  static const Color grisOscuro =  Color.fromARGB(255, 64, 64, 66); // Gris oscuro
 }
