@@ -35,16 +35,17 @@ class _VentanaListasState extends State<VentanaListas> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
 
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
       productoProvider.cargarProductos(
-          widget.perfil.UsuarioId, widget.perfil.Id);
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
     });
   }
 
@@ -58,7 +59,7 @@ class _VentanaListasState extends State<VentanaListas> {
         var producto =
             productoProvider.productos.firstWhere((p) => p.Id == productoId);
         ServicioProductos()
-            .obtenerImagen(producto.Imagenes[0])
+            .obtenerImagen(context, producto.Imagenes[0])
             .then((imageFile) {
           setState(() {
             imageWidgets[productoId] =
@@ -128,6 +129,7 @@ class _VentanaListasState extends State<VentanaListas> {
 
                   // Guarda los cambios en la base de datos o backend
                   ServiciosListas().actualizarLista(
+                    context,
                     listaActualizada.Id,
                     listaActualizada.Nombre,
                     listaActualizada.Visible,
@@ -159,13 +161,14 @@ class _VentanaListasState extends State<VentanaListas> {
         actions: [
           TextButton(
             onPressed: () async {
-              await ServiciosListas().eliminarLista(lista.Id);
+              await ServiciosListas().eliminarLista(context, lista.Id);
 
               final listasProvider =
                   Provider.of<ListasProvider>(context, listen: false);
 
               // Recargar las listas desde el backend
               await listasProvider.cargarListas(
+                context,
                 widget.perfil.UsuarioId,
                 widget.perfil.Id,
               );
@@ -191,6 +194,7 @@ class _VentanaListasState extends State<VentanaListas> {
     setState(() {
       lista.Productos.remove(productoId);
       ServiciosListas().actualizarLista(
+        context,
         lista.Id,
         lista.Nombre,
         lista.Visible,
@@ -250,7 +254,7 @@ class _VentanaListasState extends State<VentanaListas> {
                         leading: perfil.FotoPerfil.isNotEmpty
                             ? FutureBuilder<File>(
                                 future: ServicioPerfiles()
-                                    .obtenerImagen(perfil.FotoPerfil),
+                                    .obtenerImagen(context, perfil.FotoPerfil),
                                 builder: (context, snapshot) {
                                   if (snapshot.connectionState ==
                                       ConnectionState.waiting) {
@@ -325,6 +329,7 @@ class _VentanaListasState extends State<VentanaListas> {
                     Provider.of<ListasProvider>(context, listen: false);
 
                 await ServiciosListas().registrarLista(
+                  context,
                   nuevaLista.Nombre,
                   widget.perfil.Id,
                   widget.perfil.UsuarioId,
@@ -333,6 +338,7 @@ class _VentanaListasState extends State<VentanaListas> {
 
                 // Recargar las listas desde el backend
                 await listasProvider.cargarListas(
+                  context,
                   widget.perfil.UsuarioId,
                   widget.perfil.Id,
                 );

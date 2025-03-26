@@ -1,4 +1,3 @@
-
 import 'dart:io';
 
 import 'package:famsync/Model/perfiles.dart';
@@ -39,7 +38,8 @@ class CampoPerfilesCrearLista extends StatelessWidget {
             ),
             leading: perfil.FotoPerfil.isNotEmpty
                 ? FutureBuilder<File>(
-                    future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+                    future: ServicioPerfiles()
+                        .obtenerImagen(context, perfil.FotoPerfil),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();

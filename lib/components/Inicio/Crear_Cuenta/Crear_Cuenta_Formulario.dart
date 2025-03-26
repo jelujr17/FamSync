@@ -65,8 +65,8 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
 
       // Aquí implementa la lógica para registrar al usuario
       ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-      int? IdUsuario =
-          await servicioUsuarios.registrarUsuario(int.parse(telefono), email, nombre, password);
+      int? IdUsuario = await servicioUsuarios.registrarUsuario(
+          context, int.parse(telefono), email, nombre, password);
       final SharedPreferences preferencias =
           await SharedPreferences.getInstance();
 

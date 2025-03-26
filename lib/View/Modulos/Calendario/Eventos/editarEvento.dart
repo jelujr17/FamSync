@@ -61,7 +61,7 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
 
   void obtenerCategoria() async {
     categoriaEvento = await ServiciosCategorias()
-        .getCategoriasById(widget.evento.IdCategoria);
+        .getCategoriasById(context, widget.evento.IdCategoria);
     categoriaSeleccionada = categoriaEvento!.Nombre;
     colorSeleccionado = categoriasColores[categoriaSeleccionada]!;
     setState(() {});
@@ -162,7 +162,7 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
 
   void obtenerCategorias() async {
     categoriasDisponibles = await ServiciosCategorias()
-        .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
+        .getCategoriasByModulo(context, widget.perfil.UsuarioId, 1);
     categoriasColores = {
       for (var categoria in categoriasDisponibles)
         categoria.Nombre: Color(int.parse("0xFF${categoria.Color}"))
@@ -173,7 +173,7 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
 
   void obtenerParticipantes() async {
     participantesDisponibles =
-        await ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+        await ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
     participantesSeleccionados = participantesDisponibles.where((participante) {
       return widget.evento.Participantes.contains(participante.Id);
     }).toList();
@@ -240,6 +240,7 @@ class _EditarEventoPageState extends State<EditarEventoPage> {
         idsParticipantes.add(participantesSeleccionados[i].Id);
       }
       bool resultado = await ServicioEventos().actualizarEvento(
+        context,
         widget.evento.Id,
         nombreController.text,
         descripcionController.text,

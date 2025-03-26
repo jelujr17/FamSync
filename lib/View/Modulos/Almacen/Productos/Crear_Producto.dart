@@ -15,8 +15,7 @@ import 'package:famsync/Model/Almacen/tiendas.dart';
 class CrearProducto extends StatefulWidget {
   final Perfiles perfil;
 
-  const CrearProducto(
-      {super.key, required this.perfil});
+  const CrearProducto({super.key, required this.perfil});
 
   @override
   _CrearProductoState createState() => _CrearProductoState();
@@ -53,7 +52,7 @@ class _CrearProductoState extends State<CrearProducto> {
 
   void obtenerTiendas() async {
     tiendasDisponibles =
-        await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+        await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
     obtenerNombresTiendas();
     print("Tiendas disponibles: $tiendasDisponibles");
   }
@@ -110,6 +109,7 @@ class _CrearProductoState extends State<CrearProducto> {
       print("Nuevo producto: $nuevoProducto");
 
       final exito = await ServicioProductos().registrarProducto(
+        context,
         nombre,
         _nuevasImagenes, // Enviar lista de archivos
         tienda,
@@ -318,7 +318,8 @@ class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
   @override
   void initState() {
     super.initState();
-    futurePerfiles = ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+    futurePerfiles =
+        ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;

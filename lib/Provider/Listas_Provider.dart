@@ -6,9 +6,9 @@ class ListasProvider with ChangeNotifier {
 
   List<Listas> get listas => _listas;
 
-  Future<void> cargarListas(int usuarioId, int perfilId) async {
+  Future<void> cargarListas(BuildContext context, int usuarioId, int perfilId) async {
     try {
-      _listas = await ServiciosListas().getListas(usuarioId, perfilId);
+      _listas = await ServiciosListas().getListas(context, usuarioId, perfilId);
       print("Listas cargadas: ${_listas.length}");
       notifyListeners();
     } catch (e) {

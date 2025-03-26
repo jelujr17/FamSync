@@ -11,6 +11,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Tienda_Productos.dart
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Totales_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -63,11 +64,11 @@ class AlmacenState extends State<Almacen> {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
       productoProvider.cargarProductos(
-          widget.perfil.UsuarioId, widget.perfil.Id);
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
     });
     _searchController.addListener(_filterProductos);
   }
@@ -95,7 +96,7 @@ class AlmacenState extends State<Almacen> {
   void obtenerListas() async {
     try {
       listas = await ServiciosListas()
-          .getListas(widget.perfil.UsuarioId, widget.perfil.Id);
+          .getListas(context, widget.perfil.UsuarioId, widget.perfil.Id);
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -113,7 +114,8 @@ class AlmacenState extends State<Almacen> {
 
   void obtenerTiendas() async {
     try {
-      tiendas = await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+      tiendas =
+          await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -144,15 +146,15 @@ class AlmacenState extends State<Almacen> {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
       productoProvider.cargarProductos(
-          widget.perfil.UsuarioId, widget.perfil.Id);
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
     }
   }
 
-  List<Tiendas> ObtenerTiendasConProductos(){
+  List<Tiendas> ObtenerTiendasConProductos() {
     List<Tiendas> tiendasConProductos = [];
-    for (var tienda in tiendas){
-      for (var producto in productosFiltrados){
-        if (producto.Tienda == tienda.Nombre){
+    for (var tienda in tiendas) {
+      for (var producto in productosFiltrados) {
+        if (producto.Tienda == tienda.Nombre) {
           tiendasConProductos.add(tienda);
           break;
         }
@@ -207,7 +209,7 @@ class AlmacenState extends State<Almacen> {
                               .textTheme
                               .headlineMedium!
                               .copyWith(
-                                  color: Colors.black,
+                                  color: Colores.amarillo,
                                   fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -219,7 +221,10 @@ class AlmacenState extends State<Almacen> {
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),
                               child: Center(
-                                  child: Text("No hay productos disponibles")),
+                                  child: Text(
+                                "No hay productos disponibles",
+                                style: TextStyle(color: Colores.amarillo),
+                              )),
                             )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,17 +271,6 @@ class BarraAlmacen extends StatelessWidget {
       {super.key, required this.searchController, required this.crearProducto});
   final TextEditingController searchController;
   final Function(BuildContext) crearProducto;
-
-  Color getContrastingTextColor(Color backgroundColor) {
-    // Calcular el brillo del color de fondo usando la fórmula de luminancia relativa
-    double luminance = (0.299 * backgroundColor.red +
-            0.587 * backgroundColor.green +
-            0.114 * backgroundColor.blue) /
-        255;
-
-    // Si el color es oscuro, usar texto blanco; si es claro, usar texto negro
-    return luminance > 0.5 ? Colors.black : Colors.white;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -335,10 +329,13 @@ class IconoContador extends StatelessWidget {
             height: 46,
             width: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFF979797).withOpacity(0.1),
+              color: Colores.negro,
               shape: BoxShape.circle,
             ),
-            child: SvgPicture.string(svgSrc),
+            child: SvgPicture.string(
+              svgSrc,
+              color: Colores.amarillo,
+            ),
           ),
           if (numOfitem != 0)
             Positioned(
@@ -348,9 +345,9 @@ class IconoContador extends StatelessWidget {
                 height: 20,
                 width: 20,
                 decoration: BoxDecoration(
-                  color: const Color(0xFFFF4848),
+                  color: Colores.amarillo,
                   shape: BoxShape.circle,
-                  border: Border.all(width: 1.5, color: Colors.white),
+                  border: Border.all(width: 1.5, color: Colores.negro),
                 ),
                 child: Center(
                   child: Text(
@@ -359,7 +356,7 @@ class IconoContador extends StatelessWidget {
                       fontSize: 12,
                       height: 1,
                       fontWeight: FontWeight.w600,
-                      color: Colors.white,
+                      color: Colores.negro,
                     ),
                   ),
                 ),
@@ -393,12 +390,12 @@ class SectionTitle extends StatelessWidget {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colors.black,
+            color: Colores.amarillo,
           ),
         ),
         TextButton(
           onPressed: accion,
-          style: TextButton.styleFrom(foregroundColor: Colors.grey),
+          style: TextButton.styleFrom(foregroundColor: Colores.amarillo),
           child: pulsado ? Text("Ver más") : Text("Ver menos"),
         ),
       ],
@@ -433,56 +430,157 @@ class _ProductoCardState extends State<ProductoCard> {
   }
 
   void loadImage() async {
-    final imageFile =
-        await ServicioProductos().obtenerImagen(widget.producto.Imagenes[0]);
-    setState(() {
-      imageWidget = Image.file(imageFile);
-    });
+    try {
+      final imageFile = await ServicioProductos()
+          .obtenerImagen(context, widget.producto.Imagenes[0]);
+
+      // Verifica si el archivo tiene contenido válido
+      if (await imageFile.length() == 0) {
+        throw Exception('El archivo de imagen está vacío');
+      }
+
+      setState(() {
+        imageWidget = Image.file(
+          imageFile,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) {
+            return Container(
+              color: Colors.grey.shade300,
+              child: const Center(
+                child: Icon(
+                  Icons.broken_image,
+                  size: 40,
+                  color: Colors.grey,
+                ),
+              ),
+            );
+          },
+        );
+      });
+    } catch (e) {
+      print('Error al cargar la imagen: $e');
+      setState(() {
+        // Muestra un marcador de posición en caso de error
+        imageWidget = Container(
+          color: Colors.grey.shade300,
+          child: const Center(
+            child: Icon(
+              Icons.broken_image,
+              size: 40,
+              color: Colors.grey,
+            ),
+          ),
+        );
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: widget.width,
-      child: GestureDetector(
-        onTap: widget.onTap,
+    return GestureDetector(
+      onTap: widget.onTap,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colores.negro,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Imagen del producto
             AspectRatio(
-              aspectRatio: 1.02,
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF979797).withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(12),
+              aspectRatio: widget.aspectRetio,
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(16),
                 ),
-                child: imageWidget ?? const CircularProgressIndicator(),
+                child: imageWidget ??
+                    Container(
+                      color: Colors.grey.shade300,
+                      child: const Center(
+                        child: Icon(
+                          Icons.image,
+                          size: 40,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              widget.producto.Nombre,
-              style: Theme.of(context).textTheme.bodyMedium,
-              maxLines: 2,
+
+            // Nombre del producto
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                widget.producto.Nombre,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colores.amarillo,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  "${widget.producto.Precio}€",
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFFFF7643),
+            const SizedBox(height: 4),
+
+            // Precio y detalles adicionales
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    "${widget.producto.Precio}€",
+                    style: const TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFFFF7643),
+                    ),
+                  ),
+                  const Icon(
+                    Icons.shopping_cart_outlined,
+                    color: Colores.amarillo,
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Spacer(),
+            // Botón para añadir a la lista
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: ElevatedButton(
+                onPressed: () {
+                  // Lógica para añadir el producto a la lista
+                  print("Añadido a la lista: ${widget.producto.Nombre}");
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colores.amarillo,
+                  foregroundColor: Colores.negro,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-              ],
-            )
+                child: const Text(
+                  "Añadir a la lista",
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
           ],
         ),
       ),
     );
   }
 }
-

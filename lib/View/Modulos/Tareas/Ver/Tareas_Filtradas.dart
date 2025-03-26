@@ -68,8 +68,8 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
 
-    tareasProvider.cargarTareas(widget.perfil.UsuarioId, widget.perfil.Id);
-    categoriasProvider.cargarCategorias(widget.perfil.UsuarioId, 5);
+    tareasProvider.cargarTareas(context, widget.perfil.UsuarioId, widget.perfil.Id);
+    categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
 
     // Obtener las tareas filtradas según la categoría
     obtenerTareasCategoria();

@@ -6,9 +6,9 @@ class TiendasProvider with ChangeNotifier {
 
   List<Tiendas> get tiendas => _tiendas;
 
-  Future<void> cargarTiendas(int usuarioId, int perfilId) async {
+  Future<void> cargarTiendas(BuildContext context, int usuarioId, int perfilId) async {
     try {
-      _tiendas = await ServiciosTiendas().getTiendas(usuarioId);
+      _tiendas = await ServiciosTiendas().getTiendas(context, usuarioId);
       print("Tiendas cargados: ${_tiendas.length}");
       notifyListeners();
     } catch (e) {

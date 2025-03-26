@@ -31,7 +31,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
   }
 
   void reload() async {
-    perfiles = await ServicioPerfiles().getPerfiles(widget.IdUsuario);
+    perfiles = await ServicioPerfiles().getPerfiles(context, widget.IdUsuario);
     setState(() {});
   }
 
@@ -132,7 +132,8 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
         children: [
           Expanded(
             child: FutureBuilder<File>(
-              future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+              future:
+                  ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Muestra un indicador de carga mientras se obtiene la imagen

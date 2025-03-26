@@ -52,11 +52,11 @@ class _AgendaState extends State<Agenda> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
-      tareasProvider.cargarTareas(widget.perfil.UsuarioId, widget.perfil.Id);
+      tareasProvider.cargarTareas(context, widget.perfil.UsuarioId, widget.perfil.Id);
 
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
-      categoriasProvider.cargarCategorias(widget.perfil.UsuarioId, 5);
+      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
     });
   }
 

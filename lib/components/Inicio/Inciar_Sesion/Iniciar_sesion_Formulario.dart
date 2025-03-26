@@ -21,7 +21,8 @@ class _SignInFormState extends State<SignInForm> {
   final TextEditingController _passwordController = TextEditingController();
   bool isShowLoading = false;
   bool isShowConfetti = false;
-  bool _isPasswordVisible = false; // Variable para controlar la visibilidad de la contraseña
+  bool _isPasswordVisible =
+      false; // Variable para controlar la visibilidad de la contraseña
   late SMITrigger error;
   late SMITrigger success;
   late SMITrigger reset;
@@ -56,7 +57,8 @@ class _SignInFormState extends State<SignInForm> {
       String password = _passwordController.text;
 
       ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-      Usuario? usuario = await servicioUsuarios.login(emailOrPhone, password);
+      Usuario? usuario =
+          await servicioUsuarios.login(context, emailOrPhone, password);
       final SharedPreferences preferencias =
           await SharedPreferences.getInstance();
 
@@ -76,7 +78,8 @@ class _SignInFormState extends State<SignInForm> {
 
           int? idPerfil = preferencias.getInt('IdPerfil');
           if (idPerfil != null) {
-            Perfiles? perfil = await ServicioPerfiles().getPerfilById(idPerfil);
+            Perfiles? perfil =
+                await ServicioPerfiles().getPerfilById(context, idPerfil);
             // Si existe IdPerfil, redirigir a Home
             if (perfil != null) {
               Navigator.pushReplacement(
@@ -164,7 +167,8 @@ class _SignInFormState extends State<SignInForm> {
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
                 child: TextFormField(
                   controller: _passwordController,
-                  obscureText: !_isPasswordVisible, // Controla la visibilidad de la contraseña
+                  obscureText:
+                      !_isPasswordVisible, // Controla la visibilidad de la contraseña
                   validator: (value) {
                     if (value!.isEmpty) {
                       return "Por favor ingrese su contraseña";

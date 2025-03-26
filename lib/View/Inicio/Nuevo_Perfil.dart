@@ -65,6 +65,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
 
     try {
       bool creado = await ServicioPerfiles().registrarPerfil(
+        context,
         widget.IdUsuario,
         nombre,
         File(_image!.path),

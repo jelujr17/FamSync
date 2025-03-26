@@ -64,8 +64,8 @@ class AjustesState extends State<Ajustes> {
                             ),
                           )
                         : FutureBuilder<File>(
-                            future: ServicioPerfiles()
-                                .obtenerImagen(widget.perfil.FotoPerfil),
+                            future: ServicioPerfiles().obtenerImagen(
+                                context, widget.perfil.FotoPerfil),
                             builder: (BuildContext context,
                                 AsyncSnapshot<File> snapshot) {
                               if (snapshot.connectionState ==
@@ -165,7 +165,6 @@ class AjustesState extends State<Ajustes> {
           const SizedBox(height: 20),
         ],
       ),
-      
     );
   }
 
@@ -200,7 +199,6 @@ class AjustesState extends State<Ajustes> {
       onTap: () {
         // Acción al presionar
         switch (index) {
-         
           case 5:
             Navigator.push(
               context,

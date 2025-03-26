@@ -37,9 +37,10 @@ class CalendarScreenState extends State<Calendario> {
   Future<void> cargarEventos() async {
     try {
       List<Categorias> categorias = await ServiciosCategorias()
-          .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
+          .getCategoriasByModulo(context, widget.perfil.UsuarioId, 1);
       print("Número de categorias obtenidas: ${categorias.length}");
       eventos = await _servicioEventos.getEventos(
+        context,
         widget.perfil.UsuarioId,
         widget.perfil.Id,
       );
@@ -232,7 +233,6 @@ class CalendarScreenState extends State<Calendario> {
         shape: const CircleBorder(),
         child: const Icon(Icons.add, color: Colores.texto, size: 32),
       ),
-      
     );
   }
 }

@@ -3,8 +3,9 @@
 import 'package:famsync/components/host.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:famsync/Error_Conexion.dart';
 
-// CLASES DE PERSONAS REALES
 class Modulos {
   final int Id;
   final String Nombre;
@@ -19,52 +20,74 @@ class Modulos {
 
 class ServiciosModulos {
   final String _host = Host.host;
-  // BUSCAR USUARIOS //
-  Future<List<Modulos>> getModulos() async {
-    http.Response response =
-        await http.get(Uri.parse('http://$_host/modulos/get'));
-    print(response.statusCode);
+
+  // Obtener todos los módulos
+  Future<List<Modulos>> getModulos(BuildContext context) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/modulos/get'),
+        headers: {'Content-type': 'application/json'},
+      ),
+    );
+
     if (response.statusCode == 200) {
-      List<dynamic> responseData =
-          jsonDecode(response.body); // Parsear la respuesta JSON
-      print(responseData);
-      List<Modulos> modulos = responseData
-          .map((data) => Modulos(
-                Id: data['Id'],
-                Nombre: data['Nombre'],
-                Descripcion: data['Descripcion'],
-              ))
-          .toList();
-      return modulos;
+      List<dynamic> responseData = jsonDecode(response.body);
+      return responseData.map((data) {
+        return Modulos(
+          Id: data['Id'],
+          Nombre: data['Nombre'],
+          Descripcion: data['Descripcion'],
+        );
+      }).toList();
     } else {
-      throw Exception(
-          'Error al obtener los modulos'); // Lanzar una excepción en caso de error
+      throw Exception('Error al obtener los módulos');
     }
   }
 
-  Future<Modulos?> getModulosById(int Id) async {
-    print("Id = $Id");
-    http.Response response = await http.get(
-      Uri.parse('http://$_host/modulos/getById?Id=$Id'),
-      headers: {'Content-type': 'application/json'},
+  // Obtener módulo por ID
+  Future<Modulos?> getModulosById(BuildContext context, int Id) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/modulos/getById?Id=$Id'),
+        headers: {'Content-type': 'application/json'},
+      ),
     );
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(
-          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
-
-      // Acceder a los argumentos
       Map<String, dynamic> modulosData = responseData['arguments'];
 
-      Modulos categoria = Modulos(
-          Id: modulosData['Id'],
-          Nombre: modulosData['Nombre'],
-          Descripcion: modulosData['Descripcion']);
-      return categoria;
+      return Modulos(
+        Id: modulosData['Id'],
+        Nombre: modulosData['Nombre'],
+        Descripcion: modulosData['Descripcion'],
+      );
     } else {
-      throw Exception(
-          'Error al obtener el modulo por ID'); // Lanzar una excepción en caso de error
+      throw Exception('Error al obtener el módulo por ID');
+    }
+  }
+}
+
+// Servicio global para manejar errores de conexión
+class HttpService {
+  static Future<http.Response> execute(
+    BuildContext context,
+    Future<http.Response> Function() httpCall,
+  ) async {
+    try {
+      // Ejecuta la llamada HTTP
+      return await httpCall();
+    } catch (e) {
+      // Si ocurre un error, navega a la pantalla de error de conexión
+      print('Error en la llamada HTTP: $e');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
+      );
+      // Lanza una excepción para detener el flujo
+      throw Exception('Error en la conexión con la base de datos');
     }
   }
 }

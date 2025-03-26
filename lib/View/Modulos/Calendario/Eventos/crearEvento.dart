@@ -55,7 +55,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
   void obtenerParticipantes() async {
     // Ejemplo: Obtén la lista desde tu API
     participantesDisponibles =
-        await ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+        await ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
 
     setState(() {});
   }
@@ -155,7 +155,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
 
   void obtenerCategorias() async {
     categoriasDisponibles = await ServiciosCategorias()
-        .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
+        .getCategoriasByModulo(context, widget.perfil.UsuarioId, 1);
 
     // Llenar categoriasColores después de obtener las categorías
     for (var categoria in categoriasDisponibles) {
@@ -207,6 +207,7 @@ class _CrearEventoPageState extends State<CrearEventoPage> {
         idsParticipantes.add(participantesSeleccionados[i].Id);
       }
       bool resultado = await servicioEventos.registrarEvento(
+        context,
         nombre,
         descripcion,
         fechaInicio,

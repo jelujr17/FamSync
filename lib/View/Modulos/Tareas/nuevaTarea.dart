@@ -38,7 +38,7 @@ class _NuevaTareaPageState extends State<NuevaTareaPage> {
 
   void obtenerCategorias() async {
     categoriasDisponibles = await ServiciosCategorias()
-        .getCategoriasByModulo(widget.perfil.UsuarioId, 1);
+        .getCategoriasByModulo(context, widget.perfil.UsuarioId, 1);
 
     // Llenar categoriasColores después de obtener las categorías
     for (var categoria in categoriasDisponibles) {
@@ -69,7 +69,7 @@ class _NuevaTareaPageState extends State<NuevaTareaPage> {
     try {
       // Obtener categorías por módulo
       List<Categorias> categoriasObtenidas = await ServiciosCategorias()
-          .getCategoriasByModulo(widget.perfil.UsuarioId, 5);
+          .getCategoriasByModulo(context, widget.perfil.UsuarioId, 5);
 
       setState(() {
         categorias = categoriasObtenidas;

@@ -40,7 +40,7 @@ class CartaTareaState extends State<CartaTarea> {
           Provider.of<PerfilesProvider>(context, listen: false);
 
       // Cargar perfiles
-      await perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+      await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
@@ -66,7 +66,7 @@ class CartaTareaState extends State<CartaTarea> {
           (perfil) async {
             try {
               final imagen =
-                  await ServicioPerfiles().obtenerImagen(perfil.FotoPerfil);
+                  await ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil);
               print("Imagen cargada para perfil ${perfil.Id}: $imagen");
               return imagen;
             } catch (e) {

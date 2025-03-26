@@ -3,8 +3,10 @@
 import 'package:famsync/components/host.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:famsync/Error_Conexion.dart';
 
-// CLASES DE PERSONAS REALES
+// CLASE DE TIENDAS
 class Tiendas {
   final int Id;
   final String Nombre;
@@ -19,119 +21,109 @@ class Tiendas {
 
 class ServiciosTiendas {
   final String _host = Host.host;
-  // BUSCAR USUARIOS //
-  Future<List<Tiendas>> getTiendas(int IdUsuario) async {
-    http.Response response = await http.get(
-      Uri.parse('http://$_host/tiendas/getByUsuario?IdUsuario=$IdUsuario'),
-      headers: {'Content-type': 'application/json'},
+
+  // Obtener tiendas por usuario
+  Future<List<Tiendas>> getTiendas(BuildContext context, int IdUsuario) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/tiendas/getByUsuario?IdUsuario=$IdUsuario'),
+        headers: {'Content-type': 'application/json'},
+      ),
     );
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
-      List<dynamic> responseData =
-          jsonDecode(response.body); // Parsear la respuesta JSON
-      print(responseData);
-      List<Tiendas> tiendas = responseData.map((data) {
+      List<dynamic> responseData = jsonDecode(response.body);
+      return responseData.map((data) {
         return Tiendas(
           Id: data['Id'],
           Nombre: data['Nombre'],
           IdUsuario: data['IdUsuario'],
         );
       }).toList();
-      return tiendas;
     } else {
       throw Exception(
-          'Error al obtener las tiendas de un usuario ${response.statusCode}'); // Lanzar una excepción en caso de error
+          'Error al obtener las tiendas de un usuario ${response.statusCode}');
     }
   }
 
-  Future<Tiendas?> getTiendasById(int Id) async {
-    print("Id = $Id");
-    http.Response response = await http.get(
-      Uri.parse('http://$_host/tiendas/getById?Id=$Id'),
-      headers: {'Content-type': 'application/json'},
+  // Obtener tienda por ID
+  Future<Tiendas?> getTiendasById(BuildContext context, int Id) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/tiendas/getById?Id=$Id'),
+        headers: {'Content-type': 'application/json'},
+      ),
     );
-    print(response.statusCode);
+
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(
-          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
-
-      // Acceder a los argumentos
       Map<String, dynamic> tiendaData = responseData['arguments'];
 
-      Tiendas tienda = Tiendas(
+      return Tiendas(
         Id: tiendaData['Id'],
         Nombre: tiendaData['Nombre'],
         IdUsuario: tiendaData['IdUsuarioCreador'],
       );
-      return tienda;
     } else {
-      throw Exception(
-          'Error al obtener la tienda por ID'); // Lanzar una excepción en caso de error
+      throw Exception('Error al obtener la tienda por ID');
     }
   }
 
-  // Registro de producto
-  Future<bool> registrarTienda(String Nombre, int IdUsuario) async {
+  // Registrar tienda
+  Future<bool> registrarTienda(
+      BuildContext context, String Nombre, int IdUsuario) async {
     Map<String, dynamic> TiendaData = {
       'Nombre': Nombre.toString(),
       'IdUsuario': IdUsuario
     };
 
-    http.Response response1 = await http.post(
-      Uri.parse('http://$_host/tiendas/create'),
-      headers: {'Content-type': 'application/json'},
-      body: json.encode(TiendaData),
-    );
-    if (response1.statusCode == 200) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  /*Future<bool> actualizarLista(
-      int Id, String Nombre, List<int> Visible, List<int> Productos) async {
-    final response = await http.put(
-      Uri.parse('http://$_host/listas/update'),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode({
-        'Id': Id,
-        'Nombre': Nombre.toString(),
-        'Visible': jsonEncode(Visible),
-        'Productos': jsonEncode(Productos),
-      }),
+    final response = await HttpService.execute(
+      context,
+      () => http.post(
+        Uri.parse('http://$_host/tiendas/create'),
+        headers: {'Content-type': 'application/json'},
+        body: json.encode(TiendaData),
+      ),
     );
 
-    if (response.statusCode == 200) {
-      return true; // La actualización fue exitosa
-    } else {
-      // Manejo de errores
-      print('Error al actualizar la lista: ${response.statusCode}');
-      return false; // La actualización falló
-    }
+    return response.statusCode == 200;
   }
-*/
-  Future<bool> eliminarTienda(int IdTienda) async {
-    try {
-      final response = await http.delete(
+
+  // Eliminar tienda
+  Future<bool> eliminarTienda(BuildContext context, int IdTienda) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.delete(
         Uri.parse('http://$_host/tiendas/delete'),
         headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'Id': IdTienda}), // Enviamos el ID en el cuerpo
-      );
+        body: jsonEncode({'Id': IdTienda}),
+      ),
+    );
 
-      if (response.statusCode == 200) {
-        print('Tienda eliminado con éxito');
-        return true;
-      } else {
-        print('Error al eliminar la tienda: ${response.body}');
-        return false;
-      }
+    return response.statusCode == 200;
+  }
+}
+
+// Servicio global para manejar errores de conexión
+class HttpService {
+  static Future<http.Response> execute(
+    BuildContext context,
+    Future<http.Response> Function() httpCall,
+  ) async {
+    try {
+      // Ejecuta la llamada HTTP
+      return await httpCall();
     } catch (e) {
-      print('Error al enviar solicitud de eliminación de la tienda: $e');
-      return false;
+      // Si ocurre un error, navega a la pantalla de error de conexión
+      print('Error en la llamada HTTP: $e');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
+      );
+      // Lanza una excepción para detener el flujo
+      throw Exception('Error en la conexión con la base de datos');
     }
   }
 }

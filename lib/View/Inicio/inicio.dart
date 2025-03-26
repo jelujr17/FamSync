@@ -31,14 +31,6 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned(
-            width: MediaQuery.of(context).size.width * 1.7,
-            left: 100,
-            bottom: 100,
-            child: Image.asset(
-              "assets/Backgrounds/Spline.png",
-            ),
-          ),
           Positioned.fill(
             child: BackdropFilter(
               filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),

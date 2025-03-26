@@ -57,13 +57,13 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
 
   void obtenerCategoria() async {
     categoria = await ServiciosCategorias()
-        .getCategoriasById(widget.eventoSeleccionado.IdCategoria);
+        .getCategoriasById(context, widget.eventoSeleccionado.IdCategoria);
   }
 
   void obtenerParticipantes() async {
     // Ejemplo: Obtén la lista desde tu API
     participantes =
-        await ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+        await ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
     List<int> aux = widget.eventoSeleccionado.Participantes;
     participantes.removeWhere((participante) => !aux.contains(participante.Id));
     setState(() {});
@@ -293,7 +293,7 @@ class _DetallesEventoState extends State<DetalleEventoPage> {
             TextButton(
               onPressed: () async {
                 bool eliminado =
-                    await ServicioEventos().eliminarEvento(evento.Id);
+                    await ServicioEventos().eliminarEvento(context, evento.Id);
 
                 if (eliminado) {
                   // Si se elimina correctamente, cierra el diálogo y regresa

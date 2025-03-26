@@ -39,7 +39,7 @@ class CampoPerfilesEditar extends StatelessWidget {
             ),
             leading: perfil.FotoPerfil.isNotEmpty
                 ? FutureBuilder<File>(
-                    future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+                    future: ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return const CircularProgressIndicator();

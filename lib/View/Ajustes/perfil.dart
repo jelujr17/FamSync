@@ -63,7 +63,7 @@ class PerfilState extends State<Perfil> {
                         )
                       : FutureBuilder<File>(
                           future: ServicioPerfiles()
-                              .obtenerImagen(widget.perfil.FotoPerfil),
+                              .obtenerImagen(context, widget.perfil.FotoPerfil),
                           builder: (BuildContext context,
                               AsyncSnapshot<File> snapshot) {
                             if (snapshot.connectionState ==

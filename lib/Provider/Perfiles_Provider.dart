@@ -6,9 +6,9 @@ class PerfilesProvider with ChangeNotifier {
 
   List<Perfiles> get perfiles => _perfiles;
 
-  Future<void> cargarPerfiles(int usuarioId) async {
+  Future<void> cargarPerfiles(BuildContext context, int usuarioId) async {
     try {
-      _perfiles = await ServicioPerfiles().getPerfiles(usuarioId);
+      _perfiles = await ServicioPerfiles().getPerfiles(context, usuarioId);
       print("Perfiles cargados: ${_perfiles.length}");
       notifyListeners();
     } catch (e) {

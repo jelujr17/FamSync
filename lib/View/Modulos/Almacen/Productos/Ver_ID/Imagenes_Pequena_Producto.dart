@@ -14,8 +14,8 @@ class ImagenPequena extends StatelessWidget {
   final VoidCallback funcion;
   final String urlImagen;
 
-  Future<Widget> loadImage() async {
-    final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+  Future<Widget> loadImage(BuildContext context) async {
+    final imageFile = await ServicioProductos().obtenerImagen(context, urlImagen);
     return Image.file(imageFile);
   }
 
@@ -37,7 +37,7 @@ class ImagenPequena extends StatelessWidget {
           ),
         ),
         child: FutureBuilder<Widget>(
-          future: loadImage(),
+          future: loadImage(context),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();

@@ -27,7 +27,7 @@ class _ImagenesProductoState extends State<ImagenesProducto> {
   Future<List<Widget>> loadImages() async {
     List<Widget> imagenes = [];
     for (String urlImagen in widget.producto.Imagenes) {
-      final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+      final imageFile = await ServicioProductos().obtenerImagen(context, urlImagen);
       imagenes.add(Image.file(imageFile));
     }
     return imagenes;

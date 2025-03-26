@@ -37,7 +37,8 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
     List<File> imagenes = [];
     for (String urlImagen in widget.imagenesTotales) {
       print(urlImagen); // Para verificar que la URL sea correcta
-      final imageFile = await ServicioProductos().obtenerImagen(urlImagen);
+      final imageFile =
+          await ServicioProductos().obtenerImagen(context, urlImagen);
       imagenes.add(imageFile);
     }
 

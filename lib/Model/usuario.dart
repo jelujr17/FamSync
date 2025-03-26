@@ -1,7 +1,10 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:famsync/components/host.dart';
+import 'package:flutter/material.dart';
+import 'package:famsync/Error_Conexion.dart';
 
 abstract class Authenticatable {}
 
@@ -13,199 +16,182 @@ class Usuario implements Authenticatable {
   final String Nombre;
   final String Password;
 
-  Usuario(
-      {required this.Id,
-      required this.Telefono,
-      required this.Correo,
-      required this.Nombre,
-      required this.Password});
+  Usuario({
+    required this.Id,
+    required this.Telefono,
+    required this.Correo,
+    required this.Nombre,
+    required this.Password,
+  });
 
   factory Usuario.fromMap(Map<String, dynamic> map) {
     return Usuario(
-        Id: map['Id'] as int,
-        Telefono: map['Telefono'] as int,
-        Correo: map['Correo'] as String,
-        Nombre: map['Nombre'] as String,
-        Password: map['Password'] as String);
+      Id: map['Id'] as int,
+      Telefono: map['Telefono'] as int,
+      Correo: map['Correo'] as String,
+      Nombre: map['Nombre'] as String,
+      Password: map['Password'] as String,
+    );
   }
 }
 
 class ServicioUsuarios {
   final String _host = Host.host;
-  // BUSCAR USUARIOS //
-  Future<List<Usuario>> getUsuarios() async {
-    http.Response response =
-        await http.get(Uri.parse('http://$_host/usuario/get'));
-    print(response.statusCode);
+
+  // Obtener todos los usuarios
+  Future<List<Usuario>> getUsuarios(BuildContext context) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/usuario/get'),
+        headers: {'Content-type': 'application/json'},
+      ),
+    );
+
     if (response.statusCode == 200) {
-      List<dynamic> responseData =
-          jsonDecode(response.body); // Parsear la respuesta JSON
-      print(responseData);
-      List<Usuario> usuarios = responseData
-          .map((data) => Usuario(
-                Id: data['Id'],
-                Telefono: data['Telefono'],
-                Correo: data['Correo'],
-                Nombre: data['Nombre'],
-                Password: data['Password'],
-              ))
-          .toList();
-      return usuarios;
+      List<dynamic> responseData = jsonDecode(response.body);
+      return responseData.map((data) {
+        return Usuario(
+          Id: data['Id'],
+          Telefono: data['Telefono'],
+          Correo: data['Correo'],
+          Nombre: data['Nombre'],
+          Password: data['Password'],
+        );
+      }).toList();
     } else {
-      throw Exception(
-          'Error al obtener los usuarios'); // Lanzar una excepción en caso de error
+      throw Exception('Error al obtener los usuarios');
     }
   }
 
-  Future<Usuario?> getUsuarioByCorreo(String correo) async {
-    http.Response response = await http.get(
-      Uri.parse('http://$_host/usuarios/getByCorreo?correo=$correo'),
-      headers: {'Content-type': 'application/json'},
+  // Obtener usuario por correo
+  Future<Usuario?> getUsuarioByCorreo(
+      BuildContext context, String correo) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/usuarios/getByCorreo?correo=$correo'),
+        headers: {'Content-type': 'application/json'},
+      ),
     );
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(
-          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
-
-      // Acceder a los argumentos
       Map<String, dynamic> usuarioData = responseData['arguments'];
 
-      // Crear el objeto Usuario con los datos del argumento
-      Usuario usuario = Usuario(
-        Id: usuarioData['Id'] ?? 0, // Valor por defecto en caso de null
+      return Usuario(
+        Id: usuarioData['Id'] ?? 0,
         Telefono: usuarioData['Telefono'] ?? 0,
         Correo: usuarioData['Correo'] ?? '',
         Nombre: usuarioData['Nombre'] ?? '',
         Password: usuarioData['Password'] ?? '',
       );
-      return usuario;
     } else {
       throw Exception('Error al obtener el usuario por correo');
     }
   }
 
-  Future<Usuario?> getUsuarioByTelefono(int telefono) async {
-    http.Response response = await http.get(
-      Uri.parse('http://$_host/usuarios/getByTelefono?telefono=$telefono'),
-      headers: {'Content-type': 'application/json'},
+  // Obtener usuario por teléfono
+  Future<Usuario?> getUsuarioByTelefono(
+      BuildContext context, int telefono) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.get(
+        Uri.parse('http://$_host/usuarios/getByTelefono?telefono=$telefono'),
+        headers: {'Content-type': 'application/json'},
+      ),
     );
 
     if (response.statusCode == 200) {
       Map<String, dynamic> responseData = jsonDecode(response.body);
-      print(
-          'Respuesta de la API: $responseData'); // Imprimir respuesta para depuración
-
-      // Acceder a los argumentos
       Map<String, dynamic> usuarioData = responseData['arguments'];
 
-      // Crear el objeto Usuario con los datos del argumento
-      Usuario usuario = Usuario(
-        Id: usuarioData['Id'] ?? 0, // Valor por defecto en caso de null
-        Telefono: usuarioData['Telefono'] ?? '',
+      return Usuario(
+        Id: usuarioData['Id'] ?? 0,
+        Telefono: usuarioData['Telefono'] ?? 0,
         Correo: usuarioData['Correo'] ?? '',
         Nombre: usuarioData['Nombre'] ?? '',
         Password: usuarioData['Password'] ?? '',
       );
-      return usuario;
     } else {
-      throw Exception('Error al obtener el usuario por telefono');
+      throw Exception('Error al obtener el usuario por teléfono');
     }
   }
 
-  Future<Usuario?> login(String usuario, String password) async {
-    try {
-      final response = await http.post(
+  // Login de usuario
+  Future<Usuario?> login(
+      BuildContext context, String usuario, String password) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.post(
         Uri.parse('http://$_host/usuarios/login'),
         headers: {'Content-type': 'application/json'},
         body: jsonEncode({
           'usuario': usuario,
           'password': password,
         }),
+      ),
+    );
+
+    if (response.statusCode == 200) {
+      Map<String, dynamic> responseData = jsonDecode(response.body);
+      return Usuario(
+        Id: responseData['usuario']['Id'],
+        Telefono: responseData['usuario']['Telefono'],
+        Correo: responseData['usuario']['Correo'],
+        Nombre: responseData['usuario']['Nombre'],
+        Password: password,
       );
-
-      if (response.statusCode == 200) {
-        Map<String, dynamic> responseData = jsonDecode(response.body);
-        // Crear el objeto Usuario con los datos devueltos
-        return Usuario(
-          Id: responseData['usuario']['Id'],
-          Telefono: responseData['usuario']['Telefono'],
-          Correo: responseData['usuario']['Correo'],
-          Nombre: responseData['usuario']['Nombre'],
-          Password: password, // Asegúrate de no almacenar la contraseña
-        );
-      } else {
-        print(response.statusCode);
-        throw Exception('Error al iniciar sesión');
-      }
-    } catch (e) {
-      print('Error en la función de login: $e');
-      return null; // Manejo de errores
+    } else {
+      throw Exception('Error al iniciar sesión');
     }
   }
 
-  // REGISTRO DE USUARIO
-  Future<bool> isCorreoRegistered(String correo) async {
-    try {
-      Usuario? usuario = await getUsuarioByCorreo(correo);
-      // Si se obtiene un usuario, el correo está registrado
-      return usuario != null;
-    } catch (e) {
-      // Manejar el error en caso de que la llamada a la API falle
-      print('Error al verificar el correo: $e');
-      return false; // Devuelve false en caso de error
-    }
-  }
-
-  Future<bool> isTelefonoRegistered(int telefono) async {
-    try {
-      Usuario? usuario = await getUsuarioByTelefono(telefono);
-      // Si se obtiene un usuario, el teléfono está registrado
-      return usuario != null;
-    } catch (e) {
-      // Manejar el error en caso de que la llamada a la API falle
-      print('Error al verificar el teléfono: $e');
-      return false; // Devuelve false en caso de error
-    }
-  }
-
-  Future<int?> registrarUsuario(
-    int telefono, String correo, String nombre, String password) async {
-  if (await isCorreoRegistered(correo)) {
-    print('El correo ya está registrado');
-    return null;
-  }
-
-  if (await isTelefonoRegistered(telefono)) {
-    print('El teléfono ya está registrado');
-    return null;
-  }
-
-  try {
-    final response = await http.post(
-      Uri.parse('http://$_host/usuarios/create'),
-      headers: {'Content-type': 'application/json'},
-      body: jsonEncode({
-        'Telefono': telefono,
-        'Correo': correo,
-        'Nombre': nombre,
-        'Password': password,
-      }),
+  // Registrar usuario
+  Future<int?> registrarUsuario(BuildContext context, int telefono,
+      String correo, String nombre, String password) async {
+    final response = await HttpService.execute(
+      context,
+      () => http.post(
+        Uri.parse('http://$_host/usuarios/create'),
+        headers: {'Content-type': 'application/json'},
+        body: jsonEncode({
+          'Telefono': telefono,
+          'Correo': correo,
+          'Nombre': nombre,
+          'Password': password,
+        }),
+      ),
     );
 
     if (response.statusCode == 201) {
       final data = jsonDecode(response.body);
-      int userId = data["userId"]; // Obtener el ID del usuario creado
-      print('Usuario registrado exitosamente con ID: $userId');
-      return userId; // Devuelve el ID en lugar de solo true
+      int userId = data["userId"];
+      return userId;
     } else {
-      print('Error en el registro: ${response.body}');
-      return null;
+      throw Exception('Error al registrar usuario');
     }
-  } catch (e) {
-    print('Error al registrar usuario: $e');
-    return null;
   }
 }
 
+// Servicio global para manejar errores de conexión
+class HttpService {
+  static Future<http.Response> execute(
+    BuildContext context,
+    Future<http.Response> Function() httpCall,
+  ) async {
+    try {
+      // Ejecuta la llamada HTTP
+      return await httpCall();
+    } catch (e) {
+      // Si ocurre un error, navega a la pantalla de error de conexión
+      print('Error en la llamada HTTP: $e');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
+      );
+      // Lanza una excepción para detener el flujo
+      throw Exception('Error en la conexión con la base de datos');
+    }
+  }
 }

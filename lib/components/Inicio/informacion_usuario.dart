@@ -30,7 +30,7 @@ class InfoCard extends StatelessWidget {
                 ),
               )
             : FutureBuilder<File>(
-                future: ServicioPerfiles().obtenerImagen(perfil.FotoPerfil),
+                future: ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil),
                 builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();

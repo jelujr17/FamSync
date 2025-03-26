@@ -139,7 +139,7 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
       }
     });
     ServiciosListas().actualizarLista(
-        lista.Id, lista.Nombre, lista.Visible, lista.Productos);
+        context, lista.Id, lista.Nombre, lista.Visible, lista.Productos);
     listasProvider.actualizarLista(lista);
     widget.actualizarBanner();
   }

@@ -29,8 +29,9 @@ class _CategoriaPageState extends State<CategoriaPage> {
   void initState() {
     super.initState();
     _serviciosTiendas = ServiciosCategorias();
-    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
-    _modulosFuture = _serviciosModulos.getModulos();
+    _categoriasFuture =
+        _serviciosTiendas.getCategorias(context, widget.perfil.UsuarioId);
+    _modulosFuture = _serviciosModulos.getModulos(context);
 
     _categoriasFuture.then((data) {
       setState(() {
@@ -68,137 +69,139 @@ class _CategoriaPageState extends State<CategoriaPage> {
   }
 
   void _showCreateCategoryDialog() {
-  TextEditingController nombreController = TextEditingController();
-  Modulos? selectedModulo;
+    TextEditingController nombreController = TextEditingController();
+    Modulos? selectedModulo;
 
-  showDialog(
-    context: context,
-    builder: (context) => StatefulBuilder(
-      builder: (context, setState) {
-        return AlertDialog(
-          title: const Text('Crear Categoría'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nombreController,
-                decoration: const InputDecoration(labelText: 'Nombre'),
-              ),
-              const SizedBox(height: 20),
-              const Text('Color'),
-              GestureDetector(
-                onTap: () {
-                  _showColorPickerDialog((color) {
-                    setState(() {
-                      _selectedColor = color;
-                    });
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  height: 40,
-                  color: _selectedColor,
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Crear Categoría'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nombreController,
+                  decoration: const InputDecoration(labelText: 'Nombre'),
                 ),
-              ),
-              const SizedBox(height: 20),
-              FutureBuilder<List<Modulos>>(
-                future: _modulosFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator();
-                  } else if (snapshot.hasError) {
-                    return const Text('Error al cargar los módulos');
-                  } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                    return const Text('No hay módulos disponibles');
+                const SizedBox(height: 20),
+                const Text('Color'),
+                GestureDetector(
+                  onTap: () {
+                    _showColorPickerDialog((color) {
+                      setState(() {
+                        _selectedColor = color;
+                      });
+                    });
+                  },
+                  child: Container(
+                    width: double.infinity,
+                    height: 40,
+                    color: _selectedColor,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                FutureBuilder<List<Modulos>>(
+                  future: _modulosFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return const Text('Error al cargar los módulos');
+                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                      return const Text('No hay módulos disponibles');
+                    } else {
+                      return DropdownButtonFormField<Modulos>(
+                        decoration: const InputDecoration(labelText: 'Módulo'),
+                        items: snapshot.data!.map((modulo) {
+                          return DropdownMenuItem<Modulos>(
+                            value: modulo,
+                            child: Text(modulo.Nombre),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            selectedModulo = value;
+                          });
+                        },
+                      );
+                    }
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () async {
+                  if (nombreController.text.isEmpty || selectedModulo == null) {
+                    _showToast('Todos los campos son obligatorios');
+                    return;
+                  }
+                  bool result = await ServiciosCategorias().registrarCategoria(
+                    context,
+                    selectedModulo!.Id,
+                    nombreController.text,
+                    _selectedColor.value.toRadixString(16),
+                    widget.perfil.UsuarioId,
+                  );
+                  if (result) {
+                    _showToast('Categoría creada con éxito');
+                    Navigator.pop(context);
+                    setState(() {
+                      _categoriasFuture = ServiciosCategorias().getCategorias(
+                          context, widget.perfil.UsuarioId);
+                    });
                   } else {
-                    return DropdownButtonFormField<Modulos>(
-                      decoration: const InputDecoration(labelText: 'Módulo'),
-                      items: snapshot.data!.map((modulo) {
-                        return DropdownMenuItem<Modulos>(
-                          value: modulo,
-                          child: Text(modulo.Nombre),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          selectedModulo = value;
-                        });
-                      },
-                    );
+                    _showToast('Error al crear la categoría');
                   }
                 },
+                child: const Text('Crear'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancelar'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () async {
-                if (nombreController.text.isEmpty || selectedModulo == null) {
-                  _showToast('Todos los campos son obligatorios');
-                  return;
-                }
-                bool result = await _serviciosTiendas.registratCategoria(
-                  selectedModulo!.Id,
-                  nombreController.text,
-                  _selectedColor.value.toRadixString(16),
-                  widget.perfil.UsuarioId,
-                );
-                if (result) {
-                  _showToast('Categoría creada con éxito');
-                  Navigator.pop(context);
-                  setState(() {
-                    _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
-                  });
-                } else {
-                  _showToast('Error al crear la categoría');
-                }
+          );
+        },
+      ),
+    );
+  }
+
+  void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Seleccione un color'),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: _selectedColor,
+              onColorChanged: (Color color) {
+                onColorSelected(color); // Notificar cambio de color
               },
-              child: const Text('Crear'),
             ),
+          ),
+          actions: <Widget>[
             TextButton(
+              child: const Text('Seleccionar'),
               onPressed: () {
-                Navigator.pop(context);
+                Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
             ),
           ],
         );
       },
-    ),
-  );
-}
-
-void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Seleccione un color'),
-        content: SingleChildScrollView(
-          child: ColorPicker(
-            pickerColor: _selectedColor,
-            onColorChanged: (Color color) {
-              onColorSelected(color); // Notificar cambio de color
-            },
-          ),
-        ),
-        actions: <Widget>[
-          TextButton(
-            child: const Text('Seleccionar'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ],
-      );
-    },
-  );
-}
-
+    );
+  }
 
   void _reloadCategories() {
     setState(() {
-      _categoriasFuture = _serviciosTiendas.getCategorias(widget.perfil.UsuarioId);
+      _categoriasFuture =
+          ServiciosCategorias().getCategorias(context, widget.perfil.UsuarioId);
     });
     _categoriasFuture.then((data) {
       setState(() {
@@ -242,8 +245,8 @@ void _showColorPickerDialog(ValueChanged<Color> onColorSelected) {
         actions: [
           TextButton(
             onPressed: () async {
-              bool result =
-                  await _serviciosTiendas.eliminarCategoria(categoria.Id);
+              bool result = await ServiciosCategorias()
+                  .eliminarCategoria(context, categoria.Id);
               if (result) {
                 _showToast('Categoría eliminada con éxito');
                 Navigator.pop(context);

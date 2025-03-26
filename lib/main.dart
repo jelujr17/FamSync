@@ -1,3 +1,4 @@
+import 'package:famsync/Error_Conexion.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: FutureBuilder<Widget>(
-        future: getInitialPage(),
+        future: getInitialPage(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -91,7 +92,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Future<Widget> getInitialPage() async {
+  Future<Widget> getInitialPage(BuildContext context) async {
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final int? userId = prefs.getInt('IdUsuario');
@@ -104,8 +105,10 @@ class MyApp extends StatelessWidget {
         if (perfilId == null) {
           return SeleccionPerfil(IdUsuario: userId);
         } else {
-          final Perfiles? perfil =
-              await ServicioPerfiles().getPerfilById(perfilId);
+          final Perfiles? perfil = await ServicioPerfiles()
+              .getPerfilById(context, perfilId)
+              .timeout(const Duration(seconds: 2));
+
           if (perfil == null) {
             return const OnbodingScreen();
           } else {
@@ -114,9 +117,7 @@ class MyApp extends StatelessWidget {
         }
       }
     } catch (e) {
-      // Manejar cualquier error que ocurra durante la ejecución del Future
-      print('Error en getInitialPage: $e'); // Imprimir el error en la consola
-      rethrow; // Sigue lanzando el error para que el FutureBuilder lo maneje
+      return const NoconnectionScreen();
     }
   }
 }

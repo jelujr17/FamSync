@@ -37,12 +37,12 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   // Método para cargar la imagen de perfil desde el servicio
   Future<void> _cargarImagenPerfil() async {
     if (widget.perfil.FotoPerfil.isNotEmpty) {
-      File? imagen =
-          await ServicioPerfiles().obtenerImagen(widget.perfil.FotoPerfil);
+      File? imagen = await ServicioPerfiles()
+          .obtenerImagen(context, widget.perfil.FotoPerfil);
       setState(() {
         _imagenPerfil = imagen; // Actualiza el estado de la imagen
       });
-        }
+    }
   }
 
   Future<void> _pickImage() async {
@@ -88,12 +88,13 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
         format.parse(fechaNacimientoStr);
 
         Perfiles? perfil =
-            await ServicioPerfiles().getPerfilById(widget.perfil.Id);
+            await ServicioPerfiles().getPerfilById(context, widget.perfil.Id);
         if (perfil != null) {
           int pin_actual = perfil.Pin;
           print("Imagen nueva: ${_imagenPerfil?.path}");
           if (pin_actual == int.parse(pin)) {
             bool editado = await ServicioPerfiles().editarPerfil(
+                context,
                 widget.perfil.Id,
                 nombre,
                 _imagenPerfil,
@@ -132,7 +133,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     }
   }
 
-  Future<void> _eliminarPerfil() async {/*
+  Future<void> _eliminarPerfil() async {
+    /*
     // Mostrar ventana emergente de confirmación
     bool confirm = await _mostrarConfirmacionEliminar();
     if (confirm) {
@@ -159,7 +161,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   Future<bool> _mostrarConfirmacionEliminar() async {
     TextEditingController pinController = TextEditingController();
     Perfiles? perfilEliminar =
-        await ServicioPerfiles().getPerfilById(widget.perfil.Id);
+        await ServicioPerfiles().getPerfilById(context, widget.perfil.Id);
 
     return await showDialog(
           context: context,

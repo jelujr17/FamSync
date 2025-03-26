@@ -1,4 +1,5 @@
 
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class BarraBusqueda extends StatelessWidget {
@@ -13,8 +14,10 @@ class BarraBusqueda extends StatelessWidget {
         controller: searchController,
         decoration: InputDecoration(
           filled: true,
-          hintStyle: const TextStyle(color: Color(0xFF757575)),
-          fillColor: const Color(0xFF979797).withOpacity(0.1),
+          fillColor: Colores.negro, // Fondo gris oscuro
+          hintStyle: const TextStyle(
+            color: Colores.amarillo, // Texto del placeholder en amarillo
+          ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           border: const OutlineInputBorder(
@@ -30,7 +33,7 @@ class BarraBusqueda extends StatelessWidget {
             borderSide: BorderSide.none,
           ),
           hintText: "Buscar producto",
-          prefixIcon: const Icon(Icons.search),
+          prefixIcon: const Icon(Icons.search, color: Colores.amarillo,),
         ),
       ),
     );

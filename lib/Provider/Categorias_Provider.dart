@@ -6,9 +6,9 @@ class CategoriasProvider with ChangeNotifier {
 
   List<Categorias> get categorias => _categorias;
 
-  Future<void> cargarCategorias(int usuarioId, int moduloId) async {
+  Future<void> cargarCategorias(BuildContext context, int usuarioId, int moduloId) async {
     try {
-      _categorias = await ServiciosCategorias().getCategoriasByModulo(usuarioId, moduloId);
+      _categorias = await ServiciosCategorias().getCategoriasByModulo(context, usuarioId, moduloId);
       print("Categorias cargados: ${_categorias.length}");
       notifyListeners();
     } catch (e) {

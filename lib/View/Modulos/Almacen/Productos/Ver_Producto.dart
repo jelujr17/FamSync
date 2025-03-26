@@ -31,16 +31,16 @@ class _DetallesProductoState extends State<DetallesProducto> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
+      productoProvider.cargarProductos(context, 
           widget.perfil.UsuarioId, widget.perfil.Id);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(context, widget.perfil.UsuarioId, widget.perfil.Id);
     });
     void actualizarBanner() {
       setState(() {});
@@ -280,14 +280,14 @@ class _DetallesProductoState extends State<DetallesProducto> {
                 // Lógica para eliminar el producto
                 // Por ejemplo, puedes llamar a un servicio para eliminar el producto
                 final exito = await ServicioProductos()
-                    .eliminarProducto(widget.producto.Id);
+                    .eliminarProducto(context, widget.producto.Id);
                 if (exito) {
                   // Inicializar la carga de productos
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     final productoProvider =
                         Provider.of<ProductosProvider>(context, listen: false);
                     productoProvider.cargarProductos(
-                        widget.perfil.UsuarioId, widget.perfil.Id);
+                        context, widget.perfil.UsuarioId, widget.perfil.Id);
                   });
                   Navigator.of(context)
                       .pop(); // Cerrar el diálogo de confirmación
@@ -469,7 +469,7 @@ class IconoPerfil extends StatelessWidget {
     Perfiles? perfilAux = perfilesProvider.perfiles
         .firstWhere((element) => element.Id == idPerfil);
     final imageFile =
-        await ServicioPerfiles().obtenerImagen(perfilAux.FotoPerfil);
+        await ServicioPerfiles().obtenerImagen(context, perfilAux.FotoPerfil);
     return Image.file(imageFile);
   }
 

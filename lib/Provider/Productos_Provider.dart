@@ -6,9 +6,9 @@ class ProductosProvider with ChangeNotifier {
 
   List<Productos> get productos => _productos;
 
-  Future<void> cargarProductos(int usuarioId, int perfilId) async {
+  Future<void> cargarProductos(BuildContext context, int usuarioId, int perfilId) async {
     try {
-      _productos = await ServicioProductos().getProductos(usuarioId, perfilId);
+      _productos = await ServicioProductos().getProductos(context, usuarioId, perfilId);
       print("Productos cargados: ${_productos.length}");
       notifyListeners();
     } catch (e) {

@@ -6,9 +6,9 @@ class TareasProvider with ChangeNotifier {
 
   List<Tareas> get tareas => _tareas;
 
-  Future<void> cargarTareas(int usuarioId, int perfilId) async {
+  Future<void> cargarTareas(BuildContext context, int usuarioId, int perfilId) async {
     try {
-      _tareas = await ServicioTareas().getTareas(perfilId);
+      _tareas = await ServicioTareas().getTareas(context, perfilId);
       print("Tareas cargadas: ${_tareas.length}");
       notifyListeners();
     } catch (e) {

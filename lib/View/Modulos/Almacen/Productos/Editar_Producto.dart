@@ -65,7 +65,7 @@ class _EditarProductoState extends State<EditarProducto> {
 
   void obtenerTiendas() async {
     tiendasDisponibles =
-        await ServiciosTiendas().getTiendas(widget.perfil.UsuarioId);
+        await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
     obtenerNombresTiendas();
     setState(() {
       tiendaSeleccionada ??= widget.producto.Tienda;
@@ -109,6 +109,7 @@ class _EditarProductoState extends State<EditarProducto> {
       );
 
       final exito = await ServicioProductos().actualizarProducto(
+          context,
           widget.producto.Id,
           nombre,
           _imagenesExistentes,
@@ -118,8 +119,8 @@ class _EditarProductoState extends State<EditarProducto> {
           nuevoProducto.Visible);
 
       if (exito) {
-        Productos? producto =
-            await ServicioProductos().getProductoById(widget.producto.Id);
+        Productos? producto = await ServicioProductos()
+            .getProductoById(context, widget.producto.Id);
 
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
@@ -329,7 +330,8 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
   @override
   void initState() {
     super.initState();
-    futurePerfiles = ServicioPerfiles().getPerfiles(widget.perfil.UsuarioId);
+    futurePerfiles =
+        ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;
