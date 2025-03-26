@@ -79,17 +79,17 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                 ],
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 60),
             // Texto "¿Quién está viendo?"
             Text(
-              '¿Quién está viendo?',
+              'Selecciona tu perfil',
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
                 color: Colores.amarillo,
               ),
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 100),
             // Grid de perfiles
             Expanded(
               child: GridView.builder(
