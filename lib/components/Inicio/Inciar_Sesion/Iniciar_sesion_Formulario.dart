@@ -2,6 +2,7 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/usuario.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -137,7 +138,7 @@ class _SignInFormState extends State<SignInForm> {
             children: [
               const Text(
                 "Email",
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(color: Colores.amarillo),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -149,6 +150,7 @@ class _SignInFormState extends State<SignInForm> {
                     }
                     return null;
                   },
+                  style: const TextStyle(color: Colores.amarillo),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
@@ -156,12 +158,30 @@ class _SignInFormState extends State<SignInForm> {
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: SvgPicture.asset("assets/icons/email.svg"),
                     ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), // Bordes redondeados
+                      borderSide: const BorderSide(
+                        color: Colores
+                            .negro, // Color del borde cuando está habilitado
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), // Bordes redondeados
+                      borderSide: const BorderSide(
+                        color: Colores
+                            .amarillo, // Color del borde cuando está enfocado
+                        width: 2.0,
+                      ),
+                    ),
                   ),
                 ),
               ),
               const Text(
                 "Contraseña",
-                style: TextStyle(color: Colors.black54),
+                style: TextStyle(color: Colores.amarillo),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -175,16 +195,37 @@ class _SignInFormState extends State<SignInForm> {
                     }
                     return null;
                   },
+                  style: const TextStyle(color: Colores.amarillo),
+
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: SvgPicture.asset("assets/icons/password.svg"),
+                    ),
+                    enabledBorder: UnderlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), // Bordes redondeados
+                      borderSide: const BorderSide(
+                        color: Colores
+                            .negro, // Color del borde cuando está habilitado
+                        width: 1.5,
+                      ),
+                    ),
+                    focusedBorder: UnderlineInputBorder(
+                      borderRadius:
+                          BorderRadius.circular(12), // Bordes redondeados
+                      borderSide: const BorderSide(
+                        color: Colores
+                            .amarillo, // Color del borde cuando está enfocado
+                        width: 2.0,
+                      ),
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
                         _isPasswordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
+                        color: Colores.amarillo,
                       ),
                       onPressed: () {
                         setState(() {
@@ -202,7 +243,7 @@ class _SignInFormState extends State<SignInForm> {
                     signIn(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFF77D8E),
+                    backgroundColor: Colores.negro,
                     minimumSize: const Size(double.infinity, 56),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -215,9 +256,10 @@ class _SignInFormState extends State<SignInForm> {
                   ),
                   icon: const Icon(
                     CupertinoIcons.arrow_right,
-                    color: Color(0xFFFE0037),
+                    color: Colores.amarillo,
                   ),
-                  label: const Text("Iniciar Sesión"),
+                  label: const Text("Iniciar Sesión",
+                      style: TextStyle(color: Colores.amarillo)),
                 ),
               ),
             ],

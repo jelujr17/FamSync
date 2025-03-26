@@ -44,7 +44,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Fondo blanco
+      backgroundColor: Colores.grisOscuro, // Fondo blanco
       body: SafeArea(
         child: Column(
           children: [
@@ -59,21 +59,21 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                     style: GoogleFonts.poppins(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
-                      color: Colores.principal,
+                      color: Colores.amarillo,
                     ),
                   ),
                   if (perfiles.isNotEmpty)
                     TextButton(
                       onPressed: _toggleEditMode,
                       style: TextButton.styleFrom(
-                        foregroundColor: Colors.red,
+                        foregroundColor: Colores.negro,
                       ),
                       child: Text(
                         _editMode ? 'Cancelar' : 'Editar',
                         style: GoogleFonts.poppins(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colores.eliminar),
                       ),
                     ),
                 ],
@@ -86,7 +86,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colors.black,
+                color: Colores.amarillo,
               ),
             ),
             const SizedBox(height: 30),
@@ -185,7 +185,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: Colores.amarillo,
             ),
           ),
         ],
@@ -216,13 +216,13 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colors.grey[300],
+                color: Colores.negro,
               ),
               child: const Center(
                 child: Icon(
                   Icons.add,
                   size: 50,
-                  color: Colors.black,
+                  color: Colores.amarillo,
                 ),
               ),
             ),
@@ -233,7 +233,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colors.black,
+              color: Colores.amarillo,
             ),
           ),
         ],
@@ -246,48 +246,118 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
 
     showDialog(
       context: context,
+      barrierDismissible:
+          false, // Evita que el usuario cierre el diálogo tocando fuera
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Verificación"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text("Introduzca el pin de ${perfil.Nombre}"),
-              const SizedBox(height: 16),
-              TextField(
-                controller: textController,
-                decoration: const InputDecoration(
-                  hintText: "Escribe el PIN...",
-                ),
-                keyboardType: TextInputType.number,
-                obscureText: true,
+        return Dialog(
+          backgroundColor:
+              Colors.transparent, // Hace el fondo del diálogo transparente
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: 300), // Ancho máximo del diálogo
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colores.grisOscuro, // Color de fondo del diálogo
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colores.amarillo.withOpacity(0.3),
+                    offset: const Offset(0, 30),
+                    blurRadius: 60,
+                  ),
+                  const BoxShadow(
+                    color: Colores.amarillo,
+                    offset: Offset(0, 30),
+                    blurRadius: 60,
+                  ),
+                ],
               ),
-            ],
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text("Iniciar"),
-              onPressed: () async {
-                if (textController.text == perfil.Pin.toString()) {
-                  final SharedPreferences preferencias =
-                      await SharedPreferences.getInstance();
-                  await preferencias.remove('IdPerfil');
-                  await preferencias.setInt('IdPerfil', perfil.Id);
-                  Navigator.push(
-                    context,
-                    PageTransition(
-                      type: PageTransitionType.fade,
-                      child: Home(perfil: perfil),
+              padding:
+                  const EdgeInsets.all(20), // Espaciado interno del diálogo
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Verificación",
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pin incorrecto')),
-                  );
-                }
-              },
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Introduzca el PIN de ${perfil.Nombre}",
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: textController,
+                    decoration: InputDecoration(
+                      hintText: "Escribe el PIN...",
+                      hintStyle:
+                          TextStyle(color: Colores.amarillo.withOpacity(0.6)),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colores.amarillo),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide:
+                            BorderSide(color: Colores.amarillo, width: 2.0),
+                      ),
+                    ),
+                    keyboardType: TextInputType.number,
+                    obscureText: true, // Oculta el texto para mayor seguridad
+                    style: TextStyle(color: Colores.amarillo),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).pop(); // Cierra el diálogo
+                        },
+                        child: Text(
+                          "Cancelar",
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () async {
+                          if (textController.text == perfil.Pin.toString()) {
+                            final SharedPreferences preferencias =
+                                await SharedPreferences.getInstance();
+                            await preferencias.remove('IdPerfil');
+                            await preferencias.setInt('IdPerfil', perfil.Id);
+
+                            Navigator.of(context).pop(); // Cierra el diálogo
+                            Navigator.push(
+                              context,
+                              PageTransition(
+                                type: PageTransitionType.fade,
+                                child: Home(perfil: perfil),
+                              ),
+                            );
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Pin incorrecto')),
+                            );
+                          }
+                        },
+                        child: Text(
+                          "Iniciar",
+                          style: TextStyle(color: Colores.amarillo),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ],
+          ),
         );
       },
     );

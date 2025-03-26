@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:famsync/components/Inicio/Inciar_Sesion/Iniciar_Sesion_Dialogo.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:rive/rive.dart' hide Image;
 
@@ -23,6 +24,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       "active",
       autoplay: false,
     );
+
     super.initState();
   }
 
@@ -32,20 +34,14 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-              child: const SizedBox(),
-            ),
-          ),
-          Positioned.fill(
             child: Image.asset(
-              "assets/Backgrounds/Animacion_Fondo.gif", // Ruta del archivo GIF
+              "assets/Backgrounds/Animacion_Fondo_2.gif", // Ruta del archivo GIF
               fit: BoxFit.cover, // Ajusta el GIF para cubrir toda la pantalla
             ),
           ),
           Positioned.fill(
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+              filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
               child: const SizedBox(),
             ),
           ),
@@ -68,15 +64,17 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                           Text(
                             "Organiza y sincroniza tu familia",
                             style: TextStyle(
-                              fontSize: 60,
-                              fontWeight: FontWeight.w700,
-                              fontFamily: "Poppins",
-                              height: 1.2,
-                            ),
+                                fontSize: 60,
+                                fontWeight: FontWeight.w700,
+                                fontFamily: "Poppins",
+                                height: 1.2,
+                                color: Colores.amarillo),
                           ),
                           SizedBox(height: 16),
                           Text(
-                              "Simplifica la gestión familiar. Organiza tareas, eventos y productos de manera fácil y rápida con FamSync."),
+                            "Simplifica la gestión familiar. Organiza tareas, eventos y productos de manera fácil y rápida con FamSync.",
+                            style: TextStyle(color: Colores.amarillo),
+                          ),
                         ],
                       ),
                     ),
@@ -98,14 +96,6 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                               context,
                               onValue: (_) {},
                             );
-                            // showCustomDialog(
-                            //   context,
-                            //   onValue: (_) {
-                            //     setState(() {
-                            //       isShowSignInDialog = false;
-                            //     });
-                            //   },
-                            // );
                           },
                         );
                       },
@@ -113,8 +103,8 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Text(
-                        "FamSync te ayuda a gestionar eventos, tareas y recursos familiares en un solo lugar. Organiza tu hogar con facilidad y eficiencia.",
-                      ),
+                          "FamSync te ayuda a gestionar eventos, tareas y recursos familiares en un solo lugar. Organiza tu hogar con facilidad y eficiencia.",
+                          style: TextStyle(color: Colores.amarillo)),
                     ),
                     const Spacer(),
                   ],

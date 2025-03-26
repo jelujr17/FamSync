@@ -19,7 +19,7 @@ void iniciar_sesion_dialogo(BuildContext context,
     context: context,
     barrierLabel: "Barrier",
     barrierDismissible: true,
-    barrierColor: Colores.fondo.withOpacity(0.5),
+    barrierColor: Colores.grisOscuro.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (_, __, ___) {
       return Center(
@@ -28,16 +28,16 @@ void iniciar_sesion_dialogo(BuildContext context,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.95),
+            color: Colores.grisOscuro.withOpacity(0.95),
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colores.amarillo.withOpacity(0.3),
                 offset: const Offset(0, 30),
                 blurRadius: 60,
               ),
               const BoxShadow(
-                color: Colors.black45,
+                color: Colores.amarillo,
                 offset: Offset(0, 30),
                 blurRadius: 60,
               ),
@@ -55,6 +55,7 @@ void iniciar_sesion_dialogo(BuildContext context,
                       const Text(
                         "Iniciar sesión",
                         style: TextStyle(
+                          color: Colores.amarillo,
                           fontSize: 34,
                           fontFamily: "Poppins",
                           fontWeight: FontWeight.w600,
@@ -65,6 +66,10 @@ void iniciar_sesion_dialogo(BuildContext context,
                         child: Text(
                           "Administra fácilmente tu hogar con FamSync. Organiza eventos, tareas y productos en un solo lugar para una mejor sincronización familiar.",
                           textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colores.amarillo,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       const SignInForm(),
@@ -78,7 +83,7 @@ void iniciar_sesion_dialogo(BuildContext context,
                             child: Text(
                               "O",
                               style: TextStyle(
-                                color: Colors.black26,
+                                color: Colores.amarillo,
                                 fontWeight: FontWeight.w500,
                               ),
                             ),
@@ -90,7 +95,7 @@ void iniciar_sesion_dialogo(BuildContext context,
                         padding: EdgeInsets.symmetric(vertical: 24),
                         child: Text(
                           "Inicia sesión con Facebook, Apple o Google",
-                          style: TextStyle(color: Colors.black54),
+                          style: TextStyle(color: Colores.amarillo),
                         ),
                       ),
                       Row(
@@ -128,7 +133,7 @@ void iniciar_sesion_dialogo(BuildContext context,
                       const SizedBox(height: 24),
                       Text(
                         "¿No tienes una cuenta?",
-                        style: TextStyle(color: Colors.black54),
+                        style: TextStyle(color: Colores.amarillo),
                       ),
                       const SizedBox(
                           height:
