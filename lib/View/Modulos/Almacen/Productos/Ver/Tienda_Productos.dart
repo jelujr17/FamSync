@@ -1,8 +1,8 @@
-
 import 'dart:math';
 
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
+import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 
@@ -10,12 +10,14 @@ class ProductosPorTienda extends StatefulWidget {
   final Tiendas tienda;
   final List<Productos> productos;
   final Function(Productos) onTap;
+  final Perfiles perfil;
 
   const ProductosPorTienda({
     super.key,
     required this.tienda,
     required this.productos,
     required this.onTap,
+    required this.perfil,
   });
 
   @override
@@ -77,9 +79,9 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
             ),
             itemBuilder: (context, index) {
               return ProductoCard(
-                producto: widget.productos[index],
-                onTap: () => widget.onTap(widget.productos[index]),
-              );
+                  producto: widget.productos[index],
+                  onTap: () => widget.onTap(widget.productos[index]),
+                  perfil: widget.perfil);
             },
           ),
         ),

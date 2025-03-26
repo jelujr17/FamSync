@@ -31,8 +31,8 @@ class _DetallesProductoState extends State<DetallesProducto> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(context, 
-          widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
@@ -40,7 +40,8 @@ class _DetallesProductoState extends State<DetallesProducto> {
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(context, widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
     });
     void actualizarBanner() {
       setState(() {});
@@ -152,7 +153,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
               children: [
                 ProductoCard(
                   producto: widget.producto,
-                  pressOnSeeMore: () {},
+                  onTap: () {},
                 ),
                 TopRoundedContainer(
                   color: const Color(0xFFF6F7F9),
@@ -360,6 +361,7 @@ class ProductoCard extends StatelessWidget {
     super.key,
     required this.producto,
     this.pressOnSeeMore,
+    required Function() onTap,
   });
 
   final Productos producto;

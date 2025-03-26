@@ -1,19 +1,20 @@
-
 import 'dart:math';
 
 import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 
 class ProductosTotales extends StatefulWidget {
   final List<Productos> productos;
   final Function(Productos) onTap;
+  final Perfiles perfil;
 
-  const ProductosTotales({
-    super.key,
-    required this.productos,
-    required this.onTap,
-  });
+  const ProductosTotales(
+      {super.key,
+      required this.productos,
+      required this.onTap,
+      required this.perfil});
 
   @override
   State<ProductosTotales> createState() => _ProductosTotalesState();
@@ -76,6 +77,7 @@ class _ProductosTotalesState extends State<ProductosTotales> {
               return ProductoCard(
                 producto: widget.productos[index],
                 onTap: () => widget.onTap(widget.productos[index]),
+                perfil: widget.perfil,
               );
             },
           ),

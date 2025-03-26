@@ -2,8 +2,11 @@ import 'package:famsync/Model/Almacen/listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/Almacen/tiendas.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Banner_Listas_Productos.dart';
+import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Anadir_Lista.dart';
+import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Crear_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Barra_Busqueda_Productos.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver/Recientes_Productos.dart';
@@ -237,7 +240,7 @@ class AlmacenState extends State<Almacen> {
                                       .reversed
                                       .toList(),
                                   onTap: (producto) =>
-                                      _navigateToDetallesProducto(producto),
+                                      _navigateToDetallesProducto(producto), perfil: perfil,
                                 ),
                                 const SizedBox(height: 20),
                                 for (var tienda in ObtenerTiendasConProductos())
@@ -247,13 +250,14 @@ class AlmacenState extends State<Almacen> {
                                         .where((p) => p.Tienda == tienda.Nombre)
                                         .toList(),
                                     onTap: (producto) =>
-                                        _navigateToDetallesProducto(producto),
+                                        _navigateToDetallesProducto(producto), perfil: widget.perfil,
                                   ),
                                 const SizedBox(height: 20),
                                 ProductosTotales(
                                   productos: productosFiltrados,
                                   onTap: (producto) =>
                                       _navigateToDetallesProducto(producto),
+                                  perfil: perfil,
                                 ),
                               ],
                             ),
@@ -410,11 +414,13 @@ class ProductoCard extends StatefulWidget {
     this.aspectRetio = 1.02,
     required this.producto,
     required this.onTap,
+    required this.perfil,
   });
 
   final double width, aspectRetio;
   final Productos producto;
   final VoidCallback onTap;
+  final Perfiles perfil;
 
   @override
   _ProductoCardState createState() => _ProductoCardState();
@@ -474,6 +480,10 @@ class _ProductoCardState extends State<ProductoCard> {
       });
     }
   }
+
+  void actualizarBanner() {
+      setState(() {});
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -559,22 +569,74 @@ class _ProductoCardState extends State<ProductoCard> {
             Spacer(),
             // Botón para añadir a la lista
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: ElevatedButton(
-                onPressed: () {
-                  // Lógica para añadir el producto a la lista
-                  print("Añadido a la lista: ${widget.producto.Nombre}");
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colores.amarillo,
-                  foregroundColor: Colores.negro,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: 12), // Espaciado lateral
+              child: SizedBox(
+                width: double.infinity, // Ocupa todo el ancho disponible
+                child: ElevatedButton(
+                  onPressed: () {
+                    final listasProvider =
+                        Provider.of<ListasProvider>(context, listen: false);
+                    listasProvider.listas.isEmpty
+                        ? showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      16), // Bordes redondeados opcionales
+                                ),
+                                child: Container(
+                                  width: double.infinity,
+                                  margin: const EdgeInsets.all(20),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 16,
+                                  ),
+                                  child: VentanaListas(
+                                    actualizarBanner: actualizarBanner,
+                                    perfil: widget.perfil,
+                                  ),
+                                ),
+                              );
+                            },
+                          )
+                        : showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return Dialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                      16), // Bordes redondeados opcionales
+                                ),
+                                child: SizedBox(
+                                  width: MediaQuery.of(context).size.width *
+                                      0.8, // 80% del ancho de la pantalla
+                                  height: MediaQuery.of(context).size.height *
+                                      0.4, // 40% del alto de la pantalla
+                                  child: Container(
+                                    padding: const EdgeInsets.all(20),
+                                    child: VentanaAnadirListas(
+                                      actualizarBanner: actualizarBanner,
+                                      producto: widget.producto,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colores.amarillo,
+                    foregroundColor: Colores.negro,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                ),
-                child: const Text(
-                  "Añadir a la lista",
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  child: const Text(
+                    "Añadir a la lista",
+                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ),
