@@ -4,9 +4,8 @@ import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart';
-import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Mis_Categorias.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
-import 'package:famsync/View/Modulos/Tareas/Ver/Tareas_Filtradas.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Mis_Categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
@@ -52,7 +51,8 @@ class _AgendaState extends State<Agenda> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
-      tareasProvider.cargarTareas(context, widget.perfil.UsuarioId, widget.perfil.Id);
+      tareasProvider.cargarTareas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
 
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
@@ -163,39 +163,9 @@ class _AgendaState extends State<Agenda> {
                   ),
                 ),
                 const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    "Mis categorías",
-                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                        color: Colores.amarillo, fontWeight: FontWeight.bold),
-                  ),
+                MisCategorias(
+                  perfil: widget.perfil,
                 ),
-                if (categoriasProvider.categorias.isEmpty)
-                  const Center(child: CircularProgressIndicator())
-                else
-                  ...categoriasProvider.categorias.map((categoria) => Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 20, bottom: 20),
-                        child: SecondaryCourseCard(
-                          title: categoria.Nombre,
-                          iconsSrc: "assets/icons/code.svg",
-                          colorl: Color(int.parse("0xFF${categoria.Color}")),
-                          textColor: getContrastingTextColor(Color(int.parse(
-                              "0xFF${categoria.Color}"))), // Color del texto dinámico
-                          onIconPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => TareasFiltradas(
-                                  perfil: widget.perfil,
-                                  filtro: categoria.Nombre,
-                                ), // Página de destino
-                              ),
-                            );
-                          },
-                        ),
-                      )),
                 const SizedBox(height: 100),
               ],
             ),

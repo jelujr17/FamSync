@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class SecondaryCourseCard extends StatelessWidget {
   const SecondaryCourseCard({
     super.key,
     required this.title,
-    this.iconsSrc = "assets/icons/ios.svg",
+    required this.cantidadTareas,
     required this.colorl,
     required this.textColor,
-    required this.onIconPressed, // Añadir el callback para el icono
+    required this.colorCategoria,
+    required this.onIconPressed,
   });
 
-  final String title, iconsSrc;
-  final Color colorl;
-  final Color textColor;
-  final VoidCallback onIconPressed; // Definir el callback para el icono
+  final String title;
+  final int cantidadTareas;
+  final Color colorl, textColor, colorCategoria;
+  final VoidCallback onIconPressed;
 
   @override
   Widget build(BuildContext context) {
@@ -38,10 +38,10 @@ class SecondaryCourseCard extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  "Watch video - 15 mins",
+                Text(
+                  "Tareas totales: $cantidadTareas",
                   style: TextStyle(
-                    color: Colors.white60,
+                    color: textColor,
                     fontSize: 16,
                   ),
                 ),
@@ -58,10 +58,40 @@ class SecondaryCourseCard extends StatelessWidget {
           const SizedBox(width: 8),
           GestureDetector(
             onTap: onIconPressed, // Definir la acción al presionar el icono
-            child: SvgPicture.asset(iconsSrc),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: colorCategoria, // Color del rombo
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.circular(
+                    8), // Bordes redondeados para suavizar el rombo
+              ),
+              transform: Matrix4.translationValues(20, -10, 0) *
+                  Matrix4.rotationZ(0.785398), // Mueve el rombo y lo rota
+              alignment: Alignment.center,
+              child: Transform.rotate(
+                angle:
+                    -0.785398, // Rota el ícono para que quede en su orientación normal
+                child: Icon(
+                  Icons.arrow_forward_ios,
+                  color: getContrastingTextColor(
+                      colorCategoria), // Color del ícono
+                ),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
+}
+
+Color getContrastingTextColor(Color color) {
+  // Calcula el brillo del color
+  final double brightness =
+      (color.red * 0.299 + color.green * 0.587 + color.blue * 0.114) / 255;
+
+  // Si el brillo es alto, usa un color oscuro; de lo contrario, usa un color claro
+  return brightness > 0.5 ? Colors.black : Colors.white;
 }

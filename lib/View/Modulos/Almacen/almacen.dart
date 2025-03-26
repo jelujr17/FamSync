@@ -262,7 +262,7 @@ class AlmacenState extends State<Almacen> {
                               ],
                             ),
                     ],
-                  ),
+                  ),      
                 ),
         ),
       ),
