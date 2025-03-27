@@ -100,8 +100,7 @@ class ServicioTareas {
       List<int> Destinatario,
       String Nombre,
       String Descripcion,
-      int IdEvento,
-      int Estado,
+      int? IdEvento,
       int Categoria,
       int Prioridad,
       int Progreso) async {
@@ -110,7 +109,6 @@ class ServicioTareas {
       'Destinatario': jsonEncode(Destinatario).toString(),
       'Nombre': Nombre.toString(),
       'Descripcion': Descripcion.toString(),
-      'Estado': Estado,
       'Categoria': Categoria,
       'IdEvento': IdEvento,
       'Prioridad': Prioridad,
@@ -138,7 +136,6 @@ class ServicioTareas {
       String Nombre,
       String Descripcion,
       int IdEvento,
-      int Estado,
       int Categoria,
       int Prioridad,
       int Progreso) async {
@@ -153,7 +150,6 @@ class ServicioTareas {
           'Destinatario': jsonEncode(Destinatario).toString(),
           'Nombre': Nombre.toString(),
           'Descripcion': Descripcion.toString(),
-          'Estado': Estado,
           'Categoria': Categoria,
           'IdEvento': IdEvento,
           'Prioridad': Prioridad,

@@ -1,4 +1,4 @@
-
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class CampoTiendaCrear extends StatefulWidget {
@@ -40,28 +40,33 @@ class CampoTiendaCrearState extends State<CampoTiendaCrear> {
         value: tiendaSeleccionada,
         decoration: InputDecoration(
           labelText: 'Selecciona una tienda',
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
           hintText: 'Ingresa una tienda para el producto',
-          hintStyle: const TextStyle(color: Colors.grey),
+          hintStyle: const TextStyle(color: Colores.negro),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          prefixIcon: Icon(Icons.store, color: Colors.yellow),
+          prefixIcon: Icon(Icons.store, color: Colores.amarillo),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colores.negro, // Fondo del campo de entrada
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.yellow, width: 2),
+            borderSide: const BorderSide(color: Colores.amarillo, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
         ),
+        dropdownColor: Colores.negro, // Fondo del menú desplegable
         items: widget.nombresTienda.map((String tienda) {
           return DropdownMenuItem<String>(
             value: tienda,
-            child: Text(tienda),
+            child: Text(
+              tienda,
+              style:
+                  const TextStyle(color: Colores.amarillo), // Color del texto
+            ),
           );
         }).toList(),
         onChanged: (String? newValue) {
@@ -72,6 +77,9 @@ class CampoTiendaCrearState extends State<CampoTiendaCrear> {
             widget.onTiendaSeleccionada(newValue);
           }
         },
+        style: const TextStyle(
+          color: Colores.amarillo, // Color del texto seleccionado
+        ),
         validator: widget.validator,
       ),
     );

@@ -32,7 +32,7 @@ class CampoPerfilesCrear extends StatelessWidget {
             title: Text(
               perfil.Nombre,
               style: const TextStyle(
-                color: Colores.texto,
+                color: Colores.amarillo,
                 fontWeight: FontWeight.normal,
               ),
             ),
@@ -68,7 +68,7 @@ class CampoPerfilesCrear extends StatelessWidget {
                   )
                 : const Icon(Icons.image_not_supported),
             tileColor: perfilSeleccionado.contains(perfil.Id)
-                ? Colores.principal.withOpacity(0.2)
+                ? Colores.negro
                 : null,
             onTap: () {
               onPerfilSeleccionado(perfil.Id);

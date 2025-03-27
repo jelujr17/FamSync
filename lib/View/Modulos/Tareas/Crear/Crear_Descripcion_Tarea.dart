@@ -1,14 +1,13 @@
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-class CampoPrecioCrear extends StatelessWidget {
-  final TextEditingController precioController;
+class CampoDescripcionCrearTarea extends StatelessWidget {
+  final TextEditingController descripcionController;
   final String? Function(String?)? validator;
 
-  const CampoPrecioCrear({
+  const CampoDescripcionCrearTarea({
     super.key,
-    required this.precioController,
+    required this.descripcionController,
     this.validator,
   });
 
@@ -17,31 +16,18 @@ class CampoPrecioCrear extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextFormField(
-        controller: precioController,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(
-              RegExp(r'[0-9.]')), // Permitir solo números y puntos
-          TextInputFormatter.withFunction((oldValue, newValue) {
-            // Reemplazar comas por puntos
-            final newText = newValue.text.replaceAll(',', '.');
-            return newValue.copyWith(
-              text: newText,
-              selection: TextSelection.collapsed(offset: newText.length),
-            );
-          }),
-        ],
+        controller: descripcionController,
         decoration: InputDecoration(
-          labelText: 'Precio',
+          labelText: 'Descripción de la Tarea',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
-          hintText: 'Ingresa un precio para el producto',
+          hintText: 'Ingresa una descripción para la Tarea',
           hintStyle: const TextStyle(color: Colores.amarillo),
-          prefixIcon: Icon(Icons.euro, color: Colores.amarillo),
+          prefixIcon: const Icon(Icons.description, color: Colores.amarillo),
           filled: true,
           fillColor: Colores.negro,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide.none, // Sin borde inicial
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -59,8 +45,12 @@ class CampoPrecioCrear extends StatelessWidget {
               const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         ),
         style: const TextStyle(
-            color: Colores.amarillo), // Cambia el color del texto aquí
-
+          color: Colores.amarillo, // Cambia el color del texto aquí
+        ),
+        maxLines: 5, // Permite que el campo tenga hasta 5 líneas
+        minLines: 3, // Mínimo de 3 líneas para que sea más grande
+        keyboardType:
+            TextInputType.multiline, // Permite entrada de texto multilinea
         validator: validator,
       ),
     );

@@ -1,4 +1,4 @@
-
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class CampoNombreCrear extends StatelessWidget {
@@ -19,23 +19,23 @@ class CampoNombreCrear extends StatelessWidget {
         controller: nombreController,
         decoration: InputDecoration(
           labelText: 'Nombre del producto',
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
           hintText: 'Ingresa un nombre para el producto',
-          hintStyle: const TextStyle(color: Colors.grey),
-          prefixIcon: const Icon(Icons.shopping_bag, color: Colors.blue),
+          hintStyle: const TextStyle(color: Colores.amarillo),
+          prefixIcon: const Icon(Icons.shopping_bag, color: Colores.amarillo),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colores.negro,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none, // Sin borde inicial
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+            borderSide: BorderSide(color: Colores.negro, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
+            borderSide: const BorderSide(color: Colores.amarillo, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -44,6 +44,9 @@ class CampoNombreCrear extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         ),
+        style: const TextStyle(
+            color: Colores.amarillo), // Cambia el color del texto aquí
+
         validator: validator,
       ),
     );

@@ -2,6 +2,7 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
+import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
@@ -90,7 +91,7 @@ class _AgendaState extends State<Agenda> {
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => Placeholder(),
+        builder: (context) => CrearTarea(perfil: widget.perfil),
       ),
     );
 

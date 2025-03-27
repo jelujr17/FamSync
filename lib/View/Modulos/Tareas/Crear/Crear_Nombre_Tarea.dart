@@ -1,14 +1,13 @@
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-class CampoPrecioCrear extends StatelessWidget {
-  final TextEditingController precioController;
+class CampoNombreCrearTarea extends StatelessWidget {
+  final TextEditingController nombreController;
   final String? Function(String?)? validator;
 
-  const CampoPrecioCrear({
+  const CampoNombreCrearTarea({
     super.key,
-    required this.precioController,
+    required this.nombreController,
     this.validator,
   });
 
@@ -17,31 +16,18 @@ class CampoPrecioCrear extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: TextFormField(
-        controller: precioController,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(
-              RegExp(r'[0-9.]')), // Permitir solo números y puntos
-          TextInputFormatter.withFunction((oldValue, newValue) {
-            // Reemplazar comas por puntos
-            final newText = newValue.text.replaceAll(',', '.');
-            return newValue.copyWith(
-              text: newText,
-              selection: TextSelection.collapsed(offset: newText.length),
-            );
-          }),
-        ],
+        controller: nombreController,
         decoration: InputDecoration(
-          labelText: 'Precio',
+          labelText: 'Nombre de la Tarea',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
-          hintText: 'Ingresa un precio para el producto',
+          hintText: 'Ingresa un nombre para la Tarea',
           hintStyle: const TextStyle(color: Colores.amarillo),
-          prefixIcon: Icon(Icons.euro, color: Colores.amarillo),
+          prefixIcon: const Icon(Icons.shopping_bag, color: Colores.amarillo),
           filled: true,
           fillColor: Colores.negro,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide.none,
+            borderSide: BorderSide.none, // Sin borde inicial
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),

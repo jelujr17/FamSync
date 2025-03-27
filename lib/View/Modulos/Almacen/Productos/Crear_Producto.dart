@@ -7,6 +7,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Precio_Produc
 import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Tienda_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -190,11 +191,11 @@ class _CrearProductoState extends State<CrearProducto> {
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
                         padding: EdgeInsets.zero,
-                        backgroundColor: Colors.white,
+                        backgroundColor: Colores.negro,
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new,
-                        color: Colors.black,
+                        color: Colores.amarillo,
                         size: 20,
                       ),
                     ),
@@ -215,7 +216,7 @@ class _CrearProductoState extends State<CrearProducto> {
                   child: Text(
                     "Crear Producto",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colors.black, fontWeight: FontWeight.bold),
+                        color: Colores.amarillo, fontWeight: FontWeight.bold),
                   ),
                 ),
                 FormularioCrearProducto(
@@ -244,22 +245,22 @@ class _CrearProductoState extends State<CrearProducto> {
           ),
         ),
         bottomNavigationBar: TopRoundedContainer(
-          color: Colors.white,
+          color: Colores.grisOscuro,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: const Color.fromARGB(255, 255, 195, 67),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colores.negro,
+                  foregroundColor: Colores.grisOscuro,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
                 onPressed: _crearProducto,
-                child: const Text("Registrar Producto"),
+                child:  Text("Registrar Producto", style: TextStyle(color: Colores.amarillo)),
               ),
             ),
           ),
