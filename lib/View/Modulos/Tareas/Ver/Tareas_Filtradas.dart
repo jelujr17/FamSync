@@ -110,7 +110,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
             .toList();
         break;
       default:
-        tareas = [];
+        tareas = tareasAux.where((tarea) => tarea.Categoria.toString() == widget.filtro).toList();
     }
 
     setState(() {
