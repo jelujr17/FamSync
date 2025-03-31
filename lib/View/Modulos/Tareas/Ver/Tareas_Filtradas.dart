@@ -68,7 +68,8 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
 
-    tareasProvider.cargarTareas(context, widget.perfil.UsuarioId, widget.perfil.Id);
+    tareasProvider.cargarTareas(
+        context, widget.perfil.UsuarioId, widget.perfil.Id);
     categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
 
     // Obtener las tareas filtradas según la categoría
@@ -87,6 +88,14 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   void obtenerTareasCategoria() {
     final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
     tareasAux = tareasProvider.tareas;
+    final CategoriasProvider categoriasProvider =
+        Provider.of<CategoriasProvider>(context, listen: false);
+    final categoriasAux = categoriasProvider.categorias;
+    int idCategoria = categoriasAux
+        .firstWhere((categoria) => categoria.Nombre == widget.filtro,
+           )
+        .Id;
+      print("ID Categoria: $idCategoria");
 
     switch (widget.filtro) {
       case "Todas":
@@ -110,7 +119,9 @@ class TareasFiltradasState extends State<TareasFiltradas> {
             .toList();
         break;
       default:
-        tareas = tareasAux.where((tarea) => tarea.Categoria.toString() == widget.filtro).toList();
+        tareas = tareasAux
+            .where((tarea) => tarea.Categoria == idCategoria)
+            .toList();
     }
 
     setState(() {
