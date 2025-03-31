@@ -4,14 +4,35 @@ import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
-import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Categoria_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Descripcion_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Nombre_Tarea.dart';
+import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Perfiles_Tarea.dart';
+import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Prioridad_Tarea.dart';
+import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:provider/provider.dart';
+
+class PerfilProvider extends InheritedWidget {
+  final Perfiles perfil;
+
+  const PerfilProvider({
+    super.key,
+    required this.perfil,
+    required super.child,
+  });
+
+  static PerfilProvider? of(BuildContext context) {
+    return context.dependOnInheritedWidgetOfExactType<PerfilProvider>();
+  }
+
+  @override
+  bool updateShouldNotify(PerfilProvider oldWidget) {
+    return perfil != oldWidget.perfil;
+  }
+}
 
 class CrearTarea extends StatefulWidget {
   final Perfiles perfil;
@@ -28,12 +49,14 @@ class CrearTareaState extends State<CrearTarea> {
   final TextEditingController _descripcionController = TextEditingController();
   final TextEditingController _dropdownSearchFieldController =
       TextEditingController();
+  final TextEditingController _prioridadController = TextEditingController();
 
   final List<int> _perfilSeleccionado = [];
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
   List<String> nombresCategoria = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+  int prioridad = 0;
 
   @override
   void initState() {
@@ -54,6 +77,7 @@ class CrearTareaState extends State<CrearTarea> {
   @override
   void dispose() {
     _nombreController.dispose();
+    _prioridadController.dispose();
     _descripcionController.dispose();
     super.dispose();
   }
@@ -72,16 +96,23 @@ class CrearTareaState extends State<CrearTarea> {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text;
       final descripcion = _descripcionController.text;
+      final categoria = categoriaSeleccionada ?? nombresCategoria[0];
+      final categoriaId = categoriasDisponibles
+          .firstWhere(
+            (cat) => cat.Nombre == categoria,
+          )
+          .Id;
+    
 
       final nuevaTarea = Tareas(
         Id: 0,
         Nombre: nombre,
         Descripcion: descripcion,
         Creador: widget.perfil.Id,
-        Destinatario: [],
-        Categoria: widget.perfil.UsuarioId,
+        Destinatario: _perfilSeleccionado,
+        Categoria: categoriaId,
         IdEvento: null,
-        Prioridad: 1,
+        Prioridad: prioridad,
         Progreso: 0,
       );
 
@@ -101,7 +132,7 @@ class CrearTareaState extends State<CrearTarea> {
         print("Tarea creada con éxito");
         Navigator.of(context).push(PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
-              Almacen(perfil: widget.perfil),
+              Agenda(perfil: widget.perfil),
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const begin = Offset(1.0, 0.0);
             const end = Offset.zero;
@@ -191,11 +222,18 @@ class CrearTareaState extends State<CrearTarea> {
                   categoriasDisponibles: categoriasDisponibles,
                   categoriaSeleccionada: categoriaSeleccionada,
                   nombresCategoria: nombresCategoria,
+                  prioridadController: _prioridadController,
                   suggestionBoxController: suggestionBoxController,
                   onGuardar: _crearTarea,
+                  prioridadSeleccionada: prioridad,
                   onCategoriaSeleccionada: (String? tienda) {
                     setState(() {
                       categoriaSeleccionada = tienda;
+                    });
+                  },
+                  onPrioridadSeleccionada: (int prioridad) {
+                    setState(() {
+                      this.prioridad = prioridad;
                     });
                   },
                 ),
@@ -244,79 +282,103 @@ class FormularioCrearTarea extends StatefulWidget {
   final SuggestionsBoxController suggestionBoxController;
   final Function() onGuardar;
   final Function(String?) onCategoriaSeleccionada;
+    final Function(int) onPrioridadSeleccionada;
 
-  FormularioCrearTarea({
-    super.key,
-    required this.perfil,
-    required this.formKey,
-    required this.nombreController,
-    required this.descripcionController,
-    required this.dropdownSearchFieldController,
-    required this.perfilSeleccionado,
-    required this.categoriasDisponibles,
-    required this.categoriaSeleccionada,
-    required this.nombresCategoria,
-    required this.suggestionBoxController,
-    required this.onGuardar,
-    required this.onCategoriaSeleccionada,
-  });
+  int prioridadSeleccionada;
+  final TextEditingController prioridadController;
+
+  FormularioCrearTarea(
+      {super.key,
+      required this.perfil,
+      required this.formKey,
+      required this.nombreController,
+      required this.descripcionController,
+      required this.dropdownSearchFieldController,
+      required this.perfilSeleccionado,
+      required this.categoriasDisponibles,
+      required this.categoriaSeleccionada,
+      required this.nombresCategoria,
+      required this.suggestionBoxController,
+      required this.onGuardar,
+      required this.onCategoriaSeleccionada,
+      required this.prioridadSeleccionada,
+      required this.onPrioridadSeleccionada,
+      required this.prioridadController});
 
   @override
   FormularioCrearTareaState createState() => FormularioCrearTareaState();
 }
 
 class FormularioCrearTareaState extends State<FormularioCrearTarea> {
-  List<Perfiles> perfiles = [];
-
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final perfilesProvider =
-          Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Form(
-      key: widget.formKey,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CampoNombreCrearTarea(
-            nombreController: widget.nombreController,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Por favor, ingresa un nombre válido.';
-              }
-              return null;
-            },
+    return Consumer<PerfilesProvider>(
+      builder: (context, perfilesProvider, child) {
+        final perfiles = perfilesProvider.perfiles;
+
+        return Form(
+          key: widget.formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CampoNombreCrearTarea(
+                nombreController: widget.nombreController,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Por favor, ingresa un nombre válido.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              CampoDescripcionCrearTarea(
+                descripcionController: widget.descripcionController,
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Por favor, ingresa un nombre válido.';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 20),
+              CampoCategoriaCrearTarea(
+                categoriaSeleccionada: widget.categoriaSeleccionada,
+                categoriasDisponibles: widget.nombresCategoria,
+                categorias: widget.categoriasDisponibles,
+                onCategoriaSeleccionada: (String? tienda) {
+                  setState(() {
+                    widget.categoriaSeleccionada = tienda;
+                  });
+                },
+              ),
+              const SizedBox(height: 20),
+              perfiles.isEmpty
+                  ? const Center(child: Text('No hay perfiles disponibles.'))
+                  : CampoPerfilesCrearTarea(
+                      perfiles: perfiles,
+                      perfilSeleccionado: widget.perfilSeleccionado,
+                      onPerfilSeleccionado: (perfilId) {
+                        setState(() {
+                          if (widget.perfilSeleccionado.contains(perfilId)) {
+                            widget.perfilSeleccionado.remove(perfilId);
+                          } else {
+                            widget.perfilSeleccionado.add(perfilId);
+                          }
+                        });
+                      },
+                    ),
+              const SizedBox(height: 20),
+              CampoPrioridadCrearTarea(
+                prioridadSeleccionada: widget.prioridadSeleccionada,
+                onPrioridadSeleccionada: (value) {
+                  widget.onPrioridadSeleccionada(value);
+                },
+              ),
+              const SizedBox(height: 20),
+            ],
           ),
-          const SizedBox(height: 20),
-          CampoDescripcionCrearTarea(
-            descripcionController: widget.descripcionController,
-            validator: (value) {
-              if (value == null || value.trim().isEmpty) {
-                return 'Por favor, ingresa un nombre válido.';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20),
-          CampoCategoriaCrearTarea(
-            categoriaSeleccionada: widget.categoriaSeleccionada,
-            categoriasDisponibles: widget.nombresCategoria,
-            categorias: widget.categoriasDisponibles,
-            onCategoriaSeleccionada: (String? tienda) {
-              setState(() {
-                widget.categoriaSeleccionada = tienda;
-              });
-            },
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
