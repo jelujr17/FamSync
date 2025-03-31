@@ -36,8 +36,8 @@ class PerfilProvider extends InheritedWidget {
 
 class CrearTarea extends StatefulWidget {
   final Perfiles perfil;
-
-  const CrearTarea({super.key, required this.perfil});
+  final String categoria;
+  const CrearTarea({super.key, required this.perfil, this.categoria = ""});
 
   @override
   CrearTareaState createState() => CrearTareaState();
@@ -61,6 +61,8 @@ class CrearTareaState extends State<CrearTarea> {
 
   @override
   void initState() {
+    categoriaSeleccionada = widget.categoria;
+
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =

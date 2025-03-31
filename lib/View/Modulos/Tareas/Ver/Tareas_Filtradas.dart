@@ -2,6 +2,7 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
+import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
@@ -47,7 +48,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   String errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
   String aux = "";
-
+  int idCategoria = 0;
   @override
   void initState() {
     super.initState();
@@ -91,11 +92,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     final CategoriasProvider categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
     final categoriasAux = categoriasProvider.categorias;
-    int idCategoria = categoriasAux
-        .firstWhere((categoria) => categoria.Nombre == widget.filtro,
-           )
+    idCategoria = categoriasAux
+        .firstWhere(
+          (categoria) => categoria.Nombre == widget.filtro,
+        )
         .Id;
-      print("ID Categoria: $idCategoria");
+    print("ID Categoria: $idCategoria");
 
     switch (widget.filtro) {
       case "Todas":
@@ -119,9 +121,8 @@ class TareasFiltradasState extends State<TareasFiltradas> {
             .toList();
         break;
       default:
-        tareas = tareasAux
-            .where((tarea) => tarea.Categoria == idCategoria)
-            .toList();
+        tareas =
+            tareasAux.where((tarea) => tarea.Categoria == idCategoria).toList();
     }
 
     setState(() {
@@ -267,12 +268,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
       context,
       MaterialPageRoute(
         builder: (context) =>
-            Placeholder(), // Reemplaza con tu página de creación
+            CrearTarea(perfil: widget.perfil, categoria: widget.filtro),
       ),
     );
 
     if (result == true) {
-      obtenerTareasCategoria(); // Actualiza las tareas después de crear una nueva
+      Navigator.pop(context, true); // Se realizó una actualización
     }
   }
 }
