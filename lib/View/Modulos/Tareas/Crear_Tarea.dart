@@ -58,7 +58,6 @@ class CrearTareaState extends State<CrearTarea> {
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   int prioridad = 0;
   bool mostrarErrorPerfiles = false;
-  bool isLoading = false;
 
   @override
   void initState() {
@@ -95,39 +94,21 @@ class CrearTareaState extends State<CrearTarea> {
   }
 
   Future<void> _crearTarea() async {
+    if (_perfilSeleccionado.isEmpty) {
+      setState(() {
+        mostrarErrorPerfiles = true;
+      });
+      return; // Detener la ejecución si no hay perfiles seleccionados
+    } else {
+      setState(() {
+        mostrarErrorPerfiles = false;
+      });
+    }
+
     if (_formKey.currentState!.validate()) {
-      // Validar si no hay perfiles seleccionados
-      if (_perfilSeleccionado.isEmpty) {
-        setState(() {
-          mostrarErrorPerfiles = true; // Mostrar el mensaje de error
-        });
-        return; // Detener la ejecución si no hay perfiles seleccionados
-      } else {
-        setState(() {
-          mostrarErrorPerfiles =
-              false; // Ocultar el mensaje de error si hay perfiles seleccionados
-        });
-      }
-
-      if (prioridad == 0) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, selecciona una prioridad.')),
-        );
-        return;
-      }
-
       final nombre = _nombreController.text;
       final descripcion = _descripcionController.text;
-      final categoria = categoriaSeleccionada ??
-          (nombresCategoria.isNotEmpty ? nombresCategoria[0] : null);
-
-      if (categoria == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Por favor, selecciona una categoría.')),
-        );
-        return;
-      }
-
+      final categoria = categoriaSeleccionada ?? nombresCategoria[0];
       final categoriaId = categoriasDisponibles
           .firstWhere(
             (cat) => cat.Nombre == categoria,
@@ -146,54 +127,43 @@ class CrearTareaState extends State<CrearTarea> {
         Progreso: 0,
       );
 
-      setState(() {
-        isLoading = true;
-      });
+      final exito = await ServicioTareas().registrarTarea(
+        context,
+        nuevaTarea.Creador,
+        nuevaTarea.Destinatario,
+        nuevaTarea.Nombre,
+        nuevaTarea.Descripcion,
+        nuevaTarea.IdEvento,
+        nuevaTarea.Categoria,
+        nuevaTarea.Prioridad,
+        nuevaTarea.Progreso,
+      );
 
-      try {
-        final exito = await ServicioTareas().registrarTarea(
-          context,
-          nuevaTarea.Creador,
-          nuevaTarea.Destinatario,
-          nuevaTarea.Nombre,
-          nuevaTarea.Descripcion,
-          nuevaTarea.IdEvento,
-          nuevaTarea.Categoria,
-          nuevaTarea.Prioridad,
-          nuevaTarea.Progreso,
+      if (exito) {
+        print("Tarea creada con éxito");
+        Navigator.of(context).push(PageRouteBuilder(
+          pageBuilder: (context, animation, secondaryAnimation) =>
+              Agenda(perfil: widget.perfil),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            const begin = Offset(1.0, 0.0);
+            const end = Offset.zero;
+            const curve = Curves.easeInOut;
+
+            var tween =
+                Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            var offsetAnimation = animation.drive(tween);
+
+            return SlideTransition(
+              position: offsetAnimation,
+              child: child,
+            );
+          },
+        ));
+      } else {
+        print("Error al crear la tarea");
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al crear la tarea.')),
         );
-
-        if (exito) {
-          print("Tarea creada con éxito");
-          Navigator.of(context).push(PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                Agenda(perfil: widget.perfil),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) {
-              const begin = Offset(1.0, 0.0);
-              const end = Offset.zero;
-              const curve = Curves.easeInOut;
-
-              var tween =
-                  Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
-              var offsetAnimation = animation.drive(tween);
-
-              return SlideTransition(
-                position: offsetAnimation,
-                child: child,
-              );
-            },
-          ));
-        } else {
-          print("Error al crear la tarea");
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Error al crear la tarea.')),
-          );
-        }
-      } finally {
-        setState(() {
-          isLoading = false;
-        });
       }
     }
   }
@@ -267,7 +237,6 @@ class CrearTareaState extends State<CrearTarea> {
                   suggestionBoxController: suggestionBoxController,
                   onGuardar: _crearTarea,
                   prioridadSeleccionada: prioridad,
-                  mostrarErrorPerfiles: mostrarErrorPerfiles,
                   onCategoriaSeleccionada: (String? tienda) {
                     setState(() {
                       categoriaSeleccionada = tienda;
@@ -276,11 +245,6 @@ class CrearTareaState extends State<CrearTarea> {
                   onPrioridadSeleccionada: (int prioridad) {
                     setState(() {
                       this.prioridad = prioridad;
-                    });
-                  },
-                  onActualizarErrorPerfiles: (bool error) {
-                    setState(() {
-                      mostrarErrorPerfiles = error;
                     });
                   },
                 ),
@@ -304,10 +268,8 @@ class CrearTareaState extends State<CrearTarea> {
                   ),
                 ),
                 onPressed: _crearTarea,
-                child: isLoading
-                    ? const CircularProgressIndicator(color: Colores.amarillo)
-                    : Text("Registrar Tarea",
-                        style: TextStyle(color: Colores.amarillo)),
+                child: Text("Registrar Tarea",
+                    style: TextStyle(color: Colores.amarillo)),
               ),
             ),
           ),
@@ -332,11 +294,9 @@ class FormularioCrearTarea extends StatefulWidget {
   final Function() onGuardar;
   final Function(String?) onCategoriaSeleccionada;
   final Function(int) onPrioridadSeleccionada;
-  final Function(bool) onActualizarErrorPerfiles;
 
   int prioridadSeleccionada;
   final TextEditingController prioridadController;
-  final bool mostrarErrorPerfiles;
 
   FormularioCrearTarea(
       {super.key,
@@ -354,9 +314,7 @@ class FormularioCrearTarea extends StatefulWidget {
       required this.onCategoriaSeleccionada,
       required this.prioridadSeleccionada,
       required this.onPrioridadSeleccionada,
-      required this.prioridadController,
-      required this.mostrarErrorPerfiles,
-      required this.onActualizarErrorPerfiles});
+      required this.prioridadController});
 
   @override
   FormularioCrearTareaState createState() => FormularioCrearTareaState();
@@ -388,7 +346,7 @@ class FormularioCrearTareaState extends State<FormularioCrearTarea> {
                 descripcionController: widget.descripcionController,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Por favor, ingresa una descripción válida.';
+                    return 'Por favor, ingresa un nombre válido.';
                   }
                   return null;
                 },
@@ -399,44 +357,24 @@ class FormularioCrearTareaState extends State<FormularioCrearTarea> {
                 categoriasDisponibles: widget.nombresCategoria,
                 categorias: widget.categoriasDisponibles,
                 onCategoriaSeleccionada: (String? tienda) {
-                  setState(() {
-                    widget.categoriaSeleccionada = tienda;
-                  });
+                  widget.onCategoriaSeleccionada(tienda);
                 },
               ),
               const SizedBox(height: 20),
               perfiles.isEmpty
                   ? const Center(child: Text('No hay perfiles disponibles.'))
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CampoPerfilesCrearTarea(
-                          perfiles: perfiles,
-                          perfilSeleccionado: widget.perfilSeleccionado,
-                          onPerfilSeleccionado: (perfilId) {
-                            setState(() {
-                              if (widget.perfilSeleccionado
-                                  .contains(perfilId)) {
-                                widget.perfilSeleccionado.remove(perfilId);
-                              } else {
-                                widget.perfilSeleccionado.add(perfilId);
-                              }
-                              // No actualizar el mensaje de error aquí, ya que solo debe mostrarse al intentar registrar
-                            });
-                          },
-                        ),
-                        if (widget.mostrarErrorPerfiles)
-                          const Padding(
-                            padding: EdgeInsets.only(top: 8),
-                            child: Text(
-                              'Por favor, selecciona al menos un perfil.',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                      ],
+                  : CampoPerfilesCrearTarea(
+                      perfiles: perfiles,
+                      perfilSeleccionado: widget.perfilSeleccionado,
+                      onPerfilSeleccionado: (perfilId) {
+                        setState(() {
+                          if (widget.perfilSeleccionado.contains(perfilId)) {
+                            widget.perfilSeleccionado.remove(perfilId);
+                          } else {
+                            widget.perfilSeleccionado.add(perfilId);
+                          }
+                        });
+                      },
                     ),
               const SizedBox(height: 20),
               CampoPrioridadCrearTarea(

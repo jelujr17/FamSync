@@ -109,7 +109,7 @@ class MisCategoriasState extends State<MisCategorias> {
                     MaterialPageRoute(
                       builder: (context) => TareasFiltradas(
                         perfil: widget.perfil,
-                        filtro: categoria.Id.toString(),
+                        filtro: categoria.Nombre,
                       ), // Página de destino
                     ),
                   );
