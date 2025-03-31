@@ -51,8 +51,7 @@ class TareasProvider with ChangeNotifier {
       case "Urgentes":
         return tareas.where((tarea) => tarea.Prioridad == 3).length;
       case "En proceso":
-        return tareas
-            .where((tarea) => tarea.Progreso < 0 && tarea.Progreso > 100)
+        return tareas.where((tarea) => tarea.Progreso > 0 && tarea.Progreso < 100)
             .length;
       default:
         return 0;

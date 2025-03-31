@@ -92,12 +92,6 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     final CategoriasProvider categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
     final categoriasAux = categoriasProvider.categorias;
-    idCategoria = categoriasAux
-        .firstWhere(
-          (categoria) => categoria.Nombre == widget.filtro,
-        )
-        .Id;
-    print("ID Categoria: $idCategoria");
 
     switch (widget.filtro) {
       case "Todas":
@@ -121,6 +115,11 @@ class TareasFiltradasState extends State<TareasFiltradas> {
             .toList();
         break;
       default:
+        idCategoria = categoriasAux
+            .firstWhere(
+              (categoria) => categoria.Nombre == widget.filtro,
+            )
+            .Id;
         tareas =
             tareasAux.where((tarea) => tarea.Categoria == idCategoria).toList();
     }
@@ -222,7 +221,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                       prioridad: tarea.Prioridad,
                                       progreso: tarea.Progreso,
                                       descripcion:
-                                          "Estado: ${tarea.Descripcion}",
+                                          "Descripción: ${tarea.Descripcion}",
                                       destinatarios: tarea.Destinatario,
                                       perfil: widget.perfil,
                                       orden: index + 1,
