@@ -55,7 +55,7 @@ final List<Estados> estadosTareas = [
     titulo: "En proceso",
     descripcion:
         "Tareas empezasas que no se han completado.",
-    iconSrc: Iconos_SVG.urgenteTareas,
+    iconSrc: Iconos_SVG.enProcesoTareas,
     color: Colores.negro,
     colorTexto: Colores.amarillo,
   )
