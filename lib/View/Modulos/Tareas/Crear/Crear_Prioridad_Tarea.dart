@@ -54,7 +54,7 @@ class _CampoPrioridadCrearTareaState extends State<CampoPrioridadCrearTarea> {
                 // Botón de prioridad "Baja"
                 _buildPrioridadButton(1, 'Baja', Colores.hecho),
                 // Botón de prioridad "Media"
-                _buildPrioridadButton(2, 'Media', Colores.amarillo),
+                _buildPrioridadButton(2, 'Media', Colores.naranja),
                 // Botón de prioridad "Alta"
                 _buildPrioridadButton(3, 'Alta', Colores.eliminar),
               ],

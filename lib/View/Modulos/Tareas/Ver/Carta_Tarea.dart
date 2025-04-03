@@ -1,14 +1,16 @@
 import 'dart:io';
 
+import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CartaTarea extends StatefulWidget {
   final String titulo, descripcion;
-  final int prioridad, progreso;
+  final int prioridad, progreso, categoria;
   final List<int> destinatarios;
   final Perfiles perfil;
   final int orden;
@@ -22,6 +24,7 @@ class CartaTarea extends StatefulWidget {
     required this.destinatarios,
     required this.perfil,
     required this.orden,
+    required this.categoria,
   });
 
   @override
@@ -31,20 +34,57 @@ class CartaTarea extends StatefulWidget {
 class CartaTareaState extends State<CartaTarea> {
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
-
+  late Categorias categoria;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-
+      final categoriasProvider =
+          Provider.of<CategoriasProvider>(context, listen: false);
       // Cargar perfiles
       await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      // Cargar categorías
+      await categoriasProvider.cargarCategorias(
+          context, widget.perfil.UsuarioId, 5);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
+      obtenerCategoria();
     });
+  }
+
+  Future<String?> obtenerCategoriaNombre() async {
+    try {
+      final categoriasProvider =
+          Provider.of<CategoriasProvider>(context, listen: false);
+      final categoria = categoriasProvider.categorias
+          .firstWhere((cat) => cat.Id == widget.categoria);
+      return categoria.Nombre;
+    } catch (e) {
+      print("Error al obtener la categoría: $e");
+      return null;
+    }
+  }
+
+  void obtenerCategoria() async {
+    try {
+      final categoriasProvider =
+          Provider.of<CategoriasProvider>(context, listen: false);
+      categoria = categoriasProvider.categorias
+          .firstWhere((cat) => cat.Id == widget.categoria);
+      print("Categoría obtenida: ${categoria.Nombre}");
+    } catch (e) {
+      categoria = Categorias(
+        Id: 0,
+        Nombre: "Sin categoría",
+        Color: widget.orden.isEven ? "FFDB89" : "030303",
+        IdModulo: 0,
+        IdUsuario: 0,
+      );
+      print("Error al obtener la categoría: $e");
+    }
   }
 
   void obtenerAvatares() async {
@@ -65,8 +105,8 @@ class CartaTareaState extends State<CartaTarea> {
         perfilesDestinatarios.map(
           (perfil) async {
             try {
-              final imagen =
-                  await ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil);
+              final imagen = await ServicioPerfiles()
+                  .obtenerImagen(context, perfil.FotoPerfil);
               print("Imagen cargada para perfil ${perfil.Id}: $imagen");
               return imagen;
             } catch (e) {
@@ -86,6 +126,15 @@ class CartaTareaState extends State<CartaTarea> {
     } catch (e) {
       print('Error al cargar avatares: $e');
     }
+  }
+
+  Color getContrastingTextColor(Color color) {
+    // Calcula el brillo del color
+    final double brightness =
+        (color.red * 0.299 + color.green * 0.587 + color.blue * 0.114) / 255;
+
+    // Si el brillo es alto, usa un color oscuro; de lo contrario, usa un color claro
+    return brightness > 0.5 ? Colors.black : Colors.white;
   }
 
   @override
@@ -134,31 +183,67 @@ class CartaTareaState extends State<CartaTarea> {
           const SizedBox(height: 8),
 
           // Prioridad
-          Row(
-            children: [
-              Icon(
-                Icons.calendar_today,
-                size: 16,
-                color:
-                    widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
+          Container(
+            constraints: const BoxConstraints(
+                minWidth: 150), // Ancho mínimo para consistencia
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+            decoration: BoxDecoration(
+              color: widget.prioridad == 1
+                  ? Colores.hecho.withOpacity(0.2)
+                  : widget.prioridad == 2
+                      ? Colores.naranja.withOpacity(0.2)
+                      : Colores.eliminar.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color: widget.orden.isEven ? Colores.amarillo : Colores.negro,
+                width: 1.5,
               ),
-              const SizedBox(width: 4),
-              Text(
-                widget.prioridad.toString(),
-                style: TextStyle(
-                  color: widget.orden.isEven
-                      ? Colores.amarillo
-                      : Colores.grisOscuro,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  widget.prioridad == 1
+                      ? Icons.check_circle
+                      : widget.prioridad == 2
+                          ? Icons.warning
+                          : Icons.error,
+                  color: widget.prioridad == 1
+                      ? Colores.hecho
+                      : widget.prioridad == 2
+                          ? Colores.naranja
+                          : Colores.eliminar,
+                  size: 16,
                 ),
-              ),
-            ],
+                const SizedBox(width: 8),
+                Text(
+                  widget.prioridad == 1
+                      ? 'Baja'
+                      : widget.prioridad == 2
+                          ? 'Media'
+                          : 'Alta',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: widget.prioridad == 1
+                        ? Colores.hecho
+                        : widget.prioridad == 2
+                            ? Colores.naranja
+                            : Colores.eliminar,
+                  ),
+                ),
+              ],
+            ),
           ),
           const SizedBox(height: 16),
 
-          // Avatares
+          // Avatares y categoría
           Row(
-            children: avatares.isNotEmpty
-                ? avatares.map((avatar) {
+            children: [
+              // Avatares
+              if (avatares.isNotEmpty)
+                Row(
+                  children: avatares.map((avatar) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: CircleAvatar(
@@ -169,8 +254,11 @@ class CartaTareaState extends State<CartaTarea> {
                         },
                       ),
                     );
-                  }).toList()
-                : List.generate(
+                  }).toList(),
+                )
+              else
+                Row(
+                  children: List.generate(
                     widget.destinatarios.length,
                     (index) => Padding(
                       padding: const EdgeInsets.only(right: 8.0),
@@ -187,6 +275,60 @@ class CartaTareaState extends State<CartaTarea> {
                       ),
                     ),
                   ),
+                ),
+
+              // Espaciador para empujar la categoría hacia la mitad horizontal
+              Spacer(),
+
+              // Categoría
+              Container(
+                constraints: const BoxConstraints(
+                    minWidth: 150), // Ancho mínimo para consistencia
+                child: FutureBuilder(
+                  future: obtenerCategoriaNombre(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Text(
+                        'Cargando categoría...',
+                        style: TextStyle(fontSize: 14, color: Colors.grey),
+                      );
+                    } else if (snapshot.hasError) {
+                      return const Text(
+                        'Error al cargar categoría',
+                        style: TextStyle(fontSize: 14, color: Colors.red),
+                      );
+                    } else {
+                      return Container(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 4, horizontal: 8),
+                        decoration: BoxDecoration(
+                          color: Color(int.parse("0xFF${categoria.Color}"))
+                              .withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(
+                            color: widget.orden.isEven
+                                ? Colores.amarillo.withOpacity(0.5)
+                                : Colores.negro.withOpacity(0.5),
+                            width: 1.5,
+                          ),
+                        ),
+                        child: Text(
+                          snapshot.data ?? 'Sin categoría',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: widget.orden.isEven
+                                ? Colores.amarillo
+                                : Colores.negro,
+                          ),
+                        ),
+                      );
+                    }
+                  },
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 16),
 

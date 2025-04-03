@@ -49,6 +49,8 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   final TextEditingController _searchController = TextEditingController();
   String aux = "";
   int idCategoria = 0;
+
+
   @override
   void initState() {
     super.initState();
@@ -225,6 +227,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                       destinatarios: tarea.Destinatario,
                                       perfil: widget.perfil,
                                       orden: index + 1,
+                                      categoria: tarea.Categoria,
                                     ),
                                   );
                                 },

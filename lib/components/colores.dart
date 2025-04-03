@@ -13,4 +13,5 @@ class Colores {
   static const Color amarillo = Color(0xFFFFDB89); // Amarillo
   static const Color negro = Color(0xFF030303); // Negro
   static const Color grisOscuro =  Color(0xFF404042); // Gris oscuro
+  static const Color naranja =  Color(0xFFE9972C); // Gris oscuro
 }
