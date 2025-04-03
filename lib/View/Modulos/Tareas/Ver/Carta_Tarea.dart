@@ -2,29 +2,24 @@ import 'dart:io';
 
 import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
+import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class CartaTarea extends StatefulWidget {
-  final String titulo, descripcion;
-  final int prioridad, progreso, categoria;
-  final List<int> destinatarios;
   final Perfiles perfil;
   final int orden;
+  final Tareas tarea;
 
   const CartaTarea({
     super.key,
-    required this.titulo,
-    required this.prioridad,
-    required this.progreso,
-    required this.descripcion,
-    required this.destinatarios,
     required this.perfil,
     required this.orden,
-    required this.categoria,
+    required this.tarea,
   });
 
   @override
@@ -34,7 +29,13 @@ class CartaTarea extends StatefulWidget {
 class CartaTareaState extends State<CartaTarea> {
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
-  late Categorias categoria;
+  late Categorias categoria = Categorias(
+    Id: 0,
+    Nombre: "Sin categoría",
+    Color: widget.orden.isEven ? "FFDB89" : "030303",
+    IdModulo: 0,
+    IdUsuario: 0,
+  );
   @override
   void initState() {
     super.initState();
@@ -60,7 +61,7 @@ class CartaTareaState extends State<CartaTarea> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       final categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.categoria);
+          .firstWhere((cat) => cat.Id == widget.tarea.Categoria);
       return categoria.Nombre;
     } catch (e) {
       print("Error al obtener la categoría: $e");
@@ -73,7 +74,7 @@ class CartaTareaState extends State<CartaTarea> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.categoria);
+          .firstWhere((cat) => cat.Id == widget.tarea.Categoria);
       print("Categoría obtenida: ${categoria.Nombre}");
     } catch (e) {
       categoria = Categorias(
@@ -94,7 +95,7 @@ class CartaTareaState extends State<CartaTarea> {
 
       // Filtrar los perfiles destinatarios
       perfilesDestinatarios = perfilesProvider.perfiles
-          .where((perfil) => widget.destinatarios.contains(perfil.Id))
+          .where((perfil) => widget.tarea.Destinatario.contains(perfil.Id))
           .toList();
 
       print(
@@ -137,6 +138,114 @@ class CartaTareaState extends State<CartaTarea> {
     return brightness > 0.5 ? Colors.black : Colors.white;
   }
 
+  void eliminartarea(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16), // Bordes redondeados
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colores.amarillo.withOpacity(0.3),
+                  offset: const Offset(0, 30),
+                  blurRadius: 60,
+                ),
+                const BoxShadow(
+                  color: Colores.amarillo,
+                  offset: Offset(0, 30),
+                  blurRadius: 60,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Eliminar tarea',
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    '¿Estás seguro de que deseas eliminar esta tarea?',
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el diálogo
+                      },
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          color: Colores.amarillo,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        // Lógica para eliminar la tarea
+                        final exito = await ServicioTareas()
+                            .eliminarTarea(context, widget.tarea.Id);
+                        if (exito) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final tareaProvider = Provider.of<TareasProvider>(
+                                context,
+                                listen: false);
+                            tareaProvider.eliminarTarea(widget.tarea.Id);
+                          });
+                          Navigator.of(context).pop(); // Cerrar el diálogo
+                          setState(() {
+                            // Actualizar el estado de la interfaz de usuario si es necesario
+                          });
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Error al eliminar la tarea.'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Eliminar',
+                        style: TextStyle(
+                          color: Colores.eliminar,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -163,7 +272,7 @@ class CartaTareaState extends State<CartaTarea> {
             children: [
               Expanded(
                 child: Text(
-                  widget.titulo,
+                  widget.tarea.Nombre,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -173,10 +282,167 @@ class CartaTareaState extends State<CartaTarea> {
                   ),
                 ),
               ),
-              Icon(
-                Icons.more_vert,
-                color:
-                    widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
+              Align(
+                alignment: Alignment.centerRight,
+                child: PopupMenuButton<String>(
+                  onSelected: (String result) {
+                    if (result == 'Editar') {
+                      // Acción para editar
+                    } else if (result == 'Progresar') {
+                      // Acción para eliminar
+                    } else if (result == 'Completar') {
+                      // Acción para marcar como completada
+                    } else if (result == 'Duplicar') {
+                      // Acción para duplicar la tarea
+                    } else if (result == 'Eliminar') {
+                      eliminartarea(context);
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                    PopupMenuItem<String>(
+                      value: 'Completar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(Icons.check_circle, color: Colores.hecho),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Progresar',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colores.hecho,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'Duplicar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(Icons.copy, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Duplicar',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.blue,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'Asignar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(Icons.person_add, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Asignar a Otro Usuario',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'Editar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(
+                              Icons.edit,
+                              color: widget.orden.isEven
+                                  ? Colores.negro
+                                  : Colores.amarillo,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Editar',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: widget.orden.isEven
+                                    ? Colores.negro
+                                    : Colores.amarillo,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'Eliminar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            const Icon(Icons.delete, color: Colores.eliminar),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Eliminar',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colores.eliminar,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                  icon: Icon(
+                    Icons.more_vert,
+                    color:
+                        widget.orden.isEven ? Colores.amarillo : Colores.negro,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.circular(16), // Bordes redondeados
+                  ),
+                  color: widget.orden.isEven
+                      ? Colores.amarillo
+                      : Colores.negro, // Color de fondo del menú
+                  constraints: const BoxConstraints(
+                    maxHeight: 200, // Altura máxima del menú
+                  ),
+                ),
               ),
             ],
           ),
@@ -188,9 +454,9 @@ class CartaTareaState extends State<CartaTarea> {
                 minWidth: 150), // Ancho mínimo para consistencia
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: BoxDecoration(
-              color: widget.prioridad == 1
+              color: widget.tarea.Prioridad == 1
                   ? Colores.hecho.withOpacity(0.2)
-                  : widget.prioridad == 2
+                  : widget.tarea.Prioridad == 2
                       ? Colores.naranja.withOpacity(0.2)
                       : Colores.eliminar.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
@@ -203,31 +469,31 @@ class CartaTareaState extends State<CartaTarea> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  widget.prioridad == 1
+                  widget.tarea.Prioridad == 1
                       ? Icons.check_circle
-                      : widget.prioridad == 2
+                      : widget.tarea.Prioridad == 2
                           ? Icons.warning
                           : Icons.error,
-                  color: widget.prioridad == 1
+                  color: widget.tarea.Prioridad == 1
                       ? Colores.hecho
-                      : widget.prioridad == 2
+                      : widget.tarea.Prioridad == 2
                           ? Colores.naranja
                           : Colores.eliminar,
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  widget.prioridad == 1
+                  widget.tarea.Prioridad == 1
                       ? 'Baja'
-                      : widget.prioridad == 2
+                      : widget.tarea.Prioridad == 2
                           ? 'Media'
                           : 'Alta',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: widget.prioridad == 1
+                    color: widget.tarea.Prioridad == 1
                         ? Colores.hecho
-                        : widget.prioridad == 2
+                        : widget.tarea.Prioridad == 2
                             ? Colores.naranja
                             : Colores.eliminar,
                   ),
@@ -259,7 +525,7 @@ class CartaTareaState extends State<CartaTarea> {
               else
                 Row(
                   children: List.generate(
-                    widget.destinatarios.length,
+                    widget.tarea.Destinatario.length,
                     (index) => Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: CircleAvatar(
@@ -313,7 +579,7 @@ class CartaTareaState extends State<CartaTarea> {
                           ),
                         ),
                         child: Text(
-                          snapshot.data ?? 'Sin categoría',
+                          snapshot.data ?? categoria.Nombre,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -337,7 +603,7 @@ class CartaTareaState extends State<CartaTarea> {
             children: [
               Expanded(
                 child: LinearProgressIndicator(
-                  value: widget.progreso / 100,
+                  value: widget.tarea.Progreso / 100,
                   backgroundColor: Colors.grey.shade300,
                   color: widget.orden.isEven
                       ? Colores.amarillo
@@ -346,7 +612,7 @@ class CartaTareaState extends State<CartaTarea> {
               ),
               const SizedBox(width: 8),
               Text(
-                "${widget.progreso}%",
+                "${widget.tarea.Progreso}%",
                 style: TextStyle(
                   fontSize: 14,
                   color: widget.orden.isEven
@@ -360,7 +626,7 @@ class CartaTareaState extends State<CartaTarea> {
 
           // Descripción
           Text(
-            widget.descripcion,
+            "Descripción: ${widget.tarea.Descripcion}",
             style: TextStyle(
               fontSize: 14,
               color:

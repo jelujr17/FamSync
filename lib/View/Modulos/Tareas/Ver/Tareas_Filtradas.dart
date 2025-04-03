@@ -50,7 +50,6 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   String aux = "";
   int idCategoria = 0;
 
-
   @override
   void initState() {
     super.initState();
@@ -142,124 +141,129 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
-        body: SafeArea(
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 40),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            if (Navigator.canPop(context)) {
-                              Navigator.pop(context);
-                            } else {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      Agenda(perfil: widget.perfil),
-                                ),
-                              );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            padding: EdgeInsets.zero,
-                            backgroundColor: Colores.negro,
+        body: Stack(
+          children: [
+            // Contenido desplazable
+            SafeArea(
+              
+              child: isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 80),
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Text(
+                              "Tareas $aux",
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium!
+                                  .copyWith(color: Colores.amarillo),
+                            ),
                           ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new,
-                            color: Colores.amarillo,
-                            size: 20,
+                          BarraAgenda(
+                            searchController: _searchController,
+                            crearTarea: _crearTarea,
                           ),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Text(
-                          "Tareas $aux",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium!
-                              .copyWith(color: Colores.amarillo),
-                        ),
-                      ),
-                      BarraAgenda(
-                        searchController: _searchController,
-                        crearTarea: _crearTarea,
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        child: Text(
-                          "Usted tiene ${tareas.length} tareas",
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colores.amarillo,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                            left: 20, right: 20, top: 20, bottom: 20),
-                        child: tareas.isNotEmpty
-                            ? ListView.builder(
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                itemCount: tareas.length,
-                                itemBuilder: (context, index) {
-                                  final tarea = tareas[index];
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0),
-                                    child: CartaTarea(
-                                      titulo: tarea.Nombre,
-                                      prioridad: tarea.Prioridad,
-                                      progreso: tarea.Progreso,
-                                      descripcion:
-                                          "Descripción: ${tarea.Descripcion}",
-                                      destinatarios: tarea.Destinatario,
-                                      perfil: widget.perfil,
-                                      orden: index + 1,
-                                      categoria: tarea.Categoria,
-                                    ),
-                                  );
-                                },
-                              )
-                            : const Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(Icons.task_alt,
-                                        size: 60, color: Colores.amarillo),
-                                    SizedBox(height: 16),
-                                    Text(
-                                      "¡No tienes tareas pendientes!",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          color: Colores.amarillo),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      "Crea tu primera tarea ahora.",
-                                      style: TextStyle(
-                                          fontSize: 14,
-                                          color: Colores.amarillo),
-                                    ),
-                                  ],
-                                ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              "Usted tiene ${tareas.length} tareas",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colores.amarillo,
                               ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, top: 20, bottom: 20),
+                            child: tareas.isNotEmpty
+                                ? ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: tareas.length,
+                                    itemBuilder: (context, index) {
+                                      final tarea = tareas[index];
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0),
+                                        child: CartaTarea(
+                                          perfil: widget.perfil,
+                                          orden: index + 1,
+                                          tarea: tarea,
+                                        ),
+                                      );
+                                    },
+                                  )
+                                : const Center(
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(Icons.task_alt,
+                                            size: 60, color: Colores.amarillo),
+                                        SizedBox(height: 16),
+                                        Text(
+                                          "¡No tienes tareas pendientes!",
+                                          style: TextStyle(
+                                              fontSize: 18,
+                                              color: Colores.amarillo),
+                                        ),
+                                        SizedBox(height: 8),
+                                        Text(
+                                          "Crea tu primera tarea ahora.",
+                                          style: TextStyle(
+                                              fontSize: 14,
+                                              color: Colores.amarillo),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+            ),
+
+            // Botón de "ir atrás" fijo
+            Positioned(
+              top: 100,
+              left: 0,
+              child: ElevatedButton(
+                onPressed: () {
+                  if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  } else {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => Agenda(perfil: widget.perfil),
+                      ),
+                    );
+                  }
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: const CircleBorder(),
+                  padding: EdgeInsets.zero,
+                  backgroundColor: Colores.negro,
                 ),
+                child: const Icon(
+                  Icons.arrow_back_ios_new,
+                  color: Colores.amarillo,
+                  size: 20,
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

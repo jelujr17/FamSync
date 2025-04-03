@@ -12,7 +12,7 @@ class Tareas {
   final List<int> Destinatario;
   final String Nombre;
   final String Descripcion;
-  final int Categoria;
+  final int? Categoria;
   final int? IdEvento;
   final int Prioridad;
   final int Progreso;
@@ -101,7 +101,7 @@ class ServicioTareas {
       String Nombre,
       String Descripcion,
       int? IdEvento,
-      int Categoria,
+      int? Categoria,
       int Prioridad,
       int Progreso) async {
     Map<String, dynamic> TareaData = {

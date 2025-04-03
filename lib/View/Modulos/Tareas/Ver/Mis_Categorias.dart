@@ -59,10 +59,14 @@ class MisCategoriasState extends State<MisCategorias> {
     // Cuenta las tareas por categoría
     for (final tarea in tareas) {
       if (tareasPorCategoria.containsKey(tarea.Categoria)) {
-        tareasPorCategoria[tarea.Categoria] =
-            (tareasPorCategoria[tarea.Categoria] ?? 0) + 1;
+        if (tarea.Categoria != null) {
+          tareasPorCategoria[tarea.Categoria!] =
+              (tareasPorCategoria[tarea.Categoria!] ?? 0) + 1;
+        }
       }
     }
+
+    // Lista temporal para almacenar las claves a eliminar
   }
 
   @override
@@ -83,7 +87,14 @@ class MisCategoriasState extends State<MisCategorias> {
         if (categorias.isEmpty)
           const Center(child: CircularProgressIndicator())
         else
-          ...categorias.asMap().entries.map((entry) {
+          ...categorias
+              .where((categoria) =>
+                  tareasPorCategoria[categoria.Id] != null &&
+                  tareasPorCategoria[categoria.Id]! >
+                      0) // Filtra categorías con tareas
+              .toList().asMap()
+              .entries
+              .map((entry) {
             final index = entry.key; // Índice del elemento
             final categoria = entry.value; // Categoría actual
 

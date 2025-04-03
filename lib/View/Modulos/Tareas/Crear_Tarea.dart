@@ -36,8 +36,8 @@ class PerfilProvider extends InheritedWidget {
 
 class CrearTarea extends StatefulWidget {
   final Perfiles perfil;
-  final String categoria;
-  const CrearTarea({super.key, required this.perfil, this.categoria = ""});
+  final String? categoria;
+  const CrearTarea({super.key, required this.perfil, this.categoria});
 
   @override
   CrearTareaState createState() => CrearTareaState();
@@ -62,7 +62,7 @@ class CrearTareaState extends State<CrearTarea> {
   @override
   void initState() {
     categoriaSeleccionada = widget.categoria;
-
+    print("Categoría seleccionada: $categoriaSeleccionada");
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =
@@ -110,12 +110,17 @@ class CrearTareaState extends State<CrearTarea> {
     if (_formKey.currentState!.validate()) {
       final nombre = _nombreController.text;
       final descripcion = _descripcionController.text;
-      final categoria = categoriaSeleccionada ?? nombresCategoria[0];
-      final categoriaId = categoriasDisponibles
-          .firstWhere(
-            (cat) => cat.Nombre == categoria,
-          )
-          .Id;
+      final categoria = categoriaSeleccionada ?? "Sin categoría";
+      int? categoriaId;
+      if (categoria != "Sin categoría") {
+        categoriaId = categoriasDisponibles
+            .firstWhere(
+              (cat) => cat.Nombre == categoria,
+            )
+            .Id;
+      }
+
+      print("Categoría seleccionada: $categoriaId");
 
       final nuevaTarea = Tareas(
         Id: 0,
