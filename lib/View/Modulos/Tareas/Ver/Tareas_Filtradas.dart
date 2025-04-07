@@ -1,6 +1,5 @@
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
-import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
@@ -45,37 +44,30 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   List<Tareas> tareas = [];
   List<Tareas> tareasAux = [];
   bool isLoading = true;
-  String errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
   String aux = "";
-  int idCategoria = 0;
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_filterTareas);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final tareasProvider =
+          Provider.of<TareasProvider>(context, listen: false);
+      await tareasProvider.cargarTareas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
+
+      setState(() {
+        tareas = tareasProvider.tareas; // Actualiza la lista de tareas
+        isLoading = false; // Indica que la carga ha terminado
+      });
+    });
     aux = widget.filtro;
 
     if (aux == "Todas") {
       aux = "Totales";
     }
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // Cargar tareas y categorías desde los providers
-    final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
-    final categoriasProvider =
-        Provider.of<CategoriasProvider>(context, listen: false);
-
-    tareasProvider.cargarTareas(
-        context, widget.perfil.UsuarioId, widget.perfil.Id);
-    categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
-
-    // Obtener las tareas filtradas según la categoría
-    obtenerTareasCategoria();
   }
 
   void _filterTareas() {
@@ -87,47 +79,18 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     });
   }
 
-  void obtenerTareasCategoria() {
-    final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
-    tareasAux = tareasProvider.tareas;
-    final CategoriasProvider categoriasProvider =
-        Provider.of<CategoriasProvider>(context, listen: false);
-    final categoriasAux = categoriasProvider.categorias;
+  void crearTarea(BuildContext context) async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) =>
+            CrearTarea(perfil: widget.perfil, categoria: widget.filtro),
+      ),
+    );
 
-    switch (widget.filtro) {
-      case "Todas":
-        tareas = tareasAux;
-        break;
-      case "Programadas":
-        tareas = tareasAux.where((tarea) => tarea.IdEvento != null).toList();
-        break;
-      case "Por hacer":
-        tareas = tareasAux.where((tarea) => tarea.Progreso == 0).toList();
-        break;
-      case "Completadas":
-        tareas = tareasAux.where((tarea) => tarea.Progreso == 100).toList();
-        break;
-      case "Urgentes":
-        tareas = tareasAux.where((tarea) => tarea.Prioridad == 3).toList();
-        break;
-      case "En proceso":
-        tareas = tareasAux
-            .where((tarea) => tarea.Progreso > 0 && tarea.Progreso < 100)
-            .toList();
-        break;
-      default:
-        idCategoria = categoriasAux
-            .firstWhere(
-              (categoria) => categoria.Nombre == widget.filtro,
-            )
-            .Id;
-        tareas =
-            tareasAux.where((tarea) => tarea.Categoria == idCategoria).toList();
+    if (result == true) {
+      Navigator.pop(context, true); // Se realizó una actualización
     }
-
-    setState(() {
-      isLoading = false;
-    });
   }
 
   @override
@@ -145,7 +108,6 @@ class TareasFiltradasState extends State<TareasFiltradas> {
           children: [
             // Contenido desplazable
             SafeArea(
-              
               child: isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : SingleChildScrollView(
@@ -166,7 +128,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                           ),
                           BarraAgenda(
                             searchController: _searchController,
-                            crearTarea: _crearTarea,
+                            crearTarea: crearTarea,
                           ),
                           const SizedBox(height: 20),
                           Padding(
@@ -198,42 +160,25 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                           perfil: widget.perfil,
                                           orden: index + 1,
                                           tarea: tarea,
+                                          filtro: widget.filtro,
+                                          onTareaEliminada: () {
+                                            setState(() {
+                                              tareas.removeAt(
+                                                  index); // Eliminar la tarea de la lista
+                                            });
+                                          },
                                         ),
                                       );
                                     },
                                   )
                                 : const Center(
-                                    child: Column(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.center,
-                                      children: [
-                                        Icon(Icons.task_alt,
-                                            size: 60, color: Colores.amarillo),
-                                        SizedBox(height: 16),
-                                        Text(
-                                          "¡No tienes tareas pendientes!",
-                                          style: TextStyle(
-                                              fontSize: 18,
-                                              color: Colores.amarillo),
-                                        ),
-                                        SizedBox(height: 8),
-                                        Text(
-                                          "Crea tu primera tarea ahora.",
-                                          style: TextStyle(
-                                              fontSize: 14,
-                                              color: Colores.amarillo),
-                                        ),
-                                      ],
-                                    ),
+                                    child: Text('No hay tareas disponibles'),
                                   ),
                           ),
                         ],
                       ),
                     ),
             ),
-
             // Botón de "ir atrás" fijo
             Positioned(
               top: 100,
@@ -267,20 +212,6 @@ class TareasFiltradasState extends State<TareasFiltradas> {
         ),
       ),
     );
-  }
-
-  void _crearTarea(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            CrearTarea(perfil: widget.perfil, categoria: widget.filtro),
-      ),
-    );
-
-    if (result == true) {
-      Navigator.pop(context, true); // Se realizó una actualización
-    }
   }
 }
 

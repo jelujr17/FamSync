@@ -92,7 +92,8 @@ class MisCategoriasState extends State<MisCategorias> {
                   tareasPorCategoria[categoria.Id] != null &&
                   tareasPorCategoria[categoria.Id]! >
                       0) // Filtra categorías con tareas
-              .toList().asMap()
+              .toList()
+              .asMap()
               .entries
               .map((entry) {
             final index = entry.key; // Índice del elemento

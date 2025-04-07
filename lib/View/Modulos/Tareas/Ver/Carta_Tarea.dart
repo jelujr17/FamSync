@@ -10,16 +10,21 @@ import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+
 class CartaTarea extends StatefulWidget {
   final Perfiles perfil;
   final int orden;
   final Tareas tarea;
+  final String filtro;
+  final VoidCallback onTareaEliminada; // Callback para notificar cambios
 
   const CartaTarea({
     super.key,
     required this.perfil,
     required this.orden,
     required this.tarea,
+    required this.filtro,
+    required this.onTareaEliminada, // Recibe el callback
   });
 
   @override
@@ -180,7 +185,7 @@ class CartaTareaState extends State<CartaTarea> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    '¿Estás seguro de que deseas eliminar esta tarea?',
+                    '¿Estás seguro de que deseas eliminar la tarea ${widget.tarea.Nombre}?',
                     style: TextStyle(
                       color: Colores.amarillo,
                       fontSize: 14,
@@ -216,9 +221,8 @@ class CartaTareaState extends State<CartaTarea> {
                             tareaProvider.eliminarTarea(widget.tarea.Id);
                           });
                           Navigator.of(context).pop(); // Cerrar el diálogo
-                          setState(() {
-                            // Actualizar el estado de la interfaz de usuario si es necesario
-                          });
+
+                          widget.onTareaEliminada(); // Notificar cambios
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -231,6 +235,139 @@ class CartaTareaState extends State<CartaTarea> {
                         'Eliminar',
                         style: TextStyle(
                           color: Colores.eliminar,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void duplicarTarea(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16), // Bordes redondeados
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Colores.amarillo.withOpacity(0.3),
+                  offset: const Offset(0, 30),
+                  blurRadius: 60,
+                ),
+                const BoxShadow(
+                  color: Colores.amarillo,
+                  offset: Offset(0, 30),
+                  blurRadius: 60,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Duplicar tarea',
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Text(
+                    '¿Estás seguro de que deseas duplicar la tarea "${widget.tarea.Nombre}"?',
+                    style: TextStyle(
+                      color: Colores.amarillo,
+                      fontSize: 14,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el diálogo
+                      },
+                      child: Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          color: Colores.amarillo,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        // Lógica para duplicar la tarea
+                        final nuevaTarea = Tareas(
+                          Id: 0, // El ID será generado automáticamente
+                          Nombre: "${widget.tarea.Nombre} (Copia)",
+                          Descripcion: widget.tarea.Descripcion,
+                          Creador: widget.tarea.Creador,
+                          Destinatario: widget.tarea.Destinatario,
+                          Categoria: widget.tarea.Categoria,
+                          IdEvento: null,
+                          Prioridad: widget.tarea.Prioridad,
+                          Progreso:
+                              widget.tarea.Progreso, // Reinicia el progreso
+                        );
+
+                        final exito = await ServicioTareas().registrarTarea(
+                            context,
+                            nuevaTarea.Creador,
+                            nuevaTarea.Destinatario,
+                            nuevaTarea.Nombre,
+                            nuevaTarea.Descripcion,
+                            nuevaTarea.IdEvento,
+                            nuevaTarea.Categoria,
+                            nuevaTarea.Prioridad,
+                            nuevaTarea.Progreso);
+
+                        if (exito) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final tareaProvider = Provider.of<TareasProvider>(
+                                context,
+                                listen: false);
+                            tareaProvider.agragarTarea(nuevaTarea);
+                          });
+                          Navigator.of(context).pop();
+                          setState(() {}); // Cerrar el diálogo
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Tarea duplicada con éxito.'),
+                            ),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Error al duplicar la tarea.'),
+                            ),
+                          );
+                        }
+                      },
+                      child: Text(
+                        'Duplicar',
+                        style: TextStyle(
+                          color: Colors.blue,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -293,7 +430,7 @@ class CartaTareaState extends State<CartaTarea> {
                     } else if (result == 'Completar') {
                       // Acción para marcar como completada
                     } else if (result == 'Duplicar') {
-                      // Acción para duplicar la tarea
+                      duplicarTarea(context);
                     } else if (result == 'Eliminar') {
                       eliminartarea(context);
                     }
