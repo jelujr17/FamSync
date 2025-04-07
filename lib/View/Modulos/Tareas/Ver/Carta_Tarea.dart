@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Progresar.dart';
 
 import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -10,7 +11,6 @@ import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-
 class CartaTarea extends StatefulWidget {
   final Perfiles perfil;
   final int orden;
@@ -18,8 +18,8 @@ class CartaTarea extends StatefulWidget {
   final String filtro;
   final VoidCallback onTareaEliminada; // Callback para notificar cambios
   final Function(Tareas) onTareaDuplicada; // Callback que recibe una tarea
-  
-  
+  final Function(Tareas) onTareaActualizada; // Callback que recibe una tarea
+
   const CartaTarea({
     super.key,
     required this.perfil,
@@ -28,6 +28,7 @@ class CartaTarea extends StatefulWidget {
     required this.filtro,
     required this.onTareaEliminada, // Recibe el callback
     required this.onTareaDuplicada, // Recibe el callback
+    required this.onTareaActualizada, // Recibe el callback
   });
 
   @override
@@ -328,7 +329,7 @@ class CartaTareaState extends State<CartaTarea> {
                           Creador: widget.tarea.Creador,
                           Destinatario: widget.tarea.Destinatario,
                           Categoria: widget.tarea.Categoria,
-                          IdEvento: null,
+                          IdEvento: widget.tarea.IdEvento,
                           Prioridad: widget.tarea.Prioridad,
                           Progreso:
                               widget.tarea.Progreso, // Reinicia el progreso
@@ -351,10 +352,10 @@ class CartaTareaState extends State<CartaTarea> {
                                 context,
                                 listen: false);
                             tareaProvider.agragarTarea(nuevaTarea);
-                                                      Navigator.of(context).pop();
-
+                            Navigator.of(context).pop();
                           });
-                          widget.onTareaDuplicada(nuevaTarea); // Notificar cambios
+                          widget.onTareaDuplicada(
+                              nuevaTarea); // Notificar cambios
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -366,7 +367,7 @@ class CartaTareaState extends State<CartaTarea> {
                       child: Text(
                         'Duplicar',
                         style: TextStyle(
-                          color: Colors.blue,
+                          color: Colores.principal,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -377,6 +378,60 @@ class CartaTareaState extends State<CartaTarea> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void progresarTarea(BuildContext context) {
+    double progreso = widget.tarea.Progreso.toDouble();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return ProgresarTareaDialog(
+          tarea: widget.tarea,
+          context: context,
+          onProgresoGuardado: (nuevoProgreso) async {
+            final nuevaTarea = Tareas(
+              Id: widget.tarea.Id, // El ID será generado automáticamente
+              Nombre: widget.tarea.Nombre,
+              Descripcion: widget.tarea.Descripcion,
+              Creador: widget.tarea.Creador,
+              Destinatario: widget.tarea.Destinatario,
+              Categoria: widget.tarea.Categoria,
+              IdEvento: widget.tarea.IdEvento,
+              Prioridad: widget.tarea.Prioridad,
+              Progreso: nuevoProgreso, // Reinicia el progreso
+            );
+
+            final exito = await ServicioTareas().actualizarTarea(
+                context,
+                nuevaTarea.Id,
+                nuevaTarea.Creador,
+                nuevaTarea.Destinatario,
+                nuevaTarea.Nombre,
+                nuevaTarea.Descripcion,
+                nuevaTarea.IdEvento,
+                nuevaTarea.Categoria,
+                nuevaTarea.Prioridad,
+                nuevaTarea.Progreso);
+
+            if (exito) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final tareaProvider =
+                    Provider.of<TareasProvider>(context, listen: false);
+                tareaProvider.actualizarTarea(nuevaTarea);
+                Navigator.of(context).pop();
+              });
+              widget.onTareaActualizada(nuevaTarea); // Notificar cambios
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Error al actualizar la tarea.'),
+                ),
+              );
+            }
+          },
         );
       },
     );
@@ -425,7 +480,7 @@ class CartaTareaState extends State<CartaTarea> {
                     if (result == 'Editar') {
                       // Acción para editar
                     } else if (result == 'Progresar') {
-                      // Acción para eliminar
+                      progresarTarea(context);
                     } else if (result == 'Completar') {
                       // Acción para marcar como completada
                     } else if (result == 'Duplicar') {
@@ -437,7 +492,7 @@ class CartaTareaState extends State<CartaTarea> {
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
                     PopupMenuItem<String>(
-                      value: 'Completar',
+                      value: 'Progresar',
                       child: Container(
                         constraints: const BoxConstraints(
                             maxWidth: 200), // Limita el ancho
@@ -469,13 +524,13 @@ class CartaTareaState extends State<CartaTarea> {
                           mainAxisSize:
                               MainAxisSize.min, // Ajusta el tamaño al contenido
                           children: [
-                            Icon(Icons.copy, color: Colors.blue),
+                            Icon(Icons.copy, color: Colores.principal),
                             const SizedBox(width: 8),
                             Text(
                               'Duplicar',
                               style: TextStyle(
                                 fontSize: 14,
-                                color: Colors.blue,
+                                color: Colores.principal,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),

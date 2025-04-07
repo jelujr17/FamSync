@@ -135,8 +135,8 @@ class ServicioTareas {
       List<int> Destinatario,
       String Nombre,
       String Descripcion,
-      int IdEvento,
-      int Categoria,
+      int? IdEvento,
+      int? Categoria,
       int Prioridad,
       int Progreso) async {
     final response = await HttpService.execute(

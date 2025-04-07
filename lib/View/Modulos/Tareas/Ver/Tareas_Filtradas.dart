@@ -229,6 +229,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                               tareas.add(nuevaTarea);
                                             });
                                           },
+                                          onTareaActualizada:
+                                              (Tareas tareaActualizada) {
+                                            setState(() {
+                                              tareas[index] = tareaActualizada;
+                                            });
+                                          },
                                         ),
                                       );
                                     },
