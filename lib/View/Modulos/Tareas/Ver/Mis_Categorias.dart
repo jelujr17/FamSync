@@ -31,8 +31,6 @@ class MisCategoriasState extends State<MisCategorias> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await cargarDatos();
-      obtenerTareasPorCategoria();
-      setState(() {}); // Actualiza el estado después de cargar los datos
     });
   }
 
@@ -65,12 +63,15 @@ class MisCategoriasState extends State<MisCategorias> {
         }
       }
     }
-
-    // Lista temporal para almacenar las claves a eliminar
   }
 
   @override
   Widget build(BuildContext context) {
+    final tareasProvider =
+        Provider.of<TareasProvider>(context, listen: true); // Escuchar cambios
+    tareas = tareasProvider.tareas; // Actualizar la lista local de tareas
+    obtenerTareasPorCategoria(); // Recalcular las tareas por categoría
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

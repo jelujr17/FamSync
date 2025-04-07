@@ -45,18 +45,27 @@ class _AgendaState extends State<Agenda> {
   bool isLoading = true;
   String errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
+  Map<String, int> tareasEstado = {
+    'Todas': 0,
+    'Programadas': 0,
+    'Por hacer': 0,
+    'Completadas': 0,
+    'Urgentes': 0,
+    'En proceso': 0,
+  };
+  Map<String, int> tareasCategorias = {};
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final tareasProvider =
-          Provider.of<TareasProvider>(context, listen: false);
-      tareasProvider.cargarTareas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
-
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
+
+      // Cargar tareas y categorías
+      tareasProvider.cargarTareas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
       categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
     });
   }
@@ -108,15 +117,20 @@ class _AgendaState extends State<Agenda> {
 
   @override
   Widget build(BuildContext context) {
+    final tareasProvider =
+        Provider.of<TareasProvider>(context, listen: true); // Escuchar cambios
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: true);
-    final tareasProvider = Provider.of<TareasProvider>(context, listen: true);
+
+    // Actualizar los estados de las tareas cada vez que cambien
+
     final tareasAux = tareasProvider.tareas;
     if (_searchController.text.isEmpty) {
       tareas = tareasAux;
     } else {
       _filterTareas();
     }
+
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(

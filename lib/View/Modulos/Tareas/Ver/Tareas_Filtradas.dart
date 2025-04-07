@@ -1,5 +1,6 @@
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
@@ -55,11 +56,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
-      await tareasProvider.cargarTareas(
+      tareasProvider.cargarTareas(
           context, widget.perfil.UsuarioId, widget.perfil.Id);
-
+      print("Tareas filtradas: ${tareasProvider.tareas.length}");
       setState(() {
         tareas = tareasProvider.tareas; // Actualiza la lista de tareas
+        tareasAux = tareasProvider.tareas; // Guarda una copia de las tareas
         isLoading = false; // Indica que la carga ha terminado
       });
     });
@@ -99,8 +101,62 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     super.dispose();
   }
 
+  void cargarTareasCategoria() {
+    final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
+    int idCategoria = 0;
+    final categoriasProvider =
+        Provider.of<CategoriasProvider>(context, listen: false);
+    categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+    final categorias = categoriasProvider.categorias;
+
+    try {
+      tareas = tareasProvider.tareas;
+      print("Tareas carfffftggyhgadas: ${tareas.length}");
+      switch (widget.filtro) {
+        case "Todas":
+          tareas = tareas;
+          break;
+        case "Programadas":
+          tareas = tareas.where((tarea) => tarea.IdEvento != null).toList();
+          break;
+        case "Por hacer":
+          tareas = tareas.where((tarea) => tarea.Progreso == 0).toList();
+          break;
+        case "Completadas":
+          tareas = tareas.where((tarea) => tarea.Progreso == 100).toList();
+          break;
+        case "Urgentes":
+          tareas = tareas.where((tarea) => tarea.Prioridad == 3).toList();
+          break;
+        case "En proceso":
+          tareas = tareas
+              .where((tarea) => tarea.Progreso > 0 && tarea.Progreso < 100)
+              .toList();
+          break;
+        default:
+          print("Filtro no válido: ${widget.filtro}");
+
+          idCategoria = categorias
+              .firstWhere(
+                (categoria) => categoria.Nombre == widget.filtro,
+              )
+              .Id;
+          print("ID Categoria: $idCategoria");
+          tareas =
+              tareas.where((tarea) => tarea.Categoria == idCategoria).toList();
+      }
+      print("Tareas cargadas: ${tareas.length}");
+    } catch (e) {
+      tareas = [];
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final tareasProvider =
+        Provider.of<TareasProvider>(context, listen: true); // Escuchar cambios
+    tareas = tareasProvider.tareas; // Actualizar la lista local de tareas
+    cargarTareasCategoria(); // Cargar tareas según el filtro
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
@@ -161,14 +217,14 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                           orden: index + 1,
                                           tarea: tarea,
                                           filtro: widget.filtro,
-                                          
                                           onTareaEliminada: () {
                                             setState(() {
                                               tareas.removeAt(
                                                   index); // Eliminar la tarea de la lista
                                             });
                                           },
-                                          onTareaDuplicada: (Tareas nuevaTarea) {
+                                          onTareaDuplicada:
+                                              (Tareas nuevaTarea) {
                                             setState(() {
                                               tareas.add(nuevaTarea);
                                             });
