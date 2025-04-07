@@ -161,10 +161,16 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                                           orden: index + 1,
                                           tarea: tarea,
                                           filtro: widget.filtro,
+                                          
                                           onTareaEliminada: () {
                                             setState(() {
                                               tareas.removeAt(
                                                   index); // Eliminar la tarea de la lista
+                                            });
+                                          },
+                                          onTareaDuplicada: (Tareas nuevaTarea) {
+                                            setState(() {
+                                              tareas.add(nuevaTarea);
                                             });
                                           },
                                         ),

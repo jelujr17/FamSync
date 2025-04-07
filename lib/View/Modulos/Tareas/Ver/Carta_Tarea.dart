@@ -17,7 +17,9 @@ class CartaTarea extends StatefulWidget {
   final Tareas tarea;
   final String filtro;
   final VoidCallback onTareaEliminada; // Callback para notificar cambios
-
+  final Function(Tareas) onTareaDuplicada; // Callback que recibe una tarea
+  
+  
   const CartaTarea({
     super.key,
     required this.perfil,
@@ -25,6 +27,7 @@ class CartaTarea extends StatefulWidget {
     required this.tarea,
     required this.filtro,
     required this.onTareaEliminada, // Recibe el callback
+    required this.onTareaDuplicada, // Recibe el callback
   });
 
   @override
@@ -348,14 +351,10 @@ class CartaTareaState extends State<CartaTarea> {
                                 context,
                                 listen: false);
                             tareaProvider.agragarTarea(nuevaTarea);
+                                                      Navigator.of(context).pop();
+
                           });
-                          Navigator.of(context).pop();
-                          setState(() {}); // Cerrar el diálogo
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Tarea duplicada con éxito.'),
-                            ),
-                          );
+                          widget.onTareaDuplicada(nuevaTarea); // Notificar cambios
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
