@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Asignar.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Progresar.dart';
 
 import 'package:famsync/Model/categorias.dart';
@@ -384,7 +385,6 @@ class CartaTareaState extends State<CartaTarea> {
   }
 
   void progresarTarea(BuildContext context) {
-    double progreso = widget.tarea.Progreso.toDouble();
     showDialog(
       context: context,
       builder: (context) {
@@ -423,6 +423,62 @@ class CartaTareaState extends State<CartaTarea> {
                 tareaProvider.actualizarTarea(nuevaTarea);
                 Navigator.of(context).pop();
               });
+              widget.onTareaActualizada(nuevaTarea); // Notificar cambios
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Error al actualizar la tarea.'),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
+  void asignarTarea(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AsignarTareaDialog(
+          tarea: widget.tarea,
+          perfil: widget.perfil,
+          context: context,
+          onAsignarGuardado: (asignacion) async {
+            print("Asignación recibida: $asignacion");
+            final nuevaTarea = Tareas(
+              Id: widget.tarea.Id, // El ID será generado automáticamente
+              Nombre: widget.tarea.Nombre,
+              Descripcion: widget.tarea.Descripcion,
+              Creador: widget.tarea.Creador,
+              Destinatario: asignacion,
+              Categoria: widget.tarea.Categoria,
+              IdEvento: widget.tarea.IdEvento,
+              Prioridad: widget.tarea.Prioridad,
+              Progreso: widget.tarea.Progreso, // Reinicia el progreso
+            );
+
+            final exito = await ServicioTareas().actualizarTarea(
+                context,
+                nuevaTarea.Id,
+                nuevaTarea.Creador,
+                nuevaTarea.Destinatario,
+                nuevaTarea.Nombre,
+                nuevaTarea.Descripcion,
+                nuevaTarea.IdEvento,
+                nuevaTarea.Categoria,
+                nuevaTarea.Prioridad,
+                nuevaTarea.Progreso);
+
+            if (exito) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final tareaProvider =
+                    Provider.of<TareasProvider>(context, listen: false);
+                tareaProvider.actualizarTarea(nuevaTarea);
+                Navigator.of(context).pop();
+              });
+              obtenerAvatares();
               widget.onTareaActualizada(nuevaTarea); // Notificar cambios
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -481,8 +537,8 @@ class CartaTareaState extends State<CartaTarea> {
                       // Acción para editar
                     } else if (result == 'Progresar') {
                       progresarTarea(context);
-                    } else if (result == 'Completar') {
-                      // Acción para marcar como completada
+                    } else if (result == 'Asignar') {
+                      asignarTarea(context);
                     } else if (result == 'Duplicar') {
                       duplicarTarea(context);
                     } else if (result == 'Eliminar') {
@@ -645,7 +701,7 @@ class CartaTareaState extends State<CartaTarea> {
                 minWidth: 150), // Ancho mínimo para consistencia
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: BoxDecoration(
-              color: widget.tarea.Prioridad == 1
+              color: widget.tarea.Prioridad == 1 || widget.tarea.Progreso == 100
                   ? Colores.hecho.withOpacity(0.2)
                   : widget.tarea.Prioridad == 2
                       ? Colores.naranja.withOpacity(0.2)
@@ -660,12 +716,15 @@ class CartaTareaState extends State<CartaTarea> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  widget.tarea.Prioridad == 1
+                  widget.tarea.Progreso == 100
                       ? Icons.check_circle
-                      : widget.tarea.Prioridad == 2
-                          ? Icons.warning
-                          : Icons.error,
-                  color: widget.tarea.Prioridad == 1
+                      : widget.tarea.Prioridad == 1
+                          ? Icons.start
+                          : widget.tarea.Prioridad == 2
+                              ? Icons.warning
+                              : Icons.error,
+                  color: widget.tarea.Prioridad == 1 ||
+                          widget.tarea.Progreso == 100
                       ? Colores.hecho
                       : widget.tarea.Prioridad == 2
                           ? Colores.naranja
@@ -674,15 +733,18 @@ class CartaTareaState extends State<CartaTarea> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  widget.tarea.Prioridad == 1
-                      ? 'Baja'
-                      : widget.tarea.Prioridad == 2
-                          ? 'Media'
-                          : 'Alta',
+                  widget.tarea.Progreso == 100
+                      ? 'Tarea Completada'
+                      : widget.tarea.Prioridad == 1
+                          ? 'Baja'
+                          : widget.tarea.Prioridad == 2
+                              ? 'Media'
+                              : 'Alta',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: widget.tarea.Prioridad == 1
+                    color: widget.tarea.Prioridad == 1 ||
+                            widget.tarea.Progreso == 100
                         ? Colores.hecho
                         : widget.tarea.Prioridad == 2
                             ? Colores.naranja
@@ -700,15 +762,34 @@ class CartaTareaState extends State<CartaTarea> {
               // Avatares
               if (avatares.isNotEmpty)
                 Row(
-                  children: avatares.map((avatar) {
+                  children: perfilesDestinatarios.map((perfil) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundImage: FileImage(avatar),
-                        onBackgroundImageError: (_, __) {
-                          print("Error al cargar la imagen del avatar");
-                        },
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundImage: FileImage(
+                              avatares[perfilesDestinatarios.indexOf(perfil)],
+                            ),
+                            onBackgroundImageError: (_, __) {
+                              print("Error al cargar la imagen del avatar");
+                            },
+                          ),
+                          const SizedBox(
+                              height:
+                                  4), // Espaciado entre el avatar y el nombre
+                          Text(
+                            perfil.Nombre, // Muestra el nombre del perfil
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: widget.orden.isEven
+                                  ? Colores.amarillo
+                                  : Colores.grisOscuro,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     );
                   }).toList(),
@@ -719,16 +800,33 @@ class CartaTareaState extends State<CartaTarea> {
                     widget.tarea.Destinatario.length,
                     (index) => Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colores.grisOscuro,
-                        child: Icon(
-                          Icons.person,
-                          color: widget.orden.isEven
-                              ? Colores.amarillo
-                              : Colores.grisOscuro,
-                          size: 16,
-                        ),
+                      child: Column(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colores.grisOscuro,
+                            child: Icon(
+                              Icons.person,
+                              color: widget.orden.isEven
+                                  ? Colores.amarillo
+                                  : Colores.grisOscuro,
+                              size: 16,
+                            ),
+                          ),
+                          const SizedBox(
+                              height:
+                                  4), // Espaciado entre el avatar y el texto
+                          Text(
+                            "Usuario ${index + 1}", // Texto genérico si no hay avatar
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: widget.orden.isEven
+                                  ? Colores.amarillo
+                                  : Colores.grisOscuro,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
                     ),
                   ),

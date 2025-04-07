@@ -30,9 +30,24 @@ final List<Estados> estadosTareas = [
     colorTexto: Colores.amarillo,
   ),
   Estados(
+    titulo: "Urgentes",
+    descripcion:
+        "Tareas que requieren atención inmediata debido a su prioridad.",
+    iconSrc: Iconos_SVG.urgenteTareas,
+    color: Colores.amarillo,
+    colorTexto: Colores.negro,
+  ),
+  Estados(
     titulo: "Por hacer",
     descripcion: "Tareas pendientes que aún no han sido iniciadas.",
     iconSrc: Iconos_SVG.porHacerTareas,
+    color: Colores.negro,
+    colorTexto: Colores.amarillo,
+  ),
+  Estados(
+    titulo: "En proceso",
+    descripcion: "Tareas empezasas que no se han completado.",
+    iconSrc: Iconos_SVG.enProcesoTareas,
     color: Colores.amarillo,
     colorTexto: Colores.negro,
   ),
@@ -43,20 +58,4 @@ final List<Estados> estadosTareas = [
     color: Colores.negro,
     colorTexto: Colores.amarillo,
   ),
-  Estados(
-    titulo: "Urgentes",
-    descripcion:
-        "Tareas que requieren atención inmediata debido a su prioridad.",
-    iconSrc: Iconos_SVG.urgenteTareas,
-    color: Colores.amarillo,
-    colorTexto: Colores.negro,
-  ),
-  Estados(
-    titulo: "En proceso",
-    descripcion:
-        "Tareas empezasas que no se han completado.",
-    iconSrc: Iconos_SVG.enProcesoTareas,
-    color: Colores.negro,
-    colorTexto: Colores.amarillo,
-  )
 ];
