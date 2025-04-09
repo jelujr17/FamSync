@@ -59,7 +59,8 @@ class _AgendaState extends State<Agenda> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
+      final tareasProvider =
+          Provider.of<TareasProvider>(context, listen: false);
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
 
@@ -135,55 +136,52 @@ class _AgendaState extends State<Agenda> {
       perfil: widget.perfil,
       child: Scaffold(
         body: SafeArea(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 40),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Text(
-                    "Agenda",
-                    style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colores.amarillo, fontWeight: FontWeight.bold),
-                  ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  "Agenda",
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      color: Colores.amarillo, fontWeight: FontWeight.bold),
                 ),
-                BarraAgenda(
-                    searchController: _searchController,
-                    crearTarea: _crearTarea),
-                const SizedBox(height: 20),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: estadosTareas
-                        .map(
-                          (estado) => Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20, right: 20, top: 20, bottom: 20),
-                            child: BannerCategoriasDefinidas(
-                              perfil: widget.perfil,
-                              titulo: estado.titulo,
-                              iconSrc: estado.iconSrc,
-                              color: estado.color,
-                              colorTexto: estado.colorTexto,
-                              descripcion: estado.descripcion,
-                              cantidadTareas:
-                                  tareasProvider.contarTareasPorEstado(
-                                      estado.titulo, tareasAux),
-                            ),
+              ),
+              BarraAgenda(
+                  searchController: _searchController, crearTarea: _crearTarea),
+              const SizedBox(height: 20),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: estadosTareas
+                      .map(
+                        (estado) => Padding(
+                          padding: const EdgeInsets.only(
+                              left: 20, right: 20, top: 20, bottom: 20),
+                          child: BannerCategoriasDefinidas(
+                            perfil: widget.perfil,
+                            titulo: estado.titulo,
+                            iconSrc: estado.iconSrc,
+                            color: estado.color,
+                            colorTexto: estado.colorTexto,
+                            descripcion: estado.descripcion,
+                            cantidadTareas:
+                                tareasProvider.contarTareasPorEstado(
+                                    estado.titulo, tareasAux),
                           ),
-                        )
-                        .toList(),
-                  ),
+                        ),
+                      )
+                      .toList(),
                 ),
-                const SizedBox(height: 40),
-                MisCategorias(
-                  perfil: widget.perfil,
-                ),
-                const SizedBox(height: 100),
-              ],
-            ),
+              ),
+              const SizedBox(height: 40),
+              Flexible(
+                  child: MisCategorias(
+                    perfil: widget.perfil,
+                  )),
+              const SizedBox(height: 100),
+            ],
           ),
         ),
       ),

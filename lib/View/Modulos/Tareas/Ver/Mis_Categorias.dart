@@ -88,48 +88,45 @@ class MisCategoriasState extends State<MisCategorias> {
         if (categorias.isEmpty)
           const Center(child: CircularProgressIndicator())
         else
-          ...categorias
-              .where((categoria) =>
-                  tareasPorCategoria[categoria.Id] != null &&
-                  tareasPorCategoria[categoria.Id]! >
-                      0) // Filtra categorías con tareas
-              .toList()
-              .asMap()
-              .entries
-              .map((entry) {
-            final index = entry.key; // Índice del elemento
-            final categoria = entry.value; // Categoría actual
+          Expanded(
+            child: ListView.builder(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              itemCount: categorias.length,
+              itemBuilder: (context, index) {
+                final categoria = categorias[index];
 
-            // Determina el color del texto según el índice
-            final colorTexto = index % 2 == 0
-                ? Colores.amarillo // Índices pares
-                : Colores.negro; // Índices impares
-            final color = index % 2 == 0
-                ? Colores.negro // Índices pares
-                : Colores.amarillo; // Índices impares
+                // Determina el color del texto según el índice
+                final colorTexto = index % 2 == 0
+                    ? Colores.amarillo // Índices pares
+                    : Colores.negro; // Índices impares
+                final color = index % 2 == 0
+                    ? Colores.negro // Índices pares
+                    : Colores.amarillo; // Índices impares
 
-            return Padding(
-              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 20),
-              child: SecondaryCourseCard(
-                title: categoria.Nombre,
-                cantidadTareas: tareasPorCategoria[categoria.Id] ?? 0,
-                colorl: color,
-                colorCategoria: Color(int.parse("0xFF${categoria.Color}")),
-                textColor: colorTexto, // Aplica el color dinámico
-                onIconPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => TareasFiltradas(
-                        perfil: widget.perfil,
-                        filtro: categoria.Nombre,
-                      ), // Página de destino
-                    ),
-                  );
-                },
-              ),
-            );
-          }),
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 20),
+                  child: SecondaryCourseCard(
+                    title: categoria.Nombre,
+                    cantidadTareas: tareasPorCategoria[categoria.Id] ?? 0,
+                    colorl: color,
+                    colorCategoria: Color(int.parse("0xFF${categoria.Color}")),
+                    textColor: colorTexto, // Aplica el color dinámico
+                    onIconPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TareasFiltradas(
+                            perfil: widget.perfil,
+                            filtro: categoria.Nombre,
+                          ), // Página de destino
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
       ],
     );
   }
