@@ -34,6 +34,15 @@ class BarraBusqueda extends StatelessWidget {
           ),
           hintText: "Buscar producto",
           prefixIcon: const Icon(Icons.search, color: Colores.amarillo,),
+          suffixIcon: IconButton(
+            icon: const Icon(
+              Icons.clear,
+              color: Colores.amarillo, // Ícono de borrar en amarillo
+            ),
+            onPressed: () {
+              searchController.clear(); // Limpia el contenido del TextField
+            },
+          ),
         ),
       ),
     );

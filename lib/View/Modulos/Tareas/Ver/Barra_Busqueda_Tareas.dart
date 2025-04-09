@@ -36,6 +36,15 @@ class BarraBusquedaTareas extends StatelessWidget {
             Icons.search,
             color: Colores.amarillo, // Ícono de búsqueda en amarillo
           ),
+          suffixIcon: IconButton(
+            icon: const Icon(
+              Icons.clear,
+              color: Colores.amarillo, // Ícono de borrar en amarillo
+            ),
+            onPressed: () {
+              searchController.clear(); // Limpia el contenido del TextField
+            },
+          ),
         ),
         style: const TextStyle(
           color: Colores.amarillo, // Texto ingresado en amarillo

@@ -5,6 +5,7 @@ import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Barra_Busqueda_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Categorias_Definidas.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Mis_Categorias.dart';
 import 'package:famsync/components/colores.dart';
@@ -42,9 +43,11 @@ class Agenda extends StatefulWidget {
 
 class _AgendaState extends State<Agenda> {
   List<Tareas> tareas = [];
+  List<Tareas> tareasFiltradas = [];
+  bool isSearching = false; // Bandera para saber si se está buscando
+
   bool isLoading = true;
   String errorMessage = '';
-  final TextEditingController _searchController = TextEditingController();
   Map<String, int> tareasEstado = {
     'Todas': 0,
     'Programadas': 0,
@@ -54,10 +57,14 @@ class _AgendaState extends State<Agenda> {
     'En proceso': 0,
   };
   Map<String, int> tareasCategorias = {};
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    _searchController.addListener(
+        _onSearchChanged); // Escuchar cambios en la barra de búsqueda
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
@@ -68,6 +75,26 @@ class _AgendaState extends State<Agenda> {
       tareasProvider.cargarTareas(
           context, widget.perfil.UsuarioId, widget.perfil.Id);
       categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+      setState(() {
+        tareas = tareasProvider.tareas; // Lista completa de tareas
+        tareasFiltradas =
+            List.from(tareas); // Inicialmente igual a todas las tareas
+      });
+    });
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.toLowerCase();
+
+    setState(() {
+      if (query.isEmpty) {
+        isSearching = false; // Si no hay texto, mostrar contenido original
+      } else {
+        isSearching = true; // Si hay texto, mostrar tareas filtradas
+        tareasFiltradas = tareas
+            .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
+            .toList();
+      }
     });
   }
 
@@ -151,35 +178,72 @@ class _AgendaState extends State<Agenda> {
               BarraAgenda(
                   searchController: _searchController, crearTarea: _crearTarea),
               const SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Row(
-                  children: estadosTareas
-                      .map(
-                        (estado) => Padding(
-                          padding: const EdgeInsets.only(
-                              left: 20, right: 20, top: 20, bottom: 20),
-                          child: BannerCategoriasDefinidas(
-                            perfil: widget.perfil,
-                            titulo: estado.titulo,
-                            iconSrc: estado.iconSrc,
-                            color: estado.color,
-                            colorTexto: estado.colorTexto,
-                            descripcion: estado.descripcion,
-                            cantidadTareas:
-                                tareasProvider.contarTareasPorEstado(
-                                    estado.titulo, tareasAux),
-                          ),
-                        ),
-                      )
-                      .toList(),
+              if (isSearching)
+                ListView.builder(
+                  shrinkWrap:
+                      true, // Permite que el ListView se ajuste al contenido
+
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: tareasFiltradas.length,
+                  itemBuilder: (context, index) {
+                    final tarea = tareasFiltradas[index];
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: CartaTarea(
+                        perfil: widget.perfil,
+                        orden: index + 1,
+                        tarea: tarea,
+                        filtro: '',
+                        onTareaEliminada: () {
+                          setState(() {
+                            tareas.removeAt(index);
+                          });
+                        },
+                        onTareaDuplicada: (Tareas nuevaTarea) {
+                          setState(() {
+                            tareas.add(nuevaTarea);
+                          });
+                        },
+                        onTareaActualizada: (Tareas tareaActualizada) {
+                          setState(() {
+                            tareas[index] = tareaActualizada;
+                          });
+                        },
+                      ),
+                    );
+                  },
                 ),
-              ),
+              if (!isSearching)
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: estadosTareas
+                        .map(
+                          (estado) => Padding(
+                            padding: const EdgeInsets.only(
+                                left: 20, right: 20, top: 20, bottom: 20),
+                            child: BannerCategoriasDefinidas(
+                              perfil: widget.perfil,
+                              titulo: estado.titulo,
+                              iconSrc: estado.iconSrc,
+                              color: estado.color,
+                              colorTexto: estado.colorTexto,
+                              descripcion: estado.descripcion,
+                              cantidadTareas:
+                                  tareasProvider.contarTareasPorEstado(
+                                      estado.titulo, tareasAux),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ),
               const SizedBox(height: 40),
-              Flexible(
-                  child: MisCategorias(
-                    perfil: widget.perfil,
-                  )),
+              if (!isSearching)
+                Flexible(
+                    child: MisCategorias(
+                  perfil: widget.perfil,
+                )),
               const SizedBox(height: 100),
             ],
           ),
