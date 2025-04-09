@@ -169,12 +169,13 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                       children: [
                         TextButton(
                           onPressed: () {
-                            Navigator.of(this.context).pop(); // Cerrar el diálogo
+                            Navigator.of(this.context)
+                                .pop(); // Cerrar el diálogo
                           },
                           child: Text(
                             'Cancelar',
                             style: TextStyle(
-                              color: Colores.amarillo,
+                              color: Colores.negro,
                               fontWeight: FontWeight.bold,
                               fontSize: 14, // Reducir tamaño de fuente
                             ),
@@ -186,20 +187,11 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                               widget.onAsignarGuardado(perfilesSeleccionados);
                             }
                           },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                                vertical: 12, horizontal: 20),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border:
-                                  Border.all(color: Colores.naranja, width: 2),
-                            ),
-                            child: Text(
-                              "Asignar",
-                              style: TextStyle(
-                                color: Colores.naranja,
-                                fontWeight: FontWeight.bold,
-                              ),
+                          child: Text(
+                            'Asignar',
+                            style: TextStyle(
+                              color: Colores.naranja,
+                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),

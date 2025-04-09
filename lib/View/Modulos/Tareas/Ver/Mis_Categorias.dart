@@ -102,7 +102,7 @@ class MisCategoriasState extends State<MisCategorias> {
                 final color = index % 2 == 0
                     ? Colores.negro // Índices pares
                     : Colores.amarillo; // Índices impares
-
+                
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: SecondaryCourseCard(

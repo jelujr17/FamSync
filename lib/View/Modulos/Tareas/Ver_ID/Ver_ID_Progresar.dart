@@ -161,7 +161,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                         child: Text(
                           'Cancelar',
                           style: TextStyle(
-                            color: Colores.amarillo,
+                            color: Colores.negro,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

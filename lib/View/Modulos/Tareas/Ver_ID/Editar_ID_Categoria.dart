@@ -2,13 +2,13 @@ import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
-class CampoCategoriaCrearTarea extends StatelessWidget {
+class CampoCategoriaEditarTarea extends StatelessWidget {
   final String? categoriaSeleccionada;
   final List<String> categoriasDisponibles;
   final void Function(String?) onCategoriaSeleccionada;
   final List<Categorias> categorias;
 
-  const CampoCategoriaCrearTarea({
+  const CampoCategoriaEditarTarea({
     super.key,
     required this.categoriaSeleccionada,
     required this.categoriasDisponibles,
@@ -18,19 +18,14 @@ class CampoCategoriaCrearTarea extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Verificar si la categoría "Sin Categoría" ya existe
-    if (!categorias.any((categoria) => categoria.Nombre == "Sin Categoría")) {
-      categorias.add(Categorias(
+    categorias.add(Categorias(
         Id: 0,
         Nombre: "Sin Categoría",
         IdModulo: 0,
         Color: "000000",
-        IdUsuario: 0,
-      ));
-    }
-
+        IdUsuario: 0));
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.symmetric(horizontal: 0),
       child: DropdownButtonFormField<String>(
         value: categoriaSeleccionada,
         decoration: InputDecoration(
@@ -65,11 +60,13 @@ class CampoCategoriaCrearTarea extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 10),
+                // Esfera de color
                 Text(
                   categoria.Nombre,
                   style: const TextStyle(
                       color: Colores.amarillo), // Color del texto
                 ),
+
                 const SizedBox(
                     width: 10), // Espaciado entre la esfera y el texto
                 Container(

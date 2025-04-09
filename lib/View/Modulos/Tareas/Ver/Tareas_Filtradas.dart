@@ -51,20 +51,23 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   @override
   void initState() {
     super.initState();
-    _searchController.addListener(_filterTareas);
+    _searchController
+        .addListener(_filterTareas); // Escuchar cambios en la barra de búsqueda
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
       tareasProvider.cargarTareas(
           context, widget.perfil.UsuarioId, widget.perfil.Id);
-      print("Tareas filtradas: ${tareasProvider.tareas.length}");
+
       setState(() {
         tareas = tareasProvider.tareas; // Actualiza la lista de tareas
-        tareasAux = tareasProvider.tareas; // Guarda una copia de las tareas
+        tareasAux =
+            List.from(tareasProvider.tareas); // Copia de las tareas originales
         isLoading = false; // Indica que la carga ha terminado
       });
     });
+
     aux = widget.filtro;
 
     if (aux == "Todas") {
@@ -75,6 +78,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   void _filterTareas() {
     final query = _searchController.text.toLowerCase();
     setState(() {
+      // Filtrar tareas basándose en el texto ingresado
       tareas = tareasAux
           .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
           .toList();
@@ -153,105 +157,16 @@ class TareasFiltradasState extends State<TareasFiltradas> {
 
   @override
   Widget build(BuildContext context) {
-    final tareasProvider =
-        Provider.of<TareasProvider>(context, listen: true); // Escuchar cambios
-    tareas = tareasProvider.tareas; // Actualizar la lista local de tareas
-    cargarTareasCategoria(); // Cargar tareas según el filtro
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
-        body: Stack(
-          children: [
-            // Contenido desplazable
-            SafeArea(
-              child: isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 80),
-                          Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Text(
-                              "Tareas $aux",
-                              style: Theme.of(context)
-                                  .textTheme
-                                  .headlineMedium!
-                                  .copyWith(color: Colores.amarillo),
-                            ),
-                          ),
-                          BarraAgenda(
-                            searchController: _searchController,
-                            crearTarea: crearTarea,
-                          ),
-                          const SizedBox(height: 20),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(
-                              "Usted tiene ${tareas.length} tareas",
-                              style: const TextStyle(
-                                fontSize: 16,
-                                color: Colores.amarillo,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Padding(
-                            padding: const EdgeInsets.only(
-                                left: 20, right: 20, top: 20, bottom: 20),
-                            child: tareas.isNotEmpty
-                                ? ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: tareas.length,
-                                    itemBuilder: (context, index) {
-                                      final tarea = tareas[index];
-                                      return Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                            vertical: 8.0),
-                                        child: CartaTarea(
-                                          perfil: widget.perfil,
-                                          orden: index + 1,
-                                          tarea: tarea,
-                                          filtro: widget.filtro,
-                                          onTareaEliminada: () {
-                                            setState(() {
-                                              tareas.removeAt(
-                                                  index); // Eliminar la tarea de la lista
-                                            });
-                                          },
-                                          onTareaDuplicada:
-                                              (Tareas nuevaTarea) {
-                                            setState(() {
-                                              tareas.add(nuevaTarea);
-                                            });
-                                          },
-                                          onTareaActualizada:
-                                              (Tareas tareaActualizada) {
-                                            setState(() {
-                                              tareas[index] = tareaActualizada;
-                                            });
-                                          },
-                                        ),
-                                      );
-                                    },
-                                  )
-                                : const Center(
-                                    child: Text('No hay tareas disponibles'),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-            ),
-            // Botón de "ir atrás" fijo
-            Positioned(
-              top: 100,
-              left: 0,
-              child: ElevatedButton(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 60),
+
+              ElevatedButton(
                 onPressed: () {
                   if (Navigator.canPop(context)) {
                     Navigator.pop(context);
@@ -275,8 +190,76 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                   size: 20,
                 ),
               ),
-            ),
-          ],
+
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  "Tareas $aux",
+                  style: Theme.of(context)
+                      .textTheme
+                      .headlineMedium!
+                      .copyWith(color: Colores.amarillo),
+                ),
+              ),
+
+              BarraAgenda(
+                searchController: _searchController,
+                crearTarea: crearTarea,
+              ),
+              const SizedBox(height: 20),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text(
+                  "Usted tiene ${tareas.length} tareas",
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: Colores.amarillo,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              // Lista de tareas desplazable
+              Expanded(
+                child: tareas.isNotEmpty
+                    ? ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        itemCount: tareas.length,
+                        itemBuilder: (context, index) {
+                          final tarea = tareas[index];
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: CartaTarea(
+                              perfil: widget.perfil,
+                              orden: index + 1,
+                              tarea: tarea,
+                              filtro: widget.filtro,
+                              onTareaEliminada: () {
+                                setState(() {
+                                  tareas.removeAt(
+                                      index); // Eliminar la tarea de la lista
+                                });
+                              },
+                              onTareaDuplicada: (Tareas nuevaTarea) {
+                                setState(() {
+                                  tareas.add(nuevaTarea);
+                                });
+                              },
+                              onTareaActualizada: (Tareas tareaActualizada) {
+                                setState(() {
+                                  tareas[index] = tareaActualizada;
+                                });
+                              },
+                            ),
+                          );
+                        },
+                      )
+                    : const Center(
+                        child: Text('No hay tareas disponibles'),
+                      ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -115,12 +115,21 @@ class CrearTareaState extends State<CrearTarea> {
       if (categoria != "Sin categoría") {
         categoriaId = categoriasDisponibles
             .firstWhere(
-              (cat) => cat.Nombre == categoria,
+              (element) => element.Nombre == categoriaSeleccionada,
+              orElse: () => Categorias(
+                  Id: 0,
+                  Nombre: "Sin Categoría",
+                  IdModulo: 0,
+                  Color: '000000',
+                  IdUsuario: 0),
             )
             .Id;
       }
 
       print("Categoría seleccionada: $categoriaId");
+      if (categoriaId == 0) {
+        categoriaId = null;
+      }
 
       final nuevaTarea = Tareas(
         Id: 0,
@@ -241,7 +250,6 @@ class CrearTareaState extends State<CrearTarea> {
                   categoriaSeleccionada: categoriaSeleccionada,
                   nombresCategoria: nombresCategoria,
                   prioridadController: _prioridadController,
-                  suggestionBoxController: suggestionBoxController,
                   onGuardar: _crearTarea,
                   prioridadSeleccionada: prioridad,
                   onCategoriaSeleccionada: (String? tienda) {
@@ -297,7 +305,6 @@ class FormularioCrearTarea extends StatefulWidget {
   final List<Categorias> categoriasDisponibles;
   String? categoriaSeleccionada;
   final List<String> nombresCategoria;
-  final SuggestionsBoxController suggestionBoxController;
   final Function() onGuardar;
   final Function(String?) onCategoriaSeleccionada;
   final Function(int) onPrioridadSeleccionada;
@@ -316,7 +323,6 @@ class FormularioCrearTarea extends StatefulWidget {
       required this.categoriasDisponibles,
       required this.categoriaSeleccionada,
       required this.nombresCategoria,
-      required this.suggestionBoxController,
       required this.onGuardar,
       required this.onCategoriaSeleccionada,
       required this.prioridadSeleccionada,

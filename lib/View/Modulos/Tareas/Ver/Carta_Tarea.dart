@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Asignar.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Progresar.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Editar.dart';
 
 import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -437,6 +438,61 @@ class CartaTareaState extends State<CartaTarea> {
     );
   }
 
+  void editarTarea(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return EditarTareaDialog(
+          tarea: widget.tarea,
+          context: context,
+          perfil: widget.perfil,
+          onTareaEditada: (nombre, descripcion, categoria, prioridad) async {
+           
+            final nuevaTarea = Tareas(
+              Id: widget.tarea.Id, // El ID será generado automáticamente
+              Nombre: nombre,
+              Descripcion: descripcion,
+              Creador: widget.tarea.Creador,
+              Destinatario: widget.tarea.Destinatario,
+              Categoria: categoria,
+              IdEvento: widget.tarea.IdEvento,
+              Prioridad: prioridad,
+              Progreso: widget.tarea.Progreso, // Reinicia el progreso
+            );
+
+            final exito = await ServicioTareas().actualizarTarea(
+                context,
+                nuevaTarea.Id,
+                nuevaTarea.Creador,
+                nuevaTarea.Destinatario,
+                nuevaTarea.Nombre,
+                nuevaTarea.Descripcion,
+                nuevaTarea.IdEvento,
+                nuevaTarea.Categoria,
+                nuevaTarea.Prioridad,
+                nuevaTarea.Progreso);
+
+            if (exito) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                final tareaProvider =
+                    Provider.of<TareasProvider>(context, listen: false);
+                tareaProvider.actualizarTarea(nuevaTarea);
+                Navigator.of(context).pop();
+              });
+              widget.onTareaActualizada(nuevaTarea); // Notificar cambios
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Error al editar la tarea.'),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
   void asignarTarea(BuildContext context) {
     showDialog(
       context: context,
@@ -534,7 +590,7 @@ class CartaTareaState extends State<CartaTarea> {
                 child: PopupMenuButton<String>(
                   onSelected: (String result) {
                     if (result == 'Editar') {
-                      // Acción para editar
+                      editarTarea(context);
                     } else if (result == 'Progresar') {
                       progresarTarea(context);
                     } else if (result == 'Asignar') {
