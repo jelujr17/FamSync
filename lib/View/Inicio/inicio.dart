@@ -68,12 +68,12 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                                 fontWeight: FontWeight.w700,
                                 fontFamily: "Poppins",
                                 height: 1.2,
-                                color: Colores.amarillo),
+                                color: Colores.texto),
                           ),
                           SizedBox(height: 16),
                           Text(
                             "Simplifica la gestión familiar. Organiza tareas, eventos y productos de manera fácil y rápida con FamSync.",
-                            style: TextStyle(color: Colores.amarillo),
+                            style: TextStyle(color: Colores.texto),
                           ),
                         ],
                       ),
@@ -104,7 +104,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       padding: EdgeInsets.symmetric(vertical: 24),
                       child: Text(
                           "FamSync te ayuda a gestionar eventos, tareas y recursos familiares en un solo lugar. Organiza tu hogar con facilidad y eficiencia.",
-                          style: TextStyle(color: Colores.amarillo)),
+                          style: TextStyle(color: Colores.texto)),
                     ),
                     const Spacer(),
                   ],

@@ -159,16 +159,16 @@ class CartaTareaState extends State<CartaTarea> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+              color: Colores.fondo.withOpacity(0.95), // Fondo del diálogo
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colores.amarillo.withOpacity(0.3),
+                  color: Colores.texto.withOpacity(0.3),
                   offset: const Offset(0, 30),
                   blurRadius: 60,
                 ),
                 const BoxShadow(
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                   offset: Offset(0, 30),
                   blurRadius: 60,
                 ),
@@ -182,7 +182,7 @@ class CartaTareaState extends State<CartaTarea> {
                   child: Text(
                     'Eliminar tarea',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -193,7 +193,7 @@ class CartaTareaState extends State<CartaTarea> {
                   child: Text(
                     '¿Estás seguro de que deseas eliminar la tarea ${widget.tarea.Nombre}?',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontSize: 14,
                     ),
                   ),
@@ -209,7 +209,7 @@ class CartaTareaState extends State<CartaTarea> {
                       child: Text(
                         'Cancelar',
                         style: TextStyle(
-                          color: Colores.amarillo,
+                          color: Colores.texto,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -266,16 +266,16 @@ class CartaTareaState extends State<CartaTarea> {
           ),
           child: Container(
             decoration: BoxDecoration(
-              color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+              color: Colores.fondo.withOpacity(0.95), // Fondo del diálogo
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Colores.amarillo.withOpacity(0.3),
+                  color: Colores.texto.withOpacity(0.3),
                   offset: const Offset(0, 30),
                   blurRadius: 60,
                 ),
                 const BoxShadow(
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                   offset: Offset(0, 30),
                   blurRadius: 60,
                 ),
@@ -289,7 +289,7 @@ class CartaTareaState extends State<CartaTarea> {
                   child: Text(
                     'Duplicar tarea',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -300,7 +300,7 @@ class CartaTareaState extends State<CartaTarea> {
                   child: Text(
                     '¿Estás seguro de que deseas duplicar la tarea "${widget.tarea.Nombre}"?',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontSize: 14,
                     ),
                   ),
@@ -316,7 +316,7 @@ class CartaTareaState extends State<CartaTarea> {
                       child: Text(
                         'Cancelar',
                         style: TextStyle(
-                          color: Colores.amarillo,
+                          color: Colores.texto,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -447,7 +447,6 @@ class CartaTareaState extends State<CartaTarea> {
           context: context,
           perfil: widget.perfil,
           onTareaEditada: (nombre, descripcion, categoria, prioridad) async {
-           
             final nuevaTarea = Tareas(
               Id: widget.tarea.Id, // El ID será generado automáticamente
               Nombre: nombre,
@@ -554,13 +553,13 @@ class CartaTareaState extends State<CartaTarea> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8), // Espaciado externo
       decoration: BoxDecoration(
-        color: widget.orden.isEven ? Colores.negro : Colores.amarillo,
+        color: widget.orden.isEven ? Colores.fondoAux : Colores.texto,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: widget.orden.isEven
-                ? Colores.amarillo.withOpacity(0.5)
-                : Colores.negro.withOpacity(0.5),
+                ? Colores.texto.withOpacity(0.5)
+                : Colores.fondoAux.withOpacity(0.5),
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -579,9 +578,7 @@ class CartaTareaState extends State<CartaTarea> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: widget.orden.isEven
-                        ? Colores.amarillo
-                        : Colores.grisOscuro,
+                    color: widget.orden.isEven ? Colores.texto : Colores.fondo,
                   ),
                 ),
               ),
@@ -687,8 +684,8 @@ class CartaTareaState extends State<CartaTarea> {
                             Icon(
                               Icons.edit,
                               color: widget.orden.isEven
-                                  ? Colores.negro
-                                  : Colores.amarillo,
+                                  ? Colores.fondoAux
+                                  : Colores.texto,
                             ),
                             const SizedBox(width: 8),
                             Text(
@@ -696,8 +693,8 @@ class CartaTareaState extends State<CartaTarea> {
                               style: TextStyle(
                                 fontSize: 14,
                                 color: widget.orden.isEven
-                                    ? Colores.negro
-                                    : Colores.amarillo,
+                                    ? Colores.fondoAux
+                                    : Colores.texto,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -733,15 +730,15 @@ class CartaTareaState extends State<CartaTarea> {
                   icon: Icon(
                     Icons.more_vert,
                     color:
-                        widget.orden.isEven ? Colores.amarillo : Colores.negro,
+                        widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                   ),
                   shape: RoundedRectangleBorder(
                     borderRadius:
                         BorderRadius.circular(16), // Bordes redondeados
                   ),
                   color: widget.orden.isEven
-                      ? Colores.amarillo
-                      : Colores.negro, // Color de fondo del menú
+                      ? Colores.texto
+                      : Colores.fondoAux, // Color de fondo del menú
                   constraints: const BoxConstraints(
                     maxHeight: 200, // Altura máxima del menú
                   ),
@@ -764,7 +761,7 @@ class CartaTareaState extends State<CartaTarea> {
                       : Colores.eliminar.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(
-                color: widget.orden.isEven ? Colores.amarillo : Colores.negro,
+                color: widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                 width: 1.5,
               ),
             ),
@@ -840,8 +837,8 @@ class CartaTareaState extends State<CartaTarea> {
                             style: TextStyle(
                               fontSize: 12,
                               color: widget.orden.isEven
-                                  ? Colores.amarillo
-                                  : Colores.grisOscuro,
+                                  ? Colores.texto
+                                  : Colores.fondo,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -860,12 +857,12 @@ class CartaTareaState extends State<CartaTarea> {
                         children: [
                           CircleAvatar(
                             radius: 16,
-                            backgroundColor: Colores.grisOscuro,
+                            backgroundColor: Colores.fondo,
                             child: Icon(
                               Icons.person,
                               color: widget.orden.isEven
-                                  ? Colores.amarillo
-                                  : Colores.grisOscuro,
+                                  ? Colores.texto
+                                  : Colores.fondo,
                               size: 16,
                             ),
                           ),
@@ -877,8 +874,8 @@ class CartaTareaState extends State<CartaTarea> {
                             style: TextStyle(
                               fontSize: 12,
                               color: widget.orden.isEven
-                                  ? Colores.amarillo
-                                  : Colores.grisOscuro,
+                                  ? Colores.texto
+                                  : Colores.fondo,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -918,8 +915,8 @@ class CartaTareaState extends State<CartaTarea> {
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: widget.orden.isEven
-                                ? Colores.amarillo.withOpacity(0.5)
-                                : Colores.negro.withOpacity(0.5),
+                                ? Colores.texto.withOpacity(0.5)
+                                : Colores.fondoAux.withOpacity(0.5),
                             width: 1.5,
                           ),
                         ),
@@ -930,8 +927,8 @@ class CartaTareaState extends State<CartaTarea> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: widget.orden.isEven
-                                ? Colores.amarillo
-                                : Colores.negro,
+                                ? Colores.texto
+                                : Colores.fondoAux,
                           ),
                         ),
                       );
@@ -949,10 +946,8 @@ class CartaTareaState extends State<CartaTarea> {
               Expanded(
                 child: LinearProgressIndicator(
                   value: widget.tarea.Progreso / 100,
-                  backgroundColor: Colors.grey.shade300,
-                  color: widget.orden.isEven
-                      ? Colores.amarillo
-                      : Colores.grisOscuro,
+                  backgroundColor:  Colores.fondo,
+                  color: widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                 ),
               ),
               const SizedBox(width: 8),
@@ -960,9 +955,7 @@ class CartaTareaState extends State<CartaTarea> {
                 "${widget.tarea.Progreso}%",
                 style: TextStyle(
                   fontSize: 14,
-                  color: widget.orden.isEven
-                      ? Colores.amarillo
-                      : Colores.grisOscuro,
+                  color: widget.orden.isEven ? Colores.texto : Colores.fondo,
                 ),
               ),
             ],
@@ -974,8 +967,7 @@ class CartaTareaState extends State<CartaTarea> {
             "Descripción: ${widget.tarea.Descripcion}",
             style: TextStyle(
               fontSize: 14,
-              color:
-                  widget.orden.isEven ? Colores.amarillo : Colores.grisOscuro,
+              color: widget.orden.isEven ? Colores.texto : Colores.fondo,
             ),
           ),
         ],

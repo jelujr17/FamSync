@@ -6,6 +6,7 @@ import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Editar_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
@@ -50,7 +51,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
     return Scaffold(
       extendBody: true,
       extendBodyBehindAppBar: true,
-      backgroundColor: const Color(0xFFF5F6F9),
+      backgroundColor: Colores.fondo,
       appBar: PreferredSize(
         preferredSize:
             const Size.fromHeight(100), // Aumenta la altura del AppBar
@@ -83,11 +84,11 @@ class _DetallesProductoState extends State<DetallesProducto> {
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
                       padding: EdgeInsets.zero,
-                      backgroundColor: Colors.white,
+                      backgroundColor: Colores.fondoAux,
                     ),
                     child: const Icon(
                       Icons.arrow_back_ios_new,
-                      color: Colors.black,
+                      color: Colores.texto,
                       size: 20,
                     ),
                   ),
@@ -95,6 +96,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: PopupMenuButton<String>(
+                    color: Colores.fondoAux,
                     onSelected: (String result) {
                       if (result == 'Editar') {
                         _editarProducto(context);
@@ -108,9 +110,12 @@ class _DetallesProductoState extends State<DetallesProducto> {
                         value: 'Editar',
                         child: Row(
                           children: const [
-                            Icon(Icons.edit, color: Colors.black),
+                            Icon(Icons.edit, color: Colores.texto),
                             SizedBox(width: 8),
-                            Text('Editar'),
+                            Text(
+                              'Editar',
+                              style: TextStyle(color: Colores.texto),
+                            ),
                           ],
                         ),
                       ),
@@ -118,9 +123,12 @@ class _DetallesProductoState extends State<DetallesProducto> {
                         value: 'Eliminar',
                         child: Row(
                           children: const [
-                            Icon(Icons.delete, color: Colors.red),
+                            Icon(Icons.delete, color: Colores.eliminar),
                             SizedBox(width: 8),
-                            Text('Eliminar'),
+                            Text(
+                              'Eliminar',
+                              style: TextStyle(color: Colores.eliminar),
+                            ),
                           ],
                         ),
                       ),
@@ -128,11 +136,11 @@ class _DetallesProductoState extends State<DetallesProducto> {
                     style: ElevatedButton.styleFrom(
                       shape: const CircleBorder(),
                       padding: EdgeInsets.zero,
-                      backgroundColor: Colors.white,
+                      backgroundColor: Colores.fondoAux,
                     ),
                     icon: const Icon(
                       Icons.more_vert,
-                      color: Colors.black,
+                      color: Colores.texto,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(16),
@@ -148,7 +156,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
         children: [
           ImagenesProducto(producto: widget.producto),
           TopRoundedContainer(
-            color: Colors.white,
+            color: Colores.fondoAux,
             child: Column(
               children: [
                 ProductoCard(
@@ -156,7 +164,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
                   onTap: () {},
                 ),
                 TopRoundedContainer(
-                  color: const Color(0xFFF6F7F9),
+                  color: Colores.fondo,
                   child: Column(
                     children: [
                       InformacionProducto(producto: widget.producto),
@@ -169,15 +177,15 @@ class _DetallesProductoState extends State<DetallesProducto> {
         ],
       ),
       bottomNavigationBar: TopRoundedContainer(
-        color: Colors.white,
+        color: Colores.fondo,
         child: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,
-                backgroundColor: const Color(0xFFFF7643),
-                foregroundColor: Colors.white,
+                backgroundColor: Colores.texto,
+                foregroundColor: Colores.fondoAux,
                 minimumSize: const Size(double.infinity, 48),
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -235,7 +243,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
                         },
                       );
               },
-              child: const Text("Añadir a una lista"),
+              child: Text("Añadir a una lista"),
             ),
           ),
         ),
@@ -266,15 +274,18 @@ class _DetallesProductoState extends State<DetallesProducto> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Eliminar Producto'),
-          content:
-              const Text('¿Estás seguro de que deseas eliminar este producto?'),
+          backgroundColor: Colores.fondo,
+          title:
+              Text('Eliminar Producto', style: TextStyle(color: Colores.texto)),
+          content: Text('¿Estás seguro de que deseas eliminar este producto?',
+              style: TextStyle(color: Colores.texto)),
           actions: <Widget>[
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancelar'),
+              child:
+                  Text('Cancelar', style: TextStyle(color: Colores.fondoAux)),
             ),
             TextButton(
               onPressed: () async {
@@ -319,7 +330,8 @@ class _DetallesProductoState extends State<DetallesProducto> {
                   );
                 }
               },
-              child: const Text('Eliminar'),
+              child: const Text('Eliminar',
+                  style: TextStyle(color: Colores.eliminar)),
             ),
           ],
         );
@@ -376,7 +388,11 @@ class ProductoCard extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
             producto.Nombre,
-            style: Theme.of(context).textTheme.titleLarge,
+            style: TextStyle(
+              color: Colores.texto,
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         Padding(
@@ -387,6 +403,10 @@ class ProductoCard extends StatelessWidget {
           child: Text(
             "Se encuentra en la tienda: ${producto.Tienda}",
             maxLines: 3,
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colores.texto,
+            ),
           ),
         ),
         Padding(
@@ -396,13 +416,20 @@ class ProductoCard extends StatelessWidget {
           ),
           child: Row(
             children: [
-              const Text("Precio: "),
+              Text(
+                "Precio: ",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colores.texto,
+                ),
+              ),
               Text(
                 "${producto.Precio}€",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
-                  color: Color(0xFFFF7643),
+                  color: Colores.hecho,
                 ),
               ),
             ],
@@ -424,13 +451,20 @@ class InformacionProducto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
+      
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
+        
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Producto visible para los perfiles:"),
+          const Text("Producto visible para los perfiles:", 
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              )),
           const SizedBox(height: 10),
           Row(
+            
             children: [
               ...List.generate(
                 producto.Visible.length,
@@ -483,7 +517,7 @@ class IconoPerfil extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator();
         } else if (snapshot.hasError) {
-          return const Icon(Icons.error, color: Colors.red);
+          return const Icon(Icons.error, color: Colores.eliminar);
         } else {
           return Container(
             margin: const EdgeInsets.only(
@@ -494,8 +528,7 @@ class IconoPerfil extends StatelessWidget {
             decoration: BoxDecoration(
               color: Colors.transparent,
               border: Border.all(
-                  color:
-                      esCreador ? const Color(0xFFFF7643) : Colors.transparent),
+                  color: esCreador ? Colores.fondoAux : Colors.transparent),
               shape: BoxShape.circle,
             ),
             child: ClipOval(
@@ -534,10 +567,14 @@ class NombrePerfil extends StatelessWidget {
         } else if (snapshot.hasError) {
           return const Text(
             'Error',
-            style: TextStyle(color: Colors.red),
+            style: TextStyle(color: Colores.eliminar),
           );
         } else {
-          return Text(snapshot.data!);
+          return Text(snapshot.data!, 
+              style: const TextStyle(
+                fontSize: 12,
+                color: Colores.fondoAux,
+              ));
         }
       },
     );
@@ -568,15 +605,15 @@ class RoundedIconBtn extends StatelessWidget {
             BoxShadow(
               offset: const Offset(0, 6),
               blurRadius: 10,
-              color: const Color(0xFFB0B0B0).withOpacity(0.2),
+              color: Colores.fondoAux.withOpacity(0.2),
             ),
         ],
       ),
       child: TextButton(
         style: TextButton.styleFrom(
-          foregroundColor: const Color(0xFFFF7643),
+          foregroundColor: Colores.texto,
           padding: EdgeInsets.zero,
-          backgroundColor: Colors.white,
+          backgroundColor: Colores.fondo,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         ),

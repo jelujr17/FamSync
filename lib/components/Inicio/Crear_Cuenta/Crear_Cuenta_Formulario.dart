@@ -127,7 +127,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
               // Nombre
               const Text(
                 "Nombre",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -139,20 +139,19 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child:
-                          Icon(Icons.person_outline, color: Colores.amarillo),
+                      child: Icon(Icons.person_outline, color: Colores.texto),
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -161,7 +160,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -172,7 +171,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
               // Email
               const Text(
                 "Email",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -190,7 +189,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
@@ -203,7 +202,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -212,7 +211,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -223,7 +222,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
               // Teléfono
               const Text(
                 "Teléfono",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -239,20 +238,20 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   keyboardType: TextInputType.phone,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Icon(Icons.phone, color: Colores.amarillo),
+                      child: Icon(Icons.phone, color: Colores.texto),
                     ),
                     enabledBorder: UnderlineInputBorder(
                       borderRadius:
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -261,7 +260,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -272,7 +271,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
               // Contraseña
               const Text(
                 "Contraseña",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -289,7 +288,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
@@ -301,7 +300,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -310,7 +309,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -319,7 +318,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                         _isPasswordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                       ),
                       onPressed: () {
                         setState(() {
@@ -334,7 +333,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
               // Confirmar Contraseña
               const Text(
                 "Confirmar Contraseña",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 24),
@@ -350,7 +349,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   decoration: InputDecoration(
                     prefixIcon: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -361,7 +360,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -370,7 +369,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -379,7 +378,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                         _isConfirmPasswordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                       ),
                       onPressed: () {
                         setState(() {
@@ -400,7 +399,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                     signUp(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colores.negro,
+                    backgroundColor: Colores.fondoAux,
                     minimumSize: const Size(double.infinity, 56),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -413,11 +412,11 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
                   ),
                   icon: const Icon(
                     CupertinoIcons.arrow_right,
-                    color: Colores.amarillo,
+                    color: Colores.texto,
                   ),
                   label: Text(
                     "Crear Cuenta",
-                    style: TextStyle(color: Colores.amarillo),
+                    style: TextStyle(color: Colores.texto),
                   ),
                 ),
               ),

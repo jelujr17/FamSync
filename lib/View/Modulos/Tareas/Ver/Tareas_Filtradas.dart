@@ -47,6 +47,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   bool isLoading = true;
   final TextEditingController _searchController = TextEditingController();
   String aux = "";
+  bool aux2 = false;
 
   @override
   void initState() {
@@ -86,16 +87,30 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   }
 
   void crearTarea(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            CrearTarea(perfil: widget.perfil, categoria: widget.filtro),
-      ),
-    );
+    if (aux2) {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              CrearTarea(perfil: widget.perfil, categoria: widget.filtro),
+        ),
+      );
 
-    if (result == true) {
-      Navigator.pop(context, true); // Se realizó una actualización
+      if (result == true) {
+        Navigator.pop(context, true); // Se realizó una actualización
+      }
+    } else {
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              CrearTarea(perfil: widget.perfil, categoria: null),
+        ),
+      );
+
+      if (result == true) {
+        Navigator.pop(context, true); // Se realizó una actualización
+      }
     }
   }
 
@@ -139,7 +154,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
           break;
         default:
           print("Filtro no válido: ${widget.filtro}");
-
+          aux2 = true;
           idCategoria = categorias
               .firstWhere(
                 (categoria) => categoria.Nombre == widget.filtro,
@@ -157,6 +172,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
 
   @override
   Widget build(BuildContext context) {
+    cargarTareasCategoria();
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
@@ -182,11 +198,11 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                 style: ElevatedButton.styleFrom(
                   shape: const CircleBorder(),
                   padding: EdgeInsets.zero,
-                  backgroundColor: Colores.negro,
+                  backgroundColor: Colores.fondoAux,
                 ),
                 child: const Icon(
                   Icons.arrow_back_ios_new,
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                   size: 20,
                 ),
               ),
@@ -198,7 +214,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                   style: Theme.of(context)
                       .textTheme
                       .headlineMedium!
-                      .copyWith(color: Colores.amarillo),
+                      .copyWith(color: Colores.texto),
                 ),
               ),
 
@@ -213,7 +229,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                   "Usted tiene ${tareas.length} tareas",
                   style: const TextStyle(
                     fontSize: 16,
-                    color: Colores.amarillo,
+                    color: Colores.texto,
                   ),
                 ),
               ),
@@ -320,13 +336,13 @@ class IconoContador extends StatelessWidget {
             height: 46, // Altura del contenedor
             width: 92, // Anchura del contenedor (más largo horizontalmente)
             decoration: BoxDecoration(
-              color: Colores.negro,
+              color: Colores.fondoAux,
               borderRadius: BorderRadius.circular(
                   23), // Bordes redondeados para forma ovalada
             ),
             child: SvgPicture.string(
               svgSrc,
-              color: Colores.amarillo,
+              color: Colores.texto,
             ),
           ),
         ],

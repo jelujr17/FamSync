@@ -211,11 +211,11 @@ class CrearTareaState extends State<CrearTarea> {
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
                         padding: EdgeInsets.zero,
-                        backgroundColor: Colores.negro,
+                        backgroundColor: Colores.fondoAux,
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                         size: 20,
                       ),
                     ),
@@ -236,7 +236,7 @@ class CrearTareaState extends State<CrearTarea> {
                   child: Text(
                     "Crear Tarea",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colores.amarillo, fontWeight: FontWeight.bold),
+                        color: Colores.texto, fontWeight: FontWeight.bold),
                   ),
                 ),
                 FormularioCrearTarea(
@@ -268,15 +268,15 @@ class CrearTareaState extends State<CrearTarea> {
           ),
         ),
         bottomNavigationBar: TopRoundedContainer(
-          color: Colores.grisOscuro,
+          color: Colores.fondo,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: Colores.negro,
-                  foregroundColor: Colores.grisOscuro,
+                  backgroundColor: Colores.fondoAux,
+                  foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
@@ -284,7 +284,7 @@ class CrearTareaState extends State<CrearTarea> {
                 ),
                 onPressed: _crearTarea,
                 child: Text("Registrar Tarea",
-                    style: TextStyle(color: Colores.amarillo)),
+                    style: TextStyle(color: Colores.texto)),
               ),
             ),
           ),

@@ -32,7 +32,7 @@ class _CampoPrioridadEditarState extends State<CampoPrioridadEditarTarea> {
       padding: const EdgeInsets.symmetric(horizontal: 0),
       child: Container(
         decoration: BoxDecoration(
-          color: Colores.negro, // Fondo negro
+          color: Colores.fondoAux, // Fondo fondoAux
           borderRadius: BorderRadius.circular(8), // Bordes redondeados
         ),
         padding: const EdgeInsets.all(12), // Espaciado interno
@@ -42,7 +42,7 @@ class _CampoPrioridadEditarState extends State<CampoPrioridadEditarTarea> {
             const Text(
               'Prioridad',
               style: TextStyle(
-                color: Colores.amarillo, // Texto amarillo
+                color: Colores.texto, // Texto texto
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -80,14 +80,14 @@ class _CampoPrioridadEditarState extends State<CampoPrioridadEditarTarea> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
         decoration: BoxDecoration(
-          color: isSelected ? color : Colores.negro,
+          color: isSelected ? color : Colores.fondoAux,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(color: color, width: 2),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: isSelected ? Colores.negro : color,
+            color: isSelected ? Colores.fondoAux : color,
             fontWeight: FontWeight.bold,
           ),
         ),

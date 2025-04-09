@@ -105,7 +105,7 @@ class _AgendaState extends State<Agenda> {
             0.114 * backgroundColor.blue) /
         255;
 
-    // Si el color es oscuro, usar texto blanco; si es claro, usar texto negro
+    // Si el color es oscuro, usar texto blanco; si es claro, usar texto fondoAux
     return luminance > 0.5 ? Colors.black : Colors.white;
   }
 
@@ -172,7 +172,7 @@ class _AgendaState extends State<Agenda> {
                 child: Text(
                   "Agenda",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colores.amarillo, fontWeight: FontWeight.bold),
+                      color: Colores.texto, fontWeight: FontWeight.bold),
                 ),
               ),
               BarraAgenda(
@@ -307,13 +307,13 @@ class IconoContador extends StatelessWidget {
             height: 46, // Altura del contenedor
             width: 92, // Anchura del contenedor (más largo horizontalmente)
             decoration: BoxDecoration(
-              color: Colores.negro,
+              color: Colores.fondoAux,
               borderRadius: BorderRadius.circular(
                   23), // Bordes redondeados para forma ovalada
             ),
             child: SvgPicture.string(
               svgSrc,
-              color: Colores.amarillo,
+              color: Colores.texto,
             ),
           ),
         ],

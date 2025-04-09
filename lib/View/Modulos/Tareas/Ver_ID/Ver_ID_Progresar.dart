@@ -25,16 +25,16 @@ class ProgresarTareaDialog extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+          color: Colores.fondo.withOpacity(0.95), // Fondo del diálogo
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colores.amarillo.withOpacity(0.3),
+              color: Colores.texto.withOpacity(0.3),
               offset: const Offset(0, 30),
               blurRadius: 60,
             ),
             const BoxShadow(
-              color: Colores.amarillo,
+              color: Colores.texto,
               offset: Offset(0, 30),
               blurRadius: 60,
             ),
@@ -51,7 +51,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                   Text(
                     'Modificar Progreso',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -65,7 +65,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                       Text(
                         'Progreso actual: ${progresoActual.toInt()}%',
                         style: TextStyle(
-                          color: Colores.amarillo,
+                          color: Colores.texto,
                           fontSize: 14,
                         ),
                       ),
@@ -76,8 +76,8 @@ class ProgresarTareaDialog extends StatelessWidget {
                         interval: 10,
                         showTicks: true,
                         showLabels: true,
-                        activeColor: Colores.amarillo,
-                        inactiveColor: Colores.negro,
+                        activeColor: Colores.texto,
+                        inactiveColor: Colores.fondoAux,
                         enableTooltip: true,
                         tooltipTextFormatterCallback:
                             (dynamic actualValue, String formattedText) {
@@ -161,7 +161,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                         child: Text(
                           'Cancelar',
                           style: TextStyle(
-                            color: Colores.negro,
+                            color: Colores.fondoAux,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

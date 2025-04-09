@@ -59,11 +59,11 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
       child: Container(
         width: MediaQuery.of(context).size.width * 0.6, // Ajustar ancho
         decoration: BoxDecoration(
-          color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+          color: Colores.fondo.withOpacity(0.95), // Fondo del diálogo
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colores.amarillo.withOpacity(0.3),
+              color: Colores.texto.withOpacity(0.3),
               offset: const Offset(0, 5),
               blurRadius: 15,
             ),
@@ -82,7 +82,7 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                     Text(
                       'Asignar Perfiles',
                       style: TextStyle(
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                         fontWeight: FontWeight.bold,
                         fontSize: 18, // Reducir tamaño de fuente
                       ),
@@ -101,8 +101,8 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
 
                           return Card(
                             color: perfilesSeleccionados.contains(perfil.Id)
-                                ? Colores.negro
-                                : Colores.grisOscuro,
+                                ? Colores.fondoAux
+                                : Colores.fondo,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -134,7 +134,7 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                               title: Text(
                                 perfil.Nombre,
                                 style: const TextStyle(
-                                  color: Colores.amarillo,
+                                  color: Colores.texto,
                                   fontWeight: FontWeight.normal,
                                   fontSize: 14, // Reducir tamaño de fuente
                                 ),
@@ -175,7 +175,7 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                           child: Text(
                             'Cancelar',
                             style: TextStyle(
-                              color: Colores.negro,
+                              color: Colores.fondoAux,
                               fontWeight: FontWeight.bold,
                               fontSize: 14, // Reducir tamaño de fuente
                             ),

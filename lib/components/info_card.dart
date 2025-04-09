@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
-  const   InfoCard({
+  const InfoCard({
     super.key,
     required this.name,
     required this.bio,
@@ -15,7 +15,7 @@ class InfoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       leading: const CircleAvatar(
-        backgroundColor: Colores.negro,
+        backgroundColor: Colores.fondoAux,
         child: Icon(
           CupertinoIcons.person,
           color: Colores.fondoAux,

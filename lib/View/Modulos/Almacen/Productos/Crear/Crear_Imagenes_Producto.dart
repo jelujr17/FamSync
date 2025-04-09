@@ -27,8 +27,6 @@ class _ImagenesProductoStateCrear extends State<ImagenesProductoCrear> {
     super.initState();
   }
 
-  
-
   Future<void> _pickImage() async {
     try {
       final ImagePicker picker = ImagePicker();
@@ -60,7 +58,6 @@ class _ImagenesProductoStateCrear extends State<ImagenesProductoCrear> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            
             // Nuevas imágenes seleccionadas
             ...List.generate(_nuevasImagenes.length, (index) {
               return Stack(
@@ -81,22 +78,23 @@ class _ImagenesProductoStateCrear extends State<ImagenesProductoCrear> {
         ),
         const SizedBox(height: 16),
         TopRoundedContainer(
-          color: Colores.negro,
+          color: Colores.fondoAux,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: Colores.negro,
-                  foregroundColor: Colores.grisOscuro,
+                  backgroundColor: Colores.fondoAux,
+                  foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
                 onPressed: _pickImage,
-                child: const Text("Añadir imágenes", style: TextStyle(color: Colores.amarillo)),
+                child: const Text("Añadir imágenes",
+                    style: TextStyle(color: Colores.texto)),
               ),
             ),
           ),

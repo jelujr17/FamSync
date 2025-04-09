@@ -212,7 +212,7 @@ class AlmacenState extends State<Almacen> {
                               .textTheme
                               .headlineMedium!
                               .copyWith(
-                                  color: Colores.amarillo,
+                                  color: Colores.texto,
                                   fontWeight: FontWeight.bold),
                         ),
                       ),
@@ -226,7 +226,7 @@ class AlmacenState extends State<Almacen> {
                               child: Center(
                                   child: Text(
                                 "No hay productos disponibles",
-                                style: TextStyle(color: Colores.amarillo),
+                                style: TextStyle(color: Colores.texto),
                               )),
                             )
                           : Column(
@@ -240,7 +240,8 @@ class AlmacenState extends State<Almacen> {
                                       .reversed
                                       .toList(),
                                   onTap: (producto) =>
-                                      _navigateToDetallesProducto(producto), perfil: perfil,
+                                      _navigateToDetallesProducto(producto),
+                                  perfil: perfil,
                                 ),
                                 const SizedBox(height: 20),
                                 for (var tienda in ObtenerTiendasConProductos())
@@ -250,7 +251,8 @@ class AlmacenState extends State<Almacen> {
                                         .where((p) => p.Tienda == tienda.Nombre)
                                         .toList(),
                                     onTap: (producto) =>
-                                        _navigateToDetallesProducto(producto), perfil: widget.perfil,
+                                        _navigateToDetallesProducto(producto),
+                                    perfil: widget.perfil,
                                   ),
                                 const SizedBox(height: 20),
                                 ProductosTotales(
@@ -262,7 +264,7 @@ class AlmacenState extends State<Almacen> {
                               ],
                             ),
                     ],
-                  ),      
+                  ),
                 ),
         ),
       ),
@@ -333,12 +335,12 @@ class IconoContador extends StatelessWidget {
             height: 46,
             width: 46,
             decoration: BoxDecoration(
-              color: Colores.negro,
+              color: Colores.fondoAux,
               shape: BoxShape.circle,
             ),
             child: SvgPicture.string(
               svgSrc,
-              color: Colores.amarillo,
+              color: Colores.texto,
             ),
           ),
           if (numOfitem != 0)
@@ -349,9 +351,9 @@ class IconoContador extends StatelessWidget {
                 height: 20,
                 width: 20,
                 decoration: BoxDecoration(
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                   shape: BoxShape.circle,
-                  border: Border.all(width: 1.5, color: Colores.negro),
+                  border: Border.all(width: 1.5, color: Colores.fondoAux),
                 ),
                 child: Center(
                   child: Text(
@@ -360,7 +362,7 @@ class IconoContador extends StatelessWidget {
                       fontSize: 12,
                       height: 1,
                       fontWeight: FontWeight.w600,
-                      color: Colores.negro,
+                      color: Colores.fondoAux,
                     ),
                   ),
                 ),
@@ -394,12 +396,12 @@ class SectionTitle extends StatelessWidget {
           style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
-            color: Colores.amarillo,
+            color: Colores.texto,
           ),
         ),
         TextButton(
           onPressed: accion,
-          style: TextButton.styleFrom(foregroundColor: Colores.amarillo),
+          style: TextButton.styleFrom(foregroundColor: Colores.texto),
           child: pulsado ? Text("Ver más") : Text("Ver menos"),
         ),
       ],
@@ -482,8 +484,8 @@ class _ProductoCardState extends State<ProductoCard> {
   }
 
   void actualizarBanner() {
-      setState(() {});
-    }
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -492,7 +494,7 @@ class _ProductoCardState extends State<ProductoCard> {
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         decoration: BoxDecoration(
-          color: Colores.negro,
+          color: Colores.fondoAux,
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -535,7 +537,7 @@ class _ProductoCardState extends State<ProductoCard> {
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                 ),
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
@@ -559,7 +561,7 @@ class _ProductoCardState extends State<ProductoCard> {
                   ),
                   const Icon(
                     Icons.shopping_cart_outlined,
-                    color: Colores.amarillo,
+                    color: Colores.texto,
                     size: 20,
                   ),
                 ],
@@ -604,31 +606,20 @@ class _ProductoCardState extends State<ProductoCard> {
                         : showDialog(
                             context: context,
                             builder: (BuildContext context) {
-                              return Dialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(
-                                      16), // Bordes redondeados opcionales
-                                ),
-                                child: SizedBox(
-                                  width: MediaQuery.of(context).size.width *
-                                      0.8, // 80% del ancho de la pantalla
-                                  height: MediaQuery.of(context).size.height *
-                                      0.4, // 40% del alto de la pantalla
-                                  child: Container(
-                                    padding: const EdgeInsets.all(20),
-                                    child: VentanaAnadirListas(
-                                      actualizarBanner: actualizarBanner,
-                                      producto: widget.producto,
-                                    ),
-                                  ),
+                              return Container(
+                               
+                                padding: const EdgeInsets.all(20),
+                                child: VentanaAnadirListas(
+                                  actualizarBanner: actualizarBanner,
+                                  producto: widget.producto,
                                 ),
                               );
                             },
                           );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colores.amarillo,
-                    foregroundColor: Colores.negro,
+                    backgroundColor: Colores.texto,
+                    foregroundColor: Colores.fondoAux,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
                     ),

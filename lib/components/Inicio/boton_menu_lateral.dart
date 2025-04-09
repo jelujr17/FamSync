@@ -18,11 +18,11 @@ class MenuBtn extends StatelessWidget {
           height: 40,
           width: 40,
           decoration: const BoxDecoration(
-            color: Colores.negro,
+            color: Colores.fondoAux,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: Colores.amarillo,
+                color: Colores.texto,
                 offset: Offset(0, 3),
                 blurRadius: 8,
               ),

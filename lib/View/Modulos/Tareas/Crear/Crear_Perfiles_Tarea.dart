@@ -22,7 +22,7 @@ class CampoPerfilesCrearTarea extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Container(
         decoration: BoxDecoration(
-          color: Colores.negro, // Fondo negro para toda la sección
+          color: Colores.fondoAux, // Fondo fondoAux para toda la sección
           borderRadius: BorderRadius.circular(8), // Bordes redondeados
         ),
         padding: const EdgeInsets.all(12), // Espaciado interno
@@ -33,7 +33,7 @@ class CampoPerfilesCrearTarea extends StatelessWidget {
             const Text(
               'Perfiles destinatarios',
               style: TextStyle(
-                color: Colores.amarillo, // Texto amarillo
+                color: Colores.texto, // Texto texto
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -52,7 +52,7 @@ class CampoPerfilesCrearTarea extends StatelessWidget {
                   title: Text(
                     perfil.Nombre,
                     style: const TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
@@ -80,7 +80,7 @@ class CampoPerfilesCrearTarea extends StatelessWidget {
                                       right: 0,
                                       bottom: 0,
                                       child: Icon(Icons.check_circle,
-                                          color: Colores.amarillo, size: 30),
+                                          color: Colores.texto, size: 30),
                                     ),
                                 ],
                               );
@@ -89,7 +89,7 @@ class CampoPerfilesCrearTarea extends StatelessWidget {
                         )
                       : const Icon(Icons.image_not_supported),
                   tileColor: perfilSeleccionado.contains(perfil.Id)
-                      ? Colores.negro
+                      ? Colores.fondoAux
                       : null,
                   onTap: () {
                     onPerfilSeleccionado(perfil.Id);

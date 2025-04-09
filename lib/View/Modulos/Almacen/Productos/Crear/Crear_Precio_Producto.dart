@@ -33,23 +33,23 @@ class CampoPrecioCrear extends StatelessWidget {
         ],
         decoration: InputDecoration(
           labelText: 'Precio',
-          labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un precio para el producto',
-          hintStyle: const TextStyle(color: Colores.amarillo),
-          prefixIcon: Icon(Icons.euro, color: Colores.amarillo),
+          hintStyle: const TextStyle(color: Colores.texto),
+          prefixIcon: Icon(Icons.euro, color: Colores.texto),
           filled: true,
-          fillColor: Colores.negro,
+          fillColor: Colores.fondoAux,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colores.negro, width: 1.5),
+            borderSide: BorderSide(color: Colores.fondoAux, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colores.amarillo, width: 2),
+            borderSide: const BorderSide(color: Colores.texto, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -59,7 +59,7 @@ class CampoPrecioCrear extends StatelessWidget {
               const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         ),
         style: const TextStyle(
-            color: Colores.amarillo), // Cambia el color del texto aquí
+            color: Colores.texto), // Cambia el color del texto aquí
 
         validator: validator,
       ),

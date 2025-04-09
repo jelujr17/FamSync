@@ -13,9 +13,9 @@ class BarraBusquedaTareas extends StatelessWidget {
         controller: searchController,
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colores.negro, // Fondo gris oscuro
+          fillColor: Colores.fondoAux, // Fondo gris oscuro
           hintStyle: const TextStyle(
-            color: Colores.amarillo, // Texto del placeholder en amarillo
+            color: Colores.texto, // Texto del placeholder en texto
           ),
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -34,12 +34,12 @@ class BarraBusquedaTareas extends StatelessWidget {
           hintText: "Buscar tareas",
           prefixIcon: const Icon(
             Icons.search,
-            color: Colores.amarillo, // Ícono de búsqueda en amarillo
+            color: Colores.texto, // Ícono de búsqueda en texto
           ),
           suffixIcon: IconButton(
             icon: const Icon(
               Icons.clear,
-              color: Colores.amarillo, // Ícono de borrar en amarillo
+              color: Colores.texto, // Ícono de borrar en texto
             ),
             onPressed: () {
               searchController.clear(); // Limpia el contenido del TextField
@@ -47,7 +47,7 @@ class BarraBusquedaTareas extends StatelessWidget {
           ),
         ),
         style: const TextStyle(
-          color: Colores.amarillo, // Texto ingresado en amarillo
+          color: Colores.texto, // Texto ingresado en texto
         ),
       ),
     );

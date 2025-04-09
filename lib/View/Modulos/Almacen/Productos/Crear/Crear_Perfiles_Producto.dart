@@ -20,61 +20,85 @@ class CampoPerfilesCrear extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: ListView.builder(
-        shrinkWrap: true,
-        itemCount: perfiles.length > 1
-            ? perfiles.length - 1
-            : 0, // Restamos 1 si hay más de un perfil
-        itemBuilder: (context, index) {
-          final perfil = perfiles[index + 1];
-
-          return ListTile(
-            title: Text(
-              perfil.Nombre,
-              style: const TextStyle(
-                color: Colores.amarillo,
-                fontWeight: FontWeight.normal,
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colores.fondoAux, // Fondo fondoAux para toda la sección
+          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+        ),
+        padding: const EdgeInsets.all(12), // Espaciado interno
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Título del apartado
+            const Text(
+              'Producto visible para los siguientes perfiles:',
+              style: TextStyle(
+                color: Colores.texto, // Texto texto
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
               ),
             ),
-            leading: perfil.FotoPerfil.isNotEmpty
-                ? FutureBuilder<File>(
-                    future: ServicioPerfiles()
-                        .obtenerImagen(context, perfil.FotoPerfil),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const CircularProgressIndicator();
-                      } else if (snapshot.hasError) {
-                        return const Icon(Icons.error);
-                      } else if (!snapshot.hasData) {
-                        return const Icon(Icons.image_not_supported);
-                      } else {
-                        return Stack(
-                          children: [
-                            CircleAvatar(
-                              radius: 25,
-                              backgroundImage: FileImage(snapshot.data!),
-                            ),
-                            if (perfilSeleccionado.contains(perfil.Id))
-                              const Positioned(
-                                right: 0,
-                                bottom: 0,
-                                child: Icon(Icons.check_circle,
-                                    color: Colors.green),
-                              ),
-                          ],
-                        );
-                      }
-                    },
-                  )
-                : const Icon(Icons.image_not_supported),
-            tileColor: perfilSeleccionado.contains(perfil.Id)
-                ? Colores.negro
-                : null,
-            onTap: () {
-              onPerfilSeleccionado(perfil.Id);
-            },
-          );
-        },
+            const SizedBox(height: 10), // Espaciado entre el título y la lista
+            // Lista de perfiles
+            ListView.builder(
+              shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Evita conflictos de scroll
+              itemCount: perfiles.length,
+              itemBuilder: (context, index) {
+                final perfil = perfiles[index];
+
+                return ListTile(
+                  title: Text(
+                    perfil.Nombre,
+                    style: const TextStyle(
+                      color: Colores.texto,
+                      fontWeight: FontWeight.normal,
+                    ),
+                  ),
+                  leading: perfil.FotoPerfil.isNotEmpty
+                      ? FutureBuilder<File>(
+                          future: ServicioPerfiles()
+                              .obtenerImagen(context, perfil.FotoPerfil),
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState ==
+                                ConnectionState.waiting) {
+                              return const CircularProgressIndicator();
+                            } else if (snapshot.hasError) {
+                              return const Icon(Icons.error);
+                            } else if (!snapshot.hasData) {
+                              return const Icon(Icons.image_not_supported);
+                            } else {
+                              return Stack(
+                                children: [
+                                  CircleAvatar(
+                                    radius: 25,
+                                    backgroundImage: FileImage(snapshot.data!),
+                                  ),
+                                  if (perfilSeleccionado.contains(perfil.Id))
+                                    const Positioned(
+                                      right: 0,
+                                      bottom: 0,
+                                      child: Icon(Icons.check_circle,
+                                          color: Colores.texto, size: 30),
+                                    ),
+                                ],
+                              );
+                            }
+                          },
+                        )
+                      : const Icon(Icons.image_not_supported),
+                  tileColor: perfilSeleccionado.contains(perfil.Id)
+                      ? Colores.fondoAux
+                      : null,
+                  onTap: () {
+                    onPerfilSeleccionado(perfil.Id);
+                  },
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

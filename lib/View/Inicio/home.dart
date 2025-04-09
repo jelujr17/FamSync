@@ -92,7 +92,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
       key: homeKey,
       extendBody: true,
       resizeToAvoidBottomInset: false,
-      backgroundColor: Colores.grisOscuro,
+      backgroundColor: Colores.fondo,
       body: Stack(
         children: [
           AnimatedPositioned(
@@ -234,11 +234,11 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
             margin: const EdgeInsets.symmetric(horizontal: 24)
                 .copyWith(bottom: 24), // Agrega margen inferior
             decoration: BoxDecoration(
-              color: Colores.negro.withOpacity(0.8),
+              color: Colores.fondoAux.withOpacity(0.8),
               borderRadius: const BorderRadius.all(Radius.circular(24)),
               boxShadow: [
                 BoxShadow(
-                  color: Colores.negro.withOpacity(0.3),
+                  color: Colores.fondoAux.withOpacity(0.3),
                   offset: const Offset(0, 20),
                   blurRadius: 20,
                 ),

@@ -55,6 +55,8 @@ class _ImagenesProductoState extends State<ImagenesProducto> {
                   child: imagenes[selectedImage],
                 ),
               ),
+              
+              const SizedBox(height: 16),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

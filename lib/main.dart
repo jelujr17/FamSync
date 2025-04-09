@@ -57,21 +57,21 @@ class MyApp extends StatelessWidget {
         Locale('es', 'ES'),
       ],
       theme: ThemeData(
-        scaffoldBackgroundColor: Colores.grisOscuro, // Fondo principal
-        primaryColor: Colores.amarillo, // Color primario
+        scaffoldBackgroundColor: Colores.fondo, // Fondo principal
+        primaryColor: Colores.texto, // Color primario
         textTheme: const TextTheme(
           headlineMedium: TextStyle(
-            color: Colores.amarillo,
+            color: Colores.texto,
             fontWeight: FontWeight.bold,
           ),
           bodyMedium: TextStyle(
-            color: Colores.negro,
+            color: Colores.fondoAux,
           ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colores.amarillo, // Botones
-            foregroundColor: Colores.grisOscuro, // Texto de los botones
+            backgroundColor: Colores.texto, // Botones
+            foregroundColor: Colores.fondo, // Texto de los botones
           ),
         ),
       ),

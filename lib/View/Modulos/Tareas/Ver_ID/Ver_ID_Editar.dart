@@ -64,16 +64,16 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colores.grisOscuro.withOpacity(0.95), // Fondo del diálogo
+          color: Colores.fondo.withOpacity(0.95), // Fondo del diálogo
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colores.amarillo.withOpacity(0.3),
+              color: Colores.texto.withOpacity(0.3),
               offset: const Offset(0, 30),
               blurRadius: 60,
             ),
             const BoxShadow(
-              color: Colores.amarillo,
+              color: Colores.texto,
               offset: Offset(0, 30),
               blurRadius: 60,
             ),
@@ -90,7 +90,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                   Text(
                     'Editar Tarea',
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
@@ -102,14 +102,14 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                     controller: nombreController,
                     decoration: InputDecoration(
                       labelText: 'Nombre de la Tarea',
-                      labelStyle: const TextStyle(
-                          fontSize: 16, color: Colores.amarillo),
+                      labelStyle:
+                          const TextStyle(fontSize: 16, color: Colores.texto),
                       hintText: 'Ingresa un nombre para la Tarea',
-                      hintStyle: const TextStyle(color: Colores.amarillo),
-                      prefixIcon: const Icon(Icons.shopping_bag,
-                          color: Colores.amarillo),
+                      hintStyle: const TextStyle(color: Colores.texto),
+                      prefixIcon:
+                          const Icon(Icons.shopping_bag, color: Colores.texto),
                       filled: true,
-                      fillColor: Colores.negro,
+                      fillColor: Colores.fondoAux,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none, // Sin borde inicial
@@ -117,12 +117,12 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            BorderSide(color: Colores.negro, width: 1.5),
+                            BorderSide(color: Colores.fondoAux, width: 1.5),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            const BorderSide(color: Colores.amarillo, width: 2),
+                            const BorderSide(color: Colores.texto, width: 2),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -133,8 +133,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                           vertical: 18, horizontal: 20),
                     ),
                     style: const TextStyle(
-                        color:
-                            Colores.amarillo), // Cambia el color del texto aquí
+                        color: Colores.texto), // Cambia el color del texto aquí
                   ),
                   const SizedBox(height: 16),
 
@@ -143,14 +142,14 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                     controller: descripcionController,
                     decoration: InputDecoration(
                       labelText: 'Descripción de la Tarea',
-                      labelStyle: const TextStyle(
-                          fontSize: 16, color: Colores.amarillo),
+                      labelStyle:
+                          const TextStyle(fontSize: 16, color: Colores.texto),
                       hintText: 'Ingresa una descripción para la Tarea',
-                      hintStyle: const TextStyle(color: Colores.amarillo),
-                      prefixIcon: const Icon(Icons.description,
-                          color: Colores.amarillo),
+                      hintStyle: const TextStyle(color: Colores.texto),
+                      prefixIcon:
+                          const Icon(Icons.description, color: Colores.texto),
                       filled: true,
-                      fillColor: Colores.negro,
+                      fillColor: Colores.fondoAux,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide: BorderSide.none, // Sin borde inicial
@@ -158,12 +157,12 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            BorderSide(color: Colores.negro, width: 1.5),
+                            BorderSide(color: Colores.fondoAux, width: 1.5),
                       ),
                       focusedBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
                         borderSide:
-                            const BorderSide(color: Colores.amarillo, width: 2),
+                            const BorderSide(color: Colores.texto, width: 2),
                       ),
                       errorBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(16),
@@ -174,7 +173,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                           vertical: 18, horizontal: 20),
                     ),
                     style: const TextStyle(
-                      color: Colores.amarillo, // Cambia el color del texto aquí
+                      color: Colores.texto, // Cambia el color del texto aquí
                     ),
                     maxLines: 5, // Permite que el campo tenga hasta 5 líneas
                     minLines: 3, // Mínimo de 3 líneas para que sea más grande
@@ -214,7 +213,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                         child: Text(
                           'Cancelar',
                           style: TextStyle(
-                            color: Colores.negro,
+                            color: Colores.fondoAux,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -234,9 +233,9 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                                       IdUsuario: 0),
                                 )
                                 .Id;
-                                if(categoriaAux == 0){
-                                  categoriaAux = null;
-                                }
+                            if (categoriaAux == 0) {
+                              categoriaAux = null;
+                            }
                             widget.onTareaEditada(
                                 nombreController.text,
                                 descripcionController.text,
@@ -247,7 +246,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                         child: Text(
                           'Guardar',
                           style: TextStyle(
-                            color: Colores.amarillo,
+                            color: Colores.texto,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

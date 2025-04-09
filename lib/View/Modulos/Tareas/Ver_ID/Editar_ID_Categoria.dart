@@ -30,21 +30,21 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
         value: categoriaSeleccionada,
         decoration: InputDecoration(
           labelText: 'Categoría de la Tarea',
-          labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
-          prefixIcon: const Icon(Icons.category, color: Colores.amarillo),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
+          prefixIcon: const Icon(Icons.category, color: Colores.texto),
           filled: true,
-          fillColor: Colores.negro,
+          fillColor: Colores.fondoAux,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none, // Sin borde inicial
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colores.negro, width: 1.5),
+            borderSide: BorderSide(color: Colores.fondoAux, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colores.amarillo, width: 2),
+            borderSide: const BorderSide(color: Colores.texto, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -53,7 +53,7 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         ),
-        dropdownColor: Colores.negro, // Fondo del menú desplegable
+        dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: categorias.map((Categorias categoria) {
           return DropdownMenuItem<String>(
             value: categoria.Nombre,
@@ -63,8 +63,8 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
                 // Esfera de color
                 Text(
                   categoria.Nombre,
-                  style: const TextStyle(
-                      color: Colores.amarillo), // Color del texto
+                  style:
+                      const TextStyle(color: Colores.texto), // Color del texto
                 ),
 
                 const SizedBox(
@@ -84,7 +84,7 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
         }).toList(),
         onChanged: onCategoriaSeleccionada,
         style: const TextStyle(
-          color: Colores.amarillo, // Color del texto seleccionado
+          color: Colores.texto, // Color del texto seleccionado
         ),
       ),
     );

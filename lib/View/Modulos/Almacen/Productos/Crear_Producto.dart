@@ -191,11 +191,11 @@ class _CrearProductoState extends State<CrearProducto> {
                       style: ElevatedButton.styleFrom(
                         shape: const CircleBorder(),
                         padding: EdgeInsets.zero,
-                        backgroundColor: Colores.negro,
+                        backgroundColor: Colores.fondoAux,
                       ),
                       child: const Icon(
                         Icons.arrow_back_ios_new,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                         size: 20,
                       ),
                     ),
@@ -216,7 +216,7 @@ class _CrearProductoState extends State<CrearProducto> {
                   child: Text(
                     "Crear Producto",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                        color: Colores.amarillo, fontWeight: FontWeight.bold),
+                        color: Colores.texto, fontWeight: FontWeight.bold),
                   ),
                 ),
                 FormularioCrearProducto(
@@ -245,22 +245,23 @@ class _CrearProductoState extends State<CrearProducto> {
           ),
         ),
         bottomNavigationBar: TopRoundedContainer(
-          color: Colores.grisOscuro,
+          color: Colores.fondo,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: Colores.negro,
-                  foregroundColor: Colores.grisOscuro,
+                  backgroundColor: Colores.texto,
+                  foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
                 onPressed: _crearProducto,
-                child:  Text("Registrar Producto", style: TextStyle(color: Colores.amarillo)),
+                child: Text("Registrar Producto",
+                    style: TextStyle(color: Colores.fondoAux)),
               ),
             ),
           ),

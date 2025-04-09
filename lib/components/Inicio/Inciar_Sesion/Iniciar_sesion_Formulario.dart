@@ -138,7 +138,7 @@ class _SignInFormState extends State<SignInForm> {
             children: [
               const Text(
                 "Email",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -150,7 +150,7 @@ class _SignInFormState extends State<SignInForm> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
                   keyboardType: TextInputType.emailAddress,
                   textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
@@ -163,7 +163,7 @@ class _SignInFormState extends State<SignInForm> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -172,7 +172,7 @@ class _SignInFormState extends State<SignInForm> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -181,7 +181,7 @@ class _SignInFormState extends State<SignInForm> {
               ),
               const Text(
                 "Contraseña",
-                style: TextStyle(color: Colores.amarillo),
+                style: TextStyle(color: Colores.texto),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 8, bottom: 16),
@@ -195,7 +195,7 @@ class _SignInFormState extends State<SignInForm> {
                     }
                     return null;
                   },
-                  style: const TextStyle(color: Colores.amarillo),
+                  style: const TextStyle(color: Colores.texto),
 
                   decoration: InputDecoration(
                     prefixIcon: Padding(
@@ -207,7 +207,7 @@ class _SignInFormState extends State<SignInForm> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .negro, // Color del borde cuando está habilitado
+                            .fondoAux, // Color del borde cuando está habilitado
                         width: 1.5,
                       ),
                     ),
@@ -216,7 +216,7 @@ class _SignInFormState extends State<SignInForm> {
                           BorderRadius.circular(12), // Bordes redondeados
                       borderSide: const BorderSide(
                         color: Colores
-                            .amarillo, // Color del borde cuando está enfocado
+                            .texto, // Color del borde cuando está enfocado
                         width: 2.0,
                       ),
                     ),
@@ -225,7 +225,7 @@ class _SignInFormState extends State<SignInForm> {
                         _isPasswordVisible
                             ? Icons.visibility
                             : Icons.visibility_off,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                       ),
                       onPressed: () {
                         setState(() {
@@ -243,7 +243,7 @@ class _SignInFormState extends State<SignInForm> {
                     signIn(context);
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colores.negro,
+                    backgroundColor: Colores.fondoAux,
                     minimumSize: const Size(double.infinity, 56),
                     shape: const RoundedRectangleBorder(
                       borderRadius: BorderRadius.only(
@@ -256,10 +256,10 @@ class _SignInFormState extends State<SignInForm> {
                   ),
                   icon: const Icon(
                     CupertinoIcons.arrow_right,
-                    color: Colores.amarillo,
+                    color: Colores.texto,
                   ),
                   label: const Text("Iniciar Sesión",
-                      style: TextStyle(color: Colores.amarillo)),
+                      style: TextStyle(color: Colores.texto)),
                 ),
               ),
             ],

@@ -22,7 +22,7 @@ void crear_cuenta_dialogo(BuildContext context,
     context: context,
     barrierLabel: "Barrier",
     barrierDismissible: true,
-    barrierColor: Colores.grisOscuro.withOpacity(0.5),
+    barrierColor: Colores.fondo.withOpacity(0.5),
     transitionDuration: const Duration(milliseconds: 400),
     pageBuilder: (_, __, ___) {
       return Center(
@@ -34,16 +34,16 @@ void crear_cuenta_dialogo(BuildContext context,
           margin: const EdgeInsets.symmetric(horizontal: 16),
           padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 24),
           decoration: BoxDecoration(
-            color: Colores.grisOscuro.withOpacity(0.95),
+            color: Colores.fondo.withOpacity(0.95),
             borderRadius: BorderRadius.circular(40),
             boxShadow: [
               BoxShadow(
-                color: Colores.amarillo.withOpacity(0.3),
+                color: Colores.texto.withOpacity(0.3),
                 offset: const Offset(0, 30),
                 blurRadius: 60,
               ),
               const BoxShadow(
-                color: Colores.amarillo,
+                color: Colores.texto,
                 offset: Offset(0, 30),
                 blurRadius: 60,
               ),
@@ -64,7 +64,7 @@ void crear_cuenta_dialogo(BuildContext context,
                         fontSize: 34,
                         fontFamily: "Poppins",
                         fontWeight: FontWeight.w600,
-                        color: Colores.amarillo,
+                        color: Colores.texto,
                       ),
                     ),
                     const Padding(
@@ -73,7 +73,7 @@ void crear_cuenta_dialogo(BuildContext context,
                         "Administra fácilmente tu hogar con FamSync. Organiza eventos, tareas y productos en un solo lugar para una mejor sincronización familiar.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          color: Colores.amarillo,
+                          color: Colores.texto,
                         ),
                       ),
                     ),
@@ -97,7 +97,7 @@ void crear_cuenta_dialogo(BuildContext context,
                               child: Text(
                                 "O",
                                 style: TextStyle(
-                                  color: Colores.amarillo,
+                                  color: Colores.texto,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -109,7 +109,7 @@ void crear_cuenta_dialogo(BuildContext context,
                           padding: EdgeInsets.symmetric(vertical: 24),
                           child: Text(
                             "Regístrate con tus redes sociales",
-                            style: TextStyle(color: Colores.amarillo),
+                            style: TextStyle(color: Colores.texto),
                           ),
                         ),
                         Row(
@@ -147,7 +147,7 @@ void crear_cuenta_dialogo(BuildContext context,
                         const SizedBox(height: 24),
                         const Text(
                           "¿Ya tienes una cuenta?",
-                          style: TextStyle(color: Colores.amarillo),
+                          style: TextStyle(color: Colores.texto),
                         ),
                         // Espacio para asegurar que todo el contenido sea accesible
                         const SizedBox(height: 80),

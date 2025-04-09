@@ -212,6 +212,11 @@ class _VentanaListasState extends State<VentanaListas> {
 
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true, // Permite que el BottomSheet ocupe más espacio
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      backgroundColor: Colores.fondo,
       builder: (context) {
         final perfilesProvider =
             Provider.of<PerfilesProvider>(context, listen: false);
@@ -219,137 +224,225 @@ class _VentanaListasState extends State<VentanaListas> {
             .where((perfil) => perfil.Id != widget.perfil.Id)
             .toList(); // Filtrar el perfil del usuario actual
 
-        return AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
           ),
-          title: const Text('Crear Nueva Lista'),
-          content: SizedBox(
-            height: 400, // Ajustar la altura según sea necesario
-            child: SingleChildScrollView(
-              child: Column(
-                children: [
-                  TextField(
-                    controller: nombreController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la lista',
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colores.fondo, // Fondo fondoAux para toda la sección
+              borderRadius: BorderRadius.circular(8), // Bordes redondeados
+            ),
+            padding: const EdgeInsets.all(12), // Espaciado interno
+
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.list_alt, color: Colores.texto),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'Crear Nueva Lista',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colores.texto,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  decoration: InputDecoration(
+                    labelText: 'Nombre de la Lista',
+                    labelStyle:
+                        const TextStyle(fontSize: 16, color: Colores.texto),
+                    hintText: 'Ingresa un nombre para la Lista',
+                    hintStyle: const TextStyle(color: Colores.texto),
+                    prefixIcon:
+                        const Icon(Icons.shopping_bag, color: Colores.texto),
+                    filled: true,
+                    fillColor: Colores.fondoAux,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: BorderSide.none, // Sin borde inicial
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide:
+                          BorderSide(color: Colores.fondoAux, width: 1.5),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide:
+                          const BorderSide(color: Colores.texto, width: 2),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      borderSide: const BorderSide(color: Colors.red, width: 2),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                        vertical: 18, horizontal: 20),
+                  ),
+                  style: const TextStyle(
+                      color: Colores.texto), // Cambia el color del texto aquí
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Selecciona los perfiles:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colores.texto,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colores
+                          .fondoAux, // Fondo fondoAux para toda la sección
+                      borderRadius:
+                          BorderRadius.circular(8), // Bordes redondeados
+                    ),
+                    padding: const EdgeInsets.all(12), // Espaciado interno
+                    child: Column(
+                      children: perfiles.map((perfil) {
+                        return ListTile(
+                          title: Text(
+                            perfil.Nombre,
+                            style: const TextStyle(
+                              color: Colores.texto,
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                          leading: perfil.FotoPerfil.isNotEmpty
+                              ? FutureBuilder<File>(
+                                  future: ServicioPerfiles().obtenerImagen(
+                                      context, perfil.FotoPerfil),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const CircularProgressIndicator();
+                                    } else if (snapshot.hasError) {
+                                      return const Icon(Icons.error);
+                                    } else if (!snapshot.hasData) {
+                                      return const Icon(
+                                          Icons.image_not_supported);
+                                    } else {
+                                      return Stack(
+                                        children: [
+                                          CircleAvatar(
+                                            radius: 25,
+                                            backgroundImage:
+                                                FileImage(snapshot.data!),
+                                          ),
+                                          if (perfilesSeleccionados
+                                              .contains(perfil.Id))
+                                            Positioned(
+                                              right: 0,
+                                              bottom: 0,
+                                              child: Icon(Icons.check_circle,
+                                                  color: Colors.green),
+                                            ),
+                                        ],
+                                      );
+                                    }
+                                  },
+                                )
+                              : const Icon(Icons.image_not_supported),
+                          tileColor: perfilesSeleccionados.contains(perfil.Id)
+                              ? Colores.fondoAux
+                              : null,
+                          onTap: () {
+                            setState(() {
+                              if (perfilesSeleccionados.contains(perfil.Id)) {
+                                perfilesSeleccionados.remove(perfil.Id);
+                              } else {
+                                perfilesSeleccionados.add(perfil.Id);
+                              }
+                            });
+                          },
+                        );
+                      }).toList(),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'Selecciona los perfiles:',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 10),
-                  Column(
-                    children: perfiles.map((perfil) {
-                      return ListTile(
-                        title: Text(
-                          perfil.Nombre,
-                          style: const TextStyle(
-                            color: Colores.texto,
-                            fontWeight: FontWeight.normal,
-                          ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Cerrar el BottomSheet
+                      },
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(
+                          color: Colores.eliminar,
+                          fontWeight: FontWeight.bold,
                         ),
-                        leading: perfil.FotoPerfil.isNotEmpty
-                            ? FutureBuilder<File>(
-                                future: ServicioPerfiles()
-                                    .obtenerImagen(context, perfil.FotoPerfil),
-                                builder: (context, snapshot) {
-                                  if (snapshot.connectionState ==
-                                      ConnectionState.waiting) {
-                                    return const CircularProgressIndicator();
-                                  } else if (snapshot.hasError) {
-                                    return const Icon(Icons.error);
-                                  } else if (!snapshot.hasData) {
-                                    return const Icon(
-                                        Icons.image_not_supported);
-                                  } else {
-                                    return Stack(
-                                      children: [
-                                        CircleAvatar(
-                                          radius: 25,
-                                          backgroundImage:
-                                              FileImage(snapshot.data!),
-                                        ),
-                                        if (perfilesSeleccionados
-                                            .contains(perfil.Id))
-                                          Positioned(
-                                            right: 0,
-                                            bottom: 0,
-                                            child: Icon(Icons.check_circle,
-                                                color: Colors.green),
-                                          ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              )
-                            : const Icon(Icons.image_not_supported),
-                        tileColor: perfilesSeleccionados.contains(perfil.Id)
-                            ? Colores.principal.withOpacity(0.2)
-                            : null,
-                        onTap: () {
-                          setState(() {
-                            if (perfilesSeleccionados.contains(perfil.Id)) {
-                              perfilesSeleccionados.remove(perfil.Id);
-                            } else {
-                              perfilesSeleccionados.add(perfil.Id);
-                            }
-                          });
-                        },
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        // Crear una nueva lista en el backend
+                        final nuevaLista = Listas(
+                          Id: DateTime.now()
+                              .millisecondsSinceEpoch, // Generar un ID único
+                          Nombre: nombreController.text,
+                          Visible: perfilesSeleccionados,
+                          Productos: [],
+                          IdPerfil: widget.perfil.Id,
+                          IdUsuario: widget.perfil.UsuarioId,
+                        );
+
+                        final listasProvider =
+                            Provider.of<ListasProvider>(context, listen: false);
+
+                        await ServiciosListas().registrarLista(
+                          context,
+                          nuevaLista.Nombre,
+                          widget.perfil.Id,
+                          widget.perfil.UsuarioId,
+                          nuevaLista.Visible,
+                        );
+
+                        // Recargar las listas desde el backend
+                        await listasProvider.cargarListas(
+                          context,
+                          widget.perfil.UsuarioId,
+                          widget.perfil.Id,
+                        );
+                        setState(() {});
+
+                        widget.actualizarBanner();
+                        Navigator.of(context).pop(); // Cerrar el BottomSheet
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colores.fondoAux,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Guardar',
+                        style: TextStyle(
+                          color: Colores.texto,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Cerrar el diálogo sin guardar
-              },
-              child: const Text('Cancelar'),
-            ),
-            TextButton(
-              onPressed: () async {
-                // Crear una nueva lista en el backend
-                final nuevaLista = Listas(
-                  Id: DateTime.now()
-                      .millisecondsSinceEpoch, // Generar un ID único
-                  Nombre: nombreController.text,
-                  Visible: perfilesSeleccionados,
-                  Productos: [],
-                  IdPerfil: widget.perfil.Id,
-                  IdUsuario: widget.perfil.UsuarioId,
-                );
-
-                final listasProvider =
-                    Provider.of<ListasProvider>(context, listen: false);
-
-                await ServiciosListas().registrarLista(
-                  context,
-                  nuevaLista.Nombre,
-                  widget.perfil.Id,
-                  widget.perfil.UsuarioId,
-                  nuevaLista.Visible,
-                );
-
-                // Recargar las listas desde el backend
-                await listasProvider.cargarListas(
-                  context,
-                  widget.perfil.UsuarioId,
-                  widget.perfil.Id,
-                );
-                setState(() {});
-
-                widget.actualizarBanner();
-                Navigator.of(context).pop(); // Cerrar el diálogo
-              },
-              child: const Text('Guardar'),
-            ),
-          ],
         );
       },
     );
@@ -369,14 +462,11 @@ class _VentanaListasState extends State<VentanaListas> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
       ),
-      backgroundColor: Colors.white,
+      backgroundColor: Colores.fondo,
       title: const Text(
         'Tus Listas',
         style: TextStyle(
-          fontSize: 22,
-          fontWeight: FontWeight.bold,
-          color: Color(0xFF4A3298),
-        ),
+            fontSize: 22, fontWeight: FontWeight.bold, color: Colores.texto),
       ),
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -400,23 +490,24 @@ class _VentanaListasState extends State<VentanaListas> {
                           ),
                           elevation: 3,
                           margin: const EdgeInsets.symmetric(vertical: 5),
+                          color: Colores.fondoAux,
                           child: ExpansionTile(
                             title: Text(
                               lista.Nombre,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.black,
+                                color: Colores.texto,
                               ),
                             ),
-                            leading: const Icon(Icons.list,
-                                color: Color(0xFF4A3298)),
+                            leading:
+                                const Icon(Icons.list, color: Colores.texto),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 IconButton(
                                   icon: const Icon(Icons.edit,
-                                      color: Color(0xFF4A3298)),
+                                      color: Colores.texto),
                                   onPressed: () {
                                     editarLista(lista);
                                   },
@@ -425,7 +516,7 @@ class _VentanaListasState extends State<VentanaListas> {
                                     width: 8), // Espaciado entre los íconos
                                 IconButton(
                                   icon: const Icon(Icons.delete,
-                                      color: Colors.red),
+                                      color: Colores.eliminar),
                                   onPressed: () {
                                     eliminarLista(lista);
                                   },
@@ -440,7 +531,7 @@ class _VentanaListasState extends State<VentanaListas> {
                                           const CircularProgressIndicator(),
                                       trailing: IconButton(
                                         icon: const Icon(Icons.delete,
-                                            color: Colors.red),
+                                            color: Colores.eliminar),
                                         onPressed: () {
                                           eliminarProductoDeLista(
                                               lista, producto.Id);
@@ -456,7 +547,7 @@ class _VentanaListasState extends State<VentanaListas> {
                                         style: TextStyle(
                                           fontSize: 14,
                                           fontStyle: FontStyle.italic,
-                                          color: Colors.grey,
+                                          color: Colores.texto,
                                         ),
                                       ),
                                     ),
@@ -475,7 +566,7 @@ class _VentanaListasState extends State<VentanaListas> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
-                      color: Colors.black54,
+                      color: Colores.texto,
                     ),
                   ),
                 ),
@@ -483,11 +574,11 @@ class _VentanaListasState extends State<VentanaListas> {
           // Botón para crear una nueva lista
           ElevatedButton.icon(
             onPressed: crearNuevaLista,
-            icon: const Icon(Icons.add, color: Colors.white),
+            icon: const Icon(Icons.add, color: Colores.texto),
             label: const Text('Crear Lista',
-                style: TextStyle(color: Colors.white)),
+                style: TextStyle(color: Colores.texto)),
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4A3298),
+              backgroundColor: Colores.fondoAux,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -505,7 +596,7 @@ class _VentanaListasState extends State<VentanaListas> {
             style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: Color(0xFF4A3298),
+              color: Colores.fondoAux,
             ),
           ),
         ),

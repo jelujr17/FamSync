@@ -23,34 +23,44 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
   @override
   Widget build(BuildContext context) {
     final listasProvider = Provider.of<ListasProvider>(context, listen: false);
-
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16), // Bordes redondeados
+        borderRadius:
+            BorderRadius.circular(16), // Bordes redondeados opcionales
       ),
       child: Container(
+        width: MediaQuery.of(context).size.width *
+            0.5, // 80% del ancho de la pantalla
+        height: MediaQuery.of(context).size.height *
+            0.4, // 40% del alto de la pantalla
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colores.fondo,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Título de la ventana
-            Text(
-              'Seleccionar Lista',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Colores.principal,
-              ),
+            // Título
+            Row(
+              children: [
+                const Icon(Icons.list_alt, color: Colores.texto, size: 24),
+                const SizedBox(width: 8),
+                const Text(
+                  'Seleccionar Lista',
+                  style: TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    color: Colores.texto,
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 10),
-            // Divider para separar el título del contenido
             const Divider(
-              color: Colors.grey,
+              color: Colores.fondoAux,
               thickness: 1,
+              height: 20,
             ),
             const SizedBox(height: 10),
             // Contenido de las listas
@@ -62,48 +72,50 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
                       itemBuilder: (context, index) {
                         final lista = listasProvider.listas[index];
 
-                        return ListTile(
-                          title: Text(
-                            lista.Nombre,
-                            style: const TextStyle(
-                              color: Colores.texto,
-                              fontWeight: FontWeight.normal,
-                            ),
-                          ),
-                          leading: lista.Productos.contains(widget.producto.Id)
-                              ? const Icon(
-                                  Icons.check_circle,
-                                  color: Colors.green,
-                                )
-                              : const Icon(
-                                  Icons.list_alt,
-                                  color: Colors.grey,
-                                ),
-                          tileColor:
-                              lista.Productos.contains(widget.producto.Id)
-                                  ? Colores.principal.withOpacity(0.2)
-                                  : null,
+                        return Card(
+                          color: lista.Productos.contains(widget.producto.Id)
+                              ? Colores.fondoAux.withOpacity(0.2)
+                              : Colores.fondoAux,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
-                          onTap: () {
-                            _toggleProductoEnLista(lista);
-                          },
+                          child: ListTile(
+                            title: Text(
+                              lista.Nombre,
+                              style: const TextStyle(
+                                color: Colores.texto,
+                                fontWeight: FontWeight.normal,
+                              ),
+                            ),
+                            leading:
+                                lista.Productos.contains(widget.producto.Id)
+                                    ? const Icon(Icons.check_circle,
+                                        color: Colores.hecho)
+                                    : const Icon(Icons.list_alt,
+                                        color: Colores.fondoAux),
+                            onTap: () {
+                              _toggleProductoEnLista(lista);
+                            },
+                          ),
                         );
                       },
                     ),
                   )
-                : const Padding(
-                    padding: EdgeInsets.all(10.0),
-                    child: Text(
-                      'No hay listas disponibles. ¡Crea una nueva lista primero!',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.black54,
+                : Column(
+                    children: const [
+                      Icon(Icons.info_outline,
+                          color: Colores.fondoAux, size: 40),
+                      SizedBox(height: 10),
+                      Text(
+                        'No hay listas disponibles. ¡Crea una nueva lista primero!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colores.texto,
+                        ),
                       ),
-                    ),
+                    ],
                   ),
             const SizedBox(height: 20),
             // Botón de cerrar
@@ -112,14 +124,19 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
                 Navigator.of(context).pop(); // Cierra la ventana
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colores.principal,
+                backgroundColor: Colores.fondoAux,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
               child: const Text(
                 'Cerrar',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(
+                  color: Colores.texto,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ],

@@ -71,12 +71,12 @@ class _ListasBannerState extends State<ListasBanner> {
           vertical: 16,
         ),
         decoration: BoxDecoration(
-          color: Colores.amarillo,
+          color: Colores.texto,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text.rich(
           TextSpan(
-            style: const TextStyle(color: Colores.negro),
+            style: const TextStyle(color: Colores.fondoAux),
             children: [
               TextSpan(text: "$titulo\n"),
               TextSpan(
@@ -84,7 +84,7 @@ class _ListasBannerState extends State<ListasBanner> {
                 style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colores.grisOscuro),
+                    color: Colores.fondo),
               ),
             ],
           ),

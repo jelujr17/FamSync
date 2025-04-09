@@ -40,32 +40,31 @@ class CampoTiendaCrearState extends State<CampoTiendaCrear> {
         value: tiendaSeleccionada,
         decoration: InputDecoration(
           labelText: 'Selecciona una tienda',
-          labelStyle: const TextStyle(fontSize: 16, color: Colores.amarillo),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa una tienda para el producto',
-          hintStyle: const TextStyle(color: Colores.negro),
+          hintStyle: TextStyle(color: Colores.texto),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          prefixIcon: Icon(Icons.store, color: Colores.amarillo),
+          prefixIcon: Icon(Icons.store, color: Colores.texto),
           filled: true,
-          fillColor: Colores.negro, // Fondo del campo de entrada
+          fillColor: Colores.fondoAux, // Fondo del campo de entrada
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colores.amarillo, width: 2),
+            borderSide: const BorderSide(color: Colores.texto, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
         ),
-        dropdownColor: Colores.negro, // Fondo del menú desplegable
+        dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: widget.nombresTienda.map((String tienda) {
           return DropdownMenuItem<String>(
             value: tienda,
             child: Text(
               tienda,
-              style:
-                  const TextStyle(color: Colores.amarillo), // Color del texto
+              style: const TextStyle(color: Colores.texto), // Color del texto
             ),
           );
         }).toList(),
@@ -78,7 +77,7 @@ class CampoTiendaCrearState extends State<CampoTiendaCrear> {
           }
         },
         style: const TextStyle(
-          color: Colores.amarillo, // Color del texto seleccionado
+          color: Colores.texto, // Color del texto seleccionado
         ),
         validator: widget.validator,
       ),

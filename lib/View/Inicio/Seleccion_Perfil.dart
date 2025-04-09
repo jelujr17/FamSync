@@ -44,7 +44,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colores.grisOscuro, // Fondo blanco
+      backgroundColor: Colores.fondo, // Fondo blanco
       body: SafeArea(
         child: Column(
           children: [
@@ -59,14 +59,14 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                     style: GoogleFonts.poppins(
                       fontSize: 36,
                       fontWeight: FontWeight.bold,
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                     ),
                   ),
                   if (perfiles.isNotEmpty)
                     TextButton(
                       onPressed: _toggleEditMode,
                       style: TextButton.styleFrom(
-                        foregroundColor: Colores.negro,
+                        foregroundColor: Colores.fondoAux,
                       ),
                       child: Text(
                         _editMode ? 'Cancelar' : 'Editar',
@@ -86,7 +86,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
               style: GoogleFonts.poppins(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Colores.amarillo,
+                color: Colores.texto,
               ),
             ),
             const SizedBox(height: 100),
@@ -185,7 +185,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colores.amarillo,
+              color: Colores.texto,
             ),
           ),
         ],
@@ -216,13 +216,13 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colores.negro,
+                color: Colores.fondoAux,
               ),
               child: const Center(
                 child: Icon(
                   Icons.add,
                   size: 50,
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                 ),
               ),
             ),
@@ -233,7 +233,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
-              color: Colores.amarillo,
+              color: Colores.texto,
             ),
           ),
         ],
@@ -257,16 +257,16 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                 const BoxConstraints(maxWidth: 300), // Ancho máximo del diálogo
             child: Container(
               decoration: BoxDecoration(
-                color: Colores.grisOscuro, // Color de fondo del diálogo
+                color: Colores.fondo, // Color de fondo del diálogo
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
-                    color: Colores.amarillo.withOpacity(0.3),
+                    color: Colores.texto.withOpacity(0.3),
                     offset: const Offset(0, 30),
                     blurRadius: 60,
                   ),
                   const BoxShadow(
-                    color: Colores.amarillo,
+                    color: Colores.texto,
                     offset: Offset(0, 30),
                     blurRadius: 60,
                   ),
@@ -280,7 +280,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                   Text(
                     "Verificación",
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                     ),
@@ -289,7 +289,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                   Text(
                     "Introduzca el PIN de ${perfil.Nombre}",
                     style: TextStyle(
-                      color: Colores.amarillo,
+                      color: Colores.texto,
                       fontSize: 16,
                     ),
                   ),
@@ -299,18 +299,18 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                     decoration: InputDecoration(
                       hintText: "Escribe el PIN...",
                       hintStyle:
-                          TextStyle(color: Colores.amarillo.withOpacity(0.6)),
+                          TextStyle(color: Colores.texto.withOpacity(0.6)),
                       enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colores.amarillo),
+                        borderSide: BorderSide(color: Colores.texto),
                       ),
                       focusedBorder: UnderlineInputBorder(
                         borderSide:
-                            BorderSide(color: Colores.amarillo, width: 2.0),
+                            BorderSide(color: Colores.texto, width: 2.0),
                       ),
                     ),
                     keyboardType: TextInputType.number,
                     obscureText: true, // Oculta el texto para mayor seguridad
-                    style: TextStyle(color: Colores.amarillo),
+                    style: TextStyle(color: Colores.texto),
                   ),
                   const SizedBox(height: 20),
                   Row(
@@ -349,7 +349,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                         },
                         child: Text(
                           "Iniciar",
-                          style: TextStyle(color: Colores.amarillo),
+                          style: TextStyle(color: Colores.texto),
                         ),
                       ),
                     ],

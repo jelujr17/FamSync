@@ -82,7 +82,7 @@ class MisCategoriasState extends State<MisCategorias> {
             style: Theme.of(context)
                 .textTheme
                 .headlineSmall!
-                .copyWith(color: Colores.amarillo, fontWeight: FontWeight.bold),
+                .copyWith(color: Colores.texto, fontWeight: FontWeight.bold),
           ),
         ),
         if (categorias.isEmpty)
@@ -97,12 +97,12 @@ class MisCategoriasState extends State<MisCategorias> {
 
                 // Determina el color del texto según el índice
                 final colorTexto = index % 2 == 0
-                    ? Colores.amarillo // Índices pares
-                    : Colores.negro; // Índices impares
+                    ? Colores.texto // Índices pares
+                    : Colores.fondoAux; // Índices impares
                 final color = index % 2 == 0
-                    ? Colores.negro // Índices pares
-                    : Colores.amarillo; // Índices impares
-                
+                    ? Colores.fondoAux // Índices pares
+                    : Colores.texto; // Índices impares
+
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: SecondaryCourseCard(

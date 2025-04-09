@@ -19,7 +19,8 @@ class SideMenu extends StatefulWidget {
   State<SideMenu> createState() => _SideMenuState();
 }
 
-class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin {
+class _SideMenuState extends State<SideMenu>
+    with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
 
   @override
@@ -50,11 +51,12 @@ class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin
 
   @override
   Widget build(BuildContext context) {
+    bool isSelected = widget.selectedMenu == widget.menu;
     return Column(
       children: [
         const Padding(
           padding: EdgeInsets.only(left: 24),
-          child: Divider(color: Colores.grisOscuro, height: 1),
+          child: Divider(color: Colores.fondo, height: 1),
         ),
         Stack(
           children: [
@@ -66,7 +68,7 @@ class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin
               left: 0,
               child: Container(
                 decoration: const BoxDecoration(
-                  color: Colores.amarillo,
+                  color: Colores.texto,
                   borderRadius: BorderRadius.all(Radius.circular(10)),
                 ),
               ),
@@ -83,13 +85,14 @@ class _SideMenuState extends State<SideMenu> with SingleTickerProviderStateMixin
                     _animationController.duration = composition.duration;
                     if (widget.selectedMenu == widget.menu) {
                       _animationController.forward();
+
                     }
                   },
                 ),
               ),
               title: Text(
                 widget.menu.title,
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: isSelected ? Colores.fondo : Colores.texto),
               ),
             ),
           ],

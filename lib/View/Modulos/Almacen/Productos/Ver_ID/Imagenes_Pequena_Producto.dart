@@ -1,5 +1,6 @@
 
 import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class ImagenPequena extends StatelessWidget {
@@ -30,10 +31,10 @@ class ImagenPequena extends StatelessWidget {
         height: 48,
         width: 48,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Colores.fondoAux,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: const Color(0xFFFF7643).withOpacity(esSeleccionada ? 1 : 0),
+            color:  Colores.texto.withOpacity(esSeleccionada ? 1 : 0),
           ),
         ),
         child: FutureBuilder<Widget>(
@@ -42,7 +43,7 @@ class ImagenPequena extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
-              return const Icon(Icons.error, color: Colors.red);
+              return const Icon(Icons.error, color: Colores.eliminar);
             } else {
               return snapshot.data!;
             }

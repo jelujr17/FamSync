@@ -23,8 +23,8 @@ class _SideBarState extends State<SideBar> {
       child: Container(
         width: 288,
         height: double.infinity,
-        decoration:  BoxDecoration(
-          color: Colores.negro,
+        decoration: BoxDecoration(
+          color: Colores.fondoAux,
           borderRadius: BorderRadius.all(
             Radius.circular(30),
           ),
@@ -52,7 +52,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colores.amarillo),
+                              .copyWith(color: Colores.texto),
                         ),
                       ),
                       ...sidebarMenus.map((menu) => SideMenu(
@@ -73,7 +73,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colores.amarillo),
+                              .copyWith(color: Colores.texto),
                         ),
                       ),
                       ...sidebarMenus2.map((menu) => SideMenu(
@@ -94,7 +94,7 @@ class _SideBarState extends State<SideBar> {
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium!
-                              .copyWith(color: Colores.amarillo),
+                              .copyWith(color: Colores.texto),
                         ),
                       ),
                       ...sidebarMenus3.map((menu) => SideMenu(
