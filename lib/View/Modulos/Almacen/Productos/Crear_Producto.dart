@@ -325,6 +325,8 @@ class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;
+        // Eliminar el perfil del widget de la lista de perfiles disponibles
+        perfiles.removeWhere((perfil) => perfil.Id == widget.perfil.Id);
       });
     });
   }

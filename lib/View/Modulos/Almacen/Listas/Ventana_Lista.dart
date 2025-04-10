@@ -83,18 +83,51 @@ class _VentanaListasState extends State<VentanaListas> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: Colores.fondo,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
-          title: const Text('Editar Lista'),
+          title: const Text(
+            'Editar Lista',
+            style: TextStyle(color: Colores.texto),
+          ),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nombreController,
-                decoration: const InputDecoration(
-                  labelText: 'Nombre de la lista',
+                decoration: InputDecoration(
+                  labelText: 'Nombre de la Lista',
+                  labelStyle:
+                      const TextStyle(fontSize: 16, color: Colores.texto),
+                  hintText: 'Ingresa un nombre para la Lista',
+                  hintStyle: const TextStyle(color: Colores.texto),
+                  prefixIcon:
+                      const Icon(Icons.shopping_bag, color: Colores.texto),
+                  filled: true,
+                  fillColor: Colores.fondoAux,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide.none, // Sin borde inicial
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: BorderSide(color: Colores.fondoAux, width: 1.5),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide:
+                        const BorderSide(color: Colores.texto, width: 2),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    borderSide: const BorderSide(color: Colors.red, width: 2),
+                  ),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
                 ),
+                style: const TextStyle(
+                    color: Colores.texto), // Cambia el color del texto aquí
               ),
             ],
           ),
@@ -103,7 +136,8 @@ class _VentanaListasState extends State<VentanaListas> {
               onPressed: () {
                 Navigator.of(context).pop(); // Cerrar el diálogo sin guardar
               },
-              child: const Text('Cancelar'),
+              child: const Text('Cancelar',
+                  style: TextStyle(color: Colores.fondoAux)),
             ),
             TextButton(
               onPressed: () {
@@ -143,7 +177,8 @@ class _VentanaListasState extends State<VentanaListas> {
                 widget.actualizarBanner();
                 Navigator.of(context).pop(); // Cerrar el diálogo
               },
-              child: const Text('Guardar'),
+              child:
+                  const Text('Guardar', style: TextStyle(color: Colores.texto)),
             ),
           ],
         );
@@ -155,10 +190,20 @@ class _VentanaListasState extends State<VentanaListas> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Eliminar Lista'),
+        backgroundColor: Colores.fondo,
+        title: const Text('Eliminar Lista',
+            style: TextStyle(color: Colores.texto)),
         content: Text(
-            '¿Estás seguro de que quieres eliminar la lista ${lista.Nombre}?'),
+            '¿Estás seguro de que quieres eliminar la lista ${lista.Nombre}?',
+            style: TextStyle(color: Colores.texto)),
         actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar',
+                style: TextStyle(color: Colores.fondoAux)),
+          ),
           TextButton(
             onPressed: () async {
               await ServiciosListas().eliminarLista(context, lista.Id);
@@ -177,13 +222,8 @@ class _VentanaListasState extends State<VentanaListas> {
               widget.actualizarBanner();
               Navigator.of(context).pop(); // Cerrar el diálogo
             },
-            child: const Text('Eliminar'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text('Cancelar'),
+            child: const Text('Eliminar',
+                style: TextStyle(color: Colores.eliminar)),
           ),
         ],
       ),
@@ -257,6 +297,7 @@ class _VentanaListasState extends State<VentanaListas> {
                 ),
                 const SizedBox(height: 20),
                 TextField(
+                  controller: nombreController,
                   decoration: InputDecoration(
                     labelText: 'Nombre de la Lista',
                     labelStyle:

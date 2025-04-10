@@ -7,6 +7,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Precio_Prod
 import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Tienda_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -250,22 +251,23 @@ class _EditarProductoState extends State<EditarProducto> {
           ),
         ),
         bottomNavigationBar: TopRoundedContainer(
-          color: Colors.white,
+          color: Colores.fondo,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: const Color.fromARGB(255, 255, 195, 67),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colores.texto,
+                  foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
                 onPressed: _editarProducto,
-                child: const Text("Guardar cambios"),
+                child: Text("Guardar Cambios",
+                    style: TextStyle(color: Colores.fondoAux)),
               ),
             ),
           ),
@@ -335,6 +337,8 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;
+        // Eliminar el perfil del widget de la lista de perfiles disponibles
+        perfiles.removeWhere((perfil) => perfil.Id == widget.perfil.Id);
       });
     });
   }

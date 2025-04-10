@@ -1,4 +1,5 @@
 
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class CampoNombreEditar extends StatelessWidget {
@@ -19,23 +20,23 @@ class CampoNombreEditar extends StatelessWidget {
         controller: nombreController,
         decoration: InputDecoration(
           labelText: 'Nombre del producto',
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un nombre para el producto',
-          hintStyle: const TextStyle(color: Colors.grey),
-          prefixIcon: const Icon(Icons.shopping_bag, color: Colors.blue),
+          hintStyle: const TextStyle(color: Colores.texto),
+          prefixIcon: const Icon(Icons.shopping_bag, color: Colores.texto),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colores.fondoAux,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none, // Sin borde inicial
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: BorderSide(color: Colors.grey.shade300, width: 1.5),
+            borderSide: BorderSide(color: Colores.fondoAux, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.blue, width: 2),
+            borderSide: const BorderSide(color: Colores.texto, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
@@ -44,6 +45,9 @@ class CampoNombreEditar extends StatelessWidget {
           contentPadding:
               const EdgeInsets.symmetric(vertical: 18, horizontal: 20),
         ),
+        style: const TextStyle(
+            color: Colores.texto), // Cambia el color del texto aquí
+
         validator: validator,
       ),
     );

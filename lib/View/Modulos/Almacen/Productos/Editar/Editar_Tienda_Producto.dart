@@ -1,4 +1,5 @@
 import 'package:famsync/Model/Almacen/producto.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
 class CampoTiendaEditar extends StatefulWidget {
@@ -38,34 +39,38 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+   return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: DropdownButtonFormField<String>(
         value: tiendaSeleccionada,
         decoration: InputDecoration(
           labelText: 'Selecciona una tienda',
-          labelStyle: const TextStyle(fontSize: 16, color: Colors.black87),
+          labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa una tienda para el producto',
-          hintStyle: const TextStyle(color: Colors.grey),
+          hintStyle: TextStyle(color: Colores.texto),
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
           ),
-          prefixIcon: const Icon(Icons.store, color: Colors.yellow),
+          prefixIcon: Icon(Icons.store, color: Colores.texto),
           filled: true,
-          fillColor: Colors.grey.shade100,
+          fillColor: Colores.fondoAux, // Fondo del campo de entrada
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.yellow, width: 2),
+            borderSide: const BorderSide(color: Colores.texto, width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
             borderSide: const BorderSide(color: Colors.red, width: 2),
           ),
         ),
+        dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: widget.nombresTienda.map((String tienda) {
           return DropdownMenuItem<String>(
             value: tienda,
-            child: Text(tienda),
+            child: Text(
+              tienda,
+              style: const TextStyle(color: Colores.texto), // Color del texto
+            ),
           );
         }).toList(),
         onChanged: (String? newValue) {
@@ -75,8 +80,10 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
             });
             widget.onTiendaSeleccionada(newValue);
           }
-          print("Tienda seleccionada: $tiendaSeleccionada");
         },
+        style: const TextStyle(
+          color: Colores.texto, // Color del texto seleccionado
+        ),
         validator: widget.validator,
       ),
     );

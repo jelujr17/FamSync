@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
+import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -128,22 +129,23 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
         ),
         const SizedBox(height: 16),
         TopRoundedContainer(
-          color: Colors.white,
+          color: Colores.fondoAux,
           child: SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: const Color.fromARGB(195, 32, 69, 235),
-                  foregroundColor: Colors.white,
+                  backgroundColor: Colores.fondoAux,
+                  foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(16)),
                   ),
                 ),
                 onPressed: _pickImage,
-                child: const Text("Añadir imágenes"),
+                child: const Text("Añadir imágenes",
+                    style: TextStyle(color: Colores.texto)),
               ),
             ),
           ),
