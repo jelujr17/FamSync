@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Modulos/Calendario/Eventos/editarEvento.dart';
+import 'package:famsync/View/Modulos/Eventos/Eventos/editarEvento.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_neat_and_clean_calendar/flutter_neat_and_clean_calendar.dart';

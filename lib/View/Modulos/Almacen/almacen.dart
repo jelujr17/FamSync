@@ -192,42 +192,43 @@ class AlmacenState extends State<Almacen> {
     } else {
       _filterProductos();
     }
+
     return PerfilProvider(
       perfil: widget.perfil,
       child: Scaffold(
         body: SafeArea(
-          child: isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 40),
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Text(
+                  "Almacén",
+                  style: Theme.of(context).textTheme.headlineMedium!.copyWith(
+                      color: Colores.texto, fontWeight: FontWeight.bold),
+                ),
+              ),
+              BarraAlmacen(
+                searchController: _searchController,
+                crearProducto: _crearProducto,
+              ),
+              ListasBanner(perfil: perfil),
+              Expanded(
+                child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const SizedBox(height: 40),
-                      Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Text(
-                          "Almacén",
-                          style: Theme.of(context)
-                              .textTheme
-                              .headlineMedium!
-                              .copyWith(
-                                  color: Colores.texto,
-                                  fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      BarraAlmacen(
-                          searchController: _searchController,
-                          crearProducto: _crearProducto),
-                      ListasBanner(perfil: perfil),
+                      
                       productos.isEmpty
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),
                               child: Center(
-                                  child: Text(
-                                "No hay productos disponibles",
-                                style: TextStyle(color: Colores.texto),
-                              )),
+                                child: Text(
+                                  "No hay productos disponibles",
+                                  style: TextStyle(color: Colores.texto),
+                                ),
+                              ),
                             )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,6 +267,9 @@ class AlmacenState extends State<Almacen> {
                     ],
                   ),
                 ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -607,7 +611,6 @@ class _ProductoCardState extends State<ProductoCard> {
                             context: context,
                             builder: (BuildContext context) {
                               return Container(
-                               
                                 padding: const EdgeInsets.all(20),
                                 child: VentanaAnadirListas(
                                   actualizarBanner: actualizarBanner,

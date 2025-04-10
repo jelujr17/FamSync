@@ -2,7 +2,7 @@ import 'dart:math';
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
-import 'package:famsync/View/Modulos/Calendario/calendario.dart';
+import 'package:famsync/View/Modulos/Eventos/calendario.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/View/Modulos/categorias.dart';
 import 'package:famsync/components/Inicio/BarraNavegacion/btm_nav_item.dart';
@@ -18,7 +18,7 @@ class Home extends StatefulWidget {
   final Perfiles perfil; // Identificador del perfil del usuario
   final int initialPage; // Índice de la página inicial
 
-  const Home({super.key, required this.perfil, this.initialPage = 0});
+  const Home({super.key, required this.perfil, this.initialPage = 2});
 
   @override
   State<Home> createState() => HomeState();

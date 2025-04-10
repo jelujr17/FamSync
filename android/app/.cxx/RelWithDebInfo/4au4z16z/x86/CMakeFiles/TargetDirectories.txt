@@ -1,0 +1,2 @@
+C:/Users/mario/Desktop/FamSync/android/app/.cxx/RelWithDebInfo/4au4z16z/x86/CMakeFiles/edit_cache.dir
+C:/Users/mario/Desktop/FamSync/android/app/.cxx/RelWithDebInfo/4au4z16z/x86/CMakeFiles/rebuild_cache.dir
