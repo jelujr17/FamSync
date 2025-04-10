@@ -95,7 +95,8 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
       backgroundColor: Colores.fondo,
       body: Stack(
         children: [
-          AnimatedPositioned(
+          // Contenido principal
+           AnimatedPositioned(
             width: 288,
             height: MediaQuery.of(context).size.height,
             duration: const Duration(milliseconds: 200),
@@ -118,9 +119,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   borderRadius: const BorderRadius.all(
                     Radius.circular(24),
                   ),
-                  child: Stack(
-                    children: [
-                      PageView(
+                  child: PageView(
                         controller: _pageController,
                         onPageChanged: (index) {
                           setState(() {
@@ -186,8 +185,6 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           const Placeholder(),
                         ],
                       ),
-                    ],
-                  ),
                 ),
               ),
             ),
@@ -223,47 +220,65 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
               },
             ),
           ),
-        ],
-      ),
-      bottomNavigationBar: Transform.translate(
-        offset: Offset(0, 100 * animation.value),
-        child: SafeArea(
-          child: Container(
-            padding:
-                const EdgeInsets.only(left: 12, top: 12, right: 12, bottom: 12),
-            margin: const EdgeInsets.symmetric(horizontal: 24)
-                .copyWith(bottom: 24), // Agrega margen inferior
-            decoration: BoxDecoration(
-              color: Colores.fondoAux.withOpacity(0.8),
-              borderRadius: const BorderRadius.all(Radius.circular(24)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colores.fondoAux.withOpacity(0.3),
-                  offset: const Offset(0, 20),
-                  blurRadius: 20,
-                ),
-              ],
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ...List.generate(
-                  bottomNavItems.length,
-                  (index) {
-                    Menu_Aux navBar = bottomNavItems[index];
-                    return BtmNavItem(
-                      navBar: navBar,
-                      press: () {
-                        updateSelectedBtmNav(navBar);
-                      },
-                      selectedNav: selectedBottonNav,
-                    );
-                  },
-                ),
-              ],
+          // Contenido debajo de la barra de navegación
+          Positioned(
+            bottom: 80, // Ajusta la posición del contenido
+            left: 0,
+            right: 0,
+            child: Center(
+              child: Text(
+                "",
+                style: TextStyle(color: Colores.texto, fontSize: 16),
+              ),
             ),
           ),
-        ),
+          // Barra de navegación inferior
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Transform.translate(
+              offset: Offset(0, 100 * animation.value),
+              child: SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.only(
+                      left: 12, top: 12, right: 12, bottom: 12),
+                  margin: const EdgeInsets.symmetric(horizontal: 24)
+                      .copyWith(bottom: 24), // Agrega margen inferior
+                  decoration: BoxDecoration(
+                    color: Colores.fondoAux.withOpacity(0.8),
+                    borderRadius: const BorderRadius.all(Radius.circular(24)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colores.fondoAux.withOpacity(0.3),
+                        offset: const Offset(0, 20),
+                        blurRadius: 20,
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ...List.generate(
+                        bottomNavItems.length,
+                        (index) {
+                          Menu_Aux navBar = bottomNavItems[index];
+                          return BtmNavItem(
+                            navBar: navBar,
+                            press: () {
+                              updateSelectedBtmNav(navBar);
+                            },
+                            selectedNav: selectedBottonNav,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

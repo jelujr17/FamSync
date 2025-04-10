@@ -37,7 +37,7 @@ class Calendario extends StatefulWidget {
 }
 
 class CalendarioState extends State<Calendario> {
-  bool modo = false; // Modo de vista de tareas (false = "Baja", true = "Media")
+  bool modo = false; // Modo de vista de tareas (false = "Dia", true = "Meses")
 
   void _cambiarModo(bool nuevoModo) {
     setState(() {
@@ -98,12 +98,10 @@ class CalendarioState extends State<Calendario> {
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: true);
 
-    // Actualizar los estados de las tareas cada vez que cambien
-
     final tareasAux = tareasProvider.tareas;
     final DateTime now = DateTime.now(); // Fecha actual
-    final String diaSemana =
-        DateFormat('EEEE', 'es_ES').format(now); // Día de la semana en español
+    final String diaSemana = capitalize(
+        DateFormat('EEEE', 'es_ES').format(now)); // Día de la semana en español
 
     return PerfilProvider(
       perfil: widget.perfil,
@@ -118,7 +116,9 @@ class CalendarioState extends State<Calendario> {
                 child: Text(
                   "Calendario",
                   style: Theme.of(context).textTheme.headlineMedium!.copyWith(
-                      color: Colores.texto, fontWeight: FontWeight.bold),
+                        color: Colores.texto,
+                        fontWeight: FontWeight.bold,
+                      ),
                 ),
               ),
               BarraCalendario(
@@ -129,22 +129,53 @@ class CalendarioState extends State<Calendario> {
                 },
                 modo: modo,
               ),
-              if (modo) const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  diaSemana, // Mostrar el día de la semana
-                  style: const TextStyle(
-                    fontSize: 16,
-                    color: Colores.texto,
+              if (!modo)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 20),
+                      Text(
+                        diaSemana, // Mostrar el día de la semana con mayúscula
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colores.fondoAux,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                    ],
                   ),
                 ),
-              ),
+              if (!modo)
+                FechaYHoras(
+                  fechaActual: now
+                ),
+              if (!modo)
+                Expanded(
+                  child: TopRoundedContainer(
+                    color: Colores.texto,
+                    child: SafeArea(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        child: Text(
+                          "Listado Eventos",
+                          style: TextStyle(color: Colores.fondoAux),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
       ),
     );
+  }
+
+  String capitalize(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
   }
 }
 
@@ -272,9 +303,10 @@ class TopRoundedContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 20),
+      margin: const EdgeInsets.only(top: 20, left: 20, right: 20),
       padding: const EdgeInsets.only(top: 20),
       width: double.infinity,
+      height: MediaQuery.of(context).size.height,
       decoration: BoxDecoration(
         color: color,
         borderRadius: const BorderRadius.only(
@@ -282,7 +314,100 @@ class TopRoundedContainer extends StatelessWidget {
           topRight: Radius.circular(40),
         ),
       ),
-      child: child,
+      child: child, // Hacer que el contenido sea desplazable
+    );
+  }
+}
+
+class FechaYHoras extends StatelessWidget {
+  final DateTime fechaActual;
+
+  const FechaYHoras({
+    super.key,
+    required this.fechaActual,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Formatear la fecha
+    final String dia = fechaActual.day.toString().padLeft(2, '0');
+    final String mes =
+        DateFormat('MMM', 'es_ES').format(fechaActual).toUpperCase();
+
+    final String mesAux = fechaActual.month.toString().padLeft(2, '0');
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          // Día y mes
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "$dia.$mesAux",
+                style: const TextStyle(
+                  fontSize: 72,
+                  fontWeight: FontWeight.bold,
+                  color: Colores.texto,
+                  height: 1.0, // Ajustar el espaciado entre líneas
+                ),
+              ),
+              Text(
+                mes,
+                style: const TextStyle(
+                  fontSize: 72,
+                  fontWeight: FontWeight.bold,
+                  color: Colores.texto,
+                  height: 1.0, // Ajustar el espaciado entre líneas
+                ),
+              ),
+            ],
+          ),
+          // Línea divisoria
+          Container(
+            width: 1, // Ancho de la línea
+            height: 100, // Altura de la línea
+            color: Colores.fondoAux, // Color de la línea
+            margin: const EdgeInsets.symmetric(horizontal: 16),
+          ),
+          // Horas de diferentes ubicaciones
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              _buildEventoUbicacion(
+                  "New York", "Reunión con equipo", "3:00 PM"),
+              const SizedBox(height: 8),
+              _buildEventoUbicacion(
+                  "United Kingdom", "Llamada con cliente", "6:00 PM"),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEventoUbicacion(String ubicacion, String evento, String hora) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        Text(
+          evento,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Text(
+          "$hora - $ubicacion",
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+          ),
+        ),
+      ],
     );
   }
 }

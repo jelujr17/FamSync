@@ -180,7 +180,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
         color: Colores.fondo,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            padding: const EdgeInsets.only(left: 20, right: 20,bottom: 120),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,

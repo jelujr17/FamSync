@@ -239,7 +239,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
               Expanded(
                 child: tareas.isNotEmpty
                     ? ListView.builder(
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80),
                         itemCount: tareas.length,
                         itemBuilder: (context, index) {
                           final tarea = tareas[index];
@@ -274,6 +274,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                         child: Text('No hay tareas disponibles'),
                       ),
               ),
+              
             ],
           ),
         ),

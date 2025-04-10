@@ -271,11 +271,11 @@ class CrearTareaState extends State<CrearTarea> {
           color: Colores.fondo,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.only(left: 20, right: 12,bottom: 120),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
-                  backgroundColor: Colores.fondoAux,
+                  backgroundColor: Colores.texto,
                   foregroundColor: Colores.fondo,
                   minimumSize: const Size(double.infinity, 48),
                   shape: const RoundedRectangleBorder(
@@ -284,7 +284,7 @@ class CrearTareaState extends State<CrearTarea> {
                 ),
                 onPressed: _crearTarea,
                 child: Text("Registrar Tarea",
-                    style: TextStyle(color: Colores.texto)),
+                    style: TextStyle(color: Colores.fondoAux)),
               ),
             ),
           ),
