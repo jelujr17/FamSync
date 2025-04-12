@@ -1,7 +1,9 @@
+import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
-import 'package:famsync/Provider/Tareas_Provider.dart';
-import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
+import 'package:famsync/Provider/Eventos_Provider.dart';
+import 'package:famsync/View/Modulos/Eventos/Crear_Evento.dart';
+import 'package:famsync/View/Modulos/Eventos/Ver/Carta_Evento.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
@@ -39,22 +41,34 @@ class Calendario extends StatefulWidget {
 class CalendarioState extends State<Calendario> {
   bool modo = false; // Modo de vista de tareas (false = "Dia", true = "Meses")
 
+  List<Eventos> eventos = []; // Lista de eventos
+  bool isSearching = false; // Bandera para saber si se está buscando
+
+  bool isLoading = true;
+  String errorMessage = '';
+
   void _cambiarModo(bool nuevoModo) {
     setState(() {
       modo = nuevoModo; // Cambiar el modo al nuevo valor
     });
   }
 
-  bool isSearching = false; // Bandera para saber si se está buscando
-
-  bool isLoading = true;
-  String errorMessage = '';
-
   final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final eventosProvider =
+          Provider.of<EventosProvider>(context, listen: false);
+      eventosProvider.cargarEventos(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
+
+      setState(() {
+        eventos = eventosProvider.eventos; // Actualiza la lista de tareas
+        isLoading = false; // Indica que la carga ha terminado
+      });
+    });
   }
 
   Color getContrastingTextColor(Color backgroundColor) {
@@ -70,13 +84,13 @@ class CalendarioState extends State<Calendario> {
 
   Perfiles get perfil => widget.perfil;
 
-  void _crearTarea(BuildContext context) async {
+  void _crearEvento(BuildContext context) async {
     // Implementa la lógica para editar el producto
     // Por ejemplo, puedes navegar a una página de edición de producto
     final result = await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => CrearTarea(perfil: widget.perfil),
+        builder: (context) => CrearEvento(perfil: widget.perfil),
       ),
     );
 
@@ -93,12 +107,11 @@ class CalendarioState extends State<Calendario> {
 
   @override
   Widget build(BuildContext context) {
-    final tareasProvider =
-        Provider.of<TareasProvider>(context, listen: true); // Escuchar cambios
+    final eventosProvider =
+        Provider.of<EventosProvider>(context, listen: true); // Escuchar cambios
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: true);
-
-    final tareasAux = tareasProvider.tareas;
+    eventos = eventosProvider.eventos;
     final DateTime now = DateTime.now(); // Fecha actual
     final String diaSemana = capitalize(
         DateFormat('EEEE', 'es_ES').format(now)); // Día de la semana en español
@@ -123,7 +136,7 @@ class CalendarioState extends State<Calendario> {
               ),
               BarraCalendario(
                 searchController: _searchController,
-                crearTarea: _crearTarea,
+                crearEvento: _crearEvento,
                 cambiarModo: (nuevoModo) {
                   _cambiarModo(nuevoModo); // Actualizar el modo
                 },
@@ -146,10 +159,7 @@ class CalendarioState extends State<Calendario> {
                     ],
                   ),
                 ),
-              if (!modo)
-                FechaYHoras(
-                  fechaActual: now
-                ),
+              if (!modo) FechaYHoras(fechaActual: now),
               if (!modo)
                 Expanded(
                   child: TopRoundedContainer(
@@ -158,10 +168,37 @@ class CalendarioState extends State<Calendario> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
-                        child: Text(
-                          "Listado Eventos",
-                          style: TextStyle(color: Colores.fondoAux),
-                        ),
+                        child: eventos.isNotEmpty
+                            ? ListView.builder(
+                                padding: const EdgeInsets.only(
+                                    left: 20, right: 20, bottom: 80),
+                                itemCount: eventos.length,
+                                itemBuilder: (context, index) {
+                                  final evento = eventos[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0),
+                                    child: CartaEvento(
+                                      perfil: widget.perfil,
+                                      orden: index + 1,
+                                      evento: evento,
+                                      onTareaEliminada: () {
+                                        setState(() {});
+                                      },
+                                      onTareaDuplicada: (Eventos nuevoEvento) {
+                                        setState(() {});
+                                      },
+                                      onTareaActualizada:
+                                          (Eventos eventoActualizado) {
+                                        setState(() {});
+                                      },
+                                    ),
+                                  );
+                                },
+                              )
+                            : const Center(
+                                child: Text('No hay eventos disponibles'),
+                              ),
                       ),
                     ),
                   ),
@@ -183,13 +220,13 @@ class BarraCalendario extends StatelessWidget {
   const BarraCalendario({
     super.key,
     required this.searchController,
-    required this.crearTarea,
+    required this.crearEvento,
     required this.cambiarModo,
     required this.modo,
   });
 
   final TextEditingController searchController;
-  final Function(BuildContext) crearTarea;
+  final Function(BuildContext) crearEvento;
   final Function(bool) cambiarModo; // Cambiar el modo con un valor booleano
   final bool modo; // Modo de vista de tareas
 
@@ -212,7 +249,7 @@ class BarraCalendario extends StatelessWidget {
           IconoContador(
             svgSrc: Iconos_SVG.masIcono,
             press: () {
-              crearTarea(context);
+              crearEvento(context);
             },
           ),
         ],

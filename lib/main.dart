@@ -1,5 +1,6 @@
 import 'package:famsync/Error_Conexion.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
+import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
@@ -31,6 +32,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => TareasProvider()),
         ChangeNotifierProvider(create: (_) => CategoriasProvider()),
         ChangeNotifierProvider(create: (_) => TiendasProvider()),
+        ChangeNotifierProvider(create: (_) => EventosProvider()),
         // Agrega otros proveedores si es necesario
       ],
       child: MyApp(),
