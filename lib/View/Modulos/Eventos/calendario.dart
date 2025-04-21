@@ -2,6 +2,7 @@ import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
+import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Crear_Evento.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver/Carta_Evento.dart';
 import 'package:famsync/components/colores.dart';
@@ -66,6 +67,12 @@ class CalendarioState extends State<Calendario> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 1);
+      final tareasProvider =
+          Provider.of<TareasProvider>(context, listen: false);
+      
+      // Cargar tareas y categorías
+      tareasProvider.cargarTareas(
+          context, widget.perfil.UsuarioId, widget.perfil.Id);
       setState(() {
         eventos = eventosProvider.eventos; // Actualiza la lista de tareas
         isLoading = false; // Indica que la carga ha terminado

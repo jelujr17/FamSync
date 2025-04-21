@@ -1,6 +1,7 @@
 import 'package:drop_down_search_field/drop_down_search_field.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
 import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Crear/Crear_Categoria_Evento.dart';
@@ -33,15 +34,16 @@ class PerfilProvider extends InheritedWidget {
   }
 }
 
-class CrearEvento extends StatefulWidget {
+class CrearEventoTarea extends StatefulWidget {
   final Perfiles perfil;
-  const CrearEvento({super.key, required this.perfil});
+  final Tareas tarea;
+  const CrearEventoTarea({super.key, required this.perfil, required this.tarea});
 
   @override
-  CrearEventoState createState() => CrearEventoState();
+  CrearEventoTareaState createState() => CrearEventoTareaState();
 }
 
-class CrearEventoState extends State<CrearEvento> {
+class CrearEventoTareaState extends State<CrearEventoTarea> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
@@ -49,7 +51,7 @@ class CrearEventoState extends State<CrearEvento> {
       TextEditingController();
   final TextEditingController _prioridadController = TextEditingController();
 
-  final List<int> _perfilSeleccionado = [];
+   List<int> _perfilSeleccionado = [];
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
   List<String> nombresCategoria = [];
@@ -69,6 +71,9 @@ class CrearEventoState extends State<CrearEvento> {
           Provider.of<PerfilesProvider>(context, listen: false);
       perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
     });
+    _nombreController.text = widget.tarea.Nombre;
+    _descripcionController.text = widget.tarea.Descripcion;
+    _perfilSeleccionado = widget.tarea.Destinatario;
   }
 
   @override
@@ -162,7 +167,7 @@ class CrearEventoState extends State<CrearEvento> {
         IdPerfilCreador: widget.perfil.Id,
         IdCategoria: categoriaId,
         Participantes: _perfilSeleccionado,
-        IdTarea: null,
+        IdTarea: widget.tarea.Id,
       );
 
       final exito = await ServicioEventos().registrarEvento(
@@ -257,7 +262,7 @@ class CrearEventoState extends State<CrearEvento> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Text(
-                    "Crear Evento",
+                    "Crear Evento a partir de Tarea",
                     style: Theme.of(context).textTheme.headlineMedium!.copyWith(
                         color: Colores.texto, fontWeight: FontWeight.bold),
                   ),

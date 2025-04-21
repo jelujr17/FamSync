@@ -142,7 +142,8 @@ class ServicioEventos {
       int IdUsuarioCreador,
       int IdPerfilCreador,
       int? IdCategoria,
-      List<int> Participantes) async {
+      List<int> Participantes,
+      int? IdTarea) async {
     Map<String, dynamic> EventoData = {
       'Nombre': Nombre.toString(),
       'Descripcion': Descripcion.toString(),
@@ -152,6 +153,7 @@ class ServicioEventos {
       'IdUsuarioCreador': IdUsuarioCreador,
       'IdCategoria': IdCategoria,
       'Participantes': jsonEncode(Participantes).toString(),
+      'IdTarea': IdTarea, // Añadido IdTarea
     };
 
     final response = await HttpService.execute(
@@ -166,39 +168,40 @@ class ServicioEventos {
     return response.statusCode == 200;
   }
 
-  // Actualizar evento
-  Future<bool> actualizarEvento(
-      BuildContext context,
-      int Id,
-      String Nombre,
-      String Descripcion,
-      String FechaInicio,
-      String FechaFin,
-      int IdUsuarioCreador,
-      int IdPerfilCreador,
-      int? IdCategoria,
-      List<int> Participantes) async {
-    final response = await HttpService.execute(
-      context,
-      () => http.put(
-        Uri.parse('http://$_host/eventos/update'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'Id': Id,
-          'Nombre': Nombre.toString(),
-          'Descripcion': Descripcion.toString(),
-          'FechaInicio': FechaInicio.toString(),
-          'FechaFin': FechaFin.toString(),
-          'IdPerfilCreador': IdPerfilCreador,
-          'IdUsuarioCreador': IdUsuarioCreador,
-          'IdCategoria': IdCategoria,
-          'Participantes': jsonEncode(Participantes).toString(),
-        }),
-      ),
-    );
+ Future<bool> actualizarEvento(
+    BuildContext context,
+    int Id,
+    String Nombre,
+    String Descripcion,
+    String FechaInicio,
+    String FechaFin,
+    int IdUsuarioCreador,
+    int IdPerfilCreador,
+    int? IdCategoria,
+    List<int> Participantes,
+    int? IdTarea) async {
+  final response = await HttpService.execute(
+    context,
+    () => http.put(
+      Uri.parse('http://$_host/eventos/update'),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({
+        'Id': Id,
+        'Nombre': Nombre.toString(),
+        'Descripcion': Descripcion.toString(),
+        'FechaInicio': FechaInicio.toString(),
+        'FechaFin': FechaFin.toString(),
+        'IdPerfilCreador': IdPerfilCreador,
+        'IdUsuarioCreador': IdUsuarioCreador,
+        'IdCategoria': IdCategoria,
+        'Participantes': jsonEncode(Participantes).toString(),
+        'IdTarea': IdTarea, // Añadido IdTarea
+      }),
+    ),
+  );
 
-    return response.statusCode == 200;
-  }
+  return response.statusCode == 200;
+}
 
   // Eliminar evento
   Future<bool> eliminarEvento(BuildContext context, int idEvento) async {

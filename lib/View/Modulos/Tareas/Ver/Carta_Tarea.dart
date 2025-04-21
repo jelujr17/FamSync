@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:famsync/View/Modulos/Eventos/Crear_Evento_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Asignar.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Progresar.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Ver_ID_Editar.dart';
@@ -254,6 +255,21 @@ class CartaTareaState extends State<CartaTarea> {
         );
       },
     );
+  }
+
+  void asigarEvento(BuildContext context) async {
+    // Implementa la lógica para editar el producto
+    // Por ejemplo, puedes navegar a una página de edición de producto
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CrearEventoTarea(perfil: widget.perfil, tarea: widget.tarea),
+      ),
+    );
+
+    if (result == true) {
+      Navigator.pop(context, true); // Se realizó una actualización
+    }
   }
 
   void duplicarTarea(BuildContext context) {
@@ -597,6 +613,9 @@ class CartaTareaState extends State<CartaTarea> {
                     } else if (result == 'Eliminar') {
                       eliminartarea(context);
                     }
+                    else if (result == 'Añadir') {
+                      asigarEvento(context);
+                    }
                   },
                   itemBuilder: (BuildContext context) =>
                       <PopupMenuEntry<String>>[
@@ -649,6 +668,54 @@ class CartaTareaState extends State<CartaTarea> {
                     ),
                     const PopupMenuDivider(),
                     PopupMenuItem<String>(
+                      value: 'Asignar',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(Icons.person_add, color: Colors.orange),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Asignar a Otro Usuario',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.orange,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                    PopupMenuItem<String>(
+                      value: 'Añadir',
+                      child: Container(
+                        constraints: const BoxConstraints(
+                            maxWidth: 200), // Limita el ancho
+                        child: Row(
+                          mainAxisSize:
+                              MainAxisSize.min, // Ajusta el tamaño al contenido
+                          children: [
+                            Icon(Icons.calendar_today, color: Colors.purple),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Añadir al calendario',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.purple,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const PopupMenuDivider(),
+                       PopupMenuItem<String>(
                       value: 'Asignar',
                       child: Container(
                         constraints: const BoxConstraints(
@@ -946,7 +1013,7 @@ class CartaTareaState extends State<CartaTarea> {
               Expanded(
                 child: LinearProgressIndicator(
                   value: widget.tarea.Progreso / 100,
-                  backgroundColor:  Colores.fondo,
+                  backgroundColor: Colores.fondo,
                   color: widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                 ),
               ),

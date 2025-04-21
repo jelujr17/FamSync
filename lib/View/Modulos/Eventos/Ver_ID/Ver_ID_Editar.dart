@@ -295,22 +295,28 @@ class _EditarEventoDialogState extends State<EditarEventoDialog> {
                         ),
                         TextButton(
                           onPressed: () {
-                              int? categoriaAux = categoriasDisponibles
-                                  .firstWhere(
-                                    (element) =>
-                                        element.Nombre == categoriaSeleccionada,
-                                   
-                                  )
-                                  .Id;
-                              if (categoriaAux == 0) {
-                                categoriaAux = null;
-                              }
-                              widget.onEventoEditado(
-                                  nombreController.text,
-                                  descripcionController.text,
-                                  categoriaAux,
-                                  fechaInicio.toString(),
-                                  fechaFin.toString());
+                            int? categoriaAux = categoriasDisponibles
+                                .firstWhere(
+                                  (element) =>
+                                      element.Nombre == categoriaSeleccionada,
+                                )
+                                .Id;
+                            if (categoriaAux == 0) {
+                              categoriaAux = null;
+                            }
+                            if(esTodoElDia) {
+                              fechaInicio = DateTime(fecha.year, fecha.month,
+                                  fecha.day, 0, 0);
+                              fechaFin = DateTime(fecha.year, fecha.month,
+                                  fecha.day, 23, 59);
+                            }
+                            print("fechas: $fechaInicio $fechaFin");
+                            widget.onEventoEditado(
+                                nombreController.text,
+                                descripcionController.text,
+                                categoriaAux,
+                                fechaInicio.toString(),
+                                fechaFin.toString());
                           },
                           child: Text(
                             'Guardar',

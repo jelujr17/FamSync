@@ -5,8 +5,10 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Ver_ID_Asignar.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Ver_ID_Editar.dart';
+import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea_Evento.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/Model/Calendario/eventos.dart';
@@ -31,8 +33,6 @@ class DetallesEvento extends StatefulWidget {
 }
 
 class _DetallesEventoState extends State<DetallesEvento> {
-  DateTime fechaInicio = DateTime.now();
-  DateTime fechaFin = DateTime.now();
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
   late Categorias categoria = Categorias(
@@ -42,12 +42,9 @@ class _DetallesEventoState extends State<DetallesEvento> {
     IdModulo: 0,
     IdUsuario: 0,
   );
-
   @override
   void initState() {
     super.initState();
-    fechaInicio = DateTime.parse(widget.evento.FechaInicio);
-    fechaFin = DateTime.parse(widget.evento.FechaFin);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final perfilesProvider =
@@ -146,6 +143,19 @@ class _DetallesEventoState extends State<DetallesEvento> {
       (e) => e.Id == widget.evento.Id,
       orElse: () => widget.evento, // Usa el evento original si no se encuentra
     );
+
+    final DateTime fechaInicio = DateTime.parse(eventoActualizado.FechaInicio);
+    final DateTime fechaFin = DateTime.parse(eventoActualizado.FechaFin);
+    final bool esTodoElDia = fechaInicio.hour == 0 &&
+        fechaInicio.minute == 0 &&
+        fechaFin.hour == 23 &&
+        fechaFin.minute == 59 &&
+        fechaInicio.year == fechaFin.year &&
+        fechaInicio.month == fechaFin.month &&
+        fechaInicio.day == fechaFin.day;
+    final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
+   
+    final tarea = tareasProvider.tareas;
 
     return Padding(
       padding: const EdgeInsets.all(16.0),
@@ -289,33 +299,59 @@ class _DetallesEventoState extends State<DetallesEvento> {
             // Categoría del evento
             _buildEventCategoria(categoria),
             const SizedBox(height: 16),
-
+            if (esTodoElDia) _buildTodoDia(),
             // Horas (Inicio y Fin)
-            Row(
-              children: [
-                Expanded(
-                  child: _buildEventHora(
-                    icon: Icons.calendar_today,
-                    titulo: "Inicio",
-                    hora: _formatearHora(
-                        DateTime.parse(eventoActualizado.FechaInicio)),
+            if (!esTodoElDia)
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildEventHora(
+                      icon: Icons.calendar_today,
+                      titulo: "Inicio",
+                      hora: _formatearHora(
+                          DateTime.parse(eventoActualizado.FechaInicio)),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildEventHora(
-                    icon: Icons.access_time,
-                    titulo: "Fin",
-                    hora: _formatearHora(
-                        DateTime.parse(eventoActualizado.FechaFin)),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildEventHora(
+                      icon: Icons.access_time,
+                      titulo: "Fin",
+                      hora: _formatearHora(
+                          DateTime.parse(eventoActualizado.FechaFin)),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             const SizedBox(height: 16),
 
             // Participantes con avatares
             _buildParticipantsSection(),
+
+            const SizedBox(height: 16),
+            if (eventoActualizado.IdTarea != null)
+              Row(
+                children: [
+                  Icon(Icons.task, color: Colores.texto),
+                  const SizedBox(width: 8),
+                  Text(
+                    "Tarea Asociada:",
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: Colores.texto,
+                    ),
+                  ),
+                ],
+              ),
+            if (eventoActualizado.IdTarea != null)
+              CartaTareaEvento(
+                perfil: widget.perfil,
+                orden: 1,
+                tarea: tarea.firstWhere(
+                  (t) => t.Id == eventoActualizado.IdTarea,
+                ),
+              ),
           ],
         ),
       ),
@@ -520,6 +556,39 @@ class _DetallesEventoState extends State<DetallesEvento> {
     );
   }
 
+  Widget _buildTodoDia() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colores.texto.withOpacity(0.05), // Fondo sutil
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colores.texto.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.access_time,
+              color: Colores.texto, size: 24), // Icono representativo
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Todo el Día",
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: Colores.texto,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void eliminarEvento(BuildContext context) {
     showDialog(
       context: context,
@@ -661,6 +730,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
               nuevoEvento.IdPerfilCreador,
               nuevoEvento.IdCategoria,
               nuevoEvento.Participantes,
+              nuevoEvento.IdTarea,
             );
 
             if (exito) {
@@ -721,6 +791,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
                   nuevoEvento.IdPerfilCreador,
                   nuevoEvento.IdCategoria,
                   nuevoEvento.Participantes,
+                  nuevoEvento.IdTarea,
                 );
 
                 if (exito) {
