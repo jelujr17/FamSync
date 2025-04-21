@@ -117,10 +117,12 @@ class CalendarioState extends State<Calendario> {
     final DateTime now = DateTime.now(); // Fecha actual
     final String diaSemana = capitalize(
         DateFormat('EEEE', 'es_ES').format(now)); // Día de la semana en español
-    final eventosDiarios = eventos 
-        .where((evento) => DateTime.parse(evento.FechaInicio).year == now.year && DateTime.parse(evento.FechaInicio).day == now.day && DateTime.parse(evento.FechaInicio).month == now.month)
+    final eventosDiarios = eventos
+        .where((evento) =>
+            DateTime.parse(evento.FechaInicio).year == now.year &&
+            DateTime.parse(evento.FechaInicio).day == now.day &&
+            DateTime.parse(evento.FechaInicio).month == now.month)
         .toList(); // Filtrar eventos del día actual
-    
 
     return PerfilProvider(
       perfil: widget.perfil,
@@ -188,15 +190,16 @@ class CalendarioState extends State<Calendario> {
                                       perfil: widget.perfil,
                                       orden: index + 1,
                                       evento: evento,
-                                      onTareaEliminada: () {
+                                      onEventoEliminado: () {
                                         setState(() {});
                                       },
-                                      onTareaDuplicada: (Eventos nuevoEvento) {
-                                        setState(() {});
-                                      },
-                                      onTareaActualizada:
-                                          (Eventos eventoActualizado) {
-                                        setState(() {});
+                                      onEventoActualizado:
+                                          (Eventos nuevoEvento) {
+                                        setState(() {
+                                          print(
+                                              "Evento actualizado: $nuevoEvento");
+                                          eventosDiarios[index] = nuevoEvento;
+                                        });
                                       },
                                     ),
                                   );

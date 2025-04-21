@@ -471,13 +471,15 @@ class FormularioCrearEventoState extends State<FormularioCrearEvento> {
                   return null;
                 },
                 validatorHoraInicio: (hora) {
-                  if (!widget.todoElDia && hora == null)
+                  if (!widget.todoElDia && hora == null) {
                     return 'Selecciona la hora de inicio';
+                  }
                   return null;
                 },
                 validatorHoraFin: (hora) {
-                  if (!widget.todoElDia && hora == null)
+                  if (!widget.todoElDia && hora == null) {
                     return 'Selecciona la hora de fin';
+                  }
                   return null;
                 },
               ),

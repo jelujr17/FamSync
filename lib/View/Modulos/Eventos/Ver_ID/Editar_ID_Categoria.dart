@@ -2,13 +2,13 @@ import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
-class CampoCategoriaEditarTarea extends StatelessWidget {
+class CampoCategoriaEditarEvento extends StatelessWidget {
   final String? categoriaSeleccionada;
   final List<String> categoriasDisponibles;
   final void Function(String?) onCategoriaSeleccionada;
   final List<Categorias> categorias;
 
-  const CampoCategoriaEditarTarea({
+  const CampoCategoriaEditarEvento({
     super.key,
     required this.categoriaSeleccionada,
     required this.categoriasDisponibles,
@@ -16,18 +16,35 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
     required this.categorias,
   });
 
-  @override
-  Widget build(BuildContext context) {
+@override
+Widget build(BuildContext context) {
+  // Asegúrate de que "Sin Categoría" esté en la lista
+  if (!categorias.any((categoria) => categoria.Nombre == "Sin Categoría")) {
     categorias.add(Categorias(
-        Id: 0,
-        Nombre: "Sin Categoría",
-        IdModulo: 0,
-        Color: "000000",
-        IdUsuario: 0));
+      Id: 0,
+      Nombre: "Sin Categoría",
+      IdModulo: 0,
+      Color: "000000",
+      IdUsuario: 0,
+    ));
+  }
+
+  // Elimina duplicados
+  final nombresCategoria = categorias
+      .map((categoria) => categoria.Nombre)
+      .toSet() // Elimina duplicados
+      .toList();
+
+  // Si la categoría seleccionada no está en la lista, usa "Sin Categoría"
+  final categoriaValida = nombresCategoria.contains(categoriaSeleccionada)
+      ? categoriaSeleccionada
+      : "Sin Categoría";
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: DropdownButtonFormField<String>(
-        value: categoriaSeleccionada,
+      child: 
+      DropdownButtonFormField<String>(
+        value: categoriaSeleccionada, // Asegúrate de que el valor sea válido
         decoration: InputDecoration(
           labelText: 'Categoría del Evento',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
@@ -60,22 +77,17 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
             child: Row(
               children: [
                 const SizedBox(width: 10),
-                // Esfera de color
                 Text(
                   categoria.Nombre,
-                  style:
-                      const TextStyle(color: Colores.texto), // Color del texto
+                  style: const TextStyle(color: Colores.texto),
                 ),
-
-                const SizedBox(
-                    width: 10), // Espaciado entre la esfera y el texto
+                const SizedBox(width: 10),
                 Container(
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Color(int.parse(
-                        "0xFF${categoria.Color}")), // Color de la categoría
+                    color: Color(int.parse("0xFF${categoria.Color}")),
                   ),
                 ),
               ],

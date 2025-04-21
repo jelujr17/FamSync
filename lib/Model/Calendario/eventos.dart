@@ -172,11 +172,11 @@ class ServicioEventos {
       int Id,
       String Nombre,
       String Descripcion,
-      DateTime FechaInicio,
-      DateTime FechaFin,
+      String FechaInicio,
+      String FechaFin,
       int IdUsuarioCreador,
       int IdPerfilCreador,
-      int IdCategoria,
+      int? IdCategoria,
       List<int> Participantes) async {
     final response = await HttpService.execute(
       context,
