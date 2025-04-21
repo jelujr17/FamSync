@@ -117,6 +117,10 @@ class CalendarioState extends State<Calendario> {
     final DateTime now = DateTime.now(); // Fecha actual
     final String diaSemana = capitalize(
         DateFormat('EEEE', 'es_ES').format(now)); // Día de la semana en español
+    final eventosDiarios = eventos 
+        .where((evento) => DateTime.parse(evento.FechaInicio).year == now.year && DateTime.parse(evento.FechaInicio).day == now.day && DateTime.parse(evento.FechaInicio).month == now.month)
+        .toList(); // Filtrar eventos del día actual
+    
 
     return PerfilProvider(
       perfil: widget.perfil,
@@ -170,13 +174,13 @@ class CalendarioState extends State<Calendario> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20, vertical: 12),
-                        child: eventos.isNotEmpty
+                        child: eventosDiarios.isNotEmpty
                             ? ListView.builder(
                                 padding: const EdgeInsets.only(
                                     left: 20, right: 20, bottom: 80),
-                                itemCount: eventos.length,
+                                itemCount: eventosDiarios.length,
                                 itemBuilder: (context, index) {
-                                  final evento = eventos[index];
+                                  final evento = eventosDiarios[index];
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 8.0),

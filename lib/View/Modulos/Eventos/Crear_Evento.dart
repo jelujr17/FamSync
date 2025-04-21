@@ -56,7 +56,7 @@ class CrearEventoState extends State<CrearEvento> {
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   int prioridad = 0;
   bool mostrarErrorPerfiles = false;
-  DateTime? fechaEvento;
+  DateTime fechaEvento = DateTime.now();
   TimeOfDay? horaInicio;
   TimeOfDay? horaFin;
   bool todoElDia = false;
@@ -130,13 +130,34 @@ class CrearEventoState extends State<CrearEvento> {
       if (categoriaId == 0) {
         categoriaId = null;
       }
+      DateTime fechaInicio = fechaEvento;
+      DateTime fechaFin = fechaEvento;
+      if (todoElDia) {
+        horaInicio = const TimeOfDay(hour: 0, minute: 0);
+        horaFin = const TimeOfDay(hour: 23, minute: 59);
+       
+      }
+      fechaInicio = DateTime(
+          fechaEvento.year,
+          fechaEvento.month,
+          fechaEvento.day,
+          horaInicio!.hour,
+          horaInicio!.minute,
+        );
+        fechaFin = DateTime(
+          fechaEvento.year,
+          fechaEvento.month,
+          fechaEvento.day,
+          horaFin!.hour,
+          horaFin!.minute,
+        );
 
       final nuevoEvento = Eventos(
         Id: 0,
         Nombre: nombre,
         Descripcion: descripcion,
-        FechaInicio: '',
-        FechaFin: '',
+        FechaInicio: fechaInicio.toString(),
+        FechaFin: fechaFin.toString(),
         IdUsuarioCreador: widget.perfil.UsuarioId,
         IdPerfilCreador: widget.perfil.Id,
         IdCategoria: categoriaId,
@@ -269,7 +290,7 @@ class CrearEventoState extends State<CrearEvento> {
                   todoElDia: todoElDia,
                   onFechaChanged: (nuevaFecha) {
                     setState(() {
-                      fechaEvento = nuevaFecha;
+                      fechaEvento = nuevaFecha!;
                     });
                   },
                   onHoraInicioChanged: (nuevaHora) {

@@ -1,5 +1,6 @@
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:calendar_date_picker2/calendar_date_picker2.dart';
 
 class CampoFechasCrearEvento extends StatelessWidget {
   final DateTime? fecha;
@@ -44,144 +45,196 @@ class CampoFechasCrearEvento extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Calendario siempre visible
-          Text(
-            'Fecha',
-            style: const TextStyle(fontSize: 16, color: Colores.texto),
-          ),
-          const SizedBox(height: 8),
-          // Calendario más pequeño y con colores personalizados
-          Theme(
-            data: Theme.of(context).copyWith(
-              colorScheme: ColorScheme.light(
-                primary: Colores.texto, // Color de selección
-                onPrimary: Colors.white, // Color del texto seleccionado
-                surface: Colores.fondoAux, // Fondo del calendario
-                onSurface: Colores.texto, // Color de los días normales
-              ),
-              textTheme: Theme.of(context).textTheme.copyWith(
-                    bodyMedium:
-                        const TextStyle(fontSize: 12), // Tamaño de los días
-                  ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colores.fondoAux, // Fondo fondoAux para toda la sección
+          borderRadius: BorderRadius.circular(8), // Bordes redondeados
+        ),
+        padding: const EdgeInsets.all(12), // Espaciado interno
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Fecha',
+              style: const TextStyle(fontSize: 16, color: Colores.texto),
             ),
-            child: SizedBox(
-              height: 260, // Ajusta la altura para hacerlo más pequeño
-              width: 100,
-              child: CalendarDatePicker(
-                initialDate: fecha ?? DateTime.now(),
-                firstDate: DateTime(2000),
-                lastDate: DateTime(2100),
-                onDateChanged: onFechaChanged,
-                currentDate: DateTime.now(),
-                selectableDayPredicate: (_) => true,
+            const SizedBox(height: 8),
+            CalendarDatePicker2(
+              config: CalendarDatePicker2Config(
+                calendarType: CalendarDatePicker2Type.single,
+                selectedDayHighlightColor: Colores.texto,
+                selectedDayTextStyle: const TextStyle(
+                  color: Colores
+                      .fondoAux, // <-- Color del número del día seleccionado
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+                weekdayLabelTextStyle: const TextStyle(
+                  color: Colores.texto,
+                  fontWeight: FontWeight.bold,
+                ),
+                dayTextStyle: const TextStyle(
+                  color: Colores.texto,
+                  fontSize: 12,
+                ),
+                controlsTextStyle: const TextStyle(
+                  color: Colores.texto,
+                  fontWeight: FontWeight.bold,
+                ),
+                // Puedes ajustar más estilos aquí según tu diseño
               ),
-            ),
-          ),
-          if (validatorFecha != null)
-            Builder(
-              builder: (context) {
-                final error = validatorFecha!(fecha);
-                if (error != null) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 4, left: 8),
-                    child:
-                        Text(error, style: const TextStyle(color: Colors.red)),
-                  );
-                }
-                return const SizedBox.shrink();
+              value: fecha != null ? [fecha!] : [],
+              onValueChanged: (dates) {
+                onFechaChanged(dates.isNotEmpty ? dates.first : null);
               },
             ),
-          const SizedBox(height: 20),
-          // Switch "Todo el día"
-          Row(
-            children: [
-              Switch(
-                value: todoElDia,
-                onChanged: onTodoElDiaChanged,
-                activeColor: Colores.texto,
+            if (validatorFecha != null)
+              Builder(
+                builder: (context) {
+                  final error = validatorFecha!(fecha);
+                  if (error != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 4, left: 8),
+                      child: Text(error,
+                          style: const TextStyle(color: Colors.red)),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
               ),
-              const Text(
-                "Todo el día",
-                style: TextStyle(fontSize: 16, color: Colores.texto),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Horas solo si no es todo el día
-          if (!todoElDia) ...[
-            Text(
-              'Hora de inicio',
-              style: const TextStyle(fontSize: 16, color: Colores.texto),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () =>
-                  _selectTime(context, horaInicio, onHoraInicioChanged),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Selecciona la hora de inicio',
-                    prefixIcon:
-                        const Icon(Icons.access_time, color: Colores.texto),
-                    filled: true,
-                    fillColor: Colores.fondoAux,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 20),
-                  ),
-                  controller: TextEditingController(
-                    text: horaInicio != null
-                        ? "${horaInicio!.hour.toString().padLeft(2, '0')}:${horaInicio!.minute.toString().padLeft(2, '0')}"
-                        : '',
-                  ),
-                  style: const TextStyle(color: Colores.texto),
-                  validator: (_) => validatorHoraInicio?.call(horaInicio),
-                  readOnly: true,
-                ),
-              ),
-            ),
             const SizedBox(height: 20),
-            Text(
-              'Hora de fin',
-              style: const TextStyle(fontSize: 16, color: Colores.texto),
+            Row(
+              children: [
+                Switch(
+                  value: todoElDia,
+                  onChanged: onTodoElDiaChanged,
+                  activeColor: Colores.texto,
+                ),
+                const Text(
+                  "Todo el día",
+                  style: TextStyle(fontSize: 16, color: Colores.texto),
+                ),
+              ],
             ),
             const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () => _selectTime(context, horaFin, onHoraFinChanged),
-              child: AbsorbPointer(
-                child: TextFormField(
-                  decoration: InputDecoration(
-                    hintText: 'Selecciona la hora de fin',
-                    prefixIcon:
-                        const Icon(Icons.access_time, color: Colores.texto),
-                    filled: true,
-                    fillColor: Colores.fondoAux,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      borderSide: BorderSide.none,
+            if (!todoElDia) ...[
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Hora de inicio
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Hora de inicio',
+                          style: TextStyle(fontSize: 14, color: Colores.texto),
+                        ),
+                        const SizedBox(height: 6),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colores.texto,
+                            side: BorderSide(
+                                color: Colores.texto.withOpacity(0.3)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: () => _selectTime(
+                              context, horaInicio, onHoraInicioChanged),
+                          child: Text(
+                            horaInicio != null
+                                ? "${horaInicio!.hour.toString().padLeft(2, '0')}:${horaInicio!.minute.toString().padLeft(2, '0')}"
+                                : " Selecciona hora ",
+                            style: const TextStyle(
+                                fontSize: 16, color: Colores.fondoAux),
+                          ),
+                        ),
+                      ],
                     ),
-                    contentPadding: const EdgeInsets.symmetric(
-                        vertical: 18, horizontal: 20),
                   ),
-                  controller: TextEditingController(
-                    text: horaFin != null
-                        ? "${horaFin!.hour.toString().padLeft(2, '0')}:${horaFin!.minute.toString().padLeft(2, '0')}"
-                        : '',
+                  const SizedBox(width: 12),
+                  // Hora de fin
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Hora de fin',
+                          style: TextStyle(fontSize: 14, color: Colores.texto),
+                        ),
+                        const SizedBox(height: 6),
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            backgroundColor: Colores.texto,
+                            side: BorderSide(
+                                color: Colores.texto.withOpacity(0.3)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          onPressed: horaInicio == null
+                              ? null
+                              : () async {
+                                  final TimeOfDay? picked =
+                                      await showTimePicker(
+                                    context: context,
+                                    initialTime: horaFin ??
+                                        const TimeOfDay(hour: 0, minute: 0),
+                                  );
+                                  if (picked != null) {
+                                    // Solo permitir si la hora de fin es después de la de inicio
+                                    final inicio = horaInicio!;
+                                    final fin = picked;
+                                    final inicioMinutes =
+                                        inicio.hour * 60 + inicio.minute;
+                                    final finMinutes =
+                                        fin.hour * 60 + fin.minute;
+                                    if (finMinutes > inicioMinutes) {
+                                      onHoraFinChanged(picked);
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'La hora de fin debe ser posterior a la de inicio'),
+                                          backgroundColor: Colors.red,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                },
+                          child: Text(
+                            horaFin != null
+                                ? "${horaFin!.hour.toString().padLeft(2, '0')}:${horaFin!.minute.toString().padLeft(2, '0')}"
+                                : " Selecciona hora ",
+                            style: const TextStyle(
+                                fontSize: 16, color: Colores.fondoAux),
+                          ),
+                        ),
+                        // Mensaje de error visual si la hora de fin es anterior o igual a la de inicio
+                        if (horaInicio != null && horaFin != null)
+                          if ((horaFin!.hour * 60 + horaFin!.minute) <=
+                              (horaInicio!.hour * 60 + horaInicio!.minute))
+                            const Padding(
+                              padding: EdgeInsets.only(top: 4, left: 4),
+                              child: Text(
+                                'La hora de fin debe ser posterior a la de inicio',
+                                style:
+                                    TextStyle(color: Colors.red, fontSize: 12),
+                              ),
+                            ),
+                      ],
+                    ),
                   ),
-                  style: const TextStyle(color: Colores.texto),
-                  validator: (_) => validatorHoraFin?.call(horaFin),
-                  readOnly: true,
-                ),
+                ],
               ),
-            ),
+              const SizedBox(height: 8),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

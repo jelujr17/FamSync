@@ -299,13 +299,32 @@ class CartaEventoState extends State<CartaEvento> {
               // Avatares de los participantes
               Row(
                 children: perfilesDestinatarios.map((perfil) {
+                  int idx = perfilesDestinatarios.indexOf(perfil);
                   return Padding(
                     padding: const EdgeInsets.only(left: 4.0),
-                    child: CircleAvatar(
-                      radius: 16,
-                      backgroundImage: FileImage(
-                        avatares[perfilesDestinatarios.indexOf(perfil)],
-                      ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundImage: FileImage(avatares[idx]),
+                        ),
+                        const SizedBox(height: 2),
+                        SizedBox(
+                          width: 40, // Ajusta el ancho según lo que necesites
+                          child: Text(
+                            perfil.Nombre,
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: widget.orden.isOdd
+                                  ? Colores.texto
+                                  : Colores.fondoAux,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ],
                     ),
                   );
                 }).toList(),
@@ -336,7 +355,7 @@ class CartaEventoState extends State<CartaEvento> {
                       ),
                     ),
                     Text(
-                      "Start",
+                      "Inicio",
                       style: TextStyle(
                         fontSize: 14,
                         color: widget.orden.isOdd
@@ -355,7 +374,9 @@ class CartaEventoState extends State<CartaEvento> {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  esTodoElDia ? "Todo el día" : "$duracionMinutos Min",
+                  esTodoElDia
+                      ? "Todo el día"
+                      : _formatearDuracion(duracionMinutos),
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -380,7 +401,7 @@ class CartaEventoState extends State<CartaEvento> {
                       ),
                     ),
                     Text(
-                      "End",
+                      "Fin",
                       style: TextStyle(
                         fontSize: 14,
                         color: widget.orden.isOdd
@@ -400,5 +421,19 @@ class CartaEventoState extends State<CartaEvento> {
   // Función para formatear horas
   String _formatearHora(DateTime fecha) {
     return "${fecha.hour.toString().padLeft(2, '0')}:${fecha.minute.toString().padLeft(2, '0')}";
+  }
+
+  // Agrega esta función en tu clase CartaEventoState:
+  String _formatearDuracion(int minutos) {
+    if (minutos < 60) {
+      return "$minutos min";
+    } else {
+      final horas = minutos ~/ 60;
+      final min = minutos % 60;
+      if (min == 0) {
+        return "$horas h";
+      }
+      return "$horas h $min min";
+    }
   }
 }
