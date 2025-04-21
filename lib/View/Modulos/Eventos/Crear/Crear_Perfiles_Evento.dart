@@ -4,12 +4,12 @@ import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
-class CampoPerfilesCrearTarea extends StatelessWidget {
+class CampoPerfilesCrearEvento extends StatelessWidget {
   final List<Perfiles> perfiles;
   final List<int> perfilSeleccionado;
   final Function(int) onPerfilSeleccionado;
 
-  const CampoPerfilesCrearTarea({
+  const CampoPerfilesCrearEvento({
     super.key,
     required this.perfiles,
     required this.perfilSeleccionado,

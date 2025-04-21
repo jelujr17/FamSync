@@ -14,7 +14,7 @@ class Eventos {
   final String FechaFin;
   final int IdUsuarioCreador;
   final int IdPerfilCreador;
-  final int IdCategoria;
+  final int? IdCategoria;
   final List<int> Participantes;
   final int? IdTarea;
 
@@ -137,11 +137,11 @@ class ServicioEventos {
       BuildContext context,
       String Nombre,
       String Descripcion,
-      DateTime FechaInicio,
-      DateTime FechaFin,
+      String FechaInicio,
+      String FechaFin,
       int IdUsuarioCreador,
       int IdPerfilCreador,
-      int IdCategoria,
+      int? IdCategoria,
       List<int> Participantes) async {
     Map<String, dynamic> EventoData = {
       'Nombre': Nombre.toString(),

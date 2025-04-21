@@ -63,7 +63,9 @@ class CalendarioState extends State<Calendario> {
           Provider.of<EventosProvider>(context, listen: false);
       eventosProvider.cargarEventos(
           context, widget.perfil.UsuarioId, widget.perfil.Id);
-
+      final categoriasProvider =
+          Provider.of<CategoriasProvider>(context, listen: false);
+      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 1);
       setState(() {
         eventos = eventosProvider.eventos; // Actualiza la lista de tareas
         isLoading = false; // Indica que la carga ha terminado

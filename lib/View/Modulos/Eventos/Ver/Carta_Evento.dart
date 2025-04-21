@@ -54,7 +54,7 @@ class CartaEventoState extends State<CartaEvento> {
       await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
       // Cargar categorías
       await categoriasProvider.cargarCategorias(
-          context, widget.perfil.UsuarioId, 5);
+          context, widget.perfil.UsuarioId, 1);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
@@ -123,21 +123,13 @@ class CartaEventoState extends State<CartaEvento> {
       if (mounted) {
         setState(() {
           perfilesDestinatarios = destinatarios;
-          avatares = imagenesCargadas.whereType<File>().toList(); // Filtra los nulos
+          avatares =
+              imagenesCargadas.whereType<File>().toList(); // Filtra los nulos
         });
       }
     } catch (e) {
       print('Error al cargar avatares: $e');
     }
-  }
-
-  Color getContrastingTextColor(Color color) {
-    // Calcula el brillo del color
-    final double brightness =
-        (color.red * 0.299 + color.green * 0.587 + color.blue * 0.114) / 255;
-
-    // Si el brillo es alto, usa un color oscuro; de lo contrario, usa un color claro
-    return brightness > 0.5 ? Colors.black : Colors.white;
   }
 
   void eliminartarea(BuildContext context) {
@@ -247,16 +239,9 @@ class CartaEventoState extends State<CartaEvento> {
     );
   }
 
-  
+  void editarTarea(BuildContext context) {}
 
-
-  void editarTarea(BuildContext context) {
-    
-  }
-
-  void asignarTarea(BuildContext context) {
-    
-  }
+  void asignarTarea(BuildContext context) {}
 
   @override
   Widget build(BuildContext context) {
@@ -280,11 +265,13 @@ class CartaEventoState extends State<CartaEvento> {
       margin: const EdgeInsets.symmetric(vertical: 8), // Espaciado externo
       padding: const EdgeInsets.all(16), // Espaciado interno
       decoration: BoxDecoration(
-        color: Color(int.parse("0xFF${categoria.Color}")), // Color de fondo
+        color: widget.orden.isOdd
+            ? Colores.fondoAux
+            : Colores.texto, // Color de fondo
         borderRadius: BorderRadius.circular(16), // Bordes redondeados
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: widget.orden.isEven ? Colores.fondoAux : Colores.fondo,
             blurRadius: 8,
             offset: const Offset(0, 4),
           ),
@@ -301,10 +288,11 @@ class CartaEventoState extends State<CartaEvento> {
               Expanded(
                 child: Text(
                   widget.evento.Nombre,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color:
+                        widget.orden.isOdd ? Colores.texto : Colores.fondoAux,
                   ),
                 ),
               ),
@@ -328,66 +316,80 @@ class CartaEventoState extends State<CartaEvento> {
 
           // Hora de inicio, duración y hora de fin
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: esTodoElDia
+                ? MainAxisAlignment.center
+                : MainAxisAlignment.spaceBetween,
             children: [
-              // Hora de inicio
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    _formatearHora(fechaInicio),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+              if (!esTodoElDia)
+                // Hora de inicio
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _formatearHora(fechaInicio),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: widget.orden.isOdd
+                            ? Colores.texto
+                            : Colores.fondoAux,
+                      ),
                     ),
-                  ),
-                  const Text(
-                    "Start",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                    Text(
+                      "Start",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: widget.orden.isOdd
+                            ? Colores.texto
+                            : Colores.fondoAux,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              // Duración
+                  ],
+                ),
+              // Duración o "Todo el día"
               Container(
-                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 4, horizontal: 18),
                 decoration: BoxDecoration(
-                  color: Colors.brown,
+                  color: widget.orden.isOdd ? Colores.texto : Colores.fondoAux,
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
                   esTodoElDia ? "Todo el día" : "$duracionMinutos Min",
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color:
+                        widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                   ),
                 ),
               ),
-              // Hora de fin
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    _formatearHora(fechaFin),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+              if (!esTodoElDia)
+                // Hora de fin
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Text(
+                      _formatearHora(fechaFin),
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: widget.orden.isOdd
+                            ? Colores.texto
+                            : Colores.fondoAux,
+                      ),
                     ),
-                  ),
-                  const Text(
-                    "End",
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey,
+                    Text(
+                      "End",
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: widget.orden.isOdd
+                            ? Colores.texto
+                            : Colores.fondoAux,
+                      ),
                     ),
-                  ),
-                ],
-              ),
+                  ],
+                ),
             ],
           ),
         ],

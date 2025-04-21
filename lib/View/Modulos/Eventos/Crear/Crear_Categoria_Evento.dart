@@ -2,13 +2,13 @@ import 'package:famsync/Model/categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
-class CampoCategoriaCrearTarea extends StatelessWidget {
+class CampoCategoriaCrearEvento extends StatelessWidget {
   final String? categoriaSeleccionada;
   final List<String> categoriasDisponibles;
   final void Function(String?) onCategoriaSeleccionada;
   final List<Categorias> categorias;
 
-  const CampoCategoriaCrearTarea({
+  const CampoCategoriaCrearEvento({
     super.key,
     required this.categoriaSeleccionada,
     required this.categoriasDisponibles,
@@ -34,7 +34,7 @@ class CampoCategoriaCrearTarea extends StatelessWidget {
       child: DropdownButtonFormField<String>(
         value: categoriaSeleccionada,
         decoration: InputDecoration(
-          labelText: 'Categoría de la Tarea',
+          labelText: 'Categoría del evento',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           prefixIcon: const Icon(Icons.category, color: Colores.texto),
           filled: true,

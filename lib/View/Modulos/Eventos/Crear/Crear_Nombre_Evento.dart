@@ -18,7 +18,7 @@ class CampoNombreCrearEvento extends StatelessWidget {
       child: TextFormField(
         controller: nombreController,
         decoration: InputDecoration(
-          labelText: 'Nombre de la Tarea',
+          labelText: 'Nombre del Evento',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un nombre para el evento',
           hintStyle: const TextStyle(color: Colores.texto),
