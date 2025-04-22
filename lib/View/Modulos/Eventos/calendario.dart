@@ -5,6 +5,7 @@ import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Crear_Evento.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver/Carta_Evento.dart';
+import 'package:famsync/View/Modulos/Eventos/Ver_Detalles_Evento.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class CalendarioState extends State<Calendario> {
 
   bool isLoading = true;
   String errorMessage = '';
-
+  late ScrollController _scrollController;
   void _cambiarModo(bool nuevoModo) {
     setState(() {
       modo = nuevoModo; // Cambiar el modo al nuevo valor
@@ -59,6 +60,8 @@ class CalendarioState extends State<Calendario> {
   @override
   void initState() {
     super.initState();
+    _scrollController = ScrollController();
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final eventosProvider =
           Provider.of<EventosProvider>(context, listen: false);
@@ -69,7 +72,7 @@ class CalendarioState extends State<Calendario> {
       categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 1);
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
-      
+
       // Cargar tareas y categorías
       tareasProvider.cargarTareas(
           context, widget.perfil.UsuarioId, widget.perfil.Id);
@@ -77,7 +80,31 @@ class CalendarioState extends State<Calendario> {
         eventos = eventosProvider.eventos; // Actualiza la lista de tareas
         isLoading = false; // Indica que la carga ha terminado
       });
+      final int indiceDiaActual = _obtenerIndiceDiaActual();
+      if (indiceDiaActual != -1) {
+        _scrollController.animateTo(
+          indiceDiaActual *
+              100.0, // Ajusta el desplazamiento según el tamaño del elemento
+          duration: const Duration(milliseconds: 500),
+          curve: Curves.easeInOut,
+        );
+      }
     });
+  }
+
+  int _obtenerIndiceDiaActual() {
+    final DateTime hoy = DateTime.now();
+    final diasConEventos = _obtenerDiasConEventos();
+
+    for (int i = 0; i < diasConEventos.length; i++) {
+      final DateTime fecha = DateTime.parse(diasConEventos[i]['fecha']);
+      if (fecha.year == hoy.year &&
+          fecha.month == hoy.month &&
+          fecha.day == hoy.day) {
+        return i; // Retorna el índice del día actual
+      }
+    }
+    return -1; // Retorna -1 si no se encuentra el día actual
   }
 
   Color getContrastingTextColor(Color backgroundColor) {
@@ -111,7 +138,169 @@ class CalendarioState extends State<Calendario> {
   @override
   void dispose() {
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  List<Map<String, dynamic>> _obtenerDiasConEventos() {
+    final Map<String, List<Eventos>> diasConEventos = {};
+
+    for (var evento in eventos) {
+      final String fecha =
+          DateFormat('yyyy-MM-dd').format(DateTime.parse(evento.FechaInicio));
+      if (!diasConEventos.containsKey(fecha)) {
+        diasConEventos[fecha] = [];
+      }
+      diasConEventos[fecha]!.add(evento);
+    }
+
+    return diasConEventos.entries.map((entry) {
+      return {
+        'fecha': entry.key,
+        'eventos': entry.value,
+      };
+    }).toList();
+  }
+
+  Widget _buildDiaConEventos(Map<String, dynamic> diaConEventos, int index) {
+    final DateTime fecha = DateTime.parse(diaConEventos['fecha']);
+    final List<Eventos> eventosDelDia = diaConEventos['eventos'];
+
+    final String dia = DateFormat('dd').format(fecha);
+    final String mes = DateFormat('MMM', 'es_ES').format(fecha).toUpperCase();
+    final String diaSemana = DateFormat('EEEE', 'es_ES').format(fecha);
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Container(
+        decoration: BoxDecoration(
+          color: index.isEven
+              ? Colores.fondoAux
+              : Colores.texto, // Fondo con opacidad
+          borderRadius: BorderRadius.circular(16), // Bordes redondeados
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Fecha
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      diaSemana,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: index.isOdd ? Colores.fondoAux : Colores.texto,
+                      ),
+                    ),
+                    Text(
+                      "$dia $mes",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                        color: index.isOdd ? Colores.fondoAux : Colores.texto,
+                      ),
+                    ),
+                  ],
+                ),
+                Icon(Icons.calendar_today,
+                    color: index.isOdd ? Colores.fondoAux : Colores.texto),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Eventos del día
+            Column(
+              children: eventosDelDia.map((evento) {
+                final DateTime horaInicio = DateTime.parse(evento.FechaInicio);
+                final String horaFormateada =
+                    DateFormat('HH:mm').format(horaInicio);
+
+                return GestureDetector(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled:
+                          true, // Permite que el modal ocupe más espacio
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(16)),
+                      ),
+                      backgroundColor: Colores.fondoAux.withOpacity(0.95),
+                      builder: (BuildContext context) {
+                        return FractionallySizedBox(
+                          heightFactor:
+                              0.8, // Ocupa el 90% de la altura de la pantalla
+                          child: DetallesEvento(
+                            evento: evento,
+                            perfil: widget.perfil,
+                            onEventoEliminado: () {
+                              setState(() {});
+                            },
+                            onEventoActualizado: (Eventos nuevoEvento) {
+                              setState(() {
+                                print("Evento actualizado: $nuevoEvento");
+                                evento = nuevoEvento;
+                              });
+                            },
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      children: [
+                        // Hora del evento
+                        Text(
+                          horaFormateada,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                index.isOdd ? Colores.fondoAux : Colores.texto,
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        // Nombre del evento
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 12, vertical: 8),
+                            decoration: BoxDecoration(
+                              color: index.isOdd
+                                  ? Colores.fondoAux
+                                  : Colores.texto,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              evento.Nombre,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: index.isEven
+                                    ? Colores.fondoAux
+                                    : Colores.texto,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -157,6 +346,20 @@ class CalendarioState extends State<Calendario> {
                 },
                 modo: modo,
               ),
+              const SizedBox(height: 40),
+              if (modo)
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 12),
+                    itemCount: _obtenerDiasConEventos().length,
+                    itemBuilder: (context, index) {
+                      final diaConEventos = _obtenerDiasConEventos()[index];
+                      return _buildDiaConEventos(diaConEventos, index);
+                    },
+                  ),
+                ),
               if (!modo)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -426,14 +629,11 @@ class FechaYHoras extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 16),
           ),
           // Horas de diferentes ubicaciones
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              _buildEventoUbicacion(
-                  "New York", "Reunión con equipo", "3:00 PM"),
-              const SizedBox(height: 8),
-              _buildEventoUbicacion(
-                  "United Kingdom", "Llamada con cliente", "6:00 PM"),
+              _buildEventoProximos(context),
             ],
           ),
         ],
@@ -441,26 +641,77 @@ class FechaYHoras extends StatelessWidget {
     );
   }
 
-  Widget _buildEventoUbicacion(String ubicacion, String evento, String hora) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
-      children: [
-        Text(
-          evento,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
-          ),
+  List<Eventos> _obtenerProximosEventos(BuildContext context) {
+    final eventosProvider =
+        Provider.of<EventosProvider>(context, listen: false);
+    final eventosTotales = eventosProvider.eventos; // Obtener todos los eventos
+    final DateTime ahora = DateTime.now();
+
+    // Filtrar eventos cuya fecha de inicio sea posterior al día actual
+    final proximosEventos = eventosTotales
+        .where((evento) => DateTime.parse(evento.FechaInicio).isAfter(ahora))
+        .toList();
+
+    // Ordenar los eventos por fecha de inicio
+    proximosEventos.sort((a, b) =>
+        DateTime.parse(a.FechaInicio).compareTo(DateTime.parse(b.FechaInicio)));
+
+    // Retornar los dos primeros eventos (o menos si no hay suficientes)
+    return proximosEventos.take(2).toList();
+  }
+
+  Widget _buildEventoProximos(BuildContext context) {
+    List<Eventos> proximosEventos = _obtenerProximosEventos(context);
+
+    if (proximosEventos.isEmpty) {
+      return const Text(
+        "No hay eventos próximos",
+        style: TextStyle(
+          fontSize: 16,
+          color: Colors.grey,
         ),
-        Text(
-          "$hora - $ubicacion",
-          style: const TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colores.fondoAux.withOpacity(0.6), // Fondo sutil
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colores.texto.withOpacity(0.8)),
         ),
-      ],
-    );
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: proximosEventos.map((evento) {
+            final DateTime fechaInicio = DateTime.parse(evento.FechaInicio);
+            final String fechaFormateada =
+                DateFormat('dd/MM/yyyy').format(fechaInicio);
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    evento.Nombre,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colores.texto,
+                    ),
+                  ),
+                  Text(
+                    fechaFormateada,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colores.fondo,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
+        ),
+      );
+    }
   }
 }
