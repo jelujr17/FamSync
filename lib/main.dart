@@ -1,4 +1,3 @@
-import 'package:famsync/Error_Conexion.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
@@ -17,14 +16,12 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:firebase_core/firebase_core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   Intl.defaultLocale = 'es_ES';
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
-  await Firebase.initializeApp(
-  );
+
   runApp(
     MultiProvider(
       providers: [
@@ -97,7 +94,6 @@ class MyApp extends StatelessWidget {
   }
 
   Future<Widget> getInitialPage(BuildContext context) async {
-    try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       final int? userId = prefs.getInt('IdUsuario');
       final int? perfilId = prefs.getInt('IdPerfil');
@@ -120,8 +116,6 @@ class MyApp extends StatelessWidget {
           }
         }
       }
-    } catch (e) {
-      return const NoconnectionScreen();
-    }
+   
   }
 }

@@ -1,10 +1,8 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
-import 'package:famsync/components/host.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:famsync/Error_Conexion.dart';
 
 class Categorias {
   final int Id;
@@ -23,146 +21,219 @@ class Categorias {
 }
 
 class ServiciosCategorias {
-  final String _host = Host.host;
+  // Datos estáticos para simular respuestas de la API
+  final List<Categorias> _categoriasEstaticas = [
+    // Categorías para el módulo de Tareas (IdModulo: 1)
+    Categorias(
+      Id: 1,
+      IdModulo: 1,
+      Color: "#FF5733",
+      Nombre: "Hogar",
+      IdUsuario: 1,
+    ),
+    Categorias(
+      Id: 2,
+      IdModulo: 1,
+      Color: "#33FF57",
+      Nombre: "Trabajo",
+      IdUsuario: 1,
+    ),
+    Categorias(
+      Id: 3,
+      IdModulo: 1,
+      Color: "#3357FF",
+      Nombre: "Escuela",
+      IdUsuario: 1,
+    ),
+
+    // Categorías para el módulo de Calendario (IdModulo: 2)
+    Categorias(
+      Id: 4,
+      IdModulo: 2,
+      Color: "#FF33A8",
+      Nombre: "Eventos familiares",
+      IdUsuario: 1,
+    ),
+    Categorias(
+      Id: 5,
+      IdModulo: 2,
+      Color: "#33FFF6",
+      Nombre: "Citas médicas",
+      IdUsuario: 1,
+    ),
+
+    // Categorías para el módulo de Almacén (IdModulo: 3)
+    Categorias(
+      Id: 6,
+      IdModulo: 3,
+      Color: "#FFD700",
+      Nombre: "Alimentos",
+      IdUsuario: 1,
+    ),
+    Categorias(
+      Id: 7,
+      IdModulo: 3,
+      Color: "#9370DB",
+      Nombre: "Limpieza",
+      IdUsuario: 1,
+    ),
+    Categorias(
+      Id: 8,
+      IdModulo: 3,
+      Color: "#20B2AA",
+      Nombre: "Higiene personal",
+      IdUsuario: 1,
+    ),
+
+    // Categorías para otros usuarios
+    Categorias(
+      Id: 9,
+      IdModulo: 1,
+      Color: "#FF8C00",
+      Nombre: "Personal",
+      IdUsuario: 2,
+    ),
+    Categorias(
+      Id: 10,
+      IdModulo: 2,
+      Color: "#8A2BE2",
+      Nombre: "Cumpleaños",
+      IdUsuario: 2,
+    ),
+  ];
 
   // Obtener categorías por usuario
   Future<List<Categorias>> getCategorias(
       BuildContext context, int IdUsuario) async {
-    final response = await HttpService.execute(
-      context,
-      () => http.get(
-        Uri.parse('http://$_host/categorias/getByPerfil?IdUsuario=$IdUsuario'),
-        headers: {'Content-type': 'application/json'},
-      ),
-    );
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 500));
 
-    if (response.statusCode == 200) {
-      List<dynamic> responseData = jsonDecode(response.body);
-      return responseData.map((data) {
-        return Categorias(
-          Id: data['Id'],
-          IdModulo: data['IdModulo'],
-          Color: data['Color'],
-          Nombre: data['Nombre'],
-          IdUsuario: data['IdUsuario'],
-        );
-      }).toList();
-    } else {
-      throw Exception(
-          'Error al obtener las categorías de un perfil ${response.statusCode}');
-    }
+    return _categoriasEstaticas
+        .where((categoria) => categoria.IdUsuario == IdUsuario)
+        .toList();
   }
 
   // Obtener categorías por módulo
   Future<List<Categorias>> getCategoriasByModulo(
       BuildContext context, int IdUsuario, int IdModulo) async {
-    final response = await HttpService.execute(
-      context,
-      () => http.get(
-        Uri.parse(
-            'http://$_host/categorias/getByModulo?IdUsuario=$IdUsuario&IdModulo=$IdModulo'),
-        headers: {'Content-type': 'application/json'},
-      ),
-    );
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 400));
 
-    if (response.statusCode == 200) {
-      List<dynamic> responseData = jsonDecode(response.body);
-      return responseData.map((data) {
-        return Categorias(
-          Id: data['Id'],
-          IdModulo: data['IdModulo'],
-          Color: data['Color'],
-          Nombre: data['Nombre'],
-          IdUsuario: data['IdUsuario'],
-        );
-      }).toList();
-    } else {
-      throw Exception(
-          'Error al obtener las categorías por módulo ${response.statusCode}');
-    }
+    return _categoriasEstaticas
+        .where((categoria) =>
+            categoria.IdUsuario == IdUsuario && categoria.IdModulo == IdModulo)
+        .toList();
   }
 
   // Obtener categoría por ID
   Future<Categorias?> getCategoriasById(BuildContext context, int Id) async {
-    final response = await HttpService.execute(
-      context,
-      () => http.get(
-        Uri.parse('http://$_host/categorias/getById?Id=$Id'),
-        headers: {'Content-type': 'application/json'},
-      ),
-    );
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 300));
 
-    if (response.statusCode == 200) {
-      Map<String, dynamic> responseData = jsonDecode(response.body);
-      Map<String, dynamic> categoriaData = responseData['arguments'];
-
-      return Categorias(
-        Id: categoriaData['Id'],
-        IdModulo: categoriaData['IdModulo'],
-        Nombre: categoriaData['Nombre'],
-        Color: categoriaData['Color'],
-        IdUsuario: categoriaData['IdUsuario'],
-      );
-    } else {
-      throw Exception('Error al obtener la categoría por ID');
+    try {
+      return _categoriasEstaticas.firstWhere((categoria) => categoria.Id == Id);
+    } catch (e) {
+      return null; // Si no encuentra la categoría
     }
   }
 
   // Registrar categoría
   Future<bool> registrarCategoria(BuildContext context, int IdModulo,
       String Nombre, String Color, int IdUsuario) async {
-    Map<String, dynamic> CategoriaData = {
-      'IdModulo': IdModulo,
-      'Nombre': Nombre.toString(),
-      'Color': Color.toString(),
-      'IdUsuario': IdUsuario
-    };
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 700));
 
-    final response = await HttpService.execute(
-      context,
-      () => http.post(
-        Uri.parse('http://$_host/categorias/create'),
-        headers: {'Content-type': 'application/json'},
-        body: json.encode(CategoriaData),
-      ),
+    // Simular ID generado para la nueva categoría
+    final nuevoId = _categoriasEstaticas.isNotEmpty
+        ? _categoriasEstaticas
+                .map((c) => c.Id)
+                .reduce((a, b) => a > b ? a : b) +
+            1
+        : 1;
+
+    // Crear la nueva categoría
+    final nuevaCategoria = Categorias(
+      Id: nuevoId,
+      IdModulo: IdModulo,
+      Nombre: Nombre,
+      Color: Color,
+      IdUsuario: IdUsuario,
     );
 
-    return response.statusCode == 200;
+    // Añadir la categoría a la lista estática
+    _categoriasEstaticas.add(nuevaCategoria);
+
+    print('Categoría registrada con ID: $nuevoId');
+    return true;
+  }
+
+  // Actualizar categoría
+  Future<bool> actualizarCategoria(BuildContext context, int Id, int IdModulo,
+      String Nombre, String Color, int IdUsuario) async {
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 600));
+
+    // Buscar índice de la categoría a actualizar
+    final index = _categoriasEstaticas.indexWhere((c) => c.Id == Id);
+    if (index == -1) {
+      return false; // No se encontró la categoría
+    }
+
+    // Crear la categoría actualizada
+    final categoriaActualizada = Categorias(
+      Id: Id,
+      IdModulo: IdModulo,
+      Nombre: Nombre,
+      Color: Color,
+      IdUsuario: IdUsuario,
+    );
+
+    // Actualizar la categoría en la lista estática
+    _categoriasEstaticas[index] = categoriaActualizada;
+
+    print('Categoría con ID $Id actualizada');
+    return true;
   }
 
   // Eliminar categoría
   Future<bool> eliminarCategoria(BuildContext context, int Id) async {
-    final response = await HttpService.execute(
-      context,
-      () => http.delete(
-        Uri.parse('http://$_host/categorias/delete'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({'Id': Id}),
-      ),
-    );
+    // Simular retardo de red
+    await Future.delayed(const Duration(milliseconds: 400));
 
-    return response.statusCode == 200;
+    // Buscar índice de la categoría a eliminar
+    final index = _categoriasEstaticas.indexWhere((c) => c.Id == Id);
+    if (index == -1) {
+      return false; // No se encontró la categoría
+    }
+
+    // Eliminar la categoría de la lista estática
+    _categoriasEstaticas.removeAt(index);
+
+    print('Categoría con ID $Id eliminada');
+    return true;
   }
 }
 
-// Servicio global para manejar errores de conexión
+// Servicio global para manejar errores de conexión (versión simulada)
 class HttpService {
   static Future<http.Response> execute(
     BuildContext context,
     Future<http.Response> Function() httpCall,
   ) async {
     try {
-      // Ejecuta la llamada HTTP
-      return await httpCall();
+      // Simular una respuesta HTTP exitosa
+      final headers = {'content-type': 'application/json'};
+      final body = utf8.encode(json.encode({'status': 'success'}));
+
+      return http.Response.bytes(body, 200, headers: headers);
     } catch (e) {
-      // Si ocurre un error, navega a la pantalla de error de conexión
-      print('Error en la llamada HTTP: $e');
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
-      );
-      // Lanza una excepción para detener el flujo
-      throw Exception('Error en la conexión con la base de datos');
+      print('Error simulado en HttpService: $e');
+      // Comentado para evitar navegación no deseada durante pruebas
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
+      // );
+      throw Exception('Error simulado en la conexión con la base de datos');
     }
   }
 }
