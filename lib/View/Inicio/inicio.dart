@@ -4,6 +4,8 @@ import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:famsync/components/Inicio/Inciar_Sesion/Iniciar_Sesion_Dialogo.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+
 import 'package:rive/rive.dart' hide Image;
 
 class OnbodingScreen extends StatefulWidget {
@@ -15,7 +17,7 @@ class OnbodingScreen extends StatefulWidget {
 
 class _OnbodingScreenState extends State<OnbodingScreen> {
   late RiveAnimationController _btnAnimationController;
-
+  String version = "";
   bool isShowSignInDialog = false;
 
   @override
@@ -24,8 +26,19 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
       "active",
       autoplay: false,
     );
-
+    // Cargar la versión al iniciar
+    obtenerVersionApp();
     super.initState();
+  }
+
+  Future<void> obtenerVersionApp() async {
+    final info = await PackageInfo.fromPlatform();
+    // Actualiza el estado con la versión obtenida
+    setState(() {
+      version = info.version;
+    });
+    print('Versión: ${info.version}');
+    print('Build: ${info.buildNumber}');
   }
 
   @override
@@ -105,6 +118,15 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
                       child: Text(
                           "FamSync te ayuda a gestionar eventos, tareas y recursos familiares en un solo lugar. Organiza tu hogar con facilidad y eficiencia.",
                           style: TextStyle(color: Colores.texto)),
+                    ),
+                    const Spacer(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Align(
+                        alignment: Alignment.centerRight,
+                        child: Text("Versión: $version",
+                            style: const TextStyle(color: Colores.texto)),
+                      ),
                     ),
                     const Spacer(),
                   ],
