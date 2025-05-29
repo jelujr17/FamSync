@@ -1,4 +1,3 @@
-import 'package:famsync/Components/Inicio/AuthService.dart';
 import 'package:famsync/components/Inicio/Inciar_Sesion/Iniciar_Sesion_Dialogo.dart';
 import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:flutter/material.dart';
@@ -135,78 +134,7 @@ void crear_cuenta_dialogo(BuildContext context,
                               ),
                             ),
                             IconButton(
-                              onPressed: () async {
-                                try {
-                                  // Mostrar indicador de carga
-                                  showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      return Center(
-                                          child: CircularProgressIndicator(
-                                              color: Colores.fondoAux));
-                                    },
-                                  );
-
-                                  final userInfo =
-                                      await AuthService.signInWithGoogle();
-
-                                  // Cerrar indicador de carga
-                                  Navigator.of(context).pop();
-
-                                  if (userInfo != null) {
-                                    // Usuario autenticado correctamente
-                                    final isNewUser =
-                                        userInfo.additionalUserInfo?.isNewUser ?? false;
-                                    final name =
-                                        userInfo.user?.displayName ?? 'Usuario';
-                                    final email = userInfo.user?.email ?? '';
-
-                                    // Puedes guardar datos adicionales del usuario si es nuevo
-                                    if (isNewUser) {
-                                      print(
-                                          "Nuevo usuario registrado: $name ($email)");
-                                    } else {
-                                      print(
-                                          "Usuario existente inició sesión: $name ($email)");
-                                    }
-
-                                    // Cerrar diálogo de registro
-                                    Navigator.of(context).pop();
-
-                                    // Informar al padre que se ha iniciado sesión correctamente
-                                    onValue(true);
-
-                                    // Mostrar mensaje de bienvenida
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('¡Bienvenido $name!')),
-                                    );
-                                  }
-                                } catch (e) {
-                                  // Cerrar indicador de carga si está visible
-                                  if (Navigator.canPop(context)) {
-                                    Navigator.of(context).pop();
-                                  }
-
-                                  // Personalizar mensaje de error
-                                  String errorMessage =
-                                      'No se pudo iniciar sesión con Google';
-                                  if (e.toString().contains('network_error')) {
-                                    errorMessage =
-                                        'Error de conexión. Verifica tu internet y vuelve a intentar.';
-                                  } else if (e
-                                      .toString()
-                                      .contains('sign_in_failed')) {
-                                    errorMessage =
-                                        'Error de inicio de sesión. Inténtalo nuevamente.';
-                                  }
-
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text(errorMessage)),
-                                  );
-                                  print("Error detallado: $e");
-                                }
+                              onPressed: ()  {
                               },
                               padding: EdgeInsets.zero,
                               icon: SvgPicture.asset(

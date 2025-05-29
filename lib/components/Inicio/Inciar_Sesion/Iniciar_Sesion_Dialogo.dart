@@ -1,5 +1,4 @@
 import 'package:famsync/components/Inicio/Crear_Cuenta/Crear_Cuenta_Dialogo.dart';
-import 'package:famsync/Components/Inicio/AuthService.dart';
 import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -121,20 +120,7 @@ void iniciar_sesion_dialogo(BuildContext context,
                             ),
                           ),
                           IconButton(
-                            onPressed: () async {
-                              final userCredential =
-                                  await AuthService.signInWithGoogle();
-                              if (userCredential != null) {
-                                Navigator.of(context).pop();
-                                // Aquí puedes navegar a la pantalla principal o mostrar un mensaje de éxito
-                              } else {
-                                // Maneja el error o cancelación
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                      content: Text(
-                                          'No se pudo iniciar sesión con Google')),
-                                );
-                              }
+                            onPressed: ()  {
                             },
                             padding: EdgeInsets.zero,
                             icon: SvgPicture.asset(

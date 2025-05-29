@@ -48,7 +48,7 @@ dependencies:
   animated_background: ^2.0.0
   particles_fly: ^0.0.9
   image_picker: ^1.1.2
-  intl: 0.19.0
+  intl: 0.20.2
   network_info_plus: ^6.0.1
   floating_bottom_bar: ^0.0.3
   device_preview: ^1.2.0
@@ -74,14 +74,12 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   fluttertoast: ^8.2.8
   flutter_settings_ui: ^3.0.1
-  flutter_native_splash: ^2.4.3
   animate_gradient: ^0.0.3
   introduction_screen: ^3.1.14
   flutter_keyboard_visibility: ^6.0.0
   dropdown_search: ^6.0.2
   drop_down_list: ^2.0.0
   flutter_launcher_icons: ^0.14.3
-  animated_splash_screen: ^1.3.0
   google_nav_bar: ^5.0.7
   rive: ^0.13.20
   provider: ^6.1.2
@@ -91,36 +89,9 @@ dependencies:
   connectivity_plus: ^6.1.3
   syncfusion_flutter_sliders: ^28.2.12
   calendar_date_picker2: ^2.0.0
-  firebase_core: ^3.13.1
-  firebase_auth: ^5.5.4
-  google_sign_in: ^6.3.0
-
-flutter_native_splash:
-  color: "#FFFFFF" # Color de fondo del splash screen
-  image: assets/images/splash.png # Ruta al logo de FamSync
-  android: true # Habilitar en Android
-  ios: true # Habilitar en iOS
-  web: false # Opcional: Deshabilitar en web
-  fullscreen: true # Opcional: Pantalla completa sin barra de estado
+  flutter_native_splash: ^2.4.0
 
 
-flutter_launcher_icons:
-  android: "launcher_icon"
-  ios: true
-  image_path: assets/images/main.png
-  min_sdk_android: 21 # android min sdk min:16, default 21
-  web:
-    generate: true
-    image_path: assets/images/main.png
-    background_color: "#hexcode"
-    theme_color: "#hexcode"
-  windows:
-    generate: true
-    image_path: assets/images/main.png
-    icon_size: 48 # min:48, max:256, default: 48
-  macos:
-    generate: true
-    image_path: assets/images/main.png
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -132,12 +103,37 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
 
+
+flutter_native_splash:
+  color: "#e4ebf6"
+  image: assets/icon/main.png
+  color_dark: "#e4ebf6"
+  image_dark: assets/icon/main.png
+
+  android_12:
+    icon_background_color: "#e4ebf6"
+    icon_background_color_dark: "#e4ebf6"
+    image: assets/icon/main.png
+    image_dark: assets/icon/main.png
+
+  android_gravity: center    # Centrar imagen
+  ios_content_mode: center   # Para iOS
+  web_image_mode: center     # Para web
+  
+  # Tamaño personalizado (opcional)
+  android: true
+  ios: false
+  web: true
+
+
+
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 flutter_icons:
   android: true
   ios: true
-  image_path: assets/images/main.png
+  image_path: assets/icon/main.png
 
 # The following section is specific to Flutter packages.
 flutter:
@@ -155,7 +151,8 @@ flutter:
     - assets/RiveAssets/
     - assets/LottieIcons/
     - assets/images/
-    - assets/images/splash.png
+    - assets/images/main.jpeg
+    - assets/icon/main.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
