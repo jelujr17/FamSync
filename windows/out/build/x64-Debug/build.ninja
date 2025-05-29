@@ -11,7 +11,7 @@
 # =============================================================================
 
 # =============================================================================
-# Project: smart_family
+# Project: famsync
 # Configurations: Debug
 # =============================================================================
 
@@ -288,89 +288,89 @@ build flutter\CMakeFiles\flutter_assemble: phony ..\..\..\flutter\ephemeral\flut
 # =============================================================================
 
 # =============================================================================
-# Object build statements for EXECUTABLE target smart_family
+# Object build statements for EXECUTABLE target famsync
 
 
 #############################################
-# Order-only phony target for smart_family
+# Order-only phony target for famsync
 
-build cmake_object_order_depends_target_smart_family: phony || cmake_object_order_depends_target_flutter_wrapper_app cmake_object_order_depends_target_url_launcher_windows_plugin flutter\flutter_assemble
+build cmake_object_order_depends_target_famsync: phony || cmake_object_order_depends_target_flutter_wrapper_app cmake_object_order_depends_target_url_launcher_windows_plugin flutter\flutter_assemble
 
-build runner\CMakeFiles\smart_family.dir\flutter_window.cpp.obj: CXX_COMPILER__smart_family_Debug ..\..\..\runner\flutter_window.cpp || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\flutter_window.cpp.obj: CXX_COMPILER__famsync_Debug ..\..\..\runner\flutter_window.cpp || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /W4 /WX /wd\"4100\" /EHsc -std:c++17
   INCLUDES = -I..\..\..\ -I..\..\..\flutter\ephemeral -I..\..\..\flutter\ephemeral\cpp_client_wrapper\include -I..\..\..\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
-build runner\CMakeFiles\smart_family.dir\main.cpp.obj: CXX_COMPILER__smart_family_Debug ..\..\..\runner\main.cpp || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\main.cpp.obj: CXX_COMPILER__famsync_Debug ..\..\..\runner\main.cpp || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /W4 /WX /wd\"4100\" /EHsc -std:c++17
   INCLUDES = -I..\..\..\ -I..\..\..\flutter\ephemeral -I..\..\..\flutter\ephemeral\cpp_client_wrapper\include -I..\..\..\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
-build runner\CMakeFiles\smart_family.dir\utils.cpp.obj: CXX_COMPILER__smart_family_Debug ..\..\..\runner\utils.cpp || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\utils.cpp.obj: CXX_COMPILER__famsync_Debug ..\..\..\runner\utils.cpp || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /W4 /WX /wd\"4100\" /EHsc -std:c++17
   INCLUDES = -I..\..\..\ -I..\..\..\flutter\ephemeral -I..\..\..\flutter\ephemeral\cpp_client_wrapper\include -I..\..\..\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
-build runner\CMakeFiles\smart_family.dir\win32_window.cpp.obj: CXX_COMPILER__smart_family_Debug ..\..\..\runner\win32_window.cpp || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\win32_window.cpp.obj: CXX_COMPILER__famsync_Debug ..\..\..\runner\win32_window.cpp || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /W4 /WX /wd\"4100\" /EHsc -std:c++17
   INCLUDES = -I..\..\..\ -I..\..\..\flutter\ephemeral -I..\..\..\flutter\ephemeral\cpp_client_wrapper\include -I..\..\..\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
-build runner\CMakeFiles\smart_family.dir\__\flutter\generated_plugin_registrant.cc.obj: CXX_COMPILER__smart_family_Debug ..\..\..\flutter\generated_plugin_registrant.cc || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\__\flutter\generated_plugin_registrant.cc.obj: CXX_COMPILER__famsync_Debug ..\..\..\flutter\generated_plugin_registrant.cc || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1 /W4 /WX /wd\"4100\" /EHsc -std:c++17
   INCLUDES = -I..\..\..\ -I..\..\..\flutter\ephemeral -I..\..\..\flutter\ephemeral\cpp_client_wrapper\include -I..\..\..\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir\__\flutter
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir\__\flutter
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
-build runner\CMakeFiles\smart_family.dir\Runner.rc.res: RC_COMPILER__smart_family_Debug C$:\Users\mario\Desktop\SmartFamily\windows\runner\Runner.rc || cmake_object_order_depends_target_smart_family
+build runner\CMakeFiles\famsync.dir\Runner.rc.res: RC_COMPILER__famsync_Debug C$:\Users\mario\Desktop\SmartFamily\windows\runner\Runner.rc || cmake_object_order_depends_target_famsync
   DEFINES = -DFLUTTER_VERSION=\"1.0.0+1\" -DFLUTTER_VERSION_BUILD=1 -DFLUTTER_VERSION_MAJOR=1 -DFLUTTER_VERSION_MINOR=0 -DFLUTTER_VERSION_PATCH=0 -DNOMINMAX -DUNICODE -D_DEBUG -D_HAS_EXCEPTIONS=0 -D_UNICODE
-  DEP_FILE = runner\CMakeFiles\smart_family.dir\Runner.rc.res.d
+  DEP_FILE = runner\CMakeFiles\famsync.dir\Runner.rc.res.d
   FLAGS = -DWIN32 -D_DEBUG
   INCLUDES = -I C:\Users\mario\Desktop\SmartFamily\windows -I C:\Users\mario\Desktop\SmartFamily\windows\flutter\ephemeral -I C:\Users\mario\Desktop\SmartFamily\windows\flutter\ephemeral\cpp_client_wrapper\include -I C:\Users\mario\Desktop\SmartFamily\windows\flutter\ephemeral\.plugin_symlinks\url_launcher_windows\windows\include
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
-  OBJECT_FILE_DIR = runner\CMakeFiles\smart_family.dir
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_PDB = runner\smart_family.pdb
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
+  OBJECT_FILE_DIR = runner\CMakeFiles\famsync.dir
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_PDB = runner\famsync.pdb
 
 
 # =============================================================================
-# Link build statements for EXECUTABLE target smart_family
+# Link build statements for EXECUTABLE target famsync
 
 
 #############################################
-# Link the executable runner\smart_family.exe
+# Link the executable runner\famsync.exe
 
-build runner\smart_family.exe: CXX_EXECUTABLE_LINKER__smart_family_Debug runner\CMakeFiles\smart_family.dir\flutter_window.cpp.obj runner\CMakeFiles\smart_family.dir\main.cpp.obj runner\CMakeFiles\smart_family.dir\utils.cpp.obj runner\CMakeFiles\smart_family.dir\win32_window.cpp.obj runner\CMakeFiles\smart_family.dir\__\flutter\generated_plugin_registrant.cc.obj runner\CMakeFiles\smart_family.dir\Runner.rc.res | flutter\flutter_wrapper_app.lib plugins\url_launcher_windows\url_launcher_windows_plugin.lib ..\..\..\flutter\ephemeral\flutter_windows.dll.lib ..\..\..\runner\runner.exe.manifest || flutter\flutter_assemble flutter\flutter_wrapper_app.lib plugins\url_launcher_windows\url_launcher_windows_plugin.dll
+build runner\famsync.exe: CXX_EXECUTABLE_LINKER__famsync_Debug runner\CMakeFiles\famsync.dir\flutter_window.cpp.obj runner\CMakeFiles\famsync.dir\main.cpp.obj runner\CMakeFiles\famsync.dir\utils.cpp.obj runner\CMakeFiles\famsync.dir\win32_window.cpp.obj runner\CMakeFiles\famsync.dir\__\flutter\generated_plugin_registrant.cc.obj runner\CMakeFiles\famsync.dir\Runner.rc.res | flutter\flutter_wrapper_app.lib plugins\url_launcher_windows\url_launcher_windows_plugin.lib ..\..\..\flutter\ephemeral\flutter_windows.dll.lib ..\..\..\runner\runner.exe.manifest || flutter\flutter_assemble flutter\flutter_wrapper_app.lib plugins\url_launcher_windows\url_launcher_windows_plugin.dll
   FLAGS = /DWIN32 /D_WINDOWS /W3 /GR /EHsc /MDd /Zi /Ob0 /Od /RTC1
   LINK_FLAGS = /machine:x64 /debug /INCREMENTAL /subsystem:windows
   LINK_LIBRARIES = flutter\flutter_wrapper_app.lib  dwmapi.lib  plugins\url_launcher_windows\url_launcher_windows_plugin.lib  ..\..\..\flutter\ephemeral\flutter_windows.dll.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
   MANIFESTS = ..\..\..\runner\runner.exe.manifest
-  OBJECT_DIR = runner\CMakeFiles\smart_family.dir
+  OBJECT_DIR = runner\CMakeFiles\famsync.dir
   POST_BUILD = cd .
   PRE_LINK = cd .
-  TARGET_COMPILE_PDB = runner\CMakeFiles\smart_family.dir\
-  TARGET_FILE = runner\smart_family.exe
-  TARGET_IMPLIB = runner\smart_family.lib
-  TARGET_PDB = runner\smart_family.pdb
+  TARGET_COMPILE_PDB = runner\CMakeFiles\famsync.dir\
+  TARGET_FILE = runner\famsync.exe
+  TARGET_IMPLIB = runner\famsync.lib
+  TARGET_PDB = runner\famsync.pdb
 
 
 #############################################
@@ -562,9 +562,9 @@ build flutter_wrapper_plugin: phony flutter\flutter_wrapper_plugin.lib
 
 build flutter_wrapper_plugin.lib: phony flutter\flutter_wrapper_plugin.lib
 
-build smart_family: phony runner\smart_family.exe
+build famsync: phony runner\famsync.exe
 
-build smart_family.exe: phony runner\smart_family.exe
+build famsync.exe: phony runner\famsync.exe
 
 build url_launcher_windows_plugin: phony plugins\url_launcher_windows\url_launcher_windows_plugin.dll
 
@@ -599,7 +599,7 @@ build plugins\url_launcher_windows\all: phony plugins\url_launcher_windows\url_l
 #############################################
 # Folder: C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner
 
-build runner\all: phony runner\smart_family.exe
+build runner\all: phony runner\famsync.exe
 
 # =============================================================================
 # Built-in targets

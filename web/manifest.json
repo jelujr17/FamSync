@@ -1,6 +1,6 @@
 {
-    "name": "smart_family",
-    "short_name": "smart_family",
+    "name": "famsync",
+    "short_name": "famsync",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#hexcode",

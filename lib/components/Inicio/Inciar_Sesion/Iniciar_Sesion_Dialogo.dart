@@ -1,10 +1,14 @@
-import 'package:famsync/components/Inicio/Crear_Cuenta/Crear_Cuenta_Dialogo.dart';
-import 'package:famsync/components/Inicio/animated_btn.dart';
+// Librerías de Flutter
 import 'package:flutter/material.dart';
+
+// Paquetes externos
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:famsync/components/colores.dart';
 import 'package:rive/rive.dart';
 
+// Componentes propios (organizados por jerarquía)
+import 'package:famsync/components/colores.dart';
+import 'package:famsync/components/Inicio/animated_btn.dart';
+import 'package:famsync/components/Inicio/Crear_Cuenta/Crear_Cuenta_Dialogo.dart';
 import 'Iniciar_sesion_Formulario.dart';
 
 void iniciar_sesion_dialogo(BuildContext context,

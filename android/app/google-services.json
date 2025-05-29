@@ -1,51 +1,26 @@
 {
   "project_info": {
-    "project_number": "465560650321",
-    "project_id": "famsync-17",
-    "storage_bucket": "famsync-17.firebasestorage.app"
+    "project_number": "253626105127",
+    "project_id": "famsync-ccc45",
+    "storage_bucket": "famsync-ccc45.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:465560650321:android:c18f10a7cd0757a797ae70",
+        "mobilesdk_app_id": "1:253626105127:android:9ff7fd71859a7cd17b3d02",
         "android_client_info": {
-          "package_name": "com.example.smart_family"
+          "package_name": "com.jelujr.famsync"
         }
       },
-      "oauth_client": [
-        {
-          "client_id": "465560650321-f1teqsck6m05cirbfmg0qsi4qecpkl89.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.example.smart_family",
-            "certificate_hash": "f5dd9f0a5a1ea244a2f4161d9f68da5dc7d44d0a"
-          }
-        },
-        {
-          "client_id": "465560650321-bpnn63g7mr9b36p1di6gij508f0fl7ot.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
+      "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAgp135owJIqNzzifqNWMmbBqDM68JUH5M"
+          "current_key": "AIzaSyAl__ZcxVcf6PoQ4wy9PmWS--cRZ67wxaA"
         }
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "465560650321-bpnn63g7mr9b36p1di6gij508f0fl7ot.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "465560650321-noccra5jld26559kgr3sq08bfi766igm.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.smartFamily"
-              }
-            }
-          ]
+          "other_platform_oauth_client": []
         }
       }
     }

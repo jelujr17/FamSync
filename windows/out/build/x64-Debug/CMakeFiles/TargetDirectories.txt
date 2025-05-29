@@ -11,7 +11,7 @@ C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/flutter/CMakeFile
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/flutter/CMakeFiles/install/local.dir
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/flutter/CMakeFiles/install.dir
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/flutter/CMakeFiles/edit_cache.dir
-C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/CMakeFiles/smart_family.dir
+C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/CMakeFiles/famsync.dir
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/CMakeFiles/install/local.dir
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/CMakeFiles/install.dir
 C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/CMakeFiles/edit_cache.dir

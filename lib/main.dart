@@ -1,26 +1,39 @@
+// Paquetes de Flutter
+import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+
+// Paquetes externos
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+// Providers
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/Provider/Tienda_Provider.dart';
+
+// Vistas
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Inicio.dart';
-import 'package:famsync/Provider/Productos_Provider.dart';
-import 'package:famsync/components/colores.dart';
-import 'package:flutter/material.dart';
-import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:intl/intl.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
+// Modelos y Componentes
+import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/components/colores.dart';
+
+// Firebase
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Intl.defaultLocale = 'es_ES';
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  const Locale('es', 'ES');
 
   runApp(
     MultiProvider(
@@ -94,28 +107,27 @@ class MyApp extends StatelessWidget {
   }
 
   Future<Widget> getInitialPage(BuildContext context) async {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final int? userId = prefs.getInt('IdUsuario');
-      final int? perfilId = prefs.getInt('IdPerfil');
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    final int? userId = prefs.getInt('IdUsuario');
+    final int? perfilId = prefs.getInt('IdPerfil');
 
-      // Comentado el redireccionamiento al login
-      if (userId == null) {
-        return const OnbodingScreen();
+    // Comentado el redireccionamiento al login
+    if (userId == null) {
+      return const OnbodingScreen();
+    } else {
+      if (perfilId == null) {
+        return SeleccionPerfil(IdUsuario: userId);
       } else {
-        if (perfilId == null) {
-          return SeleccionPerfil(IdUsuario: userId);
-        } else {
-          final Perfiles? perfil = await ServicioPerfiles()
-              .getPerfilById(context, perfilId)
-              .timeout(const Duration(seconds: 2));
+        final Perfiles? perfil = await ServicioPerfiles()
+            .getPerfilById(context, perfilId)
+            .timeout(const Duration(seconds: 2));
 
-          if (perfil == null) {
-            return const OnbodingScreen();
-          } else {
-            return Home(perfil: perfil);
-          }
+        if (perfil == null) {
+          return const OnbodingScreen();
+        } else {
+          return Home(perfil: perfil);
         }
       }
-   
+    }
   }
 }

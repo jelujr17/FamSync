@@ -23,7 +23,6 @@ class AnimatedBtn extends StatelessWidget {
         width: 236,
         child: Stack(
           children: [
-            
             RiveAnimation.asset(
               "assets/RiveAssets/button.riv",
               controllers: [_btnAnimationController],
@@ -32,14 +31,17 @@ class AnimatedBtn extends StatelessWidget {
               top: 8,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min, // Añade esta línea
                 children: [
                   const Icon(CupertinoIcons.arrow_right),
                   const SizedBox(width: 8),
-                  Text(
-                    textoBoton,
-                    style: Theme.of(context).textTheme.labelLarge,
-                  )
+                  Flexible(
+                    child: Text(
+                      textoBoton,
+                      overflow: TextOverflow.ellipsis, // Añade esta línea
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                  ),
                 ],
               ),
             )

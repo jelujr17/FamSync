@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:animated_notch_bottom_bar/animated_notch_bottom_bar/animated_notch_bottom_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
@@ -19,18 +18,15 @@ class Perfil extends StatefulWidget {
 
 class PerfilState extends State<Perfil> {
   final PageController _pageController = PageController(initialPage: 2);
-  late NotchBottomBarController _bottomBarController;
 
   @override
   void initState() {
     super.initState();
-    _bottomBarController = NotchBottomBarController(index: 2);
     print("Perfil cargado: ${widget.perfil.FotoPerfil}"); // Para depuración
   }
 
   @override
   void dispose() {
-    _bottomBarController.dispose();
     _pageController.dispose();
     super.dispose();
   }

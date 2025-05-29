@@ -9,7 +9,6 @@ import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/Nuevo_Perfil.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SeleccionPerfil extends StatefulWidget {
   final int IdUsuario;
@@ -328,11 +327,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                       TextButton(
                         onPressed: () async {
                           if (textController.text == perfil.Pin.toString()) {
-                            final SharedPreferences preferencias =
-                                await SharedPreferences.getInstance();
-                            await preferencias.remove('IdPerfil');
-                            await preferencias.setInt('IdPerfil', perfil.Id);
-
+                            
                             Navigator.of(context).pop(); // Cierra el diálogo
                             Navigator.push(
                               context,

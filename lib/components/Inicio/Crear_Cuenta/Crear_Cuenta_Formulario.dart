@@ -1,4 +1,4 @@
-import 'package:famsync/Model/usuario.dart';
+import 'package:famsync/Components/Inicio/Crear_Cuenta/VerificarCodigoScreen.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/cupertino.dart';
@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:famsync/Model/FirebaseAuthService.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Crear_Cuenta_Formulario extends StatefulWidget {
   const Crear_Cuenta_Formulario({super.key});
@@ -64,36 +66,87 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
       String telefono = _telefonoController.text;
       String password = _passwordController.text;
 
-      // Aquí implementa la lógica para registrar al usuario
-      ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-      int? IdUsuario = await servicioUsuarios.registrarUsuario(
-          context, int.parse(telefono), email, nombre, password);
-      final SharedPreferences preferencias =
-          await SharedPreferences.getInstance();
+      // Formatear el teléfono al formato internacional
+      if (!telefono.startsWith('+')) {
+        // Si el usuario no añadió el código de país, añadir +34 para España
+        telefono = '+34' + telefono;
+      }
 
-      if (IdUsuario != null) {
-        preferencias.setInt('IdUsuario', IdUsuario);
-        success.fire();
-        await Future.delayed(const Duration(seconds: 2));
+      // Usar FirebaseAuthService
+      FirebaseAuthService authService = FirebaseAuthService();
 
-        setState(() {
-          isShowLoading = false;
-        });
+      // Llamar al método registerWithEmailAndPhone
+      final result = await authService.registerWithEmailAndPhone(
+        email,
+        password,
+        telefono,
+        nombre: nombre,
+      );
 
-        confetti.fire();
+      if (result['success']) {
+        final user = result['user'] as User;
 
-        Future.delayed(const Duration(seconds: 1), () {
-          if (!context.mounted) return;
+        // Guardar el UID
+        final SharedPreferences preferencias =
+            await SharedPreferences.getInstance();
+        preferencias.setString('uid', user.uid);
 
-          // Navegar a la selección de perfil después del registro exitoso
+        if (result['requiresVerification'] == true) {
+          // Se requiere verificación del teléfono
+          final verificationId = result['verificationId'];
+
+          // Mostrar diálogo para introducir el código
+          success.fire();
+          await Future.delayed(const Duration(seconds: 2));
+
+          setState(() {
+            isShowLoading = false;
+          });
+
+          // Navegar a la pantalla de verificación
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SeleccionPerfil(IdUsuario: IdUsuario),
+              builder: (context) => VerificarCodigoScreen(
+                verificationId: verificationId,
+                email: email,
+                telefono: telefono,
+                usuario: user,
+              ),
             ),
           );
-        });
+        } else {
+          // No se requiere verificación (verificación automática completada)
+          success.fire();
+          await Future.delayed(const Duration(seconds: 2));
+
+          setState(() {
+            isShowLoading = false;
+          });
+
+          confetti.fire();
+
+          Future.delayed(const Duration(seconds: 1), () {
+            if (!context.mounted) return;
+
+            // Navegar a la selección de perfil
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SeleccionPerfil(IdUsuario: int.parse(user.uid)),
+              ),
+            );
+          });
+        }
       } else {
+        // Error en el registro
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+
         error.fire();
         await Future.delayed(const Duration(seconds: 2));
 
@@ -104,6 +157,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
         reset.fire();
       }
     } else {
+      // Formulario inválido
       error.fire();
       await Future.delayed(const Duration(seconds: 2));
 

@@ -79,7 +79,7 @@
 						0,
 						1
 					],
-					"name" : "smart_family",
+					"name" : "famsync",
 					"targetIndexes" : 
 					[
 						0,
@@ -137,9 +137,9 @@
 				},
 				{
 					"directoryIndex" : 2,
-					"id" : "smart_family::@056c4f61b0156d1d9b06",
-					"jsonFile" : "target-smart_family-Debug-05c5adc21df59a81c6d3.json",
-					"name" : "smart_family",
+					"id" : "famsync::@056c4f61b0156d1d9b06",
+					"jsonFile" : "target-famsync-Debug-05c5adc21df59a81c6d3.json",
+					"name" : "famsync",
 					"projectIndex" : 1
 				},
 				{

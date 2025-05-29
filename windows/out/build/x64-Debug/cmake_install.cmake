@@ -49,14 +49,14 @@ endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xRuntimex" OR NOT CMAKE_INSTALL_COMPONENT)
   list(APPEND CMAKE_ABSOLUTE_DESTINATION_FILES
-   "C:/Users/mario/Desktop/SmartFamily/windows/out/install/x64-Debug/smart_family.exe")
+   "C:/Users/mario/Desktop/SmartFamily/windows/out/install/x64-Debug/famsync.exe")
   if(CMAKE_WARN_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(WARNING "ABSOLUTE path INSTALL DESTINATION : ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
   if(CMAKE_ERROR_ON_ABSOLUTE_INSTALL_DESTINATION)
     message(FATAL_ERROR "ABSOLUTE path INSTALL DESTINATION forbidden (by caller): ${CMAKE_ABSOLUTE_DESTINATION_FILES}")
   endif()
-file(INSTALL DESTINATION "C:/Users/mario/Desktop/SmartFamily/windows/out/install/x64-Debug" TYPE EXECUTABLE FILES "C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/smart_family.exe")
+file(INSTALL DESTINATION "C:/Users/mario/Desktop/SmartFamily/windows/out/install/x64-Debug" TYPE EXECUTABLE FILES "C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug/runner/famsync.exe")
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xRuntimex" OR NOT CMAKE_INSTALL_COMPONENT)

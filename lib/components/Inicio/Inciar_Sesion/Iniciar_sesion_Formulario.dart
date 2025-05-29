@@ -1,5 +1,5 @@
+import 'package:famsync/Model/FirebaseAuthService.dart';
 import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/usuario.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
@@ -54,17 +54,26 @@ class _SignInFormState extends State<SignInForm> {
     await Future.delayed(const Duration(seconds: 1));
 
     if (_formKey.currentState!.validate()) {
-      String emailOrPhone = _emailController.text;
+      String email = _emailController.text;
       String password = _passwordController.text;
 
-      ServicioUsuarios servicioUsuarios = ServicioUsuarios();
-      Usuario? usuario =
-          await servicioUsuarios.login(context, emailOrPhone, password);
-      final SharedPreferences preferencias =
-          await SharedPreferences.getInstance();
+      // Usar FirebaseAuthService en lugar de ServicioUsuarios
+      FirebaseAuthService authService = FirebaseAuthService();
+      
+      // Llamar al método login del nuevo servicio
+      final result = await authService.login(email, password);
+      
+      // Obtener SharedPreferences
+      final SharedPreferences preferencias = await SharedPreferences.getInstance();
 
-      if (usuario != null) {
-        preferencias.setInt('IdUsuario', usuario.Id);
+      if (result['success']) {
+        // Login exitoso
+        final user = result['user'];
+        
+        // Guardar el ID del usuario (ahora usando el UID de Firebase)
+        preferencias.setString('uid', user.uid);
+        
+        // Animación de éxito
         success.fire();
         await Future.delayed(const Duration(seconds: 2));
 
@@ -77,10 +86,13 @@ class _SignInFormState extends State<SignInForm> {
         Future.delayed(const Duration(seconds: 1), () async {
           if (!context.mounted) return;
 
+          // Verificar si hay un perfil seleccionado
           int? idPerfil = preferencias.getInt('IdPerfil');
+          
           if (idPerfil != null) {
-            Perfiles? perfil =
-                await ServicioPerfiles().getPerfilById(context, idPerfil);
+            // Obtener el perfil (mantén esta lógica según tu estructura)
+            Perfiles? perfil = await ServicioPerfiles().getPerfilById(context, idPerfil);
+            
             // Si existe IdPerfil, redirigir a Home
             if (perfil != null) {
               Navigator.pushReplacement(
@@ -88,24 +100,36 @@ class _SignInFormState extends State<SignInForm> {
                 MaterialPageRoute(builder: (context) => Home(perfil: perfil)),
               );
             } else {
+              // Si no se encuentra el perfil, ir a selección
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
+                  // Usar el UID de Firebase como ID de usuario
+                  builder: (context) => SeleccionPerfil(IdUsuario: user.uid),
                 ),
               );
             }
           } else {
-            // Si no, redirigir a la selección de perfil
+            // Si no hay perfil seleccionado, ir a selección
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SeleccionPerfil(IdUsuario: usuario.Id),
+                // Usar el UID de Firebase como ID de usuario
+                builder: (context) => SeleccionPerfil(IdUsuario: user.uid),
               ),
             );
           }
         });
       } else {
+        // Login fallido
+        // Mostrar mensaje de error
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(result['message']),
+            backgroundColor: Colors.red,
+          ),
+        );
+        
         error.fire();
         await Future.delayed(const Duration(seconds: 2));
 
@@ -116,6 +140,7 @@ class _SignInFormState extends State<SignInForm> {
         reset.fire();
       }
     } else {
+      // Formulario inválido
       error.fire();
       await Future.delayed(const Duration(seconds: 2));
 

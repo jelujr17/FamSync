@@ -599,7 +599,7 @@
 				}
 			],
 			"type" : "STATIC",
-			"value" : "smart_family"
+			"value" : "famsync"
 		},
 		{
 			"name" : "CMAKE_RANLIB",
@@ -966,7 +966,7 @@
 			"value" : "C:/Users/mario/Desktop/SmartFamily/windows/runner"
 		},
 		{
-			"name" : "smart_family_BINARY_DIR",
+			"name" : "famsync_BINARY_DIR",
 			"properties" : 
 			[
 				{
@@ -978,7 +978,7 @@
 			"value" : "C:/Users/mario/Desktop/SmartFamily/windows/out/build/x64-Debug"
 		},
 		{
-			"name" : "smart_family_SOURCE_DIR",
+			"name" : "famsync_SOURCE_DIR",
 			"properties" : 
 			[
 				{

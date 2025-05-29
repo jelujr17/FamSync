@@ -1,12 +1,16 @@
-import 'dart:ui';
 
+
+// Librerías de Flutter
+import 'package:flutter/material.dart';
+
+// Paquetes externos/dependencias
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rive/rive.dart' hide Image;
+
+// Componentes propios de la aplicación (organizados alfabéticamente)
+import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/Inicio/animated_btn.dart';
 import 'package:famsync/components/Inicio/Inciar_Sesion/Iniciar_Sesion_Dialogo.dart';
-import 'package:famsync/components/colores.dart';
-import 'package:flutter/material.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-
-import 'package:rive/rive.dart' hide Image;
 
 class OnbodingScreen extends StatefulWidget {
   const OnbodingScreen({super.key});
@@ -52,12 +56,7 @@ class _OnbodingScreenState extends State<OnbodingScreen> {
               fit: BoxFit.cover, // Ajusta el GIF para cubrir toda la pantalla
             ),
           ),
-          Positioned.fill(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-              child: const SizedBox(),
-            ),
-          ),
+        
           AnimatedPositioned(
             top: isShowSignInDialog ? -50 : 0,
             height: MediaQuery.of(context).size.height,
