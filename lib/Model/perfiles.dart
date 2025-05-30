@@ -1,6 +1,9 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 import 'dart:io';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:http/http.dart' as http;
@@ -12,7 +15,6 @@ class Perfiles {
   final String FotoPerfil;
   final int Pin;
   final String FechaNacimiento;
-  final int Infantil;
 
   Perfiles({
     required this.Id,
@@ -21,7 +23,6 @@ class Perfiles {
     required this.FotoPerfil,
     required this.Pin,
     required this.FechaNacimiento,
-    required this.Infantil,
   });
 }
 
@@ -35,7 +36,6 @@ class ServicioPerfiles {
       FotoPerfil: "avatar1.png",
       Pin: 1234,
       FechaNacimiento: "1990-01-01",
-      Infantil: 0,
     ),
     Perfiles(
       Id: 2,
@@ -44,7 +44,6 @@ class ServicioPerfiles {
       FotoPerfil: "avatar2.png",
       Pin: 0000,
       FechaNacimiento: "2015-05-15",
-      Infantil: 1,
     ),
     Perfiles(
       Id: 3,
@@ -53,7 +52,6 @@ class ServicioPerfiles {
       FotoPerfil: "avatar3.png",
       Pin: 5678,
       FechaNacimiento: "1985-10-20",
-      Infantil: 0,
     ),
     Perfiles(
       Id: 4,
@@ -62,7 +60,6 @@ class ServicioPerfiles {
       FotoPerfil: "admin.png",
       Pin: 9999,
       FechaNacimiento: "1980-12-31",
-      Infantil: 0,
     ),
   ];
 
@@ -90,44 +87,44 @@ class ServicioPerfiles {
   }
 
   // Registrar perfil
-  Future<bool> registrarPerfil(
-      BuildContext context,
-      int UsuarioId,
-      String Nombre,
-      File imagen,
-      int Pin,
-      String FechaNacimiento,
-      int Infantil) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 800));
+  Future<bool> registrarPerfilFirebase(
+    BuildContext context,
+    String nombre,
+    File imagen,
+    int pin,
+    String fechaNacimiento,
+  ) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print('Usuario no autenticado');
+      return false;
+    }
 
-    // Simular ID generado para el nuevo perfil
-    final nuevoId = _perfilesEstaticos.isNotEmpty
-        ? _perfilesEstaticos.map((p) => p.Id).reduce((a, b) => a > b ? a : b) +
-            1
-        : 1;
+    try {
+      // 1. Subir imagen a Firebase Storage
+      final storageRef = FirebaseStorage.instance.ref().child(
+          'perfiles/${user.uid}/${DateTime.now().millisecondsSinceEpoch}.png');
 
-    // En una implementación real, aquí se procesaría la imagen y se subiría
-    // Para simular, usamos el nombre del archivo como FotoPerfil
-    final nombreImagen =
-        "perfil_${nuevoId}_${DateTime.now().millisecondsSinceEpoch}.png";
+      await storageRef.putFile(imagen);
+      final fotoUrl = await storageRef.getDownloadURL();
 
-    // Crear el nuevo perfil
-    final nuevoPerfil = Perfiles(
-      Id: nuevoId,
-      UsuarioId: UsuarioId,
-      Nombre: Nombre,
-      FotoPerfil: nombreImagen,
-      Pin: Pin,
-      FechaNacimiento: FechaNacimiento,
-      Infantil: Infantil,
-    );
+      // 2. Crear perfil en Firestore
+      final perfilData = {
+        'UsuarioId': user.uid,
+        'Nombre': nombre,
+        'FotoPerfil': fotoUrl,
+        'Pin': pin,
+        'FechaNacimiento': fechaNacimiento
+      };
 
-    // Añadir el perfil a la lista estática
-    _perfilesEstaticos.add(nuevoPerfil);
+      await FirebaseFirestore.instance.collection('perfiles').add(perfilData);
 
-    print('Perfil registrado con ID: $nuevoId');
-    return true;
+      print('Perfil registrado correctamente');
+      return true;
+    } catch (e) {
+      print('Error al registrar perfil: $e');
+      return false;
+    }
   }
 
   // Editar perfil
@@ -138,8 +135,7 @@ class ServicioPerfiles {
       File? imagen,
       int Pin,
       String FechaNacimiento,
-      String? fotoAnterior,
-      int Infantil) async {
+      String? fotoAnterior) async {
     // Simular retardo de red
     await Future.delayed(const Duration(milliseconds: 700));
 
@@ -165,7 +161,6 @@ class ServicioPerfiles {
       FotoPerfil: fotoPerfil,
       Pin: Pin,
       FechaNacimiento: FechaNacimiento,
-      Infantil: Infantil,
     );
 
     // Actualizar el perfil en la lista estática

@@ -1,6 +1,6 @@
 // Nuevo archivo: VerificarCodigoScreen.dart
-import 'package:famsync/Model/FirebaseAuthService.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
+import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,12 +13,12 @@ class VerificarCodigoScreen extends StatefulWidget {
   final User usuario;
   
   const VerificarCodigoScreen({
-    Key? key, 
+    super.key, 
     required this.verificationId,
     required this.email,
     required this.telefono,
     required this.usuario
-  }) : super(key: key);
+  });
   
   @override
   _VerificarCodigoScreenState createState() => _VerificarCodigoScreenState();

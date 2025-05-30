@@ -1,13 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'dart:async';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 class FirebaseAuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
-
   // Variables para autenticación por teléfono
   String? _verificationId;
-  int? _resendToken;
-  Completer<Map<String, dynamic>>? _phoneVerificationCompleter;
+  //Completer<Map<String, dynamic>>? _phoneVerificationCompleter;
+
+  // Añadir esta variable para web
 
   // Método mejorado de inicio de sesión
   Future<Map<String, dynamic>> login(String correo, String password) async {
@@ -48,54 +50,6 @@ class FirebaseAuthService {
   }
 
   // Método mejorado de registro
-  Future<Map<String, dynamic>> register(String correo, String password,
-      {String? nombre}) async {
-    try {
-      final result = await _auth.createUserWithEmailAndPassword(
-        email: correo,
-        password: password,
-      );
-
-      // Actualizar el nombre del usuario si se proporciona
-      if (nombre != null && nombre.isNotEmpty) {
-        await result.user?.updateDisplayName(nombre);
-        // Recargar usuario para obtener datos actualizados
-        await result.user?.reload();
-      }
-
-      // Enviar correo de verificación (opcional)
-      await result.user?.sendEmailVerification();
-
-      return {
-        'success': true,
-        'user': _auth.currentUser, // Obtener usuario actualizado
-        'message': 'Cuenta creada exitosamente'
-      };
-    } on FirebaseAuthException catch (e) {
-      String message = 'Error al registrar';
-
-      switch (e.code) {
-        case 'email-already-in-use':
-          message = 'Ya existe una cuenta con este correo';
-          break;
-        case 'invalid-email':
-          message = 'El formato del correo es inválido';
-          break;
-        case 'weak-password':
-          message = 'La contraseña es demasiado débil';
-          break;
-        case 'operation-not-allowed':
-          message = 'El registro con correo/contraseña no está habilitado';
-          break;
-        default:
-          message = 'Error: ${e.message}';
-      }
-
-      return {'success': false, 'message': message};
-    } catch (e) {
-      return {'success': false, 'message': 'Error inesperado: $e'};
-    }
-  }
 
   // Método para enviar correo de recuperación de contraseña
   Future<Map<String, dynamic>> resetPassword(String correo) async {
@@ -126,53 +80,15 @@ class FirebaseAuthService {
     required Function(String message) onError,
   }) async {
     try {
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Auto-verificación en algunos dispositivos Android
-          onVerificationCompleted(credential);
+      // En web, necesitamos manejar el flujo diferente
+      ConfirmationResult confirmationResult =
+          await _auth.signInWithPhoneNumber(phoneNumber);
 
-          // Intentar iniciar sesión automáticamente
-          try {
-            final result = await _auth.signInWithCredential(credential);
-            // Puedes manejar el resultado aquí si lo necesitas, pero no retornes un Map
-            // Por ejemplo, podrías llamar a un callback o simplemente no hacer nada
-          } catch (e) {
-            onError('Error en verificación automática: $e');
-            // No retornes un Map aquí
-          }
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          String message = 'Error en la verificación';
+      // Guardar el ID para verificación posterior
+      _verificationId = confirmationResult.verificationId;
 
-          switch (e.code) {
-            case 'invalid-phone-number':
-              message = 'El número de teléfono no es válido';
-              break;
-            case 'too-many-requests':
-              message = 'Demasiados intentos. Inténtalo más tarde.';
-              break;
-            default:
-              message = 'Error: ${e.message}';
-          }
-
-          onError(message);
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          // Guardar el ID de verificación para usarlo después
-          _verificationId = verificationId;
-          _resendToken = resendToken;
-
-          // Notificar a la UI que el código ha sido enviado
-          onCodeSent(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          // Actualizar el ID de verificación si el tiempo de recuperación automática expira
-          _verificationId = verificationId;
-        },
-        timeout: const Duration(seconds: 60),
-        forceResendingToken: _resendToken,
-      );
+      // Notificar que el código fue enviado
+      onCodeSent(_verificationId!);
 
       return {'success': true, 'message': 'Proceso de verificación iniciado'};
     } catch (e) {
@@ -241,30 +157,38 @@ class FirebaseAuthService {
         };
       }
 
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Intentar vincular teléfono automáticamente
-          try {
-            await currentUser.linkWithCredential(credential);
-            // Puedes notificar el éxito usando un callback si lo deseas
-          } catch (e) {
-            onError('Error al vincular teléfono: $e');
-            // Maneja el error, pero no retornes un Map aquí
-          }
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          onError('Error: ${e.message}');
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
-          _resendToken = resendToken;
-          onCodeSent(verificationId);
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
-      );
+      if (kIsWeb) {
+        // Para web
+        ConfirmationResult confirmationResult =
+            await _auth.signInWithPhoneNumber(phoneNumber);
+
+        _verificationId = confirmationResult.verificationId;
+        onCodeSent(_verificationId!);
+      } else {
+        // Para móvil
+        await _auth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            try {
+              await currentUser.linkWithCredential(credential);
+              // Éxito automático
+            } catch (e) {
+              onError('Error al vincular teléfono: $e');
+            }
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            onError('Error en la verificación: ${e.message}');
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            _verificationId = verificationId;
+            onCodeSent(verificationId);
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            _verificationId = verificationId;
+          },
+          timeout: const Duration(seconds: 60),
+        );
+      }
 
       return {'success': true, 'message': 'Proceso de verificación iniciado'};
     } catch (e) {
@@ -310,72 +234,138 @@ class FirebaseAuthService {
   Future<Map<String, dynamic>> registerWithEmailAndPhone(
       String email, String password, String phoneNumber,
       {String? nombre}) async {
+    print(
+        '[Registro] Iniciando registro con email: $email y teléfono: $phoneNumber');
     try {
       // Paso 1: Crear cuenta con correo y contraseña
+      print('[Registro] Creando usuario con email y contraseña...');
       final result = await _auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
 
       final user = result.user;
+      //iNICIALIZAR LAS COLECCIONES DE FIRESTORE
+      print('[Registro] Usuario creado: ${user?.uid}');
+      if (user != null) {
+        final usuarioDoc =
+            FirebaseFirestore.instance.collection('usuarios').doc(user.uid);
+        print('[Registro] Guardando datos en Firestore...');
+        await usuarioDoc.set({
+          'nombre': nombre ?? '',
+          'email': email,
+          'phone': phoneNumber,
+          'createdAt': FieldValue.serverTimestamp(),
+        });
 
-      // Actualizar el nombre del usuario si se proporciona
-      if (nombre != null && nombre.isNotEmpty && user != null) {
-        await user.updateDisplayName(nombre);
-        await user.reload(); // Recargar para obtener los datos actualizados
+        crearColeccionPerfilesInicial(user.uid);
+        print('[Registro] Datos guardados en Firestore');
+
+        // Actualizar el nombre del usuario si se proporciona
+        if (nombre != null && nombre.isNotEmpty) {
+          print('[Registro] Actualizando displayName...');
+          await user.updateDisplayName(nombre);
+          await user.reload(); // Recargar para obtener los datos actualizados
+        }
       }
 
+      // --- COMENTADO: Lógica de registro y verificación de teléfono ---
+      /*
       // Paso 2: Iniciar el proceso de vinculación con teléfono
       _phoneVerificationCompleter = Completer<Map<String, dynamic>>();
 
-      await _auth.verifyPhoneNumber(
-        phoneNumber: phoneNumber,
-        verificationCompleted: (PhoneAuthCredential credential) async {
-          // Automáticamente vincula el teléfono en algunos dispositivos Android
-          try {
-            await user?.linkWithCredential(credential);
-            _phoneVerificationCompleter!.complete({
-              'success': true,
-              'user': user,
-              'message': 'Cuenta creada y teléfono vinculado automáticamente',
-              'requiresVerification': false
-            });
-          } catch (e) {
-            _phoneVerificationCompleter!.complete({
-              'success': false,
-              'message': 'Error al vincular teléfono: $e',
-            });
-          }
-        },
-        verificationFailed: (FirebaseAuthException e) {
-          _phoneVerificationCompleter!.complete({
-            'success': false,
-            'user': user, // La cuenta con correo sí se creó
-            'message': 'Error en verificación de teléfono: ${e.message}',
-            'requiresVerification': false
-          });
-        },
-        codeSent: (String verificationId, int? resendToken) {
-          _verificationId = verificationId;
-          _resendToken = resendToken;
+      if (kIsWeb) {
+        // Para web
+        print("[Registro] Iniciando verificación de teléfono: $phoneNumber en web");
+        ConfirmationResult confirmationResult =
+            await _auth.signInWithPhoneNumber(phoneNumber);
 
-          _phoneVerificationCompleter!.complete({
-            'success': true,
-            'user': user,
-            'message': 'Se envió un código a tu teléfono para verificación',
-            'requiresVerification': true,
-            'verificationId': verificationId
-          });
-        },
-        codeAutoRetrievalTimeout: (String verificationId) {
-          _verificationId = verificationId;
-        },
-      );
+        _verificationId = confirmationResult.verificationId;
+        print("[Registro] verificationId recibido: $_verificationId");
 
-      // Esperar resultado de la verificación telefónica
-      return await _phoneVerificationCompleter!.future;
+        // Retornar de inmediato con la información de verificación pendiente
+        return {
+          'success': true,
+          'user': user,
+          'requiresVerification': true,
+          'verificationId': _verificationId,
+          'message':
+              'Usuario registrado. Se requiere verificación del teléfono.'
+        };
+      } else {
+        print("[Registro] Iniciando verificación de teléfono en móvil");
+        // Para móvil
+        await _auth.verifyPhoneNumber(
+          phoneNumber: phoneNumber,
+          verificationCompleted: (PhoneAuthCredential credential) async {
+            print('[Registro] Verificación automática completada');
+            // Auto-verificación completada (solo en algunos dispositivos Android)
+            try {
+              await user?.linkWithCredential(credential);
+              if (!_phoneVerificationCompleter!.isCompleted) {
+                _phoneVerificationCompleter!.complete({
+                  'success': true,
+                  'user': user,
+                  'message': 'Registro y verificación completados'
+                });
+              }
+            } catch (e) {
+              print('[Registro] Error al vincular teléfono: $e');
+              if (!_phoneVerificationCompleter!.isCompleted) {
+                _phoneVerificationCompleter!.complete({
+                  'success': false,
+                  'message': 'Error al vincular teléfono: $e'
+                });
+              }
+            }
+          },
+          verificationFailed: (FirebaseAuthException e) {
+            print('[Registro] Error en la verificación: ${e.message}');
+            if (!_phoneVerificationCompleter!.isCompleted) {
+              _phoneVerificationCompleter!.complete({
+                'success': false,
+                'message': 'Error en la verificación: ${e.message}'
+              });
+            }
+          },
+          codeSent: (String verificationId, int? resendToken) {
+            print('[Registro] Código enviado, verificationId: $verificationId');
+            _verificationId = verificationId;
+            if (!_phoneVerificationCompleter!.isCompleted) {
+              _phoneVerificationCompleter!.complete({
+                'success': true,
+                'user': user,
+                'requiresVerification': true,
+                'verificationId': verificationId,
+                'message':
+                    'Usuario registrado. Se requiere verificación del teléfono.'
+              });
+            }
+          },
+          codeAutoRetrievalTimeout: (String verificationId) {
+            print('[Registro] Timeout de auto-retrieval, verificationId: $verificationId');
+            _verificationId = verificationId;
+          },
+          timeout: const Duration(seconds: 60),
+        );
+
+        // Esperar resultado de la verificación telefónica
+        print('[Registro] Esperando resultado de la verificación telefónica...');
+        return await _phoneVerificationCompleter!.future;
+      }
+      */
+      // --- FIN COMENTADO ---
+
+      // Solo retorna éxito del registro con correo
+      return {
+        'success': true,
+        'user': user,
+        'message': 'Usuario registrado correctamente (solo correo)'
+      };
     } on FirebaseAuthException catch (e) {
       String message = 'Error al registrar';
+      print(
+          '[Registro][FirebaseAuthException] code: ${e.code}, message: ${e.message}');
 
       switch (e.code) {
         case 'email-already-in-use':
@@ -388,11 +378,12 @@ class FirebaseAuthService {
           message = 'La contraseña es demasiado débil';
           break;
         default:
-          message = 'Error: ${e.message}';
+          message = 'Error1: ${e.code} - ${e.message}';
       }
 
       return {'success': false, 'message': message};
     } catch (e) {
+      print('[Registro][Exception] $e');
       return {'success': false, 'message': 'Error inesperado: $e'};
     }
   }
@@ -405,4 +396,15 @@ class FirebaseAuthService {
 
   // Stream para escuchar cambios en la autenticación
   Stream<User?> get authStateChanges => _auth.authStateChanges();
+
+
+  Future<void> crearColeccionPerfilesInicial(String uid) async {
+  await FirebaseFirestore.instance
+    .collection('usuarios')
+    .doc(uid)
+    .collection('perfiles')
+    .doc('placeholder')
+    .set({'init': true});
+}
+
 }

@@ -1,4 +1,5 @@
 // Paquetes de Flutter
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -107,26 +108,29 @@ class MyApp extends StatelessWidget {
   }
 
   Future<Widget> getInitialPage(BuildContext context) async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      // No hay usuario logueado con Firebase
+      return const OnbodingScreen();
+    }
+
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final int? userId = prefs.getInt('IdUsuario');
     final int? perfilId = prefs.getInt('IdPerfil');
 
-    // Comentado el redireccionamiento al login
-    if (userId == null) {
-      return const OnbodingScreen();
+    if (perfilId == null) {
+      // No ha seleccionado perfil aún
+      return SeleccionPerfil(
+          IdUsuario: user.uid.hashCode); // o lo que uses como ID
     } else {
-      if (perfilId == null) {
-        return SeleccionPerfil(IdUsuario: userId);
-      } else {
-        final Perfiles? perfil = await ServicioPerfiles()
-            .getPerfilById(context, perfilId)
-            .timeout(const Duration(seconds: 2));
+      final Perfiles? perfil = await ServicioPerfiles()
+          .getPerfilById(context, perfilId)
+          .timeout(const Duration(seconds: 2));
 
-        if (perfil == null) {
-          return const OnbodingScreen();
-        } else {
-          return Home(perfil: perfil);
-        }
+      if (perfil == null) {
+        return const OnbodingScreen();
+      } else {
+        return Home(perfil: perfil);
       }
     }
   }

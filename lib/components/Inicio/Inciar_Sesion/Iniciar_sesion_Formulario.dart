@@ -1,4 +1,4 @@
-import 'package:famsync/Model/FirebaseAuthService.dart';
+import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
 import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';

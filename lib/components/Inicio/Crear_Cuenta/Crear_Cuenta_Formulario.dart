@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:famsync/Model/FirebaseAuthService.dart';
+import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 class Crear_Cuenta_Formulario extends StatefulWidget {
@@ -69,7 +69,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
       // Formatear el teléfono al formato internacional
       if (!telefono.startsWith('+')) {
         // Si el usuario no añadió el código de país, añadir +34 para España
-        telefono = '+34' + telefono;
+        telefono = '+34$telefono';
       }
 
       // Usar FirebaseAuthService

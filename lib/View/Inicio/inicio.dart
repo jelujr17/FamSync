@@ -2,9 +2,9 @@
 
 // Librerías de Flutter
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 // Paquetes externos/dependencias
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:rive/rive.dart' hide Image;
 
 // Componentes propios de la aplicación (organizados alfabéticamente)

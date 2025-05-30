@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:famsync/Model/perfiles.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
@@ -64,15 +63,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
     }
 
     try {
-      bool creado = await ServicioPerfiles().registrarPerfil(
-        context,
-        widget.IdUsuario,
-        nombre,
-        File(_image!.path),
-        int.parse(pin),
-        fechaNacimientoStr,
-        1,
-      );
+      bool creado = true;
 
       if (creado) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -84,11 +75,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
             builder: (context) => SeleccionPerfil(IdUsuario: widget.IdUsuario),
           ),
         );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al crear el perfil')),
-        );
-      }
+      } 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),

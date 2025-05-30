@@ -100,8 +100,8 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                 _imagenPerfil,
                 int.parse(nuevopin),
                 fechaNacimientoStr,
-                perfil.FotoPerfil,
-                widget.perfil.Infantil);
+                perfil.FotoPerfil
+          );
             if (editado) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Perfil editado exitosamente')),
