@@ -130,86 +130,103 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Crear Nuevo Perfil'),
-        backgroundColor: Colores.principal,
+        backgroundColor: Colores.texto,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Container(
+        padding: EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.15),
+        color: Colores.fondo, // Fondo general más suave
+        width: double.infinity,
         child: SingleChildScrollView(
-          child: Card(
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 60,
-                      backgroundColor: _selectedColor,
-                      backgroundImage:
-                          _image != null ? FileImage(File(_image!.path)) : null,
-                      child: _image == null
-                          ? const Icon(Icons.add_a_photo,
-                              size: 50, color: Colors.white)
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _nombreController,
-                    decoration: InputDecoration(
-                      labelText: 'nombre del perfil',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _pinController,
-                    decoration: InputDecoration(
-                      labelText: 'PIN',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                      suffixIcon: IconButton(
-                        icon: Icon(_isPinVisible
-                            ? Icons.visibility
-                            : Icons.visibility_off),
-                        onPressed: () {
-                          setState(() {
-                            _isPinVisible = !_isPinVisible;
-                          });
-                        },
+          child: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: 450), // Limita el ancho
+              child: Card(
+                color: Colors.white.withOpacity(0.95),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(25),
+                ),
+                elevation: 8,
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: _pickImage,
+                        child: CircleAvatar(
+                          radius: 55,
+                          backgroundColor: _selectedColor.withOpacity(0.2),
+                          backgroundImage: _image != null
+                              ? FileImage(File(_image!.path))
+                              : null,
+                          child: _image == null
+                              ? Icon(Icons.add_a_photo,
+                                  size: 40, color: _selectedColor)
+                              : null,
+                        ),
                       ),
-                    ),
-                    obscureText: !_isPinVisible,
-                    keyboardType: TextInputType.number,
-                    maxLength: 4,
+                      const SizedBox(height: 28),
+                      TextField(
+                        controller: _nombreController,
+                        decoration: InputDecoration(
+                          labelText: 'Nombre del perfil',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _pinController,
+                        decoration: InputDecoration(
+                          labelText: 'PIN',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                          suffixIcon: IconButton(
+                            icon: Icon(_isPinVisible
+                                ? Icons.visibility
+                                : Icons.visibility_off),
+                            onPressed: () {
+                              setState(() {
+                                _isPinVisible = !_isPinVisible;
+                              });
+                            },
+                          ),
+                        ),
+                        obscureText: !_isPinVisible,
+                        keyboardType: TextInputType.number,
+                        maxLength: 4,
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _fechaController,
+                        decoration: InputDecoration(
+                          labelText: 'Fecha de nacimiento',
+                          border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12)),
+                        ),
+                        readOnly: true,
+                        onTap: () => _selectDate(context),
+                      ),
+                      const SizedBox(height: 32),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _crearPerfil,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: _selectedColor,
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            textStyle: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          child: const Text('Crear Perfil'),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: _fechaController,
-                    decoration: InputDecoration(
-                      labelText: 'Fecha de Nacimiento',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    readOnly: true,
-                    onTap: () => _selectDate(context),
-                  ),
-                  const SizedBox(height: 30),
-                  ElevatedButton(
-                    onPressed: _crearPerfil,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _selectedColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10)),
-                    ),
-                    child: const Text('Crear Perfil'),
-                  ),
-                ],
+                ),
               ),
             ),
           ),

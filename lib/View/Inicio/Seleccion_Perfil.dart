@@ -1,14 +1,13 @@
 // ignore_for_file: file_names
 
-import 'dart:io';
-
 import 'package:famsync/View/Inicio/Home.dart';
+import 'package:famsync/View/Inicio/Nuevo_Perfil.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:famsync/Model/Perfiles.dart';
-import 'package:famsync/View/Inicio/Nuevo_Perfil.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:flutter/foundation.dart'; // <--- Importante
 
 class SeleccionPerfil extends StatefulWidget {
   final String UID;
@@ -30,7 +29,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
   }
 
   void reload() async {
-    perfiles = await ServicioPerfiles().getPerfiles( widget.UID);
+    perfiles = await ServicioPerfiles().getPerfiles(widget.UID);
     setState(() {});
   }
 
@@ -42,8 +41,17 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    // Porcentaje del ancho de pantalla (ajusta el valor según lo que necesites)
+    final double avatarSize = kIsWeb
+        ? screenWidth * 0.12 // 12% del ancho en web
+        : screenWidth * 0.28; // 28% del ancho en móvil
+
+    final double fontSize = avatarSize * 0.35;
+    final int crossAxisCount = kIsWeb ? 5 : 2;
+
     return Scaffold(
-      backgroundColor: Colores.fondo, // Fondo blanco
+      backgroundColor: Colores.fondo,
       body: SafeArea(
         child: Column(
           children: [
@@ -88,25 +96,25 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                 color: Colores.texto,
               ),
             ),
-            const SizedBox(height: 100),
-            // Grid de perfiles
             Expanded(
-              child: GridView.builder(
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  crossAxisSpacing: 20,
-                  mainAxisSpacing: 20,
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 1500),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      spacing: 20,
+                      runSpacing: 20,
+                      children: [
+                        ...perfiles
+                            .map((perfil) =>
+                                _buildPerfilItem(perfil, avatarSize, fontSize)),
+                        _buildNuevoPerfilButton(avatarSize, fontSize),
+                      ],
+                    ),
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount:
-                    perfiles.length + 1, // Incluye el botón "Nuevo perfil"
-                itemBuilder: (context, index) {
-                  if (index == perfiles.length) {
-                    return _buildNuevoPerfilButton();
-                  } else {
-                    return _buildPerfilItem(perfiles[index]);
-                  }
-                },
               ),
             ),
           ],
@@ -115,67 +123,35 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
     );
   }
 
-  Widget _buildPerfilItem(Perfiles perfil) {
+  Widget _buildPerfilItem(Perfiles perfil, double avatarSize, double fontSize) {
     return GestureDetector(
       onTap: () {
         if (!_editMode) {
           _verificarPin(perfil);
         } else {
-          // Acción de edición (puedes personalizarla)
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Editar perfil: ${perfil.nombre}')),
-          );
+          // Aquí puedes poner otra acción para el modo edición
         }
       },
       child: Column(
         children: [
-          Expanded(
-            child: FutureBuilder<File?>(
-              future: ServicioPerfiles()
-                  .getFotoPerfil( widget.UID, perfil.FotoPerfil),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  // Muestra un indicador de carga mientras se obtiene la imagen
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colores.botones,
-                    ),
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
-                  );
-                } else if (snapshot.hasError || !snapshot.hasData) {
-                  // Muestra un fondo de color si hay un error o no hay imagen
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      color: Colores.botones,
-                    ),
-                    child: Center(
-                      child: Text(
-                        perfil.nombre[0],
-                        style: GoogleFonts.poppins(
-                          color: Colors.white,
-                          fontSize: 40,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  );
-                } else {
-                  // Muestra la imagen obtenida
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(15),
-                      image: DecorationImage(
-                        image: FileImage(snapshot.data!),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  );
-                }
-              },
+          SizedBox(
+            width: avatarSize,
+            height: avatarSize,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colores.texto,
+              ),
+              child: Center(
+                child: Text(
+                  (perfil.nombre.isNotEmpty ? perfil.nombre[0] : '?'),
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: fontSize,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 10),
@@ -192,36 +168,37 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
     );
   }
 
-  Widget _buildNuevoPerfilButton() {
+  Widget _buildNuevoPerfilButton(
+    double avatarSize,
+    double fontSize,
+  ) {
     return GestureDetector(
       onTap: () {
-        if (perfiles.length < 4) {
-          Navigator.push(
-            context,
-            PageTransition(
-              type: PageTransitionType.fade,
-              child: CrearPerfilScreen(UID: widget.UID),
+        Navigator.push(
+          context,
+          PageTransition(
+            type: PageTransitionType.fade,
+            child: CrearPerfilScreen(
+              UID: widget.UID,
             ),
-          );
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Ya existen 4 perfiles')),
-          );
-        }
+          ),
+        );
       },
       child: Column(
         children: [
-          Expanded(
+          SizedBox(
+            width: avatarSize,
+            height: avatarSize,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
-                color: Colores.fondoAux,
+                color: Colores.texto,
               ),
               child: const Center(
                 child: Icon(
                   Icons.add,
                   size: 50,
-                  color: Colores.texto,
+                  color: Colores.fondoAux,
                 ),
               ),
             ),
