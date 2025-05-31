@@ -1,6 +1,7 @@
 import 'package:drop_down_search_field/drop_down_search_field.dart';
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
@@ -11,8 +12,8 @@ import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Perfiles_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear/Crear_Prioridad_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:famsync/Model/perfiles.dart';
 import 'package:provider/provider.dart';
 
 class PerfilProvider extends InheritedWidget {
@@ -51,13 +52,14 @@ class CrearTareaState extends State<CrearTarea> {
       TextEditingController();
   final TextEditingController _prioridadController = TextEditingController();
 
-  final List<int> _perfilSeleccionado = [];
+  final List<String> _perfilSeleccionado = [];
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
   List<String> nombresCategoria = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
   int prioridad = 0;
   bool mostrarErrorPerfiles = false;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class CrearTareaState extends State<CrearTarea> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(user!.uid);
     });
   }
 
@@ -90,7 +92,7 @@ class CrearTareaState extends State<CrearTarea> {
         Provider.of<CategoriasProvider>(context, listen: false);
     categoriasDisponibles = categoriasProvider.categorias;
     nombresCategoria = categoriasProvider.categorias
-        .map((e) => e.Nombre)
+        .map((e) => e.nombre)
         .toList(); // Obtener nombres de las categorías
     print("Nombres de categorías: $nombresCategoria");
   }
@@ -111,19 +113,18 @@ class CrearTareaState extends State<CrearTarea> {
       final nombre = _nombreController.text;
       final descripcion = _descripcionController.text;
       final categoria = categoriaSeleccionada ?? "Sin categoría";
-      int? categoriaId;
+      String? categoriaId;
       if (categoria != "Sin categoría") {
         categoriaId = categoriasDisponibles
             .firstWhere(
-              (element) => element.Nombre == categoriaSeleccionada,
+              (element) => element.nombre == categoriaSeleccionada,
               orElse: () => Categorias(
-                  Id: 0,
-                  Nombre: "Sin Categoría",
-                  IdModulo: 0,
+                  CategoriaID: "",
                   Color: '000000',
-                  IdUsuario: 0),
+                  nombre: "Sin Categoría",
+                  PerfilID: widget.perfil.PerfilID),
             )
-            .Id;
+            .CategoriaID;
       }
 
       print("Categoría seleccionada: $categoriaId");
@@ -132,27 +133,28 @@ class CrearTareaState extends State<CrearTarea> {
       }
 
       final nuevaTarea = Tareas(
-        Id: 0,
-        Nombre: nombre,
-        Descripcion: descripcion,
-        Creador: widget.perfil.Id,
-        Destinatario: _perfilSeleccionado,
-        Categoria: categoriaId,
-        IdEvento: null,
-        Prioridad: prioridad,
-        Progreso: 0,
+        TareaID: "0",
+        creador: widget.perfil.PerfilID,
+        destinatario: _perfilSeleccionado,
+        nombre: nombre,
+        descripcion: descripcion,
+        CategoriaID: categoriaId ?? "",
+        EventoID:
+            "", // Asigna el valor adecuado si tienes un evento, si no, deja vacío o null según tu modelo
+        prioridad: prioridad,
+        progreso: 0,
       );
 
       final exito = await ServicioTareas().registrarTarea(
-        context,
-        nuevaTarea.Creador,
-        nuevaTarea.Destinatario,
-        nuevaTarea.Nombre,
-        nuevaTarea.Descripcion,
-        nuevaTarea.IdEvento,
-        nuevaTarea.Categoria,
-        nuevaTarea.Prioridad,
-        nuevaTarea.Progreso,
+        nuevaTarea.TareaID,
+        nuevaTarea.creador,
+        nuevaTarea.destinatario,
+        nuevaTarea.nombre,
+        nuevaTarea.descripcion,
+        nuevaTarea.CategoriaID,
+        nuevaTarea.EventoID,
+        nuevaTarea.prioridad,
+        nuevaTarea.progreso,
       );
 
       if (exito) {
@@ -271,7 +273,7 @@ class CrearTareaState extends State<CrearTarea> {
           color: Colores.fondo,
           child: SafeArea(
             child: Padding(
-              padding: const EdgeInsets.only(left: 20, right: 12,bottom: 120),
+              padding: const EdgeInsets.only(left: 20, right: 12, bottom: 120),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
@@ -301,7 +303,7 @@ class FormularioCrearTarea extends StatefulWidget {
   final TextEditingController nombreController;
   final TextEditingController descripcionController;
   final TextEditingController dropdownSearchFieldController;
-  final List<int> perfilSeleccionado;
+  final List<String> perfilSeleccionado;
   final List<Categorias> categoriasDisponibles;
   String? categoriaSeleccionada;
   final List<String> nombresCategoria;
@@ -379,12 +381,12 @@ class FormularioCrearTareaState extends State<FormularioCrearTarea> {
                   : CampoPerfilesCrearTarea(
                       perfiles: perfiles,
                       perfilSeleccionado: widget.perfilSeleccionado,
-                      onPerfilSeleccionado: (perfilId) {
+                      onPerfilSeleccionado: (PerfilID) {
                         setState(() {
-                          if (widget.perfilSeleccionado.contains(perfilId)) {
-                            widget.perfilSeleccionado.remove(perfilId);
+                          if (widget.perfilSeleccionado.contains(PerfilID)) {
+                            widget.perfilSeleccionado.remove(PerfilID);
                           } else {
-                            widget.perfilSeleccionado.add(perfilId);
+                            widget.perfilSeleccionado.add(PerfilID);
                           }
                         });
                       },

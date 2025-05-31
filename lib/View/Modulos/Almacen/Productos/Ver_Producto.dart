@@ -1,5 +1,5 @@
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Anadir_Lista.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
@@ -7,6 +7,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Editar_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_ID/Imagen_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
@@ -27,22 +28,22 @@ class DetallesProducto extends StatefulWidget {
 }
 
 class _DetallesProductoState extends State<DetallesProducto> {
+  final user = FirebaseAuth.instance.currentUser;
+
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(user!.uid, widget.perfil.PerfilID);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(user!.uid);
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(user!.uid, widget.perfil.PerfilID);
     });
     void actualizarBanner() {
       setState(() {});
@@ -180,7 +181,7 @@ class _DetallesProductoState extends State<DetallesProducto> {
         color: Colores.fondo,
         child: SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20,bottom: 120),
+            padding: const EdgeInsets.only(left: 20, right: 20, bottom: 120),
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(
                 elevation: 0,
@@ -292,14 +293,14 @@ class _DetallesProductoState extends State<DetallesProducto> {
                 // Lógica para eliminar el producto
                 // Por ejemplo, puedes llamar a un servicio para eliminar el producto
                 final exito = await ServicioProductos()
-                    .eliminarProducto(context, widget.producto.Id);
+                    .eliminarProducto(user!.uid, widget.producto.ProductoID);
                 if (exito) {
                   // Inicializar la carga de productos
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     final productoProvider =
                         Provider.of<ProductosProvider>(context, listen: false);
                     productoProvider.cargarProductos(
-                        context, widget.perfil.UsuarioId, widget.perfil.Id);
+                        user!.uid, widget.perfil.PerfilID);
                   });
                   Navigator.of(context)
                       .pop(); // Cerrar el diálogo de confirmación
@@ -387,7 +388,7 @@ class ProductoCard extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Text(
-            producto.Nombre,
+            producto.nombre,
             style: TextStyle(
               color: Colores.texto,
               fontSize: 20,
@@ -401,7 +402,7 @@ class ProductoCard extends StatelessWidget {
             right: 64,
           ),
           child: Text(
-            "Se encuentra en la tienda: ${producto.Tienda}",
+            "Se encuentra en la tienda: ${producto.TiendaID}",
             maxLines: 3,
             style: const TextStyle(
               fontSize: 18,
@@ -417,7 +418,7 @@ class ProductoCard extends StatelessWidget {
           child: Row(
             children: [
               Text(
-                "Precio: ",
+                "precio: ",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -425,7 +426,7 @@ class ProductoCard extends StatelessWidget {
                 ),
               ),
               Text(
-                "${producto.Precio}€",
+                "${producto.precio}€",
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -451,32 +452,28 @@ class InformacionProducto extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-        
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Producto visible para los perfiles:", 
+          const Text("Producto visible para los perfiles:",
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               )),
           const SizedBox(height: 10),
           Row(
-            
             children: [
               ...List.generate(
-                producto.Visible.length,
+                producto.visible.length,
                 (index) => Column(
                   children: [
                     IconoPerfil(
-                      idPerfil: producto.Visible[index],
-                      esCreador:
-                          producto.IdPerfilCreador == producto.Visible[index],
+                      idPerfil: producto.visible[index],
+                      esCreador: producto.PerfilID == producto.visible[index],
                     ),
                     const SizedBox(height: 4),
-                    NombrePerfil(idPerfil: producto.Visible[index]),
+                    NombrePerfil(idPerfil: producto.visible[index]),
                   ],
                 ),
               ),
@@ -490,23 +487,24 @@ class InformacionProducto extends StatelessWidget {
 }
 
 class IconoPerfil extends StatelessWidget {
-  const IconoPerfil({
+   IconoPerfil({
     super.key,
     required this.idPerfil,
     this.esCreador = false,
   });
 
-  final int idPerfil;
+  final String idPerfil;
   final bool esCreador;
+    final user = FirebaseAuth.instance.currentUser;
 
   Future<Widget> loadProfileIcon(BuildContext context) async {
     final perfilesProvider =
         Provider.of<PerfilesProvider>(context, listen: false);
     Perfiles? perfilAux = perfilesProvider.perfiles
-        .firstWhere((element) => element.Id == idPerfil);
+        .firstWhere((element) => element.PerfilID == idPerfil);
     final imageFile =
-        await ServicioPerfiles().obtenerImagen(context, perfilAux.FotoPerfil);
-    return Image.file(imageFile);
+        await ServicioPerfiles().getFotoPerfil(user!.uid, idPerfil);
+    return Image.file(imageFile!);
   }
 
   @override
@@ -547,14 +545,14 @@ class NombrePerfil extends StatelessWidget {
     required this.idPerfil,
   });
 
-  final int idPerfil;
+  final String idPerfil;
 
   Future<String> loadProfileName(BuildContext context) async {
     final perfilesProvider =
         Provider.of<PerfilesProvider>(context, listen: false);
     Perfiles? perfilAux = perfilesProvider.perfiles
-        .firstWhere((element) => element.Id == idPerfil);
-    return perfilAux.Nombre;
+        .firstWhere((element) => element.PerfilID == idPerfil);
+    return perfilAux.nombre;
   }
 
   @override
@@ -570,7 +568,7 @@ class NombrePerfil extends StatelessWidget {
             style: TextStyle(color: Colores.eliminar),
           );
         } else {
-          return Text(snapshot.data!, 
+          return Text(snapshot.data!,
               style: const TextStyle(
                 fontSize: 12,
                 color: Colores.fondoAux,

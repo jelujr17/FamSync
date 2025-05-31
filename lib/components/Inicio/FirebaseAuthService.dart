@@ -397,14 +397,12 @@ class FirebaseAuthService {
   // Stream para escuchar cambios en la autenticación
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
-
   Future<void> crearColeccionPerfilesInicial(String uid) async {
-  await FirebaseFirestore.instance
-    .collection('usuarios')
-    .doc(uid)
-    .collection('perfiles')
-    .doc('placeholder')
-    .set({'init': true});
-}
-
+    await FirebaseFirestore.instance
+        .collection('usuarios')
+        .doc(uid)
+        .collection('perfiles')
+        .doc('placeholder')
+        .set({'init': true});
+  }
 }

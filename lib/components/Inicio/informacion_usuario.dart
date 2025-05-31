@@ -1,11 +1,12 @@
 import 'dart:io';
 
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class InfoCard extends StatelessWidget {
-  const InfoCard({
+   InfoCard({
     super.key,
     required this.nombre,
     required this.fecha,
@@ -14,6 +15,7 @@ class InfoCard extends StatelessWidget {
 
   final String nombre, fecha;
   final Perfiles perfil;
+    final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +25,16 @@ class InfoCard extends StatelessWidget {
         backgroundImage: perfil.FotoPerfil.isNotEmpty ? null : null,
         child: perfil.FotoPerfil.isEmpty
             ? Text(
-                perfil.Nombre[0],
+                perfil.nombre[0],
                 style: const TextStyle(
                   color: Colores.texto,
                   fontSize: 30,
                 ),
               )
-            : FutureBuilder<File>(
-                future: ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil),
-                builder: (BuildContext context, AsyncSnapshot<File> snapshot) {
+            : FutureBuilder<File?>(
+                future: ServicioPerfiles()
+                    .getFotoPerfil(user!.uid, perfil.FotoPerfil),
+                builder: (BuildContext context, AsyncSnapshot<File?> snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {

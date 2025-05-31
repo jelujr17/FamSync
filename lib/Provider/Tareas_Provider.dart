@@ -1,4 +1,4 @@
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:flutter/material.dart';
 
 class TareasProvider with ChangeNotifier {
@@ -6,10 +6,9 @@ class TareasProvider with ChangeNotifier {
 
   List<Tareas> get tareas => _tareas;
 
-  Future<void> cargarTareas(
-      BuildContext context, int usuarioId, int perfilId) async {
+  Future<void> cargarTareas(String UID, String PerfilID) async {
     try {
-      _tareas = await ServicioTareas().getTareas(context, perfilId);
+      _tareas = await ServicioTareas().getTareas(UID, PerfilID);
       print("Tareas cargadas: ${_tareas.length}");
       notifyListeners();
     } catch (e) {
@@ -19,19 +18,18 @@ class TareasProvider with ChangeNotifier {
     }
   }
 
-
   void agragarTarea(Tareas tarea) {
     _tareas.add(tarea);
     notifyListeners();
   }
 
-  void eliminarTarea(int id) {
-    _tareas.removeWhere((tarea) => tarea.Id == id);
+  void eliminarTarea(String id) {
+    _tareas.removeWhere((tarea) => tarea.TareaID == id);
     notifyListeners();
   }
 
   void actualizarTarea(Tareas tarea) {
-    final index = _tareas.indexWhere((t) => t.Id == tarea.Id);
+    final index = _tareas.indexWhere((t) => t.TareaID == tarea.TareaID);
     if (index != -1) {
       _tareas[index] = tarea;
       notifyListeners();
@@ -43,16 +41,16 @@ class TareasProvider with ChangeNotifier {
       case "Todas":
         return tareas.length;
       case "Programadas":
-        return tareas.where((tarea) => tarea.IdEvento != null).length;
+        return tareas.where((tarea) => tarea.EventoID != null).length;
       case "Por hacer":
-        return tareas.where((tarea) => tarea.Progreso == 0).length;
+        return tareas.where((tarea) => tarea.progreso == 0).length;
       case "Completadas":
-        return tareas.where((tarea) => tarea.Progreso == 100).length;
+        return tareas.where((tarea) => tarea.progreso == 100).length;
       case "Urgentes":
-        return tareas.where((tarea) => tarea.Prioridad == 3).length;
+        return tareas.where((tarea) => tarea.prioridad == 3).length;
       case "En proceso":
         return tareas
-            .where((tarea) => tarea.Progreso > 0 && tarea.Progreso < 100)
+            .where((tarea) => tarea.progreso > 0 && tarea.progreso < 100)
             .length;
       default:
         return 0;

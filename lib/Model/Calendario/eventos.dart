@@ -1,271 +1,233 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Eventos {
-  final int Id;
-  final String Nombre;
-  final String Descripcion;
-  final String FechaInicio;
-  final String FechaFin;
-  final int IdUsuarioCreador;
-  final int IdPerfilCreador;
-  final int? IdCategoria;
-  final List<int> Participantes;
-  final int? IdTarea;
+  final String EventoID;
+  final String nombre;
+  final String descripcion;
+  final Timestamp fechaInicio;
+  final Timestamp fechaFin;
+  final String PerfilID;
+  final String? CategoriaID;
+  final List<String> participantes;
+
+  final String? TareaID;
 
   Eventos({
-    required this.Id,
-    required this.Nombre,
-    required this.Descripcion,
-    required this.FechaInicio,
-    required this.FechaFin,
-    required this.IdUsuarioCreador,
-    required this.IdPerfilCreador,
-    required this.IdCategoria,
-    required this.Participantes,
-    required this.IdTarea,
+    required this.EventoID,
+    required this.nombre,
+    required this.descripcion,
+    required this.fechaInicio,
+    required this.fechaFin,
+    required this.PerfilID,
+    required this.CategoriaID,
+    required this.participantes,
+    required this.TareaID,
   });
+
+  factory Eventos.fromMap(String id, Map<String, dynamic> data) {
+    return Eventos(
+      EventoID: id,
+      nombre: data['nombre'] ?? '',
+      descripcion: data['descripcion'] ?? '',
+      fechaInicio: data['fechaInicio'] as Timestamp? ?? Timestamp.now(),
+      fechaFin: data['fechaFin'] as Timestamp? ?? Timestamp.now(),
+      PerfilID: data['PerfilID'] ?? '',
+      CategoriaID: data['CategoriaID'],
+      participantes: List<String>.from(data['participantes'] ?? []),
+      TareaID: data['TareaID'],
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'fechaInicio': fechaInicio,
+      'fechaFin': fechaFin,
+      'PerfilID': PerfilID,
+      'CategoriaID': CategoriaID,
+      'participantes': participantes,
+      'TareaID': TareaID,
+    };
+  }
 }
 
 class ServicioEventos {
-  // Datos estáticos para simular respuestas de la API
-  final List<Eventos> _eventosEstaticos = [
-    Eventos(
-      Id: 1,
-      Nombre: "Cena familiar",
-      Descripcion: "Cena familiar de fin de semana",
-      FechaInicio: "2025-05-30T19:00:00",
-      FechaFin: "2025-05-30T22:00:00",
-      IdUsuarioCreador: 1,
-      IdPerfilCreador: 1,
-      IdCategoria: 4, // Eventos familiares
-      Participantes: [1, 2, 3],
-      IdTarea: 3,
-    ),
-    Eventos(
-      Id: 2,
-      Nombre: "Consulta médica",
-      Descripcion: "Revisión anual con el pediatra",
-      FechaInicio: "2025-06-05T10:00:00",
-      FechaFin: "2025-06-05T11:00:00",
-      IdUsuarioCreador: 1,
-      IdPerfilCreador: 1,
-      IdCategoria: 5, // Citas médicas
-      Participantes: [1, 2],
-      IdTarea: null,
-    ),
-    Eventos(
-      Id: 3,
-      Nombre: "Fiesta de cumpleaños",
-      Descripcion: "Celebración de cumpleaños en casa",
-      FechaInicio: "2025-06-15T16:00:00",
-      FechaFin: "2025-06-15T20:00:00",
-      IdUsuarioCreador: 1,
-      IdPerfilCreador: 2,
-      IdCategoria: 4, // Eventos familiares
-      Participantes: [1, 2, 3, 4],
-      IdTarea: null,
-    ),
-    Eventos(
-      Id: 4,
-      Nombre: "Reunión de trabajo",
-      Descripcion: "Presentación del proyecto trimestral",
-      FechaInicio: "2025-05-29T09:00:00",
-      FechaFin: "2025-05-29T11:00:00",
-      IdUsuarioCreador: 2,
-      IdPerfilCreador: 3,
-      IdCategoria: 9, // Personal (Usuario 2)
-      Participantes: [3],
-      IdTarea: null,
-    ),
-    Eventos(
-      Id: 5,
-      Nombre: "Compras semanales",
-      Descripcion: "Ir al supermercado para compras de la semana",
-      FechaInicio: "2025-05-28T16:00:00",
-      FechaFin: "2025-05-28T18:00:00",
-      IdUsuarioCreador: 1,
-      IdPerfilCreador: 1,
-      IdCategoria: 1, // Hogar
-      Participantes: [1],
-      IdTarea: 2,
-    ),
-  ];
-
   // Obtener eventos por usuario y perfil
   Future<List<Eventos>> getEventos(
-      BuildContext context, int IdUsuarioCreador, int IdPerfil) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 600));
+       String UID, String PerfilID) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .where('participantes', arrayContains: PerfilID)
+          .get();
 
-    return _eventosEstaticos
-        .where((evento) =>
-            evento.IdUsuarioCreador == IdUsuarioCreador &&
-            evento.Participantes.contains(IdPerfil))
-        .toList();
+      return snapshot.docs
+          .map((doc) => Eventos.fromMap(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error al obtener los eventos: $e');
+      return [];
+    }
   }
 
-  // Obtener eventos diarios
-  Future<List<Eventos>> getEventosDiarios(
-      BuildContext context, int IdUsuarioCreador, int IdPerfil) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 500));
+  // Obtener eventos diarios (por fecha y participante)
+  Future<List<Eventos>> getEventosDiarios( String UID,
+      String PerfilID, Timestamp fecha) async {
+    try {
+      final inicio = DateTime(
+          fecha.toDate().year, fecha.toDate().month, fecha.toDate().day);
+      final fin = inicio.add(Duration(days: 1));
 
-    // Obtener la fecha actual para filtrar eventos de hoy
-    final ahora = DateTime.now();
-    final hoy = DateTime(ahora.year, ahora.month, ahora.day);
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .where('participantes', arrayContains: PerfilID)
+          .where('fechaInicio',
+              isGreaterThanOrEqualTo: Timestamp.fromDate(inicio))
+          .where('fechaInicio', isLessThan: Timestamp.fromDate(fin))
+          .get();
 
-    return _eventosEstaticos.where((evento) {
-      // Convertir la fecha de inicio del evento a DateTime
-      final fechaInicio = DateTime.parse(evento.FechaInicio);
-      final fechaEvento =
-          DateTime(fechaInicio.year, fechaInicio.month, fechaInicio.day);
-
-      // Verificar si el evento es de hoy y el usuario participa
-      return fechaEvento.isAtSameMomentAs(hoy) &&
-          evento.IdUsuarioCreador == IdUsuarioCreador &&
-          evento.Participantes.contains(IdPerfil);
-    }).toList();
+      return snapshot.docs
+          .map((doc) => Eventos.fromMap(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error al obtener eventos diarios: $e');
+      return [];
+    }
   }
 
   // Obtener evento por ID
-  Future<Eventos?> getEventoById(BuildContext context, int Id) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 300));
-
+  Future<Eventos?> getEventoById(
+       String UID, String EventoID) async {
     try {
-      return _eventosEstaticos.firstWhere((evento) => evento.Id == Id);
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .doc(EventoID)
+          .get();
+
+      if (doc.exists) {
+        return Eventos.fromMap(doc.id, doc.data()!);
+      } else {
+        return null;
+      }
     } catch (e) {
-      return null; // Si no encuentra el evento
+      print('Error al obtener el evento: $e');
+      return null;
     }
   }
 
   // Registrar evento
   Future<bool> registrarEvento(
-      BuildContext context,
-      String Nombre,
-      String Descripcion,
-      String FechaInicio,
-      String FechaFin,
-      int IdUsuarioCreador,
-      int IdPerfilCreador,
-      int? IdCategoria,
-      List<int> Participantes,
-      int? IdTarea) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 800));
+      
+      String UID,
+      String nombre,
+      String descripcion,
+      Timestamp fechaInicio,
+      Timestamp fechaFin,
+      String PerfilID,
+      String? CategoriaID,
+      List<String> participantes,
+      String? TareaID) async {
+    // Validación de fechas
+    if (fechaInicio.compareTo(fechaFin) > 0) {
+      print('La fecha de inicio no puede ser posterior a la fecha de fin');
+      return false;
+    }
+    try {
+      final nuevoEvento = {
+        'nombre': nombre,
+        'descripcion': descripcion,
+        'fechaInicio': fechaInicio,
+        'fechaFin': fechaFin,
+        'PerfilID': PerfilID,
+        'CategoriaID': CategoriaID,
+        'participantes': participantes,
+        'TareaID': TareaID,
+      };
 
-    // Simular ID generado para el nuevo evento
-    final nuevoId = _eventosEstaticos.isNotEmpty
-        ? _eventosEstaticos.map((e) => e.Id).reduce((a, b) => a > b ? a : b) + 1
-        : 1;
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .add(nuevoEvento);
 
-    // Crear el nuevo evento
-    final nuevoEvento = Eventos(
-      Id: nuevoId,
-      Nombre: Nombre,
-      Descripcion: Descripcion,
-      FechaInicio: FechaInicio,
-      FechaFin: FechaFin,
-      IdUsuarioCreador: IdUsuarioCreador,
-      IdPerfilCreador: IdPerfilCreador,
-      IdCategoria: IdCategoria,
-      Participantes: Participantes,
-      IdTarea: IdTarea,
-    );
-
-    // Añadir el evento a la lista estática
-    _eventosEstaticos.add(nuevoEvento);
-
-    print('Evento registrado con ID: $nuevoId');
-    return true;
+      print('Evento registrado correctamente');
+      return true;
+    } catch (e) {
+      print('Error al registrar evento: $e');
+      return false;
+    }
   }
 
   // Actualizar evento
   Future<bool> actualizarEvento(
-      BuildContext context,
-      int Id,
-      String Nombre,
-      String Descripcion,
-      String FechaInicio,
-      String FechaFin,
-      int IdUsuarioCreador,
-      int IdPerfilCreador,
-      int? IdCategoria,
-      List<int> Participantes,
-      int? IdTarea) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 700));
-
-    // Buscar índice del evento a actualizar
-    final index = _eventosEstaticos.indexWhere((e) => e.Id == Id);
-    if (index == -1) {
-      return false; // No se encontró el evento
+      
+      String UID,
+      String EventoID,
+      String nombre,
+      String descripcion,
+      Timestamp fechaInicio,
+      Timestamp fechaFin,
+      String PerfilID,
+      String? CategoriaID,
+      List<String> participantes,
+      String? TareaID) async {
+    // Validación de fechas
+    if (fechaInicio.compareTo(fechaFin) > 0) {
+      print('La fecha de inicio no puede ser posterior a la fecha de fin');
+      return false;
     }
+    try {
+      final eventoActualizado = {
+        'nombre': nombre,
+        'descripcion': descripcion,
+        'fechaInicio': fechaInicio,
+        'fechaFin': fechaFin,
+        'PerfilID': PerfilID,
+        'CategoriaID': CategoriaID,
+        'participantes': participantes,
+        'TareaID': TareaID,
+      };
 
-    // Crear el evento actualizado
-    final eventoActualizado = Eventos(
-      Id: Id,
-      Nombre: Nombre,
-      Descripcion: Descripcion,
-      FechaInicio: FechaInicio,
-      FechaFin: FechaFin,
-      IdUsuarioCreador: IdUsuarioCreador,
-      IdPerfilCreador: IdPerfilCreador,
-      IdCategoria: IdCategoria,
-      Participantes: Participantes,
-      IdTarea: IdTarea,
-    );
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .doc(EventoID)
+          .update(eventoActualizado);
 
-    // Actualizar el evento en la lista estática
-    _eventosEstaticos[index] = eventoActualizado;
-
-    print('Evento con ID $Id actualizado');
-    return true;
+      print('Evento con ID $EventoID actualizado');
+      return true;
+    } catch (e) {
+      print('Error al actualizar evento: $e');
+      return false;
+    }
   }
 
   // Eliminar evento
-  Future<bool> eliminarEvento(BuildContext context, int idEvento) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    // Buscar índice del evento a eliminar
-    final index = _eventosEstaticos.indexWhere((e) => e.Id == idEvento);
-    if (index == -1) {
-      return false; // No se encontró el evento
-    }
-
-    // Eliminar el evento de la lista estática
-    _eventosEstaticos.removeAt(index);
-
-    print('Evento con ID $idEvento eliminado');
-    return true;
-  }
-}
-
-// Servicio global para manejar errores de conexión (versión simulada)
-class HttpService {
-  static Future<http.Response> execute(
-    BuildContext context,
-    Future<http.Response> Function() httpCall,
-  ) async {
+  Future<bool> eliminarEvento(
+       String UID, String EventoID) async {
     try {
-      // Simular una respuesta HTTP exitosa
-      final headers = {'content-type': 'application/json'};
-      final body = utf8.encode(json.encode({'status': 'success'}));
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('eventos')
+          .doc(EventoID)
+          .delete();
 
-      return http.Response.bytes(body, 200, headers: headers);
+      print('Evento con ID $EventoID eliminado');
+      return true;
     } catch (e) {
-      print('Error simulado en HttpService: $e');
-      // Comentado para evitar navegación no deseada durante pruebas
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
-      // );
-      throw Exception('Error simulado en la conexión con la base de datos');
+      print('Error al eliminar evento: $e');
+      return false;
     }
   }
 }

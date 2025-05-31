@@ -1,13 +1,10 @@
 import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/View/Inicio/Home.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInForm extends StatefulWidget {
   const SignInForm({super.key});
@@ -59,20 +56,17 @@ class _SignInFormState extends State<SignInForm> {
 
       // Usar FirebaseAuthService en lugar de ServicioUsuarios
       FirebaseAuthService authService = FirebaseAuthService();
-      
+
       // Llamar al método login del nuevo servicio
       final result = await authService.login(email, password);
-      
-      // Obtener SharedPreferences
-      final SharedPreferences preferencias = await SharedPreferences.getInstance();
 
+      
       if (result['success']) {
         // Login exitoso
         final user = result['user'];
-        
+
         // Guardar el ID del usuario (ahora usando el UID de Firebase)
-        preferencias.setString('uid', user.uid);
-        
+
         // Animación de éxito
         success.fire();
         await Future.delayed(const Duration(seconds: 2));
@@ -86,39 +80,14 @@ class _SignInFormState extends State<SignInForm> {
         Future.delayed(const Duration(seconds: 1), () async {
           if (!context.mounted) return;
 
-          // Verificar si hay un perfil seleccionado
-          int? idPerfil = preferencias.getInt('IdPerfil');
-          
-          if (idPerfil != null) {
-            // Obtener el perfil (mantén esta lógica según tu estructura)
-            Perfiles? perfil = await ServicioPerfiles().getPerfilById(context, idPerfil);
-            
-            // Si existe IdPerfil, redirigir a Home
-            if (perfil != null) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => Home(perfil: perfil)),
-              );
-            } else {
-              // Si no se encuentra el perfil, ir a selección
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  // Usar el UID de Firebase como ID de usuario
-                  builder: (context) => SeleccionPerfil(IdUsuario: user.uid),
-                ),
-              );
-            }
-          } else {
-            // Si no hay perfil seleccionado, ir a selección
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                // Usar el UID de Firebase como ID de usuario
-                builder: (context) => SeleccionPerfil(IdUsuario: user.uid),
-              ),
-            );
-          }
+          // Si no se encuentra el perfil, ir a selección
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              // Usar el UID de Firebase como ID de usuario
+              builder: (context) => SeleccionPerfil(UID: user.uid),
+            ),
+          );
         });
       } else {
         // Login fallido
@@ -129,7 +98,7 @@ class _SignInFormState extends State<SignInForm> {
             backgroundColor: Colors.red,
           ),
         );
-        
+
         error.fire();
         await Future.delayed(const Duration(seconds: 2));
 

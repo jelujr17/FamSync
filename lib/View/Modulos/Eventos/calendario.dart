@@ -1,5 +1,5 @@
-import 'package:famsync/Model/Calendario/eventos.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
@@ -8,6 +8,7 @@ import 'package:famsync/View/Modulos/Eventos/Ver/Carta_Evento.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_Detalles_Evento.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,8 @@ class CalendarioState extends State<Calendario> {
     });
   }
 
+  final user = FirebaseAuth.instance.currentUser;
+
   final TextEditingController _searchController = TextEditingController();
 
   @override
@@ -65,17 +68,15 @@ class CalendarioState extends State<Calendario> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final eventosProvider =
           Provider.of<EventosProvider>(context, listen: false);
-      eventosProvider.cargarEventos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      eventosProvider.cargarEventos(user!.uid, widget.perfil.PerfilID);
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
-      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 1);
+      categoriasProvider.cargarCategorias(user!.uid, widget.perfil.PerfilID);
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
 
       // Cargar tareas y categorías
-      tareasProvider.cargarTareas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      tareasProvider.cargarTareas(user!.uid, widget.perfil.PerfilID);
       setState(() {
         eventos = eventosProvider.eventos; // Actualiza la lista de tareas
         isLoading = false; // Indica que la carga ha terminado
@@ -147,7 +148,7 @@ class CalendarioState extends State<Calendario> {
 
     for (var evento in eventos) {
       final String fecha =
-          DateFormat('yyyy-MM-dd').format(DateTime.parse(evento.FechaInicio));
+          DateFormat('yyyy-MM-dd').format(evento.fechaInicio.toDate());
       if (!diasConEventos.containsKey(fecha)) {
         diasConEventos[fecha] = [];
       }
@@ -216,7 +217,7 @@ class CalendarioState extends State<Calendario> {
             // Eventos del día
             Column(
               children: eventosDelDia.map((evento) {
-                final DateTime horaInicio = DateTime.parse(evento.FechaInicio);
+                final DateTime horaInicio = evento.fechaInicio.toDate();
                 final String horaFormateada =
                     DateFormat('HH:mm').format(horaInicio);
 
@@ -267,7 +268,7 @@ class CalendarioState extends State<Calendario> {
                           ),
                         ),
                         const SizedBox(width: 16),
-                        // Nombre del evento
+                        // nombre del evento
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -279,7 +280,7 @@ class CalendarioState extends State<Calendario> {
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
-                              evento.Nombre,
+                              evento.nombre,
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.bold,
@@ -315,9 +316,9 @@ class CalendarioState extends State<Calendario> {
         DateFormat('EEEE', 'es_ES').format(now)); // Día de la semana en español
     final eventosDiarios = eventos
         .where((evento) =>
-            DateTime.parse(evento.FechaInicio).year == now.year &&
-            DateTime.parse(evento.FechaInicio).day == now.day &&
-            DateTime.parse(evento.FechaInicio).month == now.month)
+            evento.fechaInicio.toDate().year == now.year &&
+            evento.fechaInicio.toDate().day == now.day &&
+            evento.fechaInicio.toDate().month == now.month)
         .toList(); // Filtrar eventos del día actual
 
     return PerfilProvider(
@@ -649,12 +650,12 @@ class FechaYHoras extends StatelessWidget {
 
     // Filtrar eventos cuya fecha de inicio sea posterior al día actual
     final proximosEventos = eventosTotales
-        .where((evento) => DateTime.parse(evento.FechaInicio).isAfter(ahora))
+        .where((evento) => evento.fechaInicio.toDate().isAfter(ahora))
         .toList();
 
     // Ordenar los eventos por fecha de inicio
     proximosEventos.sort((a, b) =>
-        DateTime.parse(a.FechaInicio).compareTo(DateTime.parse(b.FechaInicio)));
+        (a.fechaInicio.toDate()).compareTo(b.fechaInicio.toDate()));
 
     // Retornar los dos primeros eventos (o menos si no hay suficientes)
     return proximosEventos.take(2).toList();
@@ -682,7 +683,7 @@ class FechaYHoras extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: proximosEventos.map((evento) {
-            final DateTime fechaInicio = DateTime.parse(evento.FechaInicio);
+            final DateTime fechaInicio = evento.fechaInicio.toDate();
             final String fechaFormateada =
                 DateFormat('dd/MM/yyyy').format(fechaInicio);
 
@@ -692,7 +693,7 @@ class FechaYHoras extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    evento.Nombre,
+                    evento.nombre,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,

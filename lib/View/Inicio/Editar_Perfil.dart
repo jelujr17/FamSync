@@ -1,10 +1,11 @@
 // ignore_for_file: file_names, unused_element
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart'; // Paquete para seleccionar imágenes desde la galería o cámara
 import 'dart:io'; // Para manejar archivos
 import 'package:intl/intl.dart'; // Paquete para formatear fechas
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
@@ -25,11 +26,12 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
 
   bool _isPinVisible = false; // Variable para controlar la visibilidad del PIN
   File? _imagenPerfil; // Cambiado a File? para almacenar la imagen
+    final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-    _nombreController.text = widget.perfil.Nombre;
+    _nombreController.text = widget.perfil.nombre;
     _fechaController.text = widget.perfil.FechaNacimiento;
     _cargarImagenPerfil(); // Llama a cargar la imagen al iniciar
   }
@@ -38,7 +40,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   Future<void> _cargarImagenPerfil() async {
     if (widget.perfil.FotoPerfil.isNotEmpty) {
       File? imagen = await ServicioPerfiles()
-          .obtenerImagen(context, widget.perfil.FotoPerfil);
+          .getFotoPerfil(user!.uid, widget.perfil.PerfilID);
       setState(() {
         _imagenPerfil = imagen; // Actualiza el estado de la imagen
       });
@@ -81,27 +83,29 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     final String pin = _pinController.text;
     final String nuevopin = _newPinController.text;
     final String fechaNacimientoStr = _fechaController.text;
+    final user = FirebaseAuth.instance.currentUser;
 
     if (nombre.isNotEmpty && pin.isNotEmpty && fechaNacimientoStr.isNotEmpty) {
       try {
         DateFormat format = DateFormat("dd/MM/yyyy");
         format.parse(fechaNacimientoStr);
 
-        Perfiles? perfil =
-            await ServicioPerfiles().getPerfilById(context, widget.perfil.Id);
+        Perfiles? perfil = await ServicioPerfiles()
+            .getPerfilByPID( user!.uid, widget.perfil.PerfilID);
         if (perfil != null) {
           int pin_actual = perfil.Pin;
           print("Imagen nueva: ${_imagenPerfil?.path}");
           if (pin_actual == int.parse(pin)) {
             bool editado = await ServicioPerfiles().editarPerfil(
-                context,
-                widget.perfil.Id,
+                user.uid,
+                widget.perfil.PerfilID,
                 nombre,
-                _imagenPerfil,
+                _imagenPerfil!.path.isNotEmpty
+                    ? _imagenPerfil!
+                    : null, // Si no hay imagen, se envía null
                 int.parse(nuevopin),
                 fechaNacimientoStr,
-                perfil.FotoPerfil
-          );
+                perfil.FotoPerfil);
             if (editado) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Perfil editado exitosamente')),
@@ -110,7 +114,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                   context,
                   MaterialPageRoute(
                       builder: (context) => SeleccionPerfil(
-                            IdUsuario: widget.perfil.UsuarioId,
+                            UID: user.uid,
                           )));
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -139,7 +143,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
     bool confirm = await _mostrarConfirmacionEliminar();
     if (confirm) {
       bool eliminado =
-          await ServicioPerfiles().eliminarPerfil(widget.perfil.Id);
+          await ServicioPerfiles().eliminarPerfil(widget.perfil.PerfilID);
       if (eliminado) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Perfil eliminado exitosamente')),
@@ -148,7 +152,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
             context,
             MaterialPageRoute(
                 builder: (context) => SeleccionPerfil(
-                      IdUsuario: widget.perfil.UsuarioId,
+                      IdUsuario: user!.uid,
                     )));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -159,9 +163,11 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
   }
 
   Future<bool> _mostrarConfirmacionEliminar() async {
+        final user = FirebaseAuth.instance.currentUser;
+
     TextEditingController pinController = TextEditingController();
-    Perfiles? perfilEliminar =
-        await ServicioPerfiles().getPerfilById(context, widget.perfil.Id);
+    Perfiles? perfilEliminar = await ServicioPerfiles()
+        .getPerfilByPID( user!.uid, widget.perfil.PerfilID);
 
     return await showDialog(
           context: context,
@@ -248,7 +254,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
                           widget.perfil.FotoPerfil.isEmpty
                       ? Text(
                           widget.perfil
-                              .Nombre[0], // Inicial del nombre si no hay imagen
+                              .nombre[0], // Inicial del nombre si no hay imagen
                           style: const TextStyle(
                             color: Colores.texto,
                             fontSize: 30,
@@ -261,7 +267,7 @@ class _EditarPerfilScreenState extends State<EditarPerfilScreen> {
               TextField(
                 controller: _nombreController,
                 decoration: const InputDecoration(
-                  labelText: 'Nombre del perfil',
+                  labelText: 'nombre del perfil',
                   border: OutlineInputBorder(),
                 ),
               ),

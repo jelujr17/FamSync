@@ -1,4 +1,3 @@
-
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,7 +32,7 @@ class CampoPrecioEditar extends StatelessWidget {
           }),
         ],
         decoration: InputDecoration(
-          labelText: 'Precio',
+          labelText: 'precio',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un precio para el producto',
           hintStyle: const TextStyle(color: Colores.texto),

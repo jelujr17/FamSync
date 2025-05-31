@@ -8,10 +8,11 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Crear/Crear_Tienda_Produc
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/Almacen/tiendas.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Almacen/Tiendas.dart';
 
 class CrearProducto extends StatefulWidget {
   final Perfiles perfil;
@@ -31,11 +32,12 @@ class _CrearProductoState extends State<CrearProducto> {
       TextEditingController();
 
   final List<File> _nuevasImagenes = [];
-  final List<int> _perfilSeleccionado = [];
+  final List<String> _perfilSeleccionado = [];
   List<Tiendas> tiendasDisponibles = [];
   String? tiendaSeleccionada;
   List<String> nombresTienda = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -52,15 +54,14 @@ class _CrearProductoState extends State<CrearProducto> {
   }
 
   void obtenerTiendas() async {
-    tiendasDisponibles =
-        await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
+    tiendasDisponibles = await ServiciosTiendas().getTiendas(user!.uid);
     obtenerNombresTiendas();
     print("Tiendas disponibles: $tiendasDisponibles");
   }
 
   void obtenerNombresTiendas() {
     setState(() {
-      nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+      nombresTienda = tiendasDisponibles.map((e) => e.nombre).toList();
       print("Nombres de tiendas: $nombresTienda");
     });
   }
@@ -73,9 +74,9 @@ class _CrearProductoState extends State<CrearProducto> {
       final precio = double.tryParse(precioTexto);
 
       // Agregar prints para depuración
-      print("Nombre del producto: $nombre");
+      print("nombre del producto: $nombre");
       print("Tienda seleccionada: $tienda");
-      print("Precio del producto: $precio");
+      print("precio del producto: $precio");
       print("Perfiles seleccionados: $_perfilSeleccionado");
 
       if (precio == null) {
@@ -96,27 +97,25 @@ class _CrearProductoState extends State<CrearProducto> {
       print("Nuevas imágenes: ${_nuevasImagenes.map((e) => e.path).toList()}");
 
       final nuevoProducto = Productos(
-        Id: 0,
-        Nombre: nombre,
-        Tienda: tienda,
-        Precio: precio,
-        IdPerfilCreador: widget.perfil.Id,
-        IdUsuarioCreador: widget.perfil.UsuarioId,
-        Imagenes:
+        ProductoID: "0",
+        nombre: nombre,
+        TiendaID: tienda,
+        precio: precio,
+        PerfilID: widget.perfil.PerfilID,
+        imagenes:
             _nuevasImagenes.map((e) => e.path).toList(), // Convertir a String
-        Visible: [],
+        visible: _perfilSeleccionado,
       );
 
       print("Nuevo producto: $nuevoProducto");
 
       final exito = await ServicioProductos().registrarProducto(
-        context,
         nombre,
         _nuevasImagenes, // Enviar lista de archivos
         tienda,
         precio,
-        widget.perfil.Id,
-        widget.perfil.UsuarioId,
+        widget.perfil.PerfilID,
+        user!.uid,
         _perfilSeleccionado,
       );
 
@@ -279,7 +278,7 @@ class FormularioCrearProducto extends StatefulWidget {
   final TextEditingController precioController;
   final TextEditingController dropdownSearchFieldController;
   final List<File> nuevasImagenes;
-  final List<int> perfilSeleccionado;
+  final List<String> perfilSeleccionado;
   final List<Tiendas> tiendasDisponibles;
   String? tiendaSeleccionada;
   final List<String> nombresTienda;
@@ -316,17 +315,18 @@ class FormularioCrearProducto extends StatefulWidget {
 class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
   late Future<List<Perfiles>> futurePerfiles;
   List<Perfiles> perfiles = [];
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-    futurePerfiles =
-        ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
+    futurePerfiles = ServicioPerfiles().getPerfiles(user!.uid);
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;
         // Eliminar el perfil del widget de la lista de perfiles disponibles
-        perfiles.removeWhere((perfil) => perfil.Id == widget.perfil.Id);
+        perfiles
+            .removeWhere((perfil) => perfil.PerfilID == widget.perfil.PerfilID);
       });
     });
   }
@@ -393,12 +393,12 @@ class _FormularioCrearProductoState extends State<FormularioCrearProducto> {
               return CampoPerfilesCrear(
                 perfiles: perfiles,
                 perfilSeleccionado: widget.perfilSeleccionado,
-                onPerfilSeleccionado: (perfilId) {
+                onPerfilSeleccionado: (PerfilID) {
                   setState(() {
-                    if (widget.perfilSeleccionado.contains(perfilId)) {
-                      widget.perfilSeleccionado.remove(perfilId);
+                    if (widget.perfilSeleccionado.contains(PerfilID)) {
+                      widget.perfilSeleccionado.remove(PerfilID);
                     } else {
-                      widget.perfilSeleccionado.add(perfilId);
+                      widget.perfilSeleccionado.add(PerfilID);
                     }
                   });
                 },

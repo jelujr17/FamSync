@@ -1,15 +1,16 @@
 import 'dart:io';
 
 import 'package:famsync/Provider/Perfiles_Provider.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:famsync/Model/tareas.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:provider/provider.dart';
 
 class AsignarTareaDialog extends StatefulWidget {
   final Tareas tarea;
-  final Function(List<int>) onAsignarGuardado;
+  final Function(List<String>) onAsignarGuardado;
   final Perfiles perfil;
   final BuildContext context;
 
@@ -26,9 +27,10 @@ class AsignarTareaDialog extends StatefulWidget {
 }
 
 class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
-  List<int> perfilesSeleccionados = [];
+  List<String> perfilesSeleccionados = [];
   List<Perfiles> perfilesDisponibles = [];
   bool isLoading = true;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -41,11 +43,11 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
         Provider.of<PerfilesProvider>(context, listen: false);
 
     // Cargar perfiles desde el proveedor
-    await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+    await perfilesProvider.cargarPerfiles(user!.uid);
     setState(() {
       perfilesDisponibles = perfilesProvider.perfiles; // Actualizar la lista
       perfilesSeleccionados =
-          widget.tarea.Destinatario; // Inicializar seleccionados
+          widget.tarea.destinatario; // Inicializar seleccionados
       isLoading = false; // Finalizar la carga
     });
   }
@@ -100,24 +102,25 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                           final perfil = perfilesDisponibles[index];
 
                           return Card(
-                            color: perfilesSeleccionados.contains(perfil.Id)
-                                ? Colores.fondoAux
-                                : Colores.fondo,
+                            color:
+                                perfilesSeleccionados.contains(perfil.PerfilID)
+                                    ? Colores.fondoAux
+                                    : Colores.fondo,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: ListTile(
                               leading: perfil.FotoPerfil.isNotEmpty
-                                  ? FutureBuilder<File>(
-                                      future: ServicioPerfiles().obtenerImagen(
-                                          context, perfil.FotoPerfil),
+                                  ? FutureBuilder<File?>(
+                                      future: ServicioPerfiles().getFotoPerfil(
+                                          user!.uid, widget.perfil.PerfilID),
                                       builder: (context, snapshot) {
                                         if (snapshot.connectionState ==
                                             ConnectionState.waiting) {
                                           return const CircularProgressIndicator();
                                         } else if (snapshot.hasError) {
                                           return const Icon(Icons.error);
-                                        } else if (!snapshot.hasData) {
+                                        } else if (!snapshot.hasData || snapshot.data == null) {
                                           return const Icon(
                                               Icons.image_not_supported);
                                         } else {
@@ -132,27 +135,28 @@ class _AsignarTareaDialogState extends State<AsignarTareaDialog> {
                                     )
                                   : const Icon(Icons.image_not_supported),
                               title: Text(
-                                perfil.Nombre,
+                                perfil.nombre,
                                 style: const TextStyle(
                                   color: Colores.texto,
                                   fontWeight: FontWeight.normal,
                                   fontSize: 14, // Reducir tamaño de fuente
                                 ),
                               ),
-                              trailing:
-                                  perfilesSeleccionados.contains(perfil.Id)
-                                      ? const Icon(
-                                          Icons.check_circle,
-                                          color: Colores.naranja,
-                                        )
-                                      : null,
+                              trailing: perfilesSeleccionados
+                                      .contains(perfil.PerfilID)
+                                  ? const Icon(
+                                      Icons.check_circle,
+                                      color: Colores.naranja,
+                                    )
+                                  : null,
                               onTap: () {
                                 setState(() {
                                   if (perfilesSeleccionados
-                                      .contains(perfil.Id)) {
-                                    perfilesSeleccionados.remove(perfil.Id);
+                                      .contains(perfil.PerfilID)) {
+                                    perfilesSeleccionados
+                                        .remove(perfil.PerfilID);
                                   } else {
-                                    perfilesSeleccionados.add(perfil.Id);
+                                    perfilesSeleccionados.add(perfil.PerfilID);
                                   }
                                 });
                               },

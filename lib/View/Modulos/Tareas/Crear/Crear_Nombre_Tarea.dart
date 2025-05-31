@@ -18,7 +18,7 @@ class CampoNombreCrearTarea extends StatelessWidget {
       child: TextFormField(
         controller: nombreController,
         decoration: InputDecoration(
-          labelText: 'Nombre de la Tarea',
+          labelText: 'nombre de la Tarea',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un nombre para la Tarea',
           hintStyle: const TextStyle(color: Colores.texto),

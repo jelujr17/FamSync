@@ -1,4 +1,4 @@
-import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/Categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
@@ -19,13 +19,12 @@ class CampoCategoriaCrearTarea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Verificar si la categoría "Sin Categoría" ya existe
-    if (!categorias.any((categoria) => categoria.Nombre == "Sin Categoría")) {
+    if (!categorias.any((categoria) => categoria.nombre == "Sin Categoría")) {
       categorias.add(Categorias(
-        Id: 0,
-        Nombre: "Sin Categoría",
-        IdModulo: 0,
+        CategoriaID: "0",
         Color: "000000",
-        IdUsuario: 0,
+        nombre: "Sin categoría",
+        PerfilID: "0",
       ));
     }
 
@@ -61,12 +60,12 @@ class CampoCategoriaCrearTarea extends StatelessWidget {
         dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: categorias.map((Categorias categoria) {
           return DropdownMenuItem<String>(
-            value: categoria.Nombre,
+            value: categoria.nombre,
             child: Row(
               children: [
                 const SizedBox(width: 10),
                 Text(
-                  categoria.Nombre,
+                  categoria.nombre,
                   style:
                       const TextStyle(color: Colores.texto), // Color del texto
                 ),

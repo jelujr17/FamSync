@@ -40,7 +40,7 @@ class _CampoPrioridadCrearTareaState extends State<CampoPrioridadCrearTarea> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Prioridad',
+              'prioridad',
               style: TextStyle(
                 color: Colores.texto, // Texto texto
                 fontSize: 16,

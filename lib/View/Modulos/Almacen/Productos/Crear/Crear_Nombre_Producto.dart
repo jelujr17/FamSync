@@ -18,7 +18,7 @@ class CampoNombreCrear extends StatelessWidget {
       child: TextFormField(
         controller: nombreController,
         decoration: InputDecoration(
-          labelText: 'Nombre del producto',
+          labelText: 'nombre del producto',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un nombre para el producto',
           hintStyle: const TextStyle(color: Colores.texto),

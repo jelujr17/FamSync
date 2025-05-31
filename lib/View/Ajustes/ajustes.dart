@@ -1,8 +1,9 @@
 import 'dart:io';
 import 'package:famsync/View/Ajustes/Preferencias/preferencias.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/View/Ajustes/perfil.dart';
 import 'package:famsync/components/colores.dart';
@@ -20,6 +21,7 @@ class Ajustes extends StatefulWidget {
 class AjustesState extends State<Ajustes> {
   bool notificaciones = true;
   bool modoOscuro = false;
+    final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +59,17 @@ class AjustesState extends State<Ajustes> {
                         widget.perfil.FotoPerfil.isNotEmpty ? null : null,
                     child: widget.perfil.FotoPerfil.isEmpty
                         ? Text(
-                            widget.perfil.Nombre[0],
+                            widget.perfil.nombre[0],
                             style: const TextStyle(
                               color: Colores.texto,
                               fontSize: 30,
                             ),
                           )
-                        : FutureBuilder<File>(
-                            future: ServicioPerfiles().obtenerImagen(
-                                context, widget.perfil.FotoPerfil),
+                        : FutureBuilder<File?>(
+                            future: ServicioPerfiles().getFotoPerfil(
+                                user!.uid, widget.perfil.PerfilID),
                             builder: (BuildContext context,
-                                AsyncSnapshot<File> snapshot) {
+                                AsyncSnapshot<File?> snapshot) {
                               if (snapshot.connectionState ==
                                   ConnectionState.waiting) {
                                 return const CircularProgressIndicator();
@@ -92,7 +94,7 @@ class AjustesState extends State<Ajustes> {
                           ),
                   ),
                   title: Text(
-                    widget.perfil.Nombre,
+                    widget.perfil.nombre,
                     style: const TextStyle(
                       color: Colores.texto,
                       fontSize: 22,
@@ -128,8 +130,7 @@ class AjustesState extends State<Ajustes> {
                             context,
                             PageTransition(
                               type: PageTransitionType.fade,
-                              child: SeleccionPerfil(
-                                  IdUsuario: widget.perfil.UsuarioId),
+                              child: SeleccionPerfil(UID: user!.uid),
                             ),
                           );
                         },

@@ -27,8 +27,8 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
   @override
   void initState() {
     super.initState();
-    _tiendaController = TextEditingController(text: widget.producto.Tienda);
-    tiendaSeleccionada = widget.producto.Tienda;
+    _tiendaController = TextEditingController(text: widget.producto.TiendaID);
+    tiendaSeleccionada = widget.producto.TiendaID;
   }
 
   @override
@@ -39,7 +39,7 @@ class CampoTiendaEditarState extends State<CampoTiendaEditar> {
 
   @override
   Widget build(BuildContext context) {
-   return Padding(
+    return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: DropdownButtonFormField<String>(
         value: tiendaSeleccionada,

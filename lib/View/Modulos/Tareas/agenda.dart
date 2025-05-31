@@ -1,5 +1,5 @@
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
@@ -10,6 +10,7 @@ import 'package:famsync/View/Modulos/Tareas/Ver/Estados_Tareas.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Mis_Categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -58,6 +59,7 @@ class _AgendaState extends State<Agenda> {
   };
   Map<String, int> tareasCategorias = {};
   final TextEditingController _searchController = TextEditingController();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -72,9 +74,8 @@ class _AgendaState extends State<Agenda> {
           Provider.of<CategoriasProvider>(context, listen: false);
 
       // Cargar tareas y categorías
-      tareasProvider.cargarTareas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
-      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+      tareasProvider.cargarTareas(user!.uid, widget.perfil.PerfilID);
+      categoriasProvider.cargarCategorias(user!.uid, widget.perfil.PerfilID);
       setState(() {
         tareas = tareasProvider.tareas; // Lista completa de tareas
         tareasFiltradas =
@@ -92,7 +93,7 @@ class _AgendaState extends State<Agenda> {
       } else {
         isSearching = true; // Si hay texto, mostrar tareas filtradas
         tareasFiltradas = tareas
-            .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
+            .where((tarea) => tarea.nombre.toLowerCase().contains(query))
             .toList();
       }
     });
@@ -117,7 +118,7 @@ class _AgendaState extends State<Agenda> {
 
     setState(() {
       tareas = tareasProvider.tareas
-          .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
+          .where((tarea) => tarea.nombre.toLowerCase().contains(query))
           .toList();
     });
   }

@@ -1,16 +1,17 @@
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Editar_ID_Categoria.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver_ID/Editar_ID_Prioridad.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:provider/provider.dart';
 
 class EditarTareaDialog extends StatefulWidget {
   final Tareas tarea;
-  final Function(String, String, int?, int) onTareaEditada;
+  final Function(String, String, String?, int) onTareaEditada;
   final BuildContext context;
   final Perfiles perfil;
 
@@ -34,17 +35,18 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
   String? categoriaSeleccionada;
   List<String> nombresCategoria = [];
   int prioridad = 0;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
-    nombreController.text = widget.tarea.Nombre;
-    descripcionController.text = widget.tarea.Descripcion;
-    prioridad = widget.tarea.Prioridad;
+    nombreController.text = widget.tarea.nombre;
+    descripcionController.text = widget.tarea.descripcion;
+    prioridad = widget.tarea.prioridad;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
-      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+      categoriasProvider.cargarCategorias(user!.uid, widget.perfil.PerfilID);
     });
     super.initState();
   }
@@ -54,10 +56,11 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
     categoriasDisponibles = categoriasProvider.categorias;
-    nombresCategoria = categoriasDisponibles.map((e) => e.Nombre).toList();
+    nombresCategoria = categoriasDisponibles.map((e) => e.nombre).toList();
     categoriaSeleccionada = categoriasDisponibles
-        .firstWhere((element) => element.Id == widget.tarea.Categoria)
-        .Nombre;
+        .firstWhere(
+            (element) => element.CategoriaID == widget.tarea.CategoriaID)
+        .nombre;
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // Bordes redondeados
@@ -101,7 +104,7 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                   TextFormField(
                     controller: nombreController,
                     decoration: InputDecoration(
-                      labelText: 'Nombre de la Tarea',
+                      labelText: 'nombre de la Tarea',
                       labelStyle:
                           const TextStyle(fontSize: 16, color: Colores.texto),
                       hintText: 'Ingresa un nombre para la Tarea',
@@ -221,18 +224,17 @@ class _EditarTareaDialogState extends State<EditarTareaDialog> {
                       TextButton(
                         onPressed: () {
                           if (Navigator.canPop(this.context)) {
-                            int? categoriaAux = categoriasDisponibles
+                            String? categoriaAux = categoriasDisponibles
                                 .firstWhere(
                                   (element) =>
-                                      element.Nombre == categoriaSeleccionada,
+                                      element.nombre == categoriaSeleccionada,
                                   orElse: () => Categorias(
-                                      Id: 0,
-                                      Nombre: "Sin Categoría",
-                                      IdModulo: 0,
+                                      CategoriaID: "0",
                                       Color: '000000',
-                                      IdUsuario: 0),
+                                      nombre: "Sin Categoría",
+                                      PerfilID: "0"),
                                 )
-                                .Id;
+                                .CategoriaID;
                             if (categoriaAux == 0) {
                               categoriaAux = null;
                             }

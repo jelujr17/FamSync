@@ -5,7 +5,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rive/rive.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -86,11 +85,6 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
       if (result['success']) {
         final user = result['user'] as User;
 
-        // Guardar el UID
-        final SharedPreferences preferencias =
-            await SharedPreferences.getInstance();
-        preferencias.setString('uid', user.uid);
-
         if (result['requiresVerification'] == true) {
           // Se requiere verificación del teléfono
           final verificationId = result['verificationId'];
@@ -133,7 +127,7 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => SeleccionPerfil(IdUsuario: int.parse(user.uid)),
+                builder: (context) => SeleccionPerfil(UID: user.uid),
               ),
             );
           });
@@ -178,9 +172,9 @@ class Crear_Cuenta_Formulario_State extends State<Crear_Cuenta_Formulario> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Nombre
+              // nombre
               const Text(
-                "Nombre",
+                "nombre",
                 style: TextStyle(color: Colores.texto),
               ),
               Padding(

@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/Almacen/tiendas.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Almacen/Tiendas.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 
@@ -52,7 +52,7 @@ class _ProductosPorTiendaState extends State<ProductosPorTienda> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: SectionTitle(
-              titulo: widget.tienda.Nombre,
+              titulo: widget.tienda.nombre,
               accion: () {
                 setState(() {
                   if (pulsado) {

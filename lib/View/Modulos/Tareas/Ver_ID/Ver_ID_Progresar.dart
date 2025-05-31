@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:syncfusion_flutter_sliders/sliders.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Tareas.dart';
 
 class ProgresarTareaDialog extends StatelessWidget {
   final Tareas tarea;
@@ -17,7 +17,7 @@ class ProgresarTareaDialog extends StatelessWidget {
 
   @override
   Widget build(context) {
-    double progresoActual = tarea.Progreso.toDouble();
+    double progresoActual = tarea.progreso.toDouble();
 
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -49,7 +49,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                 children: [
                   // Título del diálogo
                   Text(
-                    'Modificar Progreso',
+                    'Modificar progreso',
                     style: TextStyle(
                       color: Colores.texto,
                       fontWeight: FontWeight.bold,
@@ -63,7 +63,7 @@ class ProgresarTareaDialog extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Progreso actual: ${progresoActual.toInt()}%',
+                        'progreso actual: ${progresoActual.toInt()}%',
                         style: TextStyle(
                           color: Colores.texto,
                           fontSize: 14,

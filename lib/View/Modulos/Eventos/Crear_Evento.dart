@@ -1,6 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drop_down_search_field/drop_down_search_field.dart';
-import 'package:famsync/Model/Calendario/eventos.dart';
-import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
+import 'package:famsync/Model/Categorias.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Crear/Crear_Categoria_Evento.dart';
@@ -10,8 +11,9 @@ import 'package:famsync/View/Modulos/Eventos/Crear/Crear_Nombre_Evento.dart';
 import 'package:famsync/View/Modulos/Eventos/Crear/Crear_Perfiles_Evento.dart';
 import 'package:famsync/View/Modulos/Eventos/calendario.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:provider/provider.dart';
 
 class PerfilProvider extends InheritedWidget {
@@ -49,7 +51,7 @@ class CrearEventoState extends State<CrearEvento> {
       TextEditingController();
   final TextEditingController _prioridadController = TextEditingController();
 
-  final List<int> _perfilSeleccionado = [];
+  final List<String> _perfilSeleccionado = [];
   List<Categorias> categoriasDisponibles = [];
   String? categoriaSeleccionada;
   List<String> nombresCategoria = [];
@@ -60,6 +62,7 @@ class CrearEventoState extends State<CrearEvento> {
   TimeOfDay? horaInicio;
   TimeOfDay? horaFin;
   bool todoElDia = true;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -67,7 +70,7 @@ class CrearEventoState extends State<CrearEvento> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(user!.uid);
     });
   }
 
@@ -90,7 +93,7 @@ class CrearEventoState extends State<CrearEvento> {
         Provider.of<CategoriasProvider>(context, listen: true);
     categoriasDisponibles = categoriasProvider.categorias;
     nombresCategoria = categoriasProvider.categorias
-        .map((e) => e.Nombre)
+        .map((e) => e.nombre)
         .toList(); // Obtener nombres de las categorías
     print("Nombres de categorías: $nombresCategoria");
   }
@@ -111,19 +114,18 @@ class CrearEventoState extends State<CrearEvento> {
       final nombre = _nombreController.text;
       final descripcion = _descripcionController.text;
       final categoria = categoriaSeleccionada ?? "Sin categoría";
-      int? categoriaId;
+      String? categoriaId;
       if (categoria != "Sin categoría") {
         categoriaId = categoriasDisponibles
             .firstWhere(
-              (element) => element.Nombre == categoriaSeleccionada,
+              (element) => element.nombre == categoriaSeleccionada,
               orElse: () => Categorias(
-                  Id: 0,
-                  Nombre: "Sin Categoría",
-                  IdModulo: 0,
+                  CategoriaID: "0",
+                  nombre: "Sin Categoría",
                   Color: '000000',
-                  IdUsuario: 0),
+                  PerfilID: "0"),
             )
-            .Id;
+            .CategoriaID;
       }
 
       print("Categoría seleccionada: $categoriaId");
@@ -135,47 +137,44 @@ class CrearEventoState extends State<CrearEvento> {
       if (todoElDia) {
         horaInicio = const TimeOfDay(hour: 0, minute: 0);
         horaFin = const TimeOfDay(hour: 23, minute: 59);
-       
       }
       fechaInicio = DateTime(
-          fechaEvento.year,
-          fechaEvento.month,
-          fechaEvento.day,
-          horaInicio!.hour,
-          horaInicio!.minute,
-        );
-        fechaFin = DateTime(
-          fechaEvento.year,
-          fechaEvento.month,
-          fechaEvento.day,
-          horaFin!.hour,
-          horaFin!.minute,
-        );
+        fechaEvento.year,
+        fechaEvento.month,
+        fechaEvento.day,
+        horaInicio!.hour,
+        horaInicio!.minute,
+      );
+      fechaFin = DateTime(
+        fechaEvento.year,
+        fechaEvento.month,
+        fechaEvento.day,
+        horaFin!.hour,
+        horaFin!.minute,
+      );
 
       final nuevoEvento = Eventos(
-        Id: 0,
-        Nombre: nombre,
-        Descripcion: descripcion,
-        FechaInicio: fechaInicio.toString(),
-        FechaFin: fechaFin.toString(),
-        IdUsuarioCreador: widget.perfil.UsuarioId,
-        IdPerfilCreador: widget.perfil.Id,
-        IdCategoria: categoriaId,
-        Participantes: _perfilSeleccionado,
-        IdTarea: null,
+        EventoID: "0",
+        nombre: nombre,
+        descripcion: descripcion,
+        fechaInicio: Timestamp.fromDate(fechaInicio),
+        fechaFin: Timestamp.fromDate(fechaFin),
+        PerfilID: widget.perfil.PerfilID,
+        CategoriaID: categoriaId,
+        participantes: _perfilSeleccionado,
+        TareaID: null,
       );
 
       final exito = await ServicioEventos().registrarEvento(
-        context,
-        nuevoEvento.Nombre,
-        nuevoEvento.Descripcion,
-        nuevoEvento.FechaInicio,
-        nuevoEvento.FechaFin,
-        nuevoEvento.IdUsuarioCreador,
-        nuevoEvento.IdPerfilCreador,
-        nuevoEvento.IdCategoria,
-        nuevoEvento.Participantes,
-        nuevoEvento.IdTarea,
+        user!.uid,
+        nuevoEvento.nombre,
+        nuevoEvento.descripcion,
+        nuevoEvento.fechaInicio,
+        nuevoEvento.fechaFin,
+        nuevoEvento.PerfilID,
+        nuevoEvento.CategoriaID,
+        nuevoEvento.participantes,
+        nuevoEvento.TareaID,
       );
 
       if (exito) {
@@ -352,7 +351,7 @@ class FormularioCrearEvento extends StatefulWidget {
   final TextEditingController nombreController;
   final TextEditingController descripcionController;
   final TextEditingController dropdownSearchFieldController;
-  final List<int> perfilSeleccionado;
+  final List<String> perfilSeleccionado;
   final List<Categorias> categoriasDisponibles;
   String? categoriaSeleccionada;
   final List<String> nombresCategoria;
@@ -447,12 +446,12 @@ class FormularioCrearEventoState extends State<FormularioCrearEvento> {
                   : CampoPerfilesCrearEvento(
                       perfiles: perfiles,
                       perfilSeleccionado: widget.perfilSeleccionado,
-                      onPerfilSeleccionado: (perfilId) {
+                      onPerfilSeleccionado: (PerfilID) {
                         setState(() {
-                          if (widget.perfilSeleccionado.contains(perfilId)) {
-                            widget.perfilSeleccionado.remove(perfilId);
+                          if (widget.perfilSeleccionado.contains(PerfilID)) {
+                            widget.perfilSeleccionado.remove(PerfilID);
                           } else {
-                            widget.perfilSeleccionado.add(perfilId);
+                            widget.perfilSeleccionado.add(PerfilID);
                           }
                         });
                       },

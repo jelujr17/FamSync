@@ -1,8 +1,9 @@
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Ventana_Lista.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -19,6 +20,8 @@ class ListasBanner extends StatefulWidget {
 }
 
 class _ListasBannerState extends State<ListasBanner> {
+      final user = FirebaseAuth.instance.currentUser;
+
   void actualizarBanner() {
     setState(() {});
   }
@@ -29,13 +32,11 @@ class _ListasBannerState extends State<ListasBanner> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(user!.uid, widget.perfil.PerfilID);
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(user!.uid, widget.perfil.PerfilID);
     });
   }
 
@@ -48,7 +49,7 @@ class _ListasBannerState extends State<ListasBanner> {
         ? "Tus listas:"
         : "No tienes listas aún";
     String contenido = listasProvider.listas.isNotEmpty
-        ? listasProvider.listas.map((e) => e.Nombre).join(", ")
+        ? listasProvider.listas.map((e) => e.nombre).join(", ")
         : "¡Crea una nueva!";
 
     return GestureDetector(

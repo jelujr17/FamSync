@@ -8,10 +8,11 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Editar/Editar_Tienda_Prod
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/Almacen/tiendas.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Almacen/Tiendas.dart';
 
 class EditarProducto extends StatefulWidget {
   final Productos producto;
@@ -35,23 +36,24 @@ class _EditarProductoState extends State<EditarProducto> {
   final List<File> _nuevasImagenes = []; // Lista para almacenar nuevas imágenes
   List<String> _imagenesExistentes =
       []; // Lista para almacenar imágenes existentes
-  List<int> _perfilSeleccionado = [];
+  List<String> _perfilSeleccionado = [];
   List<Tiendas> tiendasDisponibles = [];
   String? tiendaSeleccionada;
   List<String> nombresTienda = [];
   SuggestionsBoxController suggestionBoxController = SuggestionsBoxController();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
 
-    _nombreController = TextEditingController(text: widget.producto.Nombre);
-    _tiendaController = TextEditingController(text: widget.producto.Tienda);
+    _nombreController = TextEditingController(text: widget.producto.nombre);
+    _tiendaController = TextEditingController(text: widget.producto.TiendaID);
     _precioController =
-        TextEditingController(text: widget.producto.Precio.toString());
-    _perfilSeleccionado = widget.producto.Visible;
-    _imagenesExistentes = List.from(widget.producto.Imagenes);
-    tiendaSeleccionada = widget.producto.Tienda;
+        TextEditingController(text: widget.producto.precio.toString());
+    _perfilSeleccionado = widget.producto.visible;
+    _imagenesExistentes = List.from(widget.producto.imagenes);
+    tiendaSeleccionada = widget.producto.TiendaID;
 
     obtenerTiendas();
   }
@@ -65,16 +67,15 @@ class _EditarProductoState extends State<EditarProducto> {
   }
 
   void obtenerTiendas() async {
-    tiendasDisponibles =
-        await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
+    tiendasDisponibles = await ServiciosTiendas().getTiendas(user!.uid);
     obtenerNombresTiendas();
     setState(() {
-      tiendaSeleccionada ??= widget.producto.Tienda;
+      tiendaSeleccionada ??= widget.producto.TiendaID;
     });
   }
 
   void obtenerNombresTiendas() {
-    nombresTienda = tiendasDisponibles.map((e) => e.Nombre).toList();
+    nombresTienda = tiendasDisponibles.map((e) => e.nombre).toList();
   }
 
   Future<void> _editarProducto() async {
@@ -98,30 +99,30 @@ class _EditarProductoState extends State<EditarProducto> {
       ];
 
       final nuevoProducto = Productos(
-        Id: widget.producto.Id,
-        Nombre: nombre,
-        Tienda: tienda!,
-        Precio: precio,
-        IdPerfilCreador: widget.producto.IdPerfilCreador,
-        IdUsuarioCreador: widget.producto.IdUsuarioCreador,
-        Imagenes:
+        ProductoID: widget.producto.ProductoID,
+        nombre: nombre,
+        TiendaID: tienda!,
+        precio: precio,
+        PerfilID: widget.producto.PerfilID,
+        imagenes:
             imagenesCompletas.map((e) => e.path).toList(), // Convertir a String
-        Visible: widget.producto.Visible,
+        visible: widget.producto.visible,
       );
 
       final exito = await ServicioProductos().actualizarProducto(
-          context,
-          widget.producto.Id,
+          user!.uid,
+          widget.producto.ProductoID,
           nombre,
           _imagenesExistentes,
           _nuevasImagenes, // Enviar lista de archivos
           tienda,
           precio,
-          nuevoProducto.Visible);
+          nuevoProducto.visible,
+          widget.producto);
 
       if (exito) {
         Productos? producto = await ServicioProductos()
-            .getProductoById(context, widget.producto.Id);
+            .getProductoById(user!.uid, widget.producto.ProductoID);
 
         Navigator.of(context).pushReplacement(PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) =>
@@ -254,7 +255,7 @@ class _EditarProductoState extends State<EditarProducto> {
           color: Colores.fondo,
           child: SafeArea(
             child: Padding(
-            padding: const EdgeInsets.only(left: 20, right: 20,bottom: 120),
+              padding: const EdgeInsets.only(left: 20, right: 20, bottom: 120),
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
@@ -287,7 +288,7 @@ class FormularioEditarProducto extends StatefulWidget {
   final TextEditingController dropdownSearchFieldController;
   final List<String> imagenesExistentes;
   final List<File> nuevasImagenes;
-  final List<int> perfilSeleccionado;
+  final List<String> perfilSeleccionado;
   final List<Tiendas> tiendasDisponibles;
   String? tiendaSeleccionada;
   final List<String> nombresTienda;
@@ -328,17 +329,18 @@ class FormularioEditarProducto extends StatefulWidget {
 class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
   late Future<List<Perfiles>> futurePerfiles;
   List<Perfiles> perfiles = [];
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
-    futurePerfiles =
-        ServicioPerfiles().getPerfiles(context, widget.perfil.UsuarioId);
+    futurePerfiles = ServicioPerfiles().getPerfiles(user!.uid);
     futurePerfiles.then((data) {
       setState(() {
         perfiles = data;
         // Eliminar el perfil del widget de la lista de perfiles disponibles
-        perfiles.removeWhere((perfil) => perfil.Id == widget.perfil.Id);
+        perfiles
+            .removeWhere((perfil) => perfil.PerfilID == widget.perfil.PerfilID);
       });
     });
   }
@@ -358,6 +360,7 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
               onEliminarImagenNueva: widget.onEliminarImagenNueva,
               onNuevasImagenesSeleccionadas:
                   widget.onNuevasImagenesSeleccionadas,
+              producto: widget.producto,
             ),
           ),
           const SizedBox(height: 16),
@@ -408,12 +411,12 @@ class _FormularioEditarProductoState extends State<FormularioEditarProducto> {
               return CampoPerfilesEditar(
                 perfiles: perfiles,
                 perfilSeleccionado: widget.perfilSeleccionado,
-                onPerfilSeleccionado: (perfilId) {
+                onPerfilSeleccionado: (PerfilID) {
                   setState(() {
-                    if (widget.perfilSeleccionado.contains(perfilId)) {
-                      widget.perfilSeleccionado.remove(perfilId);
+                    if (widget.perfilSeleccionado.contains(PerfilID)) {
+                      widget.perfilSeleccionado.remove(PerfilID);
                     } else {
-                      widget.perfilSeleccionado.add(perfilId);
+                      widget.perfilSeleccionado.add(PerfilID);
                     }
                   });
                 },

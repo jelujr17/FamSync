@@ -1,5 +1,5 @@
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Crear_Tarea.dart';
@@ -8,6 +8,7 @@ import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -48,6 +49,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
   final TextEditingController _searchController = TextEditingController();
   String aux = "";
   bool aux2 = false;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -58,8 +60,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final tareasProvider =
           Provider.of<TareasProvider>(context, listen: false);
-      tareasProvider.cargarTareas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      tareasProvider.cargarTareas(user!.uid, widget.perfil.PerfilID);
 
       setState(() {
         tareas = tareasProvider.tareas; // Actualiza la lista de tareas
@@ -81,7 +82,7 @@ class TareasFiltradasState extends State<TareasFiltradas> {
     setState(() {
       // Filtrar tareas basándose en el texto ingresado
       tareas = tareasAux
-          .where((tarea) => tarea.Nombre.toLowerCase().contains(query))
+          .where((tarea) => tarea.nombre.toLowerCase().contains(query))
           .toList();
     });
   }
@@ -122,10 +123,10 @@ class TareasFiltradasState extends State<TareasFiltradas> {
 
   void cargarTareasCategoria() {
     final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
-    int idCategoria = 0;
+    String idCategoria = "0";
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
-    categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+    categoriasProvider.cargarCategorias(user!.uid, widget.perfil.PerfilID);
     final categorias = categoriasProvider.categorias;
 
     try {
@@ -136,20 +137,20 @@ class TareasFiltradasState extends State<TareasFiltradas> {
           tareas = tareas;
           break;
         case "Programadas":
-          tareas = tareas.where((tarea) => tarea.IdEvento != null).toList();
+          tareas = tareas.where((tarea) => tarea.EventoID != null).toList();
           break;
         case "Por hacer":
-          tareas = tareas.where((tarea) => tarea.Progreso == 0).toList();
+          tareas = tareas.where((tarea) => tarea.progreso == 0).toList();
           break;
         case "Completadas":
-          tareas = tareas.where((tarea) => tarea.Progreso == 100).toList();
+          tareas = tareas.where((tarea) => tarea.progreso == 100).toList();
           break;
         case "Urgentes":
-          tareas = tareas.where((tarea) => tarea.Prioridad == 3).toList();
+          tareas = tareas.where((tarea) => tarea.prioridad == 3).toList();
           break;
         case "En proceso":
           tareas = tareas
-              .where((tarea) => tarea.Progreso > 0 && tarea.Progreso < 100)
+              .where((tarea) => tarea.progreso > 0 && tarea.progreso < 100)
               .toList();
           break;
         default:
@@ -157,12 +158,12 @@ class TareasFiltradasState extends State<TareasFiltradas> {
           aux2 = true;
           idCategoria = categorias
               .firstWhere(
-                (categoria) => categoria.Nombre == widget.filtro,
+                (categoria) => categoria.nombre == widget.filtro,
               )
-              .Id;
+              .CategoriaID;
           print("ID Categoria: $idCategoria");
           tareas =
-              tareas.where((tarea) => tarea.Categoria == idCategoria).toList();
+              tareas.where((tarea) => tarea.CategoriaID == idCategoria).toList();
       }
       print("Tareas cargadas: ${tareas.length}");
     } catch (e) {
@@ -239,7 +240,8 @@ class TareasFiltradasState extends State<TareasFiltradas> {
               Expanded(
                 child: tareas.isNotEmpty
                     ? ListView.builder(
-                        padding: const EdgeInsets.only(left: 20, right: 20, bottom: 80),
+                        padding: const EdgeInsets.only(
+                            left: 20, right: 20, bottom: 80),
                         itemCount: tareas.length,
                         itemBuilder: (context, index) {
                           final tarea = tareas[index];
@@ -274,7 +276,6 @@ class TareasFiltradasState extends State<TareasFiltradas> {
                         child: Text('No hay tareas disponibles'),
                       ),
               ),
-              
             ],
           ),
         ),

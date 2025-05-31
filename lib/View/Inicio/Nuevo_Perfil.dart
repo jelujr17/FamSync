@@ -9,9 +9,9 @@ import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
 class CrearPerfilScreen extends StatefulWidget {
-  final int IdUsuario;
+  final String UID;
 
-  const CrearPerfilScreen({super.key, required this.IdUsuario});
+  const CrearPerfilScreen({super.key, required this.UID});
 
   @override
   _CrearPerfilScreenState createState() => _CrearPerfilScreenState();
@@ -72,10 +72,10 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (context) => SeleccionPerfil(IdUsuario: widget.IdUsuario),
+            builder: (context) => SeleccionPerfil(UID: widget.UID),
           ),
         );
-      } 
+      }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
@@ -161,7 +161,7 @@ class _CrearPerfilScreenState extends State<CrearPerfilScreen> {
                   TextField(
                     controller: _nombreController,
                     decoration: InputDecoration(
-                      labelText: 'Nombre del perfil',
+                      labelText: 'nombre del perfil',
                       border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(10)),
                     ),

@@ -1,6 +1,6 @@
 import 'dart:math';
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:famsync/View/Modulos/Eventos/calendario.dart';
 import 'package:famsync/View/Modulos/Tareas/agenda.dart';
@@ -43,7 +43,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
           _pageController.jumpToPage(pageIndex);
         });
       }
-    } 
+    }
   }
 
   late AnimationController _animationController;
@@ -96,7 +96,7 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
       body: Stack(
         children: [
           // Contenido principal
-           AnimatedPositioned(
+          AnimatedPositioned(
             width: 288,
             height: MediaQuery.of(context).size.height,
             duration: const Duration(milliseconds: 200),
@@ -120,71 +120,81 @@ class HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     Radius.circular(24),
                   ),
                   child: PageView(
-                        controller: _pageController,
-                        onPageChanged: (index) {
-                          setState(() {
-                            selectedBottonNav = bottomNavItems[index];
-                          });
+                    controller: _pageController,
+                    onPageChanged: (index) {
+                      setState(() {
+                        selectedBottonNav = bottomNavItems[index];
+                      });
+                    },
+                    children: [
+                      // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
+                      Navigator(
+                        onGenerateRoute: (RouteSettings settings) {
+                          switch (settings.name) {
+                            case '/':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Agenda(perfil: widget.perfil));
+                            case '/Modulo_Tareas':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Almacen(perfil: widget.perfil));
+                            case '/page3':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Calendario(perfil: widget.perfil));
+                            default:
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Agenda(perfil: widget.perfil));
+                          }
                         },
-                        children: [
-                          // Aquí puedes agregar las páginas correspondientes a cada elemento de la barra de navegación
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Agenda(perfil: widget.perfil));
-                                case '/Modulo_Tareas':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                                case '/page3':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Agenda(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Almacen(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => Calendario(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          Navigator(
-                            onGenerateRoute: (RouteSettings settings) {
-                              switch (settings.name) {
-                                case '/':
-                                  return MaterialPageRoute(
-                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
-                                default:
-                                  return MaterialPageRoute(
-                                      builder: (context) => CategoriaPage(perfil: widget.perfil));
-                              }
-                            },
-                          ),
-                          const Placeholder(),
-                        ],
                       ),
+                      Navigator(
+                        onGenerateRoute: (RouteSettings settings) {
+                          switch (settings.name) {
+                            case '/':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Almacen(perfil: widget.perfil));
+                            default:
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Almacen(perfil: widget.perfil));
+                          }
+                        },
+                      ),
+                      Navigator(
+                        onGenerateRoute: (RouteSettings settings) {
+                          switch (settings.name) {
+                            case '/':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Calendario(perfil: widget.perfil));
+                            default:
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      Calendario(perfil: widget.perfil));
+                          }
+                        },
+                      ),
+                      Navigator(
+                        onGenerateRoute: (RouteSettings settings) {
+                          switch (settings.name) {
+                            case '/':
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      CategoriaPage(perfil: widget.perfil));
+                            default:
+                              return MaterialPageRoute(
+                                  builder: (context) =>
+                                      CategoriaPage(perfil: widget.perfil));
+                          }
+                        },
+                      ),
+                      const Placeholder(),
+                    ],
+                  ),
                 ),
               ),
             ),

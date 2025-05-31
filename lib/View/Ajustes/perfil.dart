@@ -1,8 +1,9 @@
 import 'dart:io';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Inicio/Editar_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
@@ -18,6 +19,7 @@ class Perfil extends StatefulWidget {
 
 class PerfilState extends State<Perfil> {
   final PageController _pageController = PageController(initialPage: 2);
+    final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -51,17 +53,17 @@ class PerfilState extends State<Perfil> {
                   child: widget.perfil.FotoPerfil.isEmpty
                       ? Text(
                           widget.perfil
-                              .Nombre[0], // Mostrar la inicial si no hay imagen
+                              .nombre[0], // Mostrar la inicial si no hay imagen
                           style: const TextStyle(
                             color: Colores.texto,
                             fontSize: 30,
                           ),
                         )
-                      : FutureBuilder<File>(
+                      : FutureBuilder<File?>(
                           future: ServicioPerfiles()
-                              .obtenerImagen(context, widget.perfil.FotoPerfil),
+                              .getFotoPerfil(user!.uid, widget.perfil.PerfilID),
                           builder: (BuildContext context,
-                              AsyncSnapshot<File> snapshot) {
+                              AsyncSnapshot<File?> snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               // Mientras la imagen se está descargando, mostramos un indicador de carga
@@ -110,13 +112,12 @@ class PerfilState extends State<Perfil> {
             ),
             const SizedBox(height: 20),
             Text(
-              widget.perfil.Nombre, // Reemplazar con el nombre del perfil
+              widget.perfil.nombre, // Reemplazar con el nombre del perfil
               style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
           ],
         ),
       ),
-      
     );
   }
 }

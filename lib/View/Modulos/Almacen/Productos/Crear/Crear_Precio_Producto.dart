@@ -32,7 +32,7 @@ class CampoPrecioCrear extends StatelessWidget {
           }),
         ],
         decoration: InputDecoration(
-          labelText: 'Precio',
+          labelText: 'precio',
           labelStyle: const TextStyle(fontSize: 16, color: Colores.texto),
           hintText: 'Ingresa un precio para el producto',
           hintStyle: const TextStyle(color: Colores.texto),

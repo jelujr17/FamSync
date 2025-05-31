@@ -1,20 +1,22 @@
 import 'dart:io';
 
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class CampoPerfilesCrearEvento extends StatelessWidget {
   final List<Perfiles> perfiles;
-  final List<int> perfilSeleccionado;
-  final Function(int) onPerfilSeleccionado;
+  final List<String> perfilSeleccionado;
+  final Function(String) onPerfilSeleccionado;
 
-  const CampoPerfilesCrearEvento({
+  CampoPerfilesCrearEvento({
     super.key,
     required this.perfiles,
     required this.perfilSeleccionado,
     required this.onPerfilSeleccionado,
   });
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   Widget build(BuildContext context) {
@@ -50,23 +52,26 @@ class CampoPerfilesCrearEvento extends StatelessWidget {
 
                 return ListTile(
                   title: Text(
-                    perfil.Nombre,
+                    perfil.nombre,
                     style: const TextStyle(
                       color: Colores.texto,
                       fontWeight: FontWeight.normal,
                     ),
                   ),
                   leading: perfil.FotoPerfil.isNotEmpty
-                      ? FutureBuilder<File>(
-                          future: ServicioPerfiles()
-                              .obtenerImagen(context, perfil.FotoPerfil),
+                      ? FutureBuilder<File?>(
+                          future: ServicioPerfiles().getFotoPerfil(
+                              user!.uid,
+                              perfil
+                                  .PerfilID), // Replace 'perfil.userId' with the correct user ID property
                           builder: (context, snapshot) {
                             if (snapshot.connectionState ==
                                 ConnectionState.waiting) {
                               return const CircularProgressIndicator();
                             } else if (snapshot.hasError) {
                               return const Icon(Icons.error);
-                            } else if (!snapshot.hasData) {
+                            } else if (!snapshot.hasData ||
+                                snapshot.data == null) {
                               return const Icon(Icons.image_not_supported);
                             } else {
                               return Stack(
@@ -75,7 +80,8 @@ class CampoPerfilesCrearEvento extends StatelessWidget {
                                     radius: 25,
                                     backgroundImage: FileImage(snapshot.data!),
                                   ),
-                                  if (perfilSeleccionado.contains(perfil.Id))
+                                  if (perfilSeleccionado
+                                      .contains(perfil.PerfilID))
                                     const Positioned(
                                       right: 0,
                                       bottom: 0,
@@ -88,11 +94,11 @@ class CampoPerfilesCrearEvento extends StatelessWidget {
                           },
                         )
                       : const Icon(Icons.image_not_supported),
-                  tileColor: perfilSeleccionado.contains(perfil.Id)
+                  tileColor: perfilSeleccionado.contains(perfil.PerfilID)
                       ? Colores.fondoAux
                       : null,
                   onTap: () {
-                    onPerfilSeleccionado(perfil.Id);
+                    onPerfilSeleccionado(perfil.PerfilID);
                   },
                 );
               },

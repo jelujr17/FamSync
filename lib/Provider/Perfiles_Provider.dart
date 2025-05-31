@@ -1,4 +1,4 @@
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:flutter/material.dart';
 
 class PerfilesProvider with ChangeNotifier {
@@ -6,9 +6,9 @@ class PerfilesProvider with ChangeNotifier {
 
   List<Perfiles> get perfiles => _perfiles;
 
-  Future<void> cargarPerfiles(BuildContext context, int usuarioId) async {
+  Future<void> cargarPerfiles(String UID) async {
     try {
-      _perfiles = await ServicioPerfiles().getPerfiles(context, usuarioId);
+      _perfiles = await ServicioPerfiles().getPerfiles(UID);
       print("Perfiles cargados: ${_perfiles.length}");
       notifyListeners();
     } catch (e) {
@@ -23,13 +23,13 @@ class PerfilesProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void eliminarPerfil(int id) {
-    _perfiles.removeWhere((perfil) => perfil.Id == id);
+  void eliminarPerfil(String id) {
+    _perfiles.removeWhere((perfil) => perfil.PerfilID == id);
     notifyListeners();
   }
 
   void actualizarPerfiles(Perfiles perfil) {
-    final index = _perfiles.indexWhere((p) => p.Id == perfil.Id);
+    final index = _perfiles.indexWhere((p) => p.PerfilID == perfil.PerfilID);
     if (index != -1) {
       _perfiles[index] = perfil;
       notifyListeners();

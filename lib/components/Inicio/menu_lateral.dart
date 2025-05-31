@@ -1,5 +1,5 @@
 import 'package:famsync/Model/Inicio/Iconos_animados.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/components/Inicio/informacion_usuario.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +35,7 @@ class _SideBarState extends State<SideBar> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               InfoCard(
-                nombre: widget.perfil.Nombre,
+                nombre: widget.perfil.nombre,
                 fecha: widget.perfil.FechaNacimiento,
                 perfil: widget.perfil,
               ),

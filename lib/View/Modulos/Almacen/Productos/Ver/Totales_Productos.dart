@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Modulos/Almacen/almacen.dart';
 import 'package:flutter/material.dart';
 

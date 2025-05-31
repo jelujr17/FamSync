@@ -1,4 +1,4 @@
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Tareas_Filtradas.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -42,8 +42,7 @@ class BannerCategoriasDefinidas extends StatelessWidget {
           borderRadius: const BorderRadius.all(Radius.circular(30)),
           boxShadow: [
             BoxShadow(
-              color:
-                  colorTexto, // Asegúrate de que sea visible
+              color: colorTexto, // Asegúrate de que sea visible
               blurRadius: 12, // Aumenta el desenfoque para una sombra más suave
               offset: const Offset(0, 0), // Sombra uniforme en todos los lados
             ),

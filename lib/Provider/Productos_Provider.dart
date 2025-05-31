@@ -6,9 +6,9 @@ class ProductosProvider with ChangeNotifier {
 
   List<Productos> get productos => _productos;
 
-  Future<void> cargarProductos(BuildContext context, int usuarioId, int perfilId) async {
+  Future<void> cargarProductos(String UID, String PerfilID) async {
     try {
-      _productos = await ServicioProductos().getProductos(context, usuarioId, perfilId);
+      _productos = await ServicioProductos().getProductos(UID, PerfilID);
       print("Productos cargados: ${_productos.length}");
       notifyListeners();
     } catch (e) {
@@ -23,13 +23,14 @@ class ProductosProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void eliminarProducto(int id) {
-    _productos.removeWhere((producto) => producto.Id == id);
+  void eliminarProducto(String id) {
+    _productos.removeWhere((producto) => producto.ProductoID == id);
     notifyListeners();
   }
 
   void actualizarProducto(Productos producto) {
-    final index = _productos.indexWhere((p) => p.Id == producto.Id);
+    final index =
+        _productos.indexWhere((p) => p.ProductoID == producto.ProductoID);
     if (index != -1) {
       _productos[index] = producto;
       notifyListeners();

@@ -1,6 +1,7 @@
 import 'package:famsync/Model/Categorias.dart';
-import 'package:famsync/Model/modulos.dart';
-import 'package:famsync/Model/perfiles.dart';
+
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -21,17 +22,15 @@ class _CategoriaPageState extends State<CategoriaPage> {
   List<Categorias> _categoriasFiltradas = [];
   final TextEditingController _searchController = TextEditingController();
   final PageController _pageController = PageController();
-  final ServiciosModulos _serviciosModulos = ServiciosModulos();
-  Future<List<Modulos>>? _modulosFuture;
   Color _selectedColor = Colors.blue;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
     super.initState();
     _serviciosTiendas = ServiciosCategorias();
     _categoriasFuture =
-        _serviciosTiendas.getCategorias(context, widget.perfil.UsuarioId);
-    _modulosFuture = _serviciosModulos.getModulos(context);
+        _serviciosTiendas.getCategorias(user!.uid, widget.perfil.PerfilID);
 
     _categoriasFuture.then((data) {
       setState(() {
@@ -54,7 +53,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
     setState(() {
       _categoriasFiltradas = _categorias
           .where((categoria) =>
-              categoria.Nombre.toLowerCase().contains(searchText))
+              categoria.nombre.toLowerCase().contains(searchText))
           .toList();
     });
   }
@@ -70,7 +69,6 @@ class _CategoriaPageState extends State<CategoriaPage> {
 
   void _showCreateCategoryDialog() {
     TextEditingController nombreController = TextEditingController();
-    Modulos? selectedModulo;
 
     showDialog(
       context: context,
@@ -83,7 +81,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
               children: [
                 TextField(
                   controller: nombreController,
-                  decoration: const InputDecoration(labelText: 'Nombre'),
+                  decoration: const InputDecoration(labelText: 'nombre'),
                 ),
                 const SizedBox(height: 20),
                 const Text('Color'),
@@ -102,55 +100,28 @@ class _CategoriaPageState extends State<CategoriaPage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                FutureBuilder<List<Modulos>>(
-                  future: _modulosFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return const Text('Error al cargar los módulos');
-                    } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return const Text('No hay módulos disponibles');
-                    } else {
-                      return DropdownButtonFormField<Modulos>(
-                        decoration: const InputDecoration(labelText: 'Módulo'),
-                        items: snapshot.data!.map((modulo) {
-                          return DropdownMenuItem<Modulos>(
-                            value: modulo,
-                            child: Text(modulo.Nombre),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            selectedModulo = value;
-                          });
-                        },
-                      );
-                    }
-                  },
-                ),
               ],
             ),
             actions: [
               TextButton(
                 onPressed: () async {
-                  if (nombreController.text.isEmpty || selectedModulo == null) {
+                  if (nombreController.text.isEmpty) {
                     _showToast('Todos los campos son obligatorios');
                     return;
                   }
                   bool result = await ServiciosCategorias().registrarCategoria(
-                    context,
-                    selectedModulo!.Id,
+                    user!.uid,
+                    widget.perfil.PerfilID,
                     nombreController.text,
                     _selectedColor.value.toRadixString(16),
-                    widget.perfil.UsuarioId,
                   );
                   if (result) {
                     _showToast('Categoría creada con éxito');
                     Navigator.pop(context);
                     setState(() {
-                      _categoriasFuture = ServiciosCategorias().getCategorias(
-                          context, widget.perfil.UsuarioId);
+                      _categoriasFuture = ServiciosCategorias()
+                          .getCategorias(user!.uid, widget.perfil.PerfilID);
+                      _reloadCategories();
                     });
                   } else {
                     _showToast('Error al crear la categoría');
@@ -200,8 +171,8 @@ class _CategoriaPageState extends State<CategoriaPage> {
 
   void _reloadCategories() {
     setState(() {
-      _categoriasFuture =
-          ServiciosCategorias().getCategorias(context, widget.perfil.UsuarioId);
+      _categoriasFuture = ServiciosCategorias()
+          .getCategorias(user!.uid, widget.perfil.PerfilID);
     });
     _categoriasFuture.then((data) {
       setState(() {
@@ -215,14 +186,13 @@ class _CategoriaPageState extends State<CategoriaPage> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('Detalles de ${categoria.Nombre}'),
+        title: Text('Detalles de ${categoria.nombre}'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Nombre: ${categoria.Nombre}'),
+            Text('nombre: ${categoria.nombre}'),
             Text('Color: ${categoria.Color}'),
-            Text('Módulo: ${categoria.IdModulo}'),
           ],
         ),
         actions: [
@@ -241,12 +211,12 @@ class _CategoriaPageState extends State<CategoriaPage> {
       builder: (context) => AlertDialog(
         title: const Text('Eliminar Categoría'),
         content: Text(
-            '¿Estás seguro de que quieres eliminar la categoría ${categoria.Nombre}?'),
+            '¿Estás seguro de que quieres eliminar la categoría ${categoria.nombre}?'),
         actions: [
           TextButton(
             onPressed: () async {
               bool result = await ServiciosCategorias()
-                  .eliminarCategoria(context, categoria.Id);
+                  .eliminarCategoria(user!.uid, categoria.CategoriaID);
               if (result) {
                 _showToast('Categoría eliminada con éxito');
                 Navigator.pop(context);
@@ -327,7 +297,7 @@ class _CategoriaPageState extends State<CategoriaPage> {
               itemBuilder: (context, index) {
                 Categorias categoria = _categoriasFiltradas[index];
                 return ListTile(
-                  title: Text(categoria.Nombre),
+                  title: Text(categoria.nombre),
                   subtitle: Text('Color: ${categoria.Color}'),
                   trailing: IconButton(
                     icon: const Icon(Icons.delete),

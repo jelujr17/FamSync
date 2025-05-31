@@ -1,7 +1,7 @@
-import 'package:famsync/Model/Almacen/listas.dart';
+import 'package:famsync/Model/Almacen/Listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/Almacen/tiendas.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Almacen/Tiendas.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/View/Modulos/Almacen/Listas/Banner_Listas_Productos.dart';
@@ -16,6 +16,7 @@ import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:famsync/components/iconos_SVG.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -55,6 +56,7 @@ class AlmacenState extends State<Almacen> {
   bool isLoading = true;
   String errorMessage = '';
   final TextEditingController _searchController = TextEditingController();
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -66,12 +68,11 @@ class AlmacenState extends State<Almacen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(user!.uid, widget.perfil.PerfilID);
 
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(user!.uid);
     });
     _searchController.addListener(_filterProductos);
   }
@@ -91,15 +92,15 @@ class AlmacenState extends State<Almacen> {
 
     setState(() {
       productosFiltrados = productoProvider.productos
-          .where((producto) => producto.Nombre.toLowerCase().contains(query))
+          .where((producto) => producto.nombre.toLowerCase().contains(query))
           .toList();
     });
   }
 
   void obtenerListas() async {
     try {
-      listas = await ServiciosListas()
-          .getListas(context, widget.perfil.UsuarioId, widget.perfil.Id);
+      listas =
+          await ServiciosListas().getListas(user!.uid, widget.perfil.PerfilID);
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -117,8 +118,7 @@ class AlmacenState extends State<Almacen> {
 
   void obtenerTiendas() async {
     try {
-      tiendas =
-          await ServiciosTiendas().getTiendas(context, widget.perfil.UsuarioId);
+      tiendas = await ServiciosTiendas().getTiendas(user!.uid);
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -148,8 +148,7 @@ class AlmacenState extends State<Almacen> {
       // Recargar la lista de productos si se realizó una actualización
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(user!.uid, widget.perfil.PerfilID);
     }
   }
 
@@ -157,7 +156,7 @@ class AlmacenState extends State<Almacen> {
     List<Tiendas> tiendasConProductos = [];
     for (var tienda in tiendas) {
       for (var producto in productosFiltrados) {
-        if (producto.Tienda == tienda.Nombre) {
+        if (producto.TiendaID == tienda.TiendaID) {
           tiendasConProductos.add(tienda);
           break;
         }
@@ -219,7 +218,6 @@ class AlmacenState extends State<Almacen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      
                       productos.isEmpty
                           ? const Padding(
                               padding: EdgeInsets.all(32.0),
@@ -249,7 +247,8 @@ class AlmacenState extends State<Almacen> {
                                   ProductosPorTienda(
                                     tienda: tienda,
                                     productos: productosFiltrados
-                                        .where((p) => p.Tienda == tienda.Nombre)
+                                        .where((p) =>
+                                            p.TiendaID == tienda.TiendaID)
                                         .toList(),
                                     onTap: (producto) =>
                                         _navigateToDetallesProducto(producto),
@@ -434,6 +433,7 @@ class ProductoCard extends StatefulWidget {
 
 class _ProductoCardState extends State<ProductoCard> {
   Widget? imageWidget;
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -444,16 +444,16 @@ class _ProductoCardState extends State<ProductoCard> {
   void loadImage() async {
     try {
       final imageFile = await ServicioProductos()
-          .obtenerImagen(context, widget.producto.Imagenes[0]);
+          .getArchivosImagenesProducto(user!.uid, widget.producto.ProductoID);
 
       // Verifica si el archivo tiene contenido válido
-      if (await imageFile.length() == 0) {
-        throw Exception('El archivo de imagen está vacío');
+      if (imageFile == null || imageFile.isEmpty) {
+        throw Exception('El archivo de imagen está vacío o es nulo');
       }
 
       setState(() {
         imageWidget = Image.file(
-          imageFile,
+          imageFile[0],
           fit: BoxFit.cover,
           errorBuilder: (context, error, stackTrace) {
             return Container(
@@ -533,11 +533,11 @@ class _ProductoCardState extends State<ProductoCard> {
             ),
             const SizedBox(height: 8),
 
-            // Nombre del producto
+            // nombre del producto
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
-                widget.producto.Nombre,
+                widget.producto.nombre,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -549,14 +549,14 @@ class _ProductoCardState extends State<ProductoCard> {
             ),
             const SizedBox(height: 4),
 
-            // Precio y detalles adicionales
+            // precio y detalles adicionales
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${widget.producto.Precio}€",
+                    "${widget.producto.precio}€",
                     style: const TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w600,

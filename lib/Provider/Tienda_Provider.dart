@@ -1,4 +1,4 @@
-import 'package:famsync/Model/Almacen/tiendas.dart';
+import 'package:famsync/Model/Almacen/Tiendas.dart';
 import 'package:flutter/material.dart';
 
 class TiendasProvider with ChangeNotifier {
@@ -6,9 +6,9 @@ class TiendasProvider with ChangeNotifier {
 
   List<Tiendas> get tiendas => _tiendas;
 
-  Future<void> cargarTiendas(BuildContext context, int usuarioId, int perfilId) async {
+  Future<void> cargarTiendas(String UID, String PerfilID) async {
     try {
-      _tiendas = await ServiciosTiendas().getTiendas(context, usuarioId);
+      _tiendas = await ServiciosTiendas().getTiendas(UID);
       print("Tiendas cargados: ${_tiendas.length}");
       notifyListeners();
     } catch (e) {
@@ -23,13 +23,13 @@ class TiendasProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void eliminarProducto(int id) {
-    _tiendas.removeWhere((tienda) => tienda.Id == id);
+  void eliminarProducto(String id) {
+    _tiendas.removeWhere((tienda) => tienda.TiendaID == id);
     notifyListeners();
   }
 
   void actualizarProducto(Tiendas tienda) {
-    final index = _tiendas.indexWhere((t) => t.Id == tienda.Id);
+    final index = _tiendas.indexWhere((t) => t.TiendaID == tienda.TiendaID);
     if (index != -1) {
       _tiendas[index] = tienda;
       notifyListeners();

@@ -1,4 +1,4 @@
-import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
 import 'package:flutter/material.dart';
 
 class EventosProvider with ChangeNotifier {
@@ -6,10 +6,9 @@ class EventosProvider with ChangeNotifier {
 
   List<Eventos> get eventos => _eventos;
 
-  Future<void> cargarEventos(
-      BuildContext context, int usuarioId, int perfilId) async {
+  Future<void> cargarEventos(String UID, String PerfilID) async {
     try {
-      _eventos = await ServicioEventos().getEventos(context, usuarioId, perfilId);
+      _eventos = await ServicioEventos().getEventos(UID, PerfilID);
       print("Eventos cargados: ${_eventos.length}");
       notifyListeners();
     } catch (e) {
@@ -19,24 +18,21 @@ class EventosProvider with ChangeNotifier {
     }
   }
 
-
   void agregarEvento(Eventos evento) {
     _eventos.add(evento);
     notifyListeners();
   }
 
-  void eliminarEvento(int id) {
-    _eventos.removeWhere((evento) => evento.Id == id);
+  void eliminarEvento(String id) {
+    _eventos.removeWhere((evento) => evento.EventoID == id);
     notifyListeners();
   }
 
   void actualizarEvento(Eventos evento) {
-    final index = _eventos.indexWhere((t) => t.Id == evento.Id);
+    final index = _eventos.indexWhere((t) => t.EventoID == evento.EventoID);
     if (index != -1) {
       _eventos[index] = evento;
       notifyListeners();
     }
   }
-
- 
 }

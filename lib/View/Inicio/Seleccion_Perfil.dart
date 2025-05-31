@@ -6,14 +6,14 @@ import 'package:famsync/View/Inicio/Home.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:page_transition/page_transition.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/View/Inicio/Nuevo_Perfil.dart';
 import 'package:famsync/components/colores.dart';
 
 class SeleccionPerfil extends StatefulWidget {
-  final int IdUsuario;
+  final String UID;
 
-  const SeleccionPerfil({super.key, required this.IdUsuario});
+  const SeleccionPerfil({super.key, required this.UID});
 
   @override
   _SeleccionPerfilState createState() => _SeleccionPerfilState();
@@ -30,7 +30,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
   }
 
   void reload() async {
-    perfiles = await ServicioPerfiles().getPerfiles(context, widget.IdUsuario);
+    perfiles = await ServicioPerfiles().getPerfiles( widget.UID);
     setState(() {});
   }
 
@@ -123,16 +123,16 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
         } else {
           // Acción de edición (puedes personalizarla)
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Editar perfil: ${perfil.Nombre}')),
+            SnackBar(content: Text('Editar perfil: ${perfil.nombre}')),
           );
         }
       },
       child: Column(
         children: [
           Expanded(
-            child: FutureBuilder<File>(
-              future:
-                  ServicioPerfiles().obtenerImagen(context, perfil.FotoPerfil),
+            child: FutureBuilder<File?>(
+              future: ServicioPerfiles()
+                  .getFotoPerfil( widget.UID, perfil.FotoPerfil),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // Muestra un indicador de carga mientras se obtiene la imagen
@@ -154,7 +154,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                     ),
                     child: Center(
                       child: Text(
-                        perfil.Nombre[0],
+                        perfil.nombre[0],
                         style: GoogleFonts.poppins(
                           color: Colors.white,
                           fontSize: 40,
@@ -180,7 +180,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
           ),
           const SizedBox(height: 10),
           Text(
-            perfil.Nombre,
+            perfil.nombre,
             style: GoogleFonts.poppins(
               fontSize: 16,
               fontWeight: FontWeight.w500,
@@ -200,7 +200,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
             context,
             PageTransition(
               type: PageTransitionType.fade,
-              child: CrearPerfilScreen(IdUsuario: widget.IdUsuario),
+              child: CrearPerfilScreen(UID: widget.UID),
             ),
           );
         } else {
@@ -286,7 +286,7 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    "Introduzca el PIN de ${perfil.Nombre}",
+                    "Introduzca el PIN de ${perfil.nombre}",
                     style: TextStyle(
                       color: Colores.texto,
                       fontSize: 16,
@@ -327,7 +327,6 @@ class _SeleccionPerfilState extends State<SeleccionPerfil> {
                       TextButton(
                         onPressed: () async {
                           if (textController.text == perfil.Pin.toString()) {
-                            
                             Navigator.of(context).pop(); // Cierra el diálogo
                             Navigator.push(
                               context,

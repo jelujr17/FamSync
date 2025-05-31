@@ -1,11 +1,12 @@
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Banner_Mis_Categorias.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Tareas_Filtradas.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -23,8 +24,9 @@ class MisCategorias extends StatefulWidget {
 
 class MisCategoriasState extends State<MisCategorias> {
   List<Tareas> tareas = [];
-  Map<int, int> tareasPorCategoria = {};
+  Map<String, int> tareasPorCategoria = {};
   List<Categorias> categorias = [];
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -40,10 +42,9 @@ class MisCategoriasState extends State<MisCategorias> {
         Provider.of<CategoriasProvider>(context, listen: false);
 
     // Carga las tareas y categorías
-    await tareasProvider.cargarTareas(
-        context, widget.perfil.UsuarioId, widget.perfil.Id);
+    await tareasProvider.cargarTareas(user!.uid, widget.perfil.PerfilID);
     await categoriasProvider.cargarCategorias(
-        context, widget.perfil.UsuarioId, 5);
+        user!.uid, widget.perfil.PerfilID);
 
     // Asigna los datos cargados
     tareas = tareasProvider.tareas;
@@ -52,14 +53,16 @@ class MisCategoriasState extends State<MisCategorias> {
 
   void obtenerTareasPorCategoria() {
     // Inicializa el mapa con todas las categorías
-    tareasPorCategoria = {for (var categoria in categorias) categoria.Id: 0};
+    tareasPorCategoria = {
+      for (var categoria in categorias) categoria.CategoriaID: 0
+    };
 
     // Cuenta las tareas por categoría
     for (final tarea in tareas) {
-      if (tareasPorCategoria.containsKey(tarea.Categoria)) {
-        if (tarea.Categoria != null) {
-          tareasPorCategoria[tarea.Categoria!] =
-              (tareasPorCategoria[tarea.Categoria!] ?? 0) + 1;
+      if (tareasPorCategoria.containsKey(tarea.CategoriaID)) {
+        if (tarea.CategoriaID != null) {
+          tareasPorCategoria[tarea.CategoriaID!] =
+              (tareasPorCategoria[tarea.CategoriaID!] ?? 0) + 1;
         }
       }
     }
@@ -106,8 +109,9 @@ class MisCategoriasState extends State<MisCategorias> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 20),
                   child: SecondaryCourseCard(
-                    title: categoria.Nombre,
-                    cantidadTareas: tareasPorCategoria[categoria.Id] ?? 0,
+                    title: categoria.nombre,
+                    cantidadTareas:
+                        tareasPorCategoria[categoria.CategoriaID] ?? 0,
                     colorl: color,
                     colorCategoria: Color(int.parse("0xFF${categoria.Color}")),
                     textColor: colorTexto, // Aplica el color dinámico
@@ -117,7 +121,7 @@ class MisCategoriasState extends State<MisCategorias> {
                         MaterialPageRoute(
                           builder: (context) => TareasFiltradas(
                             perfil: widget.perfil,
-                            filtro: categoria.Nombre,
+                            filtro: categoria.nombre,
                           ), // Página de destino
                         ),
                       );

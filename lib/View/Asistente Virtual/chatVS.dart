@@ -1,4 +1,4 @@
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:flutter/material.dart';
 
 class VirtualAssistantPage extends StatefulWidget {

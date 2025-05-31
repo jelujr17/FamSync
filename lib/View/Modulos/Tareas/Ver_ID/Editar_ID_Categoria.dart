@@ -1,4 +1,4 @@
-import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/Categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
@@ -19,11 +19,10 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     categorias.add(Categorias(
-        Id: 0,
-        Nombre: "Sin Categoría",
-        IdModulo: 0,
+        CategoriaID: "0",
         Color: "000000",
-        IdUsuario: 0));
+        nombre: "Sin Categoría",
+        PerfilID: "0"));
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
       child: DropdownButtonFormField<String>(
@@ -56,13 +55,13 @@ class CampoCategoriaEditarTarea extends StatelessWidget {
         dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: categorias.map((Categorias categoria) {
           return DropdownMenuItem<String>(
-            value: categoria.Nombre,
+            value: categoria.nombre,
             child: Row(
               children: [
                 const SizedBox(width: 10),
                 // Esfera de color
                 Text(
-                  categoria.Nombre,
+                  categoria.nombre,
                   style:
                       const TextStyle(color: Colores.texto), // Color del texto
                 ),

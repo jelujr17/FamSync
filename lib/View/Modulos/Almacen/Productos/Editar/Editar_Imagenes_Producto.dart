@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/View/Modulos/Almacen/Productos/Ver_Producto.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -13,12 +14,14 @@ class ImagenesProductoEditar extends StatefulWidget {
     required this.onEliminarImagenExistente,
     required this.onEliminarImagenNueva,
     required this.onNuevasImagenesSeleccionadas,
+    required this.producto,
   });
 
   final List<String> imagenesTotales;
   final Function(String) onEliminarImagenExistente;
   final Function(File) onEliminarImagenNueva;
   final Function(List<File>) onNuevasImagenesSeleccionadas;
+  final Productos producto;
 
   @override
   _ImagenesProductoStateEditar createState() => _ImagenesProductoStateEditar();
@@ -35,12 +38,16 @@ class _ImagenesProductoStateEditar extends State<ImagenesProductoEditar> {
   }
 
   Future<void> _cargarImagenes() async {
+    final user = FirebaseAuth.instance.currentUser;
+
     List<File> imagenes = [];
     for (String urlImagen in widget.imagenesTotales) {
       print(urlImagen); // Para verificar que la URL sea correcta
-      final imageFile =
-          await ServicioProductos().obtenerImagen(context, urlImagen);
-      imagenes.add(imageFile);
+      final imageFiles = await ServicioProductos()
+          .getArchivosImagenesProducto(user!.uid, widget.producto.ProductoID);
+      if (imageFiles != null) {
+        imagenes.addAll(imageFiles);
+      }
     }
 
     if (mounted) {

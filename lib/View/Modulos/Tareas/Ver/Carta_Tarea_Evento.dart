@@ -1,10 +1,11 @@
 import 'dart:io';
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
-import 'package:famsync/Model/tareas.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
+import 'package:famsync/Model/Tareas.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -12,14 +13,12 @@ class CartaTareaEvento extends StatefulWidget {
   final Perfiles perfil;
   final int orden;
   final Tareas tarea;
-  
 
   const CartaTareaEvento({
     super.key,
     required this.perfil,
     required this.orden,
     required this.tarea,
-   
   });
 
   @override
@@ -30,12 +29,12 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
   late Categorias categoria = Categorias(
-    Id: 0,
-    Nombre: "Sin categoría",
-    Color: widget.orden.isEven ? "FFDB89" : "030303",
-    IdModulo: 0,
-    IdUsuario: 0,
-  );
+      CategoriaID: "0",
+      Color: widget.orden.isEven ? "FFDB89" : "030303",
+      nombre: "Sin categoría",
+      PerfilID: "0");
+  final user = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -45,10 +44,10 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       // Cargar perfiles
-      await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      await perfilesProvider.cargarPerfiles(user!.uid);
       // Cargar categorías
       await categoriasProvider.cargarCategorias(
-          context, widget.perfil.UsuarioId, 5);
+          user!.uid, widget.perfil.PerfilID);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
@@ -61,8 +60,8 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       final categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.tarea.Categoria);
-      return categoria.Nombre;
+          .firstWhere((cat) => cat.CategoriaID == widget.tarea.CategoriaID);
+      return categoria.nombre;
     } catch (e) {
       print("Error al obtener la categoría: $e");
       return null;
@@ -74,15 +73,14 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.tarea.Categoria);
-      print("Categoría obtenida: ${categoria.Nombre}");
+          .firstWhere((cat) => cat.CategoriaID == widget.tarea.CategoriaID);
+      print("Categoría obtenida: ${categoria.nombre}");
     } catch (e) {
       categoria = Categorias(
-        Id: 0,
-        Nombre: "Sin categoría",
+        CategoriaID: "0",
         Color: widget.orden.isEven ? "FFDB89" : "030303",
-        IdModulo: 0,
-        IdUsuario: 0,
+        nombre: "Sin categoría",
+        PerfilID: "0",
       );
       print("Error al obtener la categoría: $e");
     }
@@ -95,11 +93,12 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
 
       // Filtrar los perfiles destinatarios
       perfilesDestinatarios = perfilesProvider.perfiles
-          .where((perfil) => widget.tarea.Destinatario.contains(perfil.Id))
+          .where(
+              (perfil) => widget.tarea.destinatario.contains(perfil.PerfilID))
           .toList();
 
       print(
-          "Perfiles destinatarios: ${perfilesDestinatarios.map((p) => p.Id)}");
+          "Perfiles destinatarios: ${perfilesDestinatarios.map((p) => p.PerfilID)}");
 
       // Cargar las imágenes de los perfiles
       final imagenesCargadas = await Future.wait(
@@ -107,11 +106,12 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
           (perfil) async {
             try {
               final imagen = await ServicioPerfiles()
-                  .obtenerImagen(context, perfil.FotoPerfil);
-              print("Imagen cargada para perfil ${perfil.Id}: $imagen");
+                  .getFotoPerfil(user!.uid, perfil.FotoPerfil);
+              print("Imagen cargada para perfil ${perfil.PerfilID}: $imagen");
               return imagen;
             } catch (e) {
-              print("Error al cargar imagen para perfil ${perfil.Id}: $e");
+              print(
+                  "Error al cargar imagen para perfil ${perfil.PerfilID}: $e");
               return null; // Devuelve null si falla
             }
           },
@@ -164,7 +164,7 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
             children: [
               Expanded(
                 child: Text(
-                  widget.tarea.Nombre,
+                  widget.tarea.nombre,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -172,20 +172,19 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
                   ),
                 ),
               ),
-              
             ],
           ),
           const SizedBox(height: 8),
 
-          // Prioridad
+          // prioridad
           Container(
             constraints: const BoxConstraints(
                 minWidth: 150), // Ancho mínimo para consistencia
             padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
             decoration: BoxDecoration(
-              color: widget.tarea.Prioridad == 1 || widget.tarea.Progreso == 100
+              color: widget.tarea.prioridad == 1 || widget.tarea.progreso == 100
                   ? Colores.hecho.withOpacity(0.2)
-                  : widget.tarea.Prioridad == 2
+                  : widget.tarea.prioridad == 2
                       ? Colores.naranja.withOpacity(0.2)
                       : Colores.eliminar.withOpacity(0.2),
               borderRadius: BorderRadius.circular(8),
@@ -198,37 +197,37 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Icon(
-                  widget.tarea.Progreso == 100
+                  widget.tarea.progreso == 100
                       ? Icons.check_circle
-                      : widget.tarea.Prioridad == 1
+                      : widget.tarea.prioridad == 1
                           ? Icons.start
-                          : widget.tarea.Prioridad == 2
+                          : widget.tarea.prioridad == 2
                               ? Icons.warning
                               : Icons.error,
-                  color: widget.tarea.Prioridad == 1 ||
-                          widget.tarea.Progreso == 100
+                  color: widget.tarea.prioridad == 1 ||
+                          widget.tarea.progreso == 100
                       ? Colores.hecho
-                      : widget.tarea.Prioridad == 2
+                      : widget.tarea.prioridad == 2
                           ? Colores.naranja
                           : Colores.eliminar,
                   size: 16,
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  widget.tarea.Progreso == 100
+                  widget.tarea.progreso == 100
                       ? 'Tarea Completada'
-                      : widget.tarea.Prioridad == 1
+                      : widget.tarea.prioridad == 1
                           ? 'Baja'
-                          : widget.tarea.Prioridad == 2
+                          : widget.tarea.prioridad == 2
                               ? 'Media'
                               : 'Alta',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: widget.tarea.Prioridad == 1 ||
-                            widget.tarea.Progreso == 100
+                    color: widget.tarea.prioridad == 1 ||
+                            widget.tarea.progreso == 100
                         ? Colores.hecho
-                        : widget.tarea.Prioridad == 2
+                        : widget.tarea.prioridad == 2
                             ? Colores.naranja
                             : Colores.eliminar,
                   ),
@@ -262,7 +261,7 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
                               height:
                                   4), // Espaciado entre el avatar y el nombre
                           Text(
-                            perfil.Nombre, // Muestra el nombre del perfil
+                            perfil.nombre, // Muestra el nombre del perfil
                             style: TextStyle(
                               fontSize: 12,
                               color: widget.orden.isEven
@@ -279,7 +278,7 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
               else
                 Row(
                   children: List.generate(
-                    widget.tarea.Destinatario.length,
+                    widget.tarea.destinatario.length,
                     (index) => Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: Column(
@@ -350,7 +349,7 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
                           ),
                         ),
                         child: Text(
-                          snapshot.data ?? categoria.Nombre,
+                          snapshot.data ?? categoria.nombre,
                           textAlign: TextAlign.center,
                           style: TextStyle(
                             fontSize: 14,
@@ -374,14 +373,14 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
             children: [
               Expanded(
                 child: LinearProgressIndicator(
-                  value: widget.tarea.Progreso / 100,
+                  value: widget.tarea.progreso / 100,
                   backgroundColor: Colores.fondo,
                   color: widget.orden.isEven ? Colores.texto : Colores.fondoAux,
                 ),
               ),
               const SizedBox(width: 8),
               Text(
-                "${widget.tarea.Progreso}%",
+                "${widget.tarea.progreso}%",
                 style: TextStyle(
                   fontSize: 14,
                   color: widget.orden.isEven ? Colores.texto : Colores.fondo,
@@ -393,7 +392,7 @@ class CartaTareaEentoState extends State<CartaTareaEvento> {
 
           // Descripción
           Text(
-            "Descripción: ${widget.tarea.Descripcion}",
+            "Descripción: ${widget.tarea.descripcion}",
             style: TextStyle(
               fontSize: 14,
               color: widget.orden.isEven ? Colores.texto : Colores.fondo,

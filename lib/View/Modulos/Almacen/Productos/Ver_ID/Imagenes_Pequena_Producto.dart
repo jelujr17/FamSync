@@ -1,23 +1,60 @@
-
 import 'package:famsync/Model/Almacen/producto.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class ImagenPequena extends StatelessWidget {
-  const ImagenPequena({
+  final bool esSeleccionada;
+  final VoidCallback funcion;
+  final String productoID;
+
+  ImagenPequena({
     super.key,
     required this.esSeleccionada,
     required this.funcion,
-    required this.urlImagen,
+    required this.productoID,
   });
 
-  final bool esSeleccionada;
-  final VoidCallback funcion;
-  final String urlImagen;
+  final user = FirebaseAuth.instance.currentUser;
 
-  Future<Widget> loadImage(BuildContext context) async {
-    final imageFile = await ServicioProductos().obtenerImagen(context, urlImagen);
-    return Image.file(imageFile);
+  Future<Widget> loadImage() async {
+    try {
+      final archivos = await ServicioProductos()
+          .getArchivosImagenesProducto(user!.uid, productoID);
+
+      if (archivos == null || archivos.isEmpty) {
+        throw Exception('El archivo de imagen está vacío o es nulo');
+      }
+
+      return Image.file(
+        archivos[0],
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Container(
+            color: Colors.grey.shade300,
+            child: const Center(
+              child: Icon(
+                Icons.broken_image,
+                size: 40,
+                color: Colors.grey,
+              ),
+            ),
+          );
+        },
+      );
+    } catch (e) {
+      print('Error al cargar la imagen: $e');
+      return Container(
+        color: Colors.grey.shade300,
+        child: const Center(
+          child: Icon(
+            Icons.broken_image,
+            size: 40,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -34,18 +71,20 @@ class ImagenPequena extends StatelessWidget {
           color: Colores.fondoAux,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color:  Colores.texto.withOpacity(esSeleccionada ? 1 : 0),
+            color: Colores.texto.withOpacity(esSeleccionada ? 1 : 0),
           ),
         ),
         child: FutureBuilder<Widget>(
-          future: loadImage(context),
+          future: loadImage(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return const Icon(Icons.error, color: Colores.eliminar);
-            } else {
+            } else if (snapshot.hasData) {
               return snapshot.data!;
+            } else {
+              return const Icon(Icons.image_not_supported);
             }
           },
         ),

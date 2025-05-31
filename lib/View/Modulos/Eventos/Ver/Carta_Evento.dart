@@ -1,12 +1,13 @@
 import 'dart:io';
-import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
 
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_Detalles_Evento.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -33,12 +34,13 @@ class CartaEvento extends StatefulWidget {
 class CartaEventoState extends State<CartaEvento> {
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
+  final user = FirebaseAuth.instance.currentUser;
+
   late Categorias categoria = Categorias(
-    Id: 0,
-    Nombre: "Sin categoría",
-    Color: widget.orden.isEven ? "7A7F84" : "EDEDED",
-    IdModulo: 0,
-    IdUsuario: 0,
+    CategoriaID: "0",
+    nombre: "Sin Categoría",
+    Color: "000000",
+    PerfilID: "0",
   );
   @override
   void initState() {
@@ -49,10 +51,10 @@ class CartaEventoState extends State<CartaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       // Cargar perfiles
-      await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      await perfilesProvider.cargarPerfiles(user!.uid);
       // Cargar categorías
       await categoriasProvider.cargarCategorias(
-          context, widget.perfil.UsuarioId, 1);
+          user!.uid, widget.perfil.PerfilID);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
@@ -65,8 +67,8 @@ class CartaEventoState extends State<CartaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       final categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.evento.IdCategoria);
-      return categoria.Nombre;
+          .firstWhere((cat) => cat.CategoriaID == widget.evento.CategoriaID);
+      return categoria.nombre;
     } catch (e) {
       print("Error al obtener la categoría: $e");
       return null;
@@ -78,15 +80,14 @@ class CartaEventoState extends State<CartaEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.evento.IdCategoria);
-      print("Categoría obtenida: ${categoria.Nombre}");
+          .firstWhere((cat) => cat.CategoriaID == widget.evento.CategoriaID);
+      print("Categoría obtenida: ${categoria.nombre}");
     } catch (e) {
       categoria = Categorias(
-        Id: 0,
-        Nombre: "Sin categoría",
-        Color: widget.orden.isEven ? "7A7F84" : "EDEDED",
-        IdModulo: 0,
-        IdUsuario: 0,
+        CategoriaID: "0",
+        nombre: "Sin Categoría",
+        Color: "000000",
+        PerfilID: "0",
       );
       print("Error al obtener la categoría: $e");
     }
@@ -99,19 +100,20 @@ class CartaEventoState extends State<CartaEvento> {
 
       // Filtrar los perfiles destinatarios
       final List<Perfiles> destinatarios = perfilesProvider.perfiles
-          .where((perfil) => widget.evento.Participantes.contains(perfil.Id))
+          .where(
+              (perfil) => widget.evento.participantes.contains(perfil.PerfilID))
           .toList();
 
-      print("Perfiles destinatarios: ${destinatarios.map((p) => p.Id)}");
+      print("Perfiles destinatarios: ${destinatarios.map((p) => p.PerfilID)}");
 
       // Cargar las imágenes de los perfiles
       final List<File?> imagenesCargadas = await Future.wait(
         destinatarios.map((perfil) async {
           try {
             return await ServicioPerfiles()
-                .obtenerImagen(context, perfil.FotoPerfil);
+                .getFotoPerfil(user!.uid, perfil.PerfilID);
           } catch (e) {
-            print("Error al cargar imagen para perfil ${perfil.Id}: $e");
+            print("Error al cargar imagen para perfil ${perfil.PerfilID}: $e");
             return null; // Devuelve null si falla
           }
         }),
@@ -136,8 +138,8 @@ class CartaEventoState extends State<CartaEvento> {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime fechaInicio = DateTime.parse(widget.evento.FechaInicio);
-    final DateTime fechaFin = DateTime.parse(widget.evento.FechaFin);
+    final DateTime fechaInicio = widget.evento.fechaInicio.toDate();
+    final DateTime fechaFin = widget.evento.fechaFin.toDate();
 // Determinar si el evento dura todo el día
     final bool esTodoElDia = fechaInicio.hour == 0 &&
         fechaInicio.minute == 0 &&
@@ -200,7 +202,7 @@ class CartaEventoState extends State<CartaEvento> {
                 // Título del evento
                 Expanded(
                   child: Text(
-                    widget.evento.Nombre,
+                    widget.evento.nombre,
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -225,7 +227,7 @@ class CartaEventoState extends State<CartaEvento> {
                           SizedBox(
                             width: 40, // Ajusta el ancho según lo que necesites
                             child: Text(
-                              perfil.Nombre,
+                              perfil.nombre,
                               style: TextStyle(
                                 fontSize: 10,
                                 color: widget.orden.isOdd

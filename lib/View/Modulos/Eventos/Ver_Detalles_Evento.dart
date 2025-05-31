@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/Provider/Eventos_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
@@ -9,9 +9,10 @@ import 'package:famsync/Provider/Tareas_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Ver_ID_Asignar.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Ver_ID_Editar.dart';
 import 'package:famsync/View/Modulos/Tareas/Ver/Carta_Tarea_Evento.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/components/colores.dart';
-import 'package:famsync/Model/Calendario/eventos.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
 import 'package:provider/provider.dart';
 
 class DetallesEvento extends StatefulWidget {
@@ -36,12 +37,13 @@ class _DetallesEventoState extends State<DetallesEvento> {
   List<Perfiles> perfilesDestinatarios = [];
   List<File> avatares = [];
   late Categorias categoria = Categorias(
-    Id: 0,
-    Nombre: "Sin categoría",
-    Color: "030303",
-    IdModulo: 0,
-    IdUsuario: 0,
+    CategoriaID: "0",
+    Color: "000000",
+    nombre: "Sin categoría",
+    PerfilID: "0",
   );
+  final user = FirebaseAuth.instance.currentUser;
+
   @override
   void initState() {
     super.initState();
@@ -52,10 +54,10 @@ class _DetallesEventoState extends State<DetallesEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       // Cargar perfiles
-      await perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      await perfilesProvider.cargarPerfiles(user!.uid);
       // Cargar categorías
       await categoriasProvider.cargarCategorias(
-          context, widget.perfil.UsuarioId, 1);
+          user!.uid, widget.perfil.PerfilID);
 
       // Llamar a obtenerAvatares después de cargar los perfiles
       obtenerAvatares();
@@ -68,8 +70,8 @@ class _DetallesEventoState extends State<DetallesEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       final categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.evento.IdCategoria);
-      return categoria.Nombre;
+          .firstWhere((cat) => cat.CategoriaID == widget.evento.CategoriaID);
+      return categoria.nombre;
     } catch (e) {
       print("Error al obtener la categoría: $e");
       return null;
@@ -81,15 +83,14 @@ class _DetallesEventoState extends State<DetallesEvento> {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
       categoria = categoriasProvider.categorias
-          .firstWhere((cat) => cat.Id == widget.evento.IdCategoria);
-      print("Categoría obtenida: ${categoria.Nombre}");
+          .firstWhere((cat) => cat.CategoriaID == widget.evento.CategoriaID);
+      print("Categoría obtenida: ${categoria.nombre}");
     } catch (e) {
       categoria = Categorias(
-        Id: 0,
-        Nombre: "Sin categoría",
+        CategoriaID: "0",
         Color: "030303",
-        IdModulo: 0,
-        IdUsuario: 0,
+        nombre: "Sin categoría",
+        PerfilID: "0",
       );
       print("Error al obtener la categoría: $e");
     }
@@ -102,11 +103,12 @@ class _DetallesEventoState extends State<DetallesEvento> {
 
       // Filtrar los perfiles destinatarios
       perfilesDestinatarios = perfilesProvider.perfiles
-          .where((perfil) => widget.evento.Participantes.contains(perfil.Id))
+          .where(
+              (perfil) => widget.evento.participantes.contains(perfil.PerfilID))
           .toList();
 
       print(
-          "Perfiles destinatarios: ${perfilesDestinatarios.map((p) => p.Id)}");
+          "Perfiles destinatarios: ${perfilesDestinatarios.map((p) => p.PerfilID)}");
 
       // Cargar las imágenes de los perfiles
       final imagenesCargadas = await Future.wait(
@@ -114,11 +116,12 @@ class _DetallesEventoState extends State<DetallesEvento> {
           (perfil) async {
             try {
               final imagen = await ServicioPerfiles()
-                  .obtenerImagen(context, perfil.FotoPerfil);
-              print("Imagen cargada para perfil ${perfil.Id}: $imagen");
+                  .getFotoPerfil(user!.uid, perfil.PerfilID);
+              print("Imagen cargada para perfil ${perfil.PerfilID}: $imagen");
               return imagen;
             } catch (e) {
-              print("Error al cargar imagen para perfil ${perfil.Id}: $e");
+              print(
+                  "Error al cargar imagen para perfil ${perfil.PerfilID}: $e");
               return null; // Devuelve null si falla
             }
           },
@@ -140,12 +143,12 @@ class _DetallesEventoState extends State<DetallesEvento> {
   Widget build(BuildContext context) {
     final eventoProvider = Provider.of<EventosProvider>(context);
     final eventoActualizado = eventoProvider.eventos.firstWhere(
-      (e) => e.Id == widget.evento.Id,
+      (e) => e.EventoID == widget.evento.EventoID,
       orElse: () => widget.evento, // Usa el evento original si no se encuentra
     );
 
-    final DateTime fechaInicio = DateTime.parse(eventoActualizado.FechaInicio);
-    final DateTime fechaFin = DateTime.parse(eventoActualizado.FechaFin);
+    final DateTime fechaInicio = eventoActualizado.fechaInicio.toDate();
+    final DateTime fechaFin = eventoActualizado.fechaFin.toDate();
     final bool esTodoElDia = fechaInicio.hour == 0 &&
         fechaInicio.minute == 0 &&
         fechaFin.hour == 23 &&
@@ -154,7 +157,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
         fechaInicio.month == fechaFin.month &&
         fechaInicio.day == fechaFin.day;
     final tareasProvider = Provider.of<TareasProvider>(context, listen: false);
-   
+
     final tarea = tareasProvider.tareas;
 
     return Padding(
@@ -288,12 +291,12 @@ class _DetallesEventoState extends State<DetallesEvento> {
             ),
             const SizedBox(height: 16),
 
-            // Nombre del evento
-            _buildEventName(eventoActualizado.Nombre),
+            // nombre del evento
+            _buildEventName(eventoActualizado.nombre),
             const SizedBox(height: 16),
 
             // Descripción del evento
-            _buildEventDescription(eventoActualizado.Descripcion),
+            _buildEventDescription(eventoActualizado.descripcion),
             const SizedBox(height: 16),
 
             // Categoría del evento
@@ -309,7 +312,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
                       icon: Icons.calendar_today,
                       titulo: "Inicio",
                       hora: _formatearHora(
-                          DateTime.parse(eventoActualizado.FechaInicio)),
+                          eventoActualizado.fechaInicio.toDate()),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -317,19 +320,18 @@ class _DetallesEventoState extends State<DetallesEvento> {
                     child: _buildEventHora(
                       icon: Icons.access_time,
                       titulo: "Fin",
-                      hora: _formatearHora(
-                          DateTime.parse(eventoActualizado.FechaFin)),
+                      hora: _formatearHora(eventoActualizado.fechaFin.toDate()),
                     ),
                   ),
                 ],
               ),
             const SizedBox(height: 16),
 
-            // Participantes con avatares
+            // participantes con avatares
             _buildParticipantsSection(),
 
             const SizedBox(height: 16),
-            if (eventoActualizado.IdTarea != null)
+            if (eventoActualizado.TareaID != null)
               Row(
                 children: [
                   Icon(Icons.task, color: Colores.texto),
@@ -344,12 +346,12 @@ class _DetallesEventoState extends State<DetallesEvento> {
                   ),
                 ],
               ),
-            if (eventoActualizado.IdTarea != null)
+            if (eventoActualizado.TareaID != null)
               CartaTareaEvento(
                 perfil: widget.perfil,
                 orden: 1,
                 tarea: tarea.firstWhere(
-                  (t) => t.Id == eventoActualizado.IdTarea,
+                  (t) => t.TareaID == eventoActualizado.TareaID,
                 ),
               ),
           ],
@@ -368,7 +370,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
             Icon(Icons.people, color: Colores.texto),
             const SizedBox(width: 8),
             Text(
-              "Participantes:",
+              "participantes:",
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
@@ -462,7 +464,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              categoria.Nombre,
+              categoria.nombre,
               style: TextStyle(
                 fontSize: 14,
                 color: Colores.texto,
@@ -501,7 +503,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
               ),
               const SizedBox(height: 4),
               Text(
-                perfil.Nombre,
+                perfil.nombre,
                 style: TextStyle(
                   fontSize: 12,
                   color: Colores.texto,
@@ -631,7 +633,7 @@ class _DetallesEventoState extends State<DetallesEvento> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 16.0),
                   child: Text(
-                    '¿Estás seguro de que deseas eliminar el evento ${widget.evento.Nombre}?',
+                    '¿Estás seguro de que deseas eliminar el evento ${widget.evento.nombre}?',
                     style: TextStyle(
                       color: Colores.texto,
                       fontSize: 14,
@@ -658,13 +660,14 @@ class _DetallesEventoState extends State<DetallesEvento> {
                       onPressed: () async {
                         // Lógica para eliminar la tarea
                         final exito = await ServicioEventos()
-                            .eliminarEvento(context, widget.evento.Id);
+                            .eliminarEvento(user!.uid, widget.evento.EventoID);
                         if (exito) {
                           WidgetsBinding.instance.addPostFrameCallback((_) {
                             final eventoProvider = Provider.of<EventosProvider>(
                                 context,
                                 listen: false);
-                            eventoProvider.eliminarEvento(widget.evento.Id);
+                            eventoProvider
+                                .eliminarEvento(widget.evento.EventoID);
                           });
                           Navigator.of(context).pop(); // Cerrar el diálogo
 
@@ -707,30 +710,28 @@ class _DetallesEventoState extends State<DetallesEvento> {
           onAsignarGuardado: (asignacion) async {
             print("Asignación recibida: $asignacion");
             final nuevoEvento = Eventos(
-              Id: widget.evento.Id, // El ID será generado automáticamente
-              Nombre: widget.evento.Nombre,
-              Descripcion: widget.evento.Descripcion,
-              IdPerfilCreador: widget.evento.IdPerfilCreador,
-              Participantes: asignacion,
-              IdCategoria: widget.evento.IdCategoria,
-              FechaInicio: widget.evento.FechaInicio,
-              FechaFin: widget.evento.FechaFin,
-              IdUsuarioCreador: widget.perfil.UsuarioId,
-              IdTarea: widget.evento.IdTarea,
+              EventoID: widget.evento.EventoID,
+              nombre: widget.evento.nombre,
+              descripcion: widget.evento.descripcion,
+              PerfilID: widget.evento.PerfilID,
+              participantes: asignacion,
+              CategoriaID: widget.evento.CategoriaID,
+              fechaInicio: widget.evento.fechaInicio,
+              fechaFin: widget.evento.fechaFin,
+              TareaID: widget.evento.TareaID,
             );
 
             final exito = await ServicioEventos().actualizarEvento(
-              context,
-              nuevoEvento.Id,
-              nuevoEvento.Nombre,
-              nuevoEvento.Descripcion,
-              nuevoEvento.FechaInicio,
-              nuevoEvento.FechaFin,
-              nuevoEvento.IdUsuarioCreador,
-              nuevoEvento.IdPerfilCreador,
-              nuevoEvento.IdCategoria,
-              nuevoEvento.Participantes,
-              nuevoEvento.IdTarea,
+              user!.uid,
+              nuevoEvento.EventoID,
+              nuevoEvento.nombre,
+              nuevoEvento.descripcion,
+              nuevoEvento.fechaInicio,
+              nuevoEvento.fechaFin,
+              nuevoEvento.PerfilID,
+              nuevoEvento.CategoriaID,
+              nuevoEvento.participantes,
+              nuevoEvento.TareaID,
             );
 
             if (exito) {
@@ -768,30 +769,28 @@ class _DetallesEventoState extends State<DetallesEvento> {
               onEventoEditado: (nombre, descripcion, categoria, fechaInicio,
                   fechaFin) async {
                 final nuevoEvento = Eventos(
-                  Id: widget.evento.Id,
-                  Nombre: nombre,
-                  Descripcion: descripcion,
-                  IdPerfilCreador: widget.evento.IdPerfilCreador,
-                  Participantes: widget.evento.Participantes,
-                  IdCategoria: categoria,
-                  FechaInicio: fechaInicio,
-                  FechaFin: fechaFin,
-                  IdUsuarioCreador: widget.perfil.UsuarioId,
-                  IdTarea: widget.evento.IdTarea,
+                  EventoID: widget.evento.EventoID,
+                  nombre: widget.evento.nombre,
+                  descripcion: widget.evento.descripcion,
+                  PerfilID: widget.evento.PerfilID,
+                  participantes: widget.evento.participantes,
+                  CategoriaID: widget.evento.CategoriaID,
+                  fechaInicio: widget.evento.fechaInicio,
+                  fechaFin: widget.evento.fechaFin,
+                  TareaID: widget.evento.TareaID,
                 );
 
                 final exito = await ServicioEventos().actualizarEvento(
-                  context,
-                  nuevoEvento.Id,
-                  nuevoEvento.Nombre,
-                  nuevoEvento.Descripcion,
-                  nuevoEvento.FechaInicio,
-                  nuevoEvento.FechaFin,
-                  nuevoEvento.IdUsuarioCreador,
-                  nuevoEvento.IdPerfilCreador,
-                  nuevoEvento.IdCategoria,
-                  nuevoEvento.Participantes,
-                  nuevoEvento.IdTarea,
+                  user!.uid,
+                  nuevoEvento.EventoID,
+                  nuevoEvento.nombre,
+                  nuevoEvento.descripcion,
+                  nuevoEvento.fechaInicio,
+                  nuevoEvento.fechaFin,
+                  nuevoEvento.PerfilID,
+                  nuevoEvento.CategoriaID,
+                  nuevoEvento.participantes,
+                  nuevoEvento.TareaID,
                 );
 
                 if (exito) {

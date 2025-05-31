@@ -1,239 +1,147 @@
 // ignore_for_file: avoid_print, non_constant_identifier_names
 
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Categorias {
-  final int Id;
-  final int IdModulo;
+  final String CategoriaID; // Usamos String para el ID de Firestore
   final String Color;
-  final String Nombre;
-  final int IdUsuario;
+  final String nombre;
+  final String PerfilID; // Ahora es String (UID de Firebase)
 
   Categorias({
-    required this.Id,
-    required this.IdModulo,
+    required this.CategoriaID,
     required this.Color,
-    required this.Nombre,
-    required this.IdUsuario,
+    required this.nombre,
+    required this.PerfilID,
   });
+
+  factory Categorias.fromMap(String CategoriaID, Map<String, dynamic> data) {
+    return Categorias(
+      CategoriaID: CategoriaID,
+      Color: data['Color'] ?? '',
+      nombre: data['nombre'] ?? '',
+      PerfilID: data['PerfilID'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'CategoriaID': CategoriaID,
+      'Color': Color,
+      'nombre': nombre,
+      'PerfilID': PerfilID,
+    };
+  }
 }
 
 class ServiciosCategorias {
-  // Datos estáticos para simular respuestas de la API
-  final List<Categorias> _categoriasEstaticas = [
-    // Categorías para el módulo de Tareas (IdModulo: 1)
-    Categorias(
-      Id: 1,
-      IdModulo: 1,
-      Color: "#FF5733",
-      Nombre: "Hogar",
-      IdUsuario: 1,
-    ),
-    Categorias(
-      Id: 2,
-      IdModulo: 1,
-      Color: "#33FF57",
-      Nombre: "Trabajo",
-      IdUsuario: 1,
-    ),
-    Categorias(
-      Id: 3,
-      IdModulo: 1,
-      Color: "#3357FF",
-      Nombre: "Escuela",
-      IdUsuario: 1,
-    ),
-
-    // Categorías para el módulo de Calendario (IdModulo: 2)
-    Categorias(
-      Id: 4,
-      IdModulo: 2,
-      Color: "#FF33A8",
-      Nombre: "Eventos familiares",
-      IdUsuario: 1,
-    ),
-    Categorias(
-      Id: 5,
-      IdModulo: 2,
-      Color: "#33FFF6",
-      Nombre: "Citas médicas",
-      IdUsuario: 1,
-    ),
-
-    // Categorías para el módulo de Almacén (IdModulo: 3)
-    Categorias(
-      Id: 6,
-      IdModulo: 3,
-      Color: "#FFD700",
-      Nombre: "Alimentos",
-      IdUsuario: 1,
-    ),
-    Categorias(
-      Id: 7,
-      IdModulo: 3,
-      Color: "#9370DB",
-      Nombre: "Limpieza",
-      IdUsuario: 1,
-    ),
-    Categorias(
-      Id: 8,
-      IdModulo: 3,
-      Color: "#20B2AA",
-      Nombre: "Higiene personal",
-      IdUsuario: 1,
-    ),
-
-    // Categorías para otros usuarios
-    Categorias(
-      Id: 9,
-      IdModulo: 1,
-      Color: "#FF8C00",
-      Nombre: "Personal",
-      IdUsuario: 2,
-    ),
-    Categorias(
-      Id: 10,
-      IdModulo: 2,
-      Color: "#8A2BE2",
-      Nombre: "Cumpleaños",
-      IdUsuario: 2,
-    ),
-  ];
-
-  // Obtener categorías por usuario
+  // Obtener todas las categorías de un usuario
   Future<List<Categorias>> getCategorias(
-      BuildContext context, int IdUsuario) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 500));
+       String UID, String PerfilID) async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('categorias')
+          .where('PerfilID', isEqualTo: PerfilID) // Filtrar por PerfilID
+          .get();
 
-    return _categoriasEstaticas
-        .where((categoria) => categoria.IdUsuario == IdUsuario)
-        .toList();
-  }
-
-  // Obtener categorías por módulo
-  Future<List<Categorias>> getCategoriasByModulo(
-      BuildContext context, int IdUsuario, int IdModulo) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    return _categoriasEstaticas
-        .where((categoria) =>
-            categoria.IdUsuario == IdUsuario && categoria.IdModulo == IdModulo)
-        .toList();
+      return snapshot.docs
+          .map((doc) => Categorias.fromMap(doc.id, doc.data()))
+          .toList();
+    } catch (e) {
+      print('Error al obtener las categorías: $e');
+      return [];
+    }
   }
 
   // Obtener categoría por ID
-  Future<Categorias?> getCategoriasById(BuildContext context, int Id) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 300));
-
+  Future<Categorias?> getCategoriasID(
+       String UID, String CategoriaID) async {
     try {
-      return _categoriasEstaticas.firstWhere((categoria) => categoria.Id == Id);
+      final doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('categorias')
+          .doc(CategoriaID)
+          .get();
+
+      if (doc.exists) {
+        return Categorias.fromMap(doc.id, doc.data()!);
+      } else {
+        return null;
+      }
     } catch (e) {
-      return null; // Si no encuentra la categoría
+      print('Error al obtener la categoría: $e');
+      return null;
     }
   }
 
   // Registrar categoría
-  Future<bool> registrarCategoria(BuildContext context, int IdModulo,
-      String Nombre, String Color, int IdUsuario) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 700));
+  Future<bool> registrarCategoria( String UID,
+      String PerfilID, String nombre, String Color) async {
+    try {
+      final nuevaCategoria = {
+        'nombre': nombre,
+        'Color': Color,
+        'PerfilID': PerfilID,
+      };
 
-    // Simular ID generado para la nueva categoría
-    final nuevoId = _categoriasEstaticas.isNotEmpty
-        ? _categoriasEstaticas
-                .map((c) => c.Id)
-                .reduce((a, b) => a > b ? a : b) +
-            1
-        : 1;
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('categorias')
+          .add(nuevaCategoria);
 
-    // Crear la nueva categoría
-    final nuevaCategoria = Categorias(
-      Id: nuevoId,
-      IdModulo: IdModulo,
-      Nombre: Nombre,
-      Color: Color,
-      IdUsuario: IdUsuario,
-    );
-
-    // Añadir la categoría a la lista estática
-    _categoriasEstaticas.add(nuevaCategoria);
-
-    print('Categoría registrada con ID: $nuevoId');
-    return true;
+      print('Categoría registrada correctamente');
+      return true;
+    } catch (e) {
+      print('Error al registrar categoría: $e');
+      return false;
+    }
   }
 
   // Actualizar categoría
-  Future<bool> actualizarCategoria(BuildContext context, int Id, int IdModulo,
-      String Nombre, String Color, int IdUsuario) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 600));
+  Future<bool> actualizarCategoria( String UID,
+      String CategoriaID, String PerfilID, String nombre, String Color) async {
+    try {
+      final categoriaActualizada = {
+        'nombre': nombre,
+        'Color': Color,
+        'PerfilID': PerfilID,
+      };
 
-    // Buscar índice de la categoría a actualizar
-    final index = _categoriasEstaticas.indexWhere((c) => c.Id == Id);
-    if (index == -1) {
-      return false; // No se encontró la categoría
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('categorias')
+          .doc(CategoriaID)
+          .update(categoriaActualizada);
+
+      print('Categoría con ID $CategoriaID actualizada');
+      return true;
+    } catch (e) {
+      print('Error al actualizar categoría: $e');
+      return false;
     }
-
-    // Crear la categoría actualizada
-    final categoriaActualizada = Categorias(
-      Id: Id,
-      IdModulo: IdModulo,
-      Nombre: Nombre,
-      Color: Color,
-      IdUsuario: IdUsuario,
-    );
-
-    // Actualizar la categoría en la lista estática
-    _categoriasEstaticas[index] = categoriaActualizada;
-
-    print('Categoría con ID $Id actualizada');
-    return true;
   }
 
   // Eliminar categoría
-  Future<bool> eliminarCategoria(BuildContext context, int Id) async {
-    // Simular retardo de red
-    await Future.delayed(const Duration(milliseconds: 400));
-
-    // Buscar índice de la categoría a eliminar
-    final index = _categoriasEstaticas.indexWhere((c) => c.Id == Id);
-    if (index == -1) {
-      return false; // No se encontró la categoría
-    }
-
-    // Eliminar la categoría de la lista estática
-    _categoriasEstaticas.removeAt(index);
-
-    print('Categoría con ID $Id eliminada');
-    return true;
-  }
-}
-
-// Servicio global para manejar errores de conexión (versión simulada)
-class HttpService {
-  static Future<http.Response> execute(
-    BuildContext context,
-    Future<http.Response> Function() httpCall,
-  ) async {
+  Future<bool> eliminarCategoria(
+       String UID, String CategoriaID) async {
     try {
-      // Simular una respuesta HTTP exitosa
-      final headers = {'content-type': 'application/json'};
-      final body = utf8.encode(json.encode({'status': 'success'}));
+      await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(UID)
+          .collection('categorias')
+          .doc(CategoriaID)
+          .delete();
 
-      return http.Response.bytes(body, 200, headers: headers);
+      print('Categoría con ID $CategoriaID eliminada');
+      return true;
     } catch (e) {
-      print('Error simulado en HttpService: $e');
-      // Comentado para evitar navegación no deseada durante pruebas
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => const NoconnectionScreen()),
-      // );
-      throw Exception('Error simulado en la conexión con la base de datos');
+      print('Error al eliminar categoría: $e');
+      return false;
     }
   }
 }

@@ -1,4 +1,5 @@
-import 'package:famsync/Model/Almacen/listas.dart';
+import 'package:famsync/Model/Almacen/Listas.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
@@ -73,7 +74,8 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
                         final lista = listasProvider.listas[index];
 
                         return Card(
-                          color: lista.Productos.contains(widget.producto.Id)
+                          color: lista.productos
+                                  .contains(widget.producto.ProductoID)
                               ? Colores.fondoAux.withOpacity(0.2)
                               : Colores.fondoAux,
                           shape: RoundedRectangleBorder(
@@ -81,18 +83,18 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
                           ),
                           child: ListTile(
                             title: Text(
-                              lista.Nombre,
+                              lista.nombre,
                               style: const TextStyle(
                                 color: Colores.texto,
                                 fontWeight: FontWeight.normal,
                               ),
                             ),
-                            leading:
-                                lista.Productos.contains(widget.producto.Id)
-                                    ? const Icon(Icons.check_circle,
-                                        color: Colores.hecho)
-                                    : const Icon(Icons.list_alt,
-                                        color: Colores.fondoAux),
+                            leading: lista.productos
+                                    .contains(widget.producto.ProductoID)
+                                ? const Icon(Icons.check_circle,
+                                    color: Colores.hecho)
+                                : const Icon(Icons.list_alt,
+                                    color: Colores.fondoAux),
                             onTap: () {
                               _toggleProductoEnLista(lista);
                             },
@@ -147,16 +149,17 @@ class _VentanaAnadirListasState extends State<VentanaAnadirListas> {
 
   void _toggleProductoEnLista(lista) {
     final listasProvider = Provider.of<ListasProvider>(context, listen: false);
+    final user = FirebaseAuth.instance.currentUser;
 
     setState(() {
-      if (lista.Productos.contains(widget.producto.Id)) {
-        lista.Productos.remove(widget.producto.Id);
+      if (lista.productos.contains(widget.producto.ProductoID)) {
+        lista.productos.remove(widget.producto.ProductoID);
       } else {
-        lista.Productos.add(widget.producto.Id);
+        lista.productos.add(widget.producto.ProductoID);
       }
     });
     ServiciosListas().actualizarLista(
-        context, lista.Id, lista.Nombre, lista.Visible, lista.Productos);
+        user!.uid, lista.ListaID, lista.nombre, lista.visible, lista.productos);
     listasProvider.actualizarLista(lista);
     widget.actualizarBanner();
   }

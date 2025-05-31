@@ -1,6 +1,6 @@
 import 'package:famsync/View/Inicio/Inicio.dart';
 import 'package:famsync/View/Inicio/Seleccion_Perfil.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:flutter/material.dart';
 
@@ -38,14 +38,13 @@ List<Menu_Aux> sidebarMenus = [
     onTap: (context) async {
       // Acción para la opción "Cambiar de Perfil"
       print("Cambiar de Perfil seleccionado");
-      SharedPreferences preferencias = await SharedPreferences.getInstance();
-      int? usuario = preferencias.getInt('IdUsuario');
-      preferencias.remove('IdPerfil');
+          final user = FirebaseAuth.instance.currentUser;
+
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) =>
-              SeleccionPerfil(IdUsuario: usuario!), // Pasa el ID del usuario
+              SeleccionPerfil(UID: user!.uid), // Pasa el ID del usuario
         ),
       );
     },
@@ -59,8 +58,6 @@ List<Menu_Aux> sidebarMenus = [
     onTap: (context) async {
       // Acción para la opción "Cerrar Sesión"
       print("Cerrar Sesión seleccionado");
-      SharedPreferences preferencias = await SharedPreferences.getInstance();
-      preferencias.clear();
       Navigator.push(
         context,
         MaterialPageRoute(

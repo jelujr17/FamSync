@@ -1,4 +1,4 @@
-import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/Categorias.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:flutter/material.dart';
 
@@ -16,34 +16,32 @@ class CampoCategoriaEditarEvento extends StatelessWidget {
     required this.categorias,
   });
 
-@override
-Widget build(BuildContext context) {
-  // Asegúrate de que "Sin Categoría" esté en la lista
-  if (!categorias.any((categoria) => categoria.Nombre == "Sin Categoría")) {
-    categorias.add(Categorias(
-      Id: 0,
-      Nombre: "Sin Categoría",
-      IdModulo: 0,
-      Color: "000000",
-      IdUsuario: 0,
-    ));
-  }
+  @override
+  Widget build(BuildContext context) {
+    // Asegúrate de que "Sin Categoría" esté en la lista
+    if (!categorias.any((categoria) => categoria.nombre == "Sin Categoría")) {
+      categorias.add(Categorias(
+        CategoriaID: "0",
+        nombre: "Sin Categoría",
+        Color: "000000",
+        PerfilID: "0", 
+      ));
+    }
 
-  // Elimina duplicados
-  final nombresCategoria = categorias
-      .map((categoria) => categoria.Nombre)
-      .toSet() // Elimina duplicados
-      .toList();
+    // Elimina duplicados
+    final nombresCategoria = categorias
+        .map((categoria) => categoria.nombre)
+        .toSet() // Elimina duplicados
+        .toList();
 
-  // Si la categoría seleccionada no está en la lista, usa "Sin Categoría"
-  final categoriaValida = nombresCategoria.contains(categoriaSeleccionada)
-      ? categoriaSeleccionada
-      : "Sin Categoría";
+    // Si la categoría seleccionada no está en la lista, usa "Sin Categoría"
+    final categoriaValida = nombresCategoria.contains(categoriaSeleccionada)
+        ? categoriaSeleccionada
+        : "Sin Categoría";
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 0),
-      child: 
-      DropdownButtonFormField<String>(
+      child: DropdownButtonFormField<String>(
         value: categoriaSeleccionada, // Asegúrate de que el valor sea válido
         decoration: InputDecoration(
           labelText: 'Categoría del Evento',
@@ -73,12 +71,12 @@ Widget build(BuildContext context) {
         dropdownColor: Colores.fondoAux, // Fondo del menú desplegable
         items: categorias.map((Categorias categoria) {
           return DropdownMenuItem<String>(
-            value: categoria.Nombre,
+            value: categoria.nombre,
             child: Row(
               children: [
                 const SizedBox(width: 10),
                 Text(
-                  categoria.Nombre,
+                  categoria.nombre,
                   style: const TextStyle(color: Colores.texto),
                 ),
                 const SizedBox(width: 10),

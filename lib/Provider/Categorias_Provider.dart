@@ -1,4 +1,4 @@
-import 'package:famsync/Model/categorias.dart';
+import 'package:famsync/Model/Categorias.dart';
 import 'package:flutter/material.dart';
 
 class CategoriasProvider with ChangeNotifier {
@@ -6,9 +6,9 @@ class CategoriasProvider with ChangeNotifier {
 
   List<Categorias> get categorias => _categorias;
 
-  Future<void> cargarCategorias(BuildContext context, int usuarioId, int moduloId) async {
+  Future<void> cargarCategorias(String UID, String PerfilID) async {
     try {
-      _categorias = await ServiciosCategorias().getCategoriasByModulo(context, usuarioId, moduloId);
+      _categorias = await ServiciosCategorias().getCategorias(UID, PerfilID);
       print("Categorias cargados: ${_categorias.length}");
       notifyListeners();
     } catch (e) {
@@ -23,13 +23,14 @@ class CategoriasProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void eliinarCategoria(int id) {
-    _categorias.removeWhere((categoria) => categoria.Id == id);
+  void eliinarCategoria(String id) {
+    _categorias.removeWhere((categoria) => categoria.CategoriaID == id);
     notifyListeners();
   }
 
   void actualizarCategoria(Categorias categoria) {
-    final index = _categorias.indexWhere((c) => c.Id == categoria.Id);
+    final index =
+        _categorias.indexWhere((c) => c.CategoriaID == categoria.CategoriaID);
     if (index != -1) {
       _categorias[index] = categoria;
       notifyListeners();

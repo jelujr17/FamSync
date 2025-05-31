@@ -1,12 +1,13 @@
 import 'dart:io';
 
-import 'package:famsync/Model/Almacen/listas.dart';
+import 'package:famsync/Model/Almacen/Listas.dart';
 import 'package:famsync/Model/Almacen/producto.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Listas_Provider.dart';
 import 'package:famsync/Provider/Perfiles_Provider.dart';
 import 'package:famsync/Provider/Productos_Provider.dart';
 import 'package:famsync/components/colores.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -25,8 +26,9 @@ class VentanaListas extends StatefulWidget {
 }
 
 class _VentanaListasState extends State<VentanaListas> {
-  Map<int, Widget> imageWidgets = {};
-  List<int> perfilesSeleccionados = [];
+  Map<String, Widget> imageWidgets = {};
+  List<String> perfilesSeleccionados = [];
+  final user = FirebaseAuth.instance.currentUser;
 
   @override
   void initState() {
@@ -35,17 +37,15 @@ class _VentanaListasState extends State<VentanaListas> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final perfilesProvider =
           Provider.of<PerfilesProvider>(context, listen: false);
-      perfilesProvider.cargarPerfiles(context, widget.perfil.UsuarioId);
+      perfilesProvider.cargarPerfiles(user!.uid);
 
       final productoProvider =
           Provider.of<ProductosProvider>(context, listen: false);
-      productoProvider.cargarProductos(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      productoProvider.cargarProductos(user!.uid, widget.perfil.PerfilID);
 
       final listasProvider =
           Provider.of<ListasProvider>(context, listen: false);
-      listasProvider.cargarListas(
-          context, widget.perfil.UsuarioId, widget.perfil.Id);
+      listasProvider.cargarListas(user!.uid, widget.perfil.PerfilID);
     });
   }
 
@@ -55,15 +55,15 @@ class _VentanaListasState extends State<VentanaListas> {
         Provider.of<ProductosProvider>(context, listen: false);
 
     for (var lista in listasProvider.listas) {
-      for (var productoId in lista.Productos) {
-        var producto =
-            productoProvider.productos.firstWhere((p) => p.Id == productoId);
+      for (var productoId in lista.productos) {
+        var producto = productoProvider.productos
+            .firstWhere((p) => p.PerfilID == productoId);
         ServicioProductos()
-            .obtenerImagen(context, producto.Imagenes[0])
+            .getArchivosImagenesProducto(user!.uid, productoId)
             .then((imageFile) {
           setState(() {
-            imageWidgets[productoId] =
-                Image.file(imageFile, width: 50, height: 50, fit: BoxFit.cover);
+            imageWidgets[productoId] = Image.file(imageFile!.first,
+                width: 50, height: 50, fit: BoxFit.cover);
           });
         }).catchError((error) {
           setState(() {
@@ -77,7 +77,7 @@ class _VentanaListasState extends State<VentanaListas> {
 
   void editarLista(Listas lista) async {
     TextEditingController nombreController =
-        TextEditingController(text: lista.Nombre);
+        TextEditingController(text: lista.nombre);
 
     showDialog(
       context: context,
@@ -97,7 +97,7 @@ class _VentanaListasState extends State<VentanaListas> {
               TextField(
                 controller: nombreController,
                 decoration: InputDecoration(
-                  labelText: 'Nombre de la Lista',
+                  labelText: 'nombre de la Lista',
                   labelStyle:
                       const TextStyle(fontSize: 16, color: Colores.texto),
                   hintText: 'Ingresa un nombre para la Lista',
@@ -144,30 +144,29 @@ class _VentanaListasState extends State<VentanaListas> {
                 setState(() {
                   // Crear una nueva instancia de Listas con el nombre actualizado
                   Listas listaActualizada = Listas(
-                    Id: lista.Id,
-                    Nombre: nombreController.text,
-                    Visible: lista.Visible,
-                    Productos: lista.Productos,
-                    IdPerfil: lista.IdPerfil,
-                    IdUsuario: lista.IdUsuario,
+                    ListaID: lista.ListaID,
+                    nombre: nombreController.text,
+                    visible: lista.visible,
+                    productos: lista.productos,
+                    PerfilID: lista.PerfilID,
                   );
                   final listasProvider =
                       Provider.of<ListasProvider>(context, listen: false);
 
                   // Reemplazar la instancia antigua en la lista
-                  int index =
-                      listasProvider.listas.indexWhere((l) => l.Id == lista.Id);
+                  int index = listasProvider.listas
+                      .indexWhere((l) => l.ListaID == lista.ListaID);
                   if (index != -1) {
                     listasProvider.listas[index] = listaActualizada;
                   }
 
                   // Guarda los cambios en la base de datos o backend
                   ServiciosListas().actualizarLista(
-                    context,
-                    listaActualizada.Id,
-                    listaActualizada.Nombre,
-                    listaActualizada.Visible,
-                    listaActualizada.Productos,
+                    user!.uid,
+                    listaActualizada.ListaID,
+                    listaActualizada.nombre,
+                    listaActualizada.visible,
+                    listaActualizada.productos,
                   );
                   listasProvider.actualizarLista(listaActualizada);
 
@@ -194,7 +193,7 @@ class _VentanaListasState extends State<VentanaListas> {
         title: const Text('Eliminar Lista',
             style: TextStyle(color: Colores.texto)),
         content: Text(
-            '¿Estás seguro de que quieres eliminar la lista ${lista.Nombre}?',
+            '¿Estás seguro de que quieres eliminar la lista ${lista.nombre}?',
             style: TextStyle(color: Colores.texto)),
         actions: [
           TextButton(
@@ -206,16 +205,15 @@ class _VentanaListasState extends State<VentanaListas> {
           ),
           TextButton(
             onPressed: () async {
-              await ServiciosListas().eliminarLista(context, lista.Id);
+              await ServiciosListas().eliminarLista(user!.uid, lista.ListaID);
 
               final listasProvider =
                   Provider.of<ListasProvider>(context, listen: false);
 
               // Recargar las listas desde el backend
               await listasProvider.cargarListas(
-                context,
-                widget.perfil.UsuarioId,
-                widget.perfil.Id,
+                user!.uid,
+                widget.perfil.PerfilID,
               );
               setState(() {});
 
@@ -230,15 +228,15 @@ class _VentanaListasState extends State<VentanaListas> {
     );
   }
 
-  void eliminarProductoDeLista(Listas lista, int productoId) {
+  void eliminarProductoDeLista(Listas lista, String productoId) {
     setState(() {
-      lista.Productos.remove(productoId);
+      lista.productos.remove(productoId);
       ServiciosListas().actualizarLista(
-        context,
-        lista.Id,
-        lista.Nombre,
-        lista.Visible,
-        lista.Productos,
+        user!.uid,
+        lista.ListaID,
+        lista.nombre,
+        lista.visible,
+        lista.productos,
       );
     });
     final listasProvider = Provider.of<ListasProvider>(context, listen: false);
@@ -248,7 +246,7 @@ class _VentanaListasState extends State<VentanaListas> {
 
   void crearNuevaLista() {
     TextEditingController nombreController = TextEditingController();
-    List<int> perfilesSeleccionados = [];
+    List<String> perfilesSeleccionados = [];
 
     showModalBottomSheet(
       context: context,
@@ -261,7 +259,7 @@ class _VentanaListasState extends State<VentanaListas> {
         final perfilesProvider =
             Provider.of<PerfilesProvider>(context, listen: false);
         final perfiles = perfilesProvider.perfiles
-            .where((perfil) => perfil.Id != widget.perfil.Id)
+            .where((perfil) => perfil.PerfilID != widget.perfil.PerfilID)
             .toList(); // Filtrar el perfil del usuario actual
 
         return Padding(
@@ -299,7 +297,7 @@ class _VentanaListasState extends State<VentanaListas> {
                 TextField(
                   controller: nombreController,
                   decoration: InputDecoration(
-                    labelText: 'Nombre de la Lista',
+                    labelText: 'nombre de la Lista',
                     labelStyle:
                         const TextStyle(fontSize: 16, color: Colores.texto),
                     hintText: 'Ingresa un nombre para la Lista',
@@ -356,7 +354,7 @@ class _VentanaListasState extends State<VentanaListas> {
                       children: perfiles.map((perfil) {
                         return ListTile(
                           title: Text(
-                            perfil.Nombre,
+                            perfil.nombre,
                             style: const TextStyle(
                               color: Colores.texto,
                               fontWeight: FontWeight.normal,
@@ -364,8 +362,9 @@ class _VentanaListasState extends State<VentanaListas> {
                           ),
                           leading: perfil.FotoPerfil.isNotEmpty
                               ? FutureBuilder<File>(
-                                  future: ServicioPerfiles().obtenerImagen(
-                                      context, perfil.FotoPerfil),
+                                  future: ServicioPerfiles()
+                                      .getFotoPerfil(user!.uid, perfil.PerfilID)
+                                      .then((file) => file ?? File('')),
                                   builder: (context, snapshot) {
                                     if (snapshot.connectionState ==
                                         ConnectionState.waiting) {
@@ -384,7 +383,7 @@ class _VentanaListasState extends State<VentanaListas> {
                                                 FileImage(snapshot.data!),
                                           ),
                                           if (perfilesSeleccionados
-                                              .contains(perfil.Id))
+                                              .contains(perfil.PerfilID))
                                             Positioned(
                                               right: 0,
                                               bottom: 0,
@@ -397,15 +396,17 @@ class _VentanaListasState extends State<VentanaListas> {
                                   },
                                 )
                               : const Icon(Icons.image_not_supported),
-                          tileColor: perfilesSeleccionados.contains(perfil.Id)
-                              ? Colores.fondoAux
-                              : null,
+                          tileColor:
+                              perfilesSeleccionados.contains(perfil.PerfilID)
+                                  ? Colores.fondoAux
+                                  : null,
                           onTap: () {
                             setState(() {
-                              if (perfilesSeleccionados.contains(perfil.Id)) {
-                                perfilesSeleccionados.remove(perfil.Id);
+                              if (perfilesSeleccionados
+                                  .contains(perfil.PerfilID)) {
+                                perfilesSeleccionados.remove(perfil.PerfilID);
                               } else {
-                                perfilesSeleccionados.add(perfil.Id);
+                                perfilesSeleccionados.add(perfil.PerfilID);
                               }
                             });
                           },
@@ -434,31 +435,27 @@ class _VentanaListasState extends State<VentanaListas> {
                       onPressed: () async {
                         // Crear una nueva lista en el backend
                         final nuevaLista = Listas(
-                          Id: DateTime.now()
-                              .millisecondsSinceEpoch, // Generar un ID único
-                          Nombre: nombreController.text,
-                          Visible: perfilesSeleccionados,
-                          Productos: [],
-                          IdPerfil: widget.perfil.Id,
-                          IdUsuario: widget.perfil.UsuarioId,
+                          ListaID: "0", // Generar un ID único
+                          nombre: nombreController.text,
+                          visible: perfilesSeleccionados,
+                          productos: [],
+                          PerfilID: widget.perfil.PerfilID,
                         );
 
                         final listasProvider =
                             Provider.of<ListasProvider>(context, listen: false);
 
                         await ServiciosListas().registrarLista(
-                          context,
-                          nuevaLista.Nombre,
-                          widget.perfil.Id,
-                          widget.perfil.UsuarioId,
-                          nuevaLista.Visible,
+                          user!.uid,
+                          nuevaLista.nombre,
+                          widget.perfil.PerfilID,
+                          nuevaLista.visible,
                         );
 
                         // Recargar las listas desde el backend
                         await listasProvider.cargarListas(
-                          context,
-                          widget.perfil.UsuarioId,
-                          widget.perfil.Id,
+                          user!.uid,
+                          widget.perfil.PerfilID,
                         );
                         setState(() {});
 
@@ -493,7 +490,7 @@ class _VentanaListasState extends State<VentanaListas> {
   Widget build(BuildContext context) {
     final perfilesProvider = Provider.of<PerfilesProvider>(context);
     final perfiles = perfilesProvider.perfiles
-        .where((perfil) => perfil.Id != widget.perfil.Id)
+        .where((perfil) => perfil.PerfilID != widget.perfil.PerfilID)
         .toList(); // Filtrar el perfil del usuario actual
     final listasProvider = Provider.of<ListasProvider>(context, listen: false);
     final productoProvider =
@@ -522,7 +519,7 @@ class _VentanaListasState extends State<VentanaListas> {
                         List<Productos> productosFiltrados = productoProvider
                             .productos
                             .where((producto) =>
-                                lista.Productos.contains(producto.Id))
+                                lista.productos.contains(producto.ProductoID))
                             .toList();
 
                         return Card(
@@ -534,7 +531,7 @@ class _VentanaListasState extends State<VentanaListas> {
                           color: Colores.fondoAux,
                           child: ExpansionTile(
                             title: Text(
-                              lista.Nombre,
+                              lista.nombre,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w500,
@@ -567,15 +564,16 @@ class _VentanaListasState extends State<VentanaListas> {
                             children: productosFiltrados.isNotEmpty
                                 ? productosFiltrados.map((producto) {
                                     return ListTile(
-                                      title: Text(producto.Nombre),
-                                      leading: imageWidgets[producto.Id] ??
-                                          const CircularProgressIndicator(),
+                                      title: Text(producto.nombre),
+                                      leading:
+                                          imageWidgets[producto.ProductoID] ??
+                                              const CircularProgressIndicator(),
                                       trailing: IconButton(
                                         icon: const Icon(Icons.delete,
                                             color: Colores.eliminar),
                                         onPressed: () {
                                           eliminarProductoDeLista(
-                                              lista, producto.Id);
+                                              lista, producto.ProductoID);
                                         },
                                       ),
                                     );

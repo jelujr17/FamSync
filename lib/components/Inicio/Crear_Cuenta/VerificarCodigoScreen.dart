@@ -4,7 +4,6 @@ import 'package:famsync/components/Inicio/FirebaseAuthService.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificarCodigoScreen extends StatefulWidget {
   final String verificationId;
@@ -104,10 +103,7 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
       // Vincular la credencial telefónica a la cuenta existente
       await widget.usuario.linkWithCredential(credential);
       
-      // Guardar el UID
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('uid', widget.usuario.uid);
-      
+    
       // Mostrar mensaje de éxito
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -119,7 +115,7 @@ class _VerificarCodigoScreenState extends State<VerificarCodigoScreen> {
       // Navegar a la pantalla de selección de perfil
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) => SeleccionPerfil(IdUsuario: int.parse(widget.usuario.uid)),
+          builder: (context) => SeleccionPerfil(UID: widget.usuario.uid),
         ),
       );
     } catch (e) {

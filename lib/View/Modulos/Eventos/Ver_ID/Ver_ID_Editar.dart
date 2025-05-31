@@ -1,16 +1,17 @@
-import 'package:famsync/Model/Calendario/eventos.dart';
-import 'package:famsync/Model/categorias.dart';
-import 'package:famsync/Model/perfiles.dart';
+import 'package:famsync/Model/Calendario/Eventos.dart';
+import 'package:famsync/Model/Categorias.dart';
+import 'package:famsync/Model/Perfiles.dart';
 import 'package:famsync/Provider/Categorias_Provider.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Editar_ID_Categoria.dart';
 import 'package:famsync/View/Modulos/Eventos/Ver_ID/Editar_ID_Fechas.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:famsync/components/colores.dart';
 import 'package:provider/provider.dart';
 
 class EditarEventoDialog extends StatefulWidget {
   final Eventos evento;
-  final Function(String, String, int?, String, String) onEventoEditado;
+  final Function(String, String, String?, String, String) onEventoEditado;
   final BuildContext context;
   final Perfiles perfil;
 
@@ -42,17 +43,24 @@ class _EditarEventoDialogState extends State<EditarEventoDialog> {
 
   @override
   void initState() {
-    nombreController.text = widget.evento.Nombre;
-    descripcionController.text = widget.evento.Descripcion;
+    nombreController.text = widget.evento.nombre;
+    descripcionController.text = widget.evento.descripcion;
+    final user = FirebaseAuth.instance.currentUser;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final categoriasProvider =
           Provider.of<CategoriasProvider>(context, listen: false);
-      categoriasProvider.cargarCategorias(context, widget.perfil.UsuarioId, 5);
+      categoriasProvider
+          .cargarCategorias(user!.uid, widget.perfil.PerfilID)
+          .then((_) {
+        setState(() {
+          categoriasDisponibles = categoriasProvider.categorias;
+        });
+      });
     });
     super.initState();
-    fechaInicio = DateTime.parse(widget.evento.FechaInicio);
-    fechaFin = DateTime.parse(widget.evento.FechaFin);
+    fechaInicio = widget.evento.fechaInicio.toDate();
+    fechaFin = widget.evento.fechaFin.toDate();
     horaInicio = TimeOfDay(hour: fechaInicio.hour, minute: fechaInicio.minute);
     horaFin = TimeOfDay(hour: fechaFin.hour, minute: fechaFin.minute);
     fecha = DateTime(fechaInicio.year, fechaInicio.month, fechaInicio.day);
@@ -70,16 +78,17 @@ class _EditarEventoDialogState extends State<EditarEventoDialog> {
     final categoriasProvider =
         Provider.of<CategoriasProvider>(context, listen: false);
     categoriasDisponibles = categoriasProvider.categorias;
-    nombresCategoria = categoriasDisponibles.map((e) => e.Nombre).toList();
+    nombresCategoria = categoriasDisponibles.map((e) => e.nombre).toList();
     categoriaSeleccionada = categoriasDisponibles
-        .firstWhere((element) => element.Id == widget.evento.IdCategoria,
+        .firstWhere(
+            (element) => element.CategoriaID == widget.evento.CategoriaID,
             orElse: () => Categorias(
-                Id: 0,
-                Nombre: "Sin Categoría",
-                IdModulo: 0,
-                Color: '000000',
-                IdUsuario: 0))
-        .Nombre;
+                  CategoriaID: "0",
+                  nombre: "Sin Categoría",
+                  Color: "000000",
+                  PerfilID: "0",
+                ))
+        .nombre;
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16), // Bordes redondeados
@@ -125,7 +134,7 @@ class _EditarEventoDialogState extends State<EditarEventoDialog> {
                     TextFormField(
                       controller: nombreController,
                       decoration: InputDecoration(
-                        labelText: 'Nombre del Evento',
+                        labelText: 'nombre del Evento',
                         labelStyle:
                             const TextStyle(fontSize: 16, color: Colores.texto),
                         hintText: 'Ingresa un nombre para la Tarea',
@@ -295,20 +304,20 @@ class _EditarEventoDialogState extends State<EditarEventoDialog> {
                         ),
                         TextButton(
                           onPressed: () {
-                            int? categoriaAux = categoriasDisponibles
+                            String? categoriaAux = categoriasDisponibles
                                 .firstWhere(
                                   (element) =>
-                                      element.Nombre == categoriaSeleccionada,
+                                      element.nombre == categoriaSeleccionada,
                                 )
-                                .Id;
+                                .CategoriaID;
                             if (categoriaAux == 0) {
                               categoriaAux = null;
                             }
-                            if(esTodoElDia) {
-                              fechaInicio = DateTime(fecha.year, fecha.month,
-                                  fecha.day, 0, 0);
-                              fechaFin = DateTime(fecha.year, fecha.month,
-                                  fecha.day, 23, 59);
+                            if (esTodoElDia) {
+                              fechaInicio = DateTime(
+                                  fecha.year, fecha.month, fecha.day, 0, 0);
+                              fechaFin = DateTime(
+                                  fecha.year, fecha.month, fecha.day, 23, 59);
                             }
                             print("fechas: $fechaInicio $fechaFin");
                             widget.onEventoEditado(
